@@ -1,0 +1,5 @@
+t_local_ms,session_id,device_id,adv_interval_ms,ch_mask,tx_dbm,state,U,S,CCS,thresholds_up_active,thresholds_up_uncertain,thresholds_down_active,thresholds_down_uncertain,hysteresis,calib_T_C,window_len_sec,overlap,W_sec
+0,PH1_E1_S001,DUT_A01,2000,111,0,QUIET,0.28,0.92,0.2,0.7,0.4,0.65,0.35,0.05,298.15,1.0,0.5,10
+500,PH1_E1_S001,DUT_A01,500,111,0,UNCERTAIN,0.58,0.58,0.516,0.7,0.4,0.65,0.35,0.05,298.2,1.0,0.5,10
+1000,PH1_E1_S001,DUT_A01,100,111,0,ACTIVE,0.83,0.35,0.758,0.7,0.4,0.65,0.35,0.05,298.26,1.0,0.5,10
+1500,PH1_E2_S002,DUT_B02,1000,111,0,FALLBACK,0.42,0.55,0.432,0.7,0.4,0.65,0.35,0.05,293.4,1.0,0.5,10
