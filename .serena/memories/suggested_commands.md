@@ -1,0 +1,3 @@
+- `markdownlint docs` — lint markdown formatting in docs.
+- `glow docs/フェーズ1/要件定義.md` — preview key phase-1 markdown.
+- `git diff` — verify rendered tables, lists, and headings before committing.

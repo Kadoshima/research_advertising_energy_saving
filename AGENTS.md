@@ -1,41 +1,35 @@
 # Repository Guidelines
 
-This repository hosts written research assets. Core deliverables live under `docs/フェーズ1/`, with future phases added as `docs/フェーズ2/`, etc. Keep files small, focused, and co-locate any figures/datasets with the document that references them.
+## Project structure & module organization
+- `docs/フェーズ1/` contains phase-one deliverables such as `要件定義.md` and `Runbook.md`. Add new phases as `docs/フェーズN/` and mirror folder names inside references.
+- `data/` stores curated datasets; log source, version, and SHA256 in the consuming document. Do not commit raw exports without documentation.
+- `configs/` tracks reusable parameter sets; align filenames with the related doc slug (e.g., `要件定義_simulation.yaml`).
+- `results/` captures derived tables, charts, or summaries. Note generation date and script in the adjacent Markdown file.
+- `scripts/` keeps ad-hoc automation; run from the repository root (`python scripts/generate_summary.py`) and document dependencies.
+- External experiments or firmware belong in sibling repositories such as `labs/`; leave references here that link outward.
 
-## Project Structure & Module Organization
-- Phase docs: `docs/フェーズ1/` (e.g., `要件定義.md`, `設計方針.md`).
-- New phases: add `docs/フェーズN/` as needed.
-- Assets: store next to the source doc; prefix with the doc slug (e.g., `要件定義_図1.png`, `設計方針_調査.xlsx`).
-- Filenames: prefer Japanese; when romanizing, use underscores (e.g., `yoken_teigi.md`).
+## Build, test, and development commands
+- `markdownlint docs` lint headings, lists, and fenced blocks before committing.
+- `glow docs/フェーズ1/要件定義.md` preview the rendered Markdown; use any equivalent viewer if Glow is unavailable.
+- `git diff` confirm table layout and diagram embeds before pushing.
+- Optional: `npx markdown-link-check docs/フェーズ1/要件定義.md` verify external URLs when refreshing references.
 
-## Documentation Workflow
-- Review existing phase docs to align terminology and scope.
-- For large additions, open an outline PR or issue first.
-- In PRs, call out the affected document and section (e.g., “Updates `docs/フェーズ1/要件定義.md` — 性能要件”).
+## Coding style & naming conventions
+- Write concise, declarative Japanese-first prose; introduce English terms in parentheses on first mention.
+- Prefer Japanese filenames; when romanizing, use lowercase snake case (`yoken_teigi.md`). Keep new content ASCII unless quoting external text.
+- Maintain parallel bullet structures, limit paragraphs to three sentences, and date entries as `YYYY-MM-DD`.
+- Document dataset metrics with metric units and cite sources alongside quantitative claims.
 
-## Build, Test, and Development Commands
-- `markdownlint docs` — check heading order, list spacing, code fences.
-- `glow docs/フェーズ1/要件定義.md` — preview in terminal (or use any viewer).
-- `git diff` — verify tables, lists, and headings render as intended.
+## Testing guidelines
+- No automated suite exists; manually confirm internal anchors, relative links, and cross-phase references.
+- Preview diagrams and tables with a Markdown viewer; reconcile CCS thresholds with `docs/フェーズ1/Runbook.md`.
+- When adjusting datasets, validate row counts against expectations and update recorded checksums.
 
-## Coding Style & Naming Conventions
-- Prose: concise, declarative; sentence case headings unless proper nouns.
-- Bullets: keep parallel; paragraphs ≤ three sentences.
-- Bilingual terms: Japanese first, English in parentheses on first mention.
-- Dates: `YYYY-MM-DD`; use metric units.
+## Commit & pull request guidelines
+- Write imperative commit subjects such as `Update 要件定義.md`; keep each commit scoped to a single topic.
+- PR descriptions should list affected documents, summarize impact, reference issues, and attach render diffs or screenshots for visual changes.
+- Request at least one peer review and wait for required checks before merging.
 
-## Testing Guidelines
-- No automated tests. Manually verify:
-  - Internal anchors and relative links resolve.
-  - External citations are reachable.
-  - Numbers/claims cite a source within the same document.
-  - Tables/diagrams align in a Markdown preview.
-
-## Commit & Pull Request Guidelines
-- Commits: short imperative summaries (e.g., “Update 要件定義.md”); one topic per commit.
-- PRs: brief summary, linked issues or sources, and screenshots/rendered snippets for visual changes. Request at least one peer review and wait for checks (if any) to pass.
-
-## Agent-Specific Instructions
-- This AGENTS.md applies repo-wide. Obey structure and naming above.
-- When adding material, place it in the correct phase directory and co-locate assets with clear slugs.
-- Keep changes minimal and focused; avoid introducing build systems or unrelated tooling.
+## Agent-specific instructions
+- Add new material to the appropriate phase directory and store supporting assets beside the referencing document with slugged filenames (e.g., `要件定義_図1.png`).
+- Avoid introducing new tooling or build systems unless coordinated with maintainers.

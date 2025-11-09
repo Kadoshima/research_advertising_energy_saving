@@ -1,7 +1,7 @@
 
 *************************************************** mHealth dataset **********************************************************
 
-Authors: Oresti Ba�os, Rafael Garcia, Alejandro Saez
+Authors: Oresti Ba�os, Rafael Garcia, Alejandro Saez
 Date: 22/10/2013
 Institution: University of Granada (UGR) 
 Department: Department of Computer Architecture and Computer Technology.
@@ -55,30 +55,30 @@ Each file contains the samples (by rows) recorded for all sensors (by columns).
 The labels used to identify the activities are similar to the ones presented in Section 2 (e.g., the label for walking is '4').
 The meaning of each column is detailed next:
 
-Column 1: acceleration from the chest sensor (X axis)
-Column 2: acceleration from the chest sensor (Y axis)
-Column 3: acceleration from the chest sensor (Z axis)
-Column 4: electrocardiogram signal (lead 1) 
-Column 5: electrocardiogram signal (lead 2)
-Column 6: acceleration from the left-ankle sensor (X axis)
-Column 7: acceleration from the left-ankle sensor (Y axis)
-Column 8: acceleration from the left-ankle sensor (Z axis)
-Column 9: gyro from the left-ankle sensor (X axis)
-Column 10: gyro from the left-ankle sensor (Y axis)
-Column 11: gyro from the left-ankle sensor (Z axis)
-Column 13: magnetometer from the left-ankle sensor (X axis)
-Column 13: magnetometer from the left-ankle sensor (Y axis)
-Column 14: magnetometer from the left-ankle sensor (Z axis)
-Column 15: acceleration from the right-lower-arm sensor (X axis)
-Column 16: acceleration from the right-lower-arm sensor (Y axis)
-Column 17: acceleration from the right-lower-arm sensor (Z axis)
-Column 18: gyro from the right-lower-arm sensor (X axis)
-Column 19: gyro from the right-lower-arm sensor (Y axis)
-Column 20: gyro from the right-lower-arm sensor (Z axis)
-Column 21: magnetometer from the right-lower-arm sensor (X axis)
-Column 22: magnetometer from the right-lower-arm sensor (Y axis)
-Column 23: magnetometer from the right-lower-arm sensor (Z axis)
-Column 24: Label (0 for the null class)
+Column 1: acceleration from the chest sensor (X axis)（胸センサの加速度X）
+Column 2: acceleration from the chest sensor (Y axis)（胸センサの加速度Y）
+Column 3: acceleration from the chest sensor (Z axis)（胸センサの加速度Z）
+Column 4: electrocardiogram signal (lead 1)（心電図リード1）
+Column 5: electrocardiogram signal (lead 2)（心電図リード2）
+Column 6: acceleration from the left-ankle sensor (X axis)（左足首センサの加速度X）
+Column 7: acceleration from the left-ankle sensor (Y axis)（左足首センサの加速度Y）
+Column 8: acceleration from the left-ankle sensor (Z axis)（左足首センサの加速度Z）
+Column 9: gyro from the left-ankle sensor (X axis)（左足首センサの角速度X）
+Column 10: gyro from the left-ankle sensor (Y axis)（左足首センサの角速度Y）
+Column 11: gyro from the left-ankle sensor (Z axis)（左足首センサの角速度Z）
+Column 12: magnetometer from the left-ankle sensor (X axis)（左足首センサの地磁気X）
+Column 13: magnetometer from the left-ankle sensor (Y axis)（左足首センサの地磁気Y）
+Column 14: magnetometer from the left-ankle sensor (Z axis)（左足首センサの地磁気Z）
+Column 15: acceleration from the right-lower-arm sensor (X axis)（右前腕センサの加速度X）
+Column 16: acceleration from the right-lower-arm sensor (Y axis)（右前腕センサの加速度Y）
+Column 17: acceleration from the right-lower-arm sensor (Z axis)（右前腕センサの加速度Z）
+Column 18: gyro from the right-lower-arm sensor (X axis)（右前腕センサの角速度X）
+Column 19: gyro from the right-lower-arm sensor (Y axis)（右前腕センサの角速度Y）
+Column 20: gyro from the right-lower-arm sensor (Z axis)（右前腕センサの角速度Z）
+Column 21: magnetometer from the right-lower-arm sensor (X axis)（右前腕センサの地磁気X）
+Column 22: magnetometer from the right-lower-arm sensor (Y axis)（右前腕センサの地磁気Y）
+Column 23: magnetometer from the right-lower-arm sensor (Z axis)（右前腕センサの地磁気Z）
+Column 24: Label (0 for the null class)（活動ラベル。0=無ラベル）
 
 *Units: Acceleration (m/s^2), gyroscope (deg/s), magnetic field (local), ecg (mV)
 
