@@ -33,3 +33,24 @@
 ## Agent-specific instructions
 - Add new material to the appropriate phase directory and store supporting assets beside the referencing document with slugged filenames (e.g., `要件定義_図1.png`).
 - Avoid introducing new tooling or build systems unless coordinated with maintainers.
+
+## Recent experiment snapshot (Phase 0-0)
+- Phase: 0-0 baseline. Conditions: E2 (high interference), distance 1 m, adv_interval=100 ms, TxPower=0 dBm, 60 s × 6 runs.
+- Data: `data/実験データ/研究室/1m_ad/` (current set collected with non-separated ON/OFF code). Directory checksums consolidated in `data/実験データ/SHA256.txt`.
+- Results summary: `results/フェーズ0-0_E2_1m_100ms_2025-11-09.md`
+- Experiment log: `docs/フェーズ0-0/実験ログ_E2_1m_2025-11-09.md`
+- ESP32 sketches
+  - RX logger: `esp32/RxLogger_BLE_to_SD_SYNC_B.ino`
+  - TX+INA (advertising ON): `esp32/Combined_TX_Meter_UART_B_nonblocking.ino`
+  - TX+INA (advertising OFF, baseline): `esp32/Combined_TX_Meter_UART_B_nonblocking_OFF.ino`
+  - Power logger (ON): `esp32/PowerLogger_UART_to_SD_SYNC_TICK_B_ON.ino`
+  - Power logger (OFF): `esp32/PowerLogger_UART_to_SD_SYNC_TICK_B_OFF.ino`
+  - Note: The `1m_ad` dataset was recorded with common (non-separated) variants: `esp32/Combined_TX_Meter_UART_B.ino` and `esp32/PowerLogger_UART_to_SD_SYNC_TICK_B.ino`.
+- Key metrics (this set)
+  - E_total_mJ mean ≈ 1933.47 mJ (±10.06)
+  - E_per_adv_uJ mean ≈ 3222.45 μJ (±16.75) with `adv_count≈600` (t/100 ms approximation)
+  - PDR mean ≈ 0.858 (±0.009); RSSI median ≈ −35 dBm
+- Next steps for ΔE
+  - Collect OFF (60 s) under identical conditions and compute ΔE = E_on − E_off
+  - Optionally wire TICK (TX 27 → Logger 33) and set `USE_TICK_INPUT=true` for exact `adv_count`
+  - Extend analysis to TL distribution and Pout(τ) per Runbook
