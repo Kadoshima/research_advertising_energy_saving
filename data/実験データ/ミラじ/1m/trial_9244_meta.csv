@@ -1,0 +1,16 @@
+key,value
+trial_id,trial_9244
+start_ms,9244
+env_label,E?
+distance_m,-1.00
+rssi_target_dbm,-55
+rx_addr,e0:5a:1b:15:b6:d0
+adv_interval_ms,100
+scan_interval_ms,50
+scan_window_ms,50
+want_duplicates,true
+addr_filter,true
+sync_pin,TX25->RX26
+trial_started_ms,9244
+tx_addr,e0:5a:1b:15:c4:ca
+end_ms,69248

@@ -1,0 +1,3 @@
+- Store core documents under `docs/フェーズN/` with Japanese filenames; assets live beside their docs and use the doc slug as prefix.
+- Documentation prose is concise and declarative with sentence-case headings (unless proper nouns) and parallel bullet lists; bilingual terms appear as Japanese first with the English translation in parentheses.
+- Dates use `YYYY-MM-DD`, measurements use metric units, and large datasets belong under `data/` with sources and SHA256 noted in the referencing doc.

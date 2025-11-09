@@ -1,0 +1,2 @@
+- Manually verify internal anchors and external links in docs resolve, preview tables/diagrams (`glow` or similar), and ensure CCS definitions match runbook thresholds.
+- No automated tests run here; confirm dataset notes and citations live with the referencing document before closing a task.
