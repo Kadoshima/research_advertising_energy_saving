@@ -41,6 +41,7 @@
 - Results summary: `results/フェーズ0-0_E2_1m_100ms_2025-11-09.md`
 - RX retry summary: `results/フェーズ0-0_E2_1m_100ms_retry_2025-11-09.md` (RX-only; power logs not present)
 - ON retry summary: `results/フェーズ0-0_E2_1m_100ms_retry_latest_2025-11-09.md` (ON power+RX, n=2)
+- OFF re-run summary: `results/フェーズ0-0_E2_1m_100ms_off_02_2025-11-09.md` (OFF power, n=2)
 - Experiment log: `docs/フェーズ0-0/実験ログ_E2_1m_2025-11-09.md`
 - ESP32 sketches
   - RX logger: `esp32/RxLogger_BLE_to_SD_SYNC_B.ino`
@@ -55,6 +56,7 @@
   - PDR mean ≈ 0.858 (±0.009); RSSI median ≈ −35 dBm
 - ΔE snapshot: ON−OFF ≈ −3.58 J/60s (OFF>ON; unexpected) — see `results/フェーズ0-0_E2_1m_100ms_deltaE_2025-11-09.md` and verify wiring/range/power domains/stack state.
   - Latest retry: ON−OFF ≈ −3.85 J/60s — see `results/フェーズ0-0_E2_1m_100ms_retry_latest_2025-11-09.md`.
+  - With OFF_02: ON−OFF ≈ −10.07 J/60s — see `results/summary_1m_E2_100ms_deltaE_retry_off02.md`.
 - Next steps for ΔE
   - Collect OFF (60 s) under identical conditions and compute ΔE = E_on − E_off
   - Optionally wire TICK (TX 27 → Logger 33) and set `USE_TICK_INPUT=true` for exact `adv_count`

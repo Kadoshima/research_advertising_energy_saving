@@ -43,17 +43,6 @@ static inline void syncPulse() {
 
 // タイマ（非ブロッキング）
 static uint32_t nextSampleUs;
-static uint32_t nextMetaMs;
-
-static const char* wifiModeName(wifi_mode_t m){
-  switch(m){
-    case WIFI_OFF: return "OFF";
-    case WIFI_STA: return "STA";
-    case WIFI_AP: return "AP";
-    case WIFI_AP_STA: return "AP+STA";
-    default: return "UNK";
-  }
-}
 
 void setup() {
   // Serial.begin(115200); // デバッグ時のみ
@@ -80,11 +69,6 @@ void setup() {
 
   // タイマ開始
   nextSampleUs = micros() + SAMPLE_US;
-  nextMetaMs   = millis() + 1000; // 1sごとにSYSメタを出力
-
-  // 初期メタ（開始時に1回）
-  uart1.printf("# sys, mode=OFF, cpu_mhz=%d, wifi_mode=%s\n",
-               getCpuFrequencyMhz(), wifiModeName(WiFi.getMode()));
 }
 
 void loop() {
@@ -108,10 +92,5 @@ void loop() {
   // 他タスクに譲る
   delay(0);
 
-  // 周期メタ出力（状態監視用）
-  uint32_t nowMs = millis();
-  if ((int32_t)(nowMs - nextMetaMs) >= 0) {
-    nextMetaMs += 1000;
-    uart1.printf("# diag, t_ms=%lu\n", (unsigned long)(nowMs));
-  }
+  // 数値行のみ送出（診断の#行は送らない）
 }
