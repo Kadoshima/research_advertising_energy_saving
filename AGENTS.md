@@ -43,6 +43,7 @@
 - ON retry summary: `results/フェーズ0-0_E2_1m_100ms_retry_latest_2025-11-09.md` (ON power+RX, n=2)
 - OFF re-run summary: `results/フェーズ0-0_E2_1m_100ms_off_02_2025-11-09.md` (OFF power, n=2)
   - OFF_03: `results/フェーズ0-0_E2_1m_100ms_off_03_2025-11-09.md` (OFF power, n=2, TX-only)
+  - OFF_04: `results/フェーズ0-0_E2_1m_100ms_off_04_2025-11-09.md` (OFF power, n=2, pass-through logger)
 - Experiment log: `docs/フェーズ0-0/実験ログ_E2_1m_2025-11-09.md`
 - ESP32 sketches
   - RX logger: `esp32/RxLogger_BLE_to_SD_SYNC_B.ino`

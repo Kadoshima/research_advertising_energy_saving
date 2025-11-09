@@ -50,3 +50,38 @@
 ## 更新ルール
 - 本ファイルに日付見出しで観測・対策・結果を追記していく（YYYY-MM-DD）。
 
+---
+
+## 進捗ログ（Timeline）
+
+### 2025-11-09 Step 0: ベースライン確認
+- ON（`data/実験データ/研究室/1m_ad/`, n=6）: E_total ≈ 1.93 J/60 s, PDR ≈ 0.858
+- OFF（`data/実験データ/研究室/1m_off/`, n=6）: E_total ≈ 5.51 J/60 s
+
+### 2025-11-09 Step 1: OFF 診断有効化（PowerLogger）
+- 末尾に `# summary/# diag/# sys` 追加（rate_hz, mean_v/i/p, dt統計）
+- OFF_02（`data/実験データ/研究室/1m_off_02/`, n=2）:
+  - mean_i ≈ 59 mA, rate_hz ≈ 150.8 Hz, parse_drop ≈ 1.13e4
+  - OFF > ON を再確認。受信/SD 経路の詰まりが示唆
+
+### 2025-11-09 Step 2: TX（OFF）を“数値行のみ”に変更
+- `esp32/Combined_TX_Meter_UART_B_nonblocking_OFF.ino` から `# diag/# sys` を削除（UART1は v,i,p のみ）
+- OFF_03（`data/実験データ/研究室/1m_off_03/`, n=2）:
+  - rate_hz ≈ 105.7 Hz, parse_drop ≈ 1.40e4（むしろ悪化）
+  - ボトルネックが受信/SD 側であることを確証
+
+### 2025-11-09 Step 3: PowerLogger を“パススルー”化（受信→SD 最短）
+- `esp32/PowerLogger_UART_to_SD_SYNC_TICK_B_OFF.ino` を改修：
+  - UART RXバッファ拡張（16 KB）
+  - 行の数値パース/積分を停止。相対ms前置のうえ 8 KB チャンクで SD へ write（flush は終了時のみ）
+  - #diag は rate_hz, dt統計のみを残す
+- OFF_04（`data/実験データ/研究室/1m_off_04/`, n=2）:
+  - rate_hz ≈ 339.6 Hz, parse_drop ≈ 0（欠落解消）
+  - オフライン積分: E_total ≈ 11.77 J/60 s（±0.57 mJ）
+  - 目標 500 Hz に未達 → さらなる最適化（SD_CHUNK拡大、コピー削減）と TX 側の整数化/バイナリ化へ進む予定
+
+### 次の予定（Plan）
+- Step 4: SD_CHUNK を 16 KB へ引き上げ、受信のコピー回数削減
+- Step 5: TX 送出を整数スケール化 or バイナリ固定長化（受信/整形負荷を継続削減）
+- Step 6: TX に seq（2 ms刻み）追加 → dt を送信側時刻基準へ（I/O遅延非依存の積分）
+- Step 7: INA219 の vshunt_mV を追加し、I_from_vshunt と getCurrent_mA の整合（±5%以内）を確認
