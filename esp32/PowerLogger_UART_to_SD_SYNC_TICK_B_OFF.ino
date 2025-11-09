@@ -20,6 +20,13 @@
 
 HardwareSerial uart1(1);
 
+// ===== パススルー設定（受信→SD を最短経路へ） =====
+#define PASS_THRU_ONLY 1         // 数値パース/積分を止め、受信行をそのままSDへ
+#define RXBUF_SIZE   16384       // UART受信バッファ拡張
+#define SD_CHUNK      8192       // まとめ書きの塊サイズ（バイト）
+static uint8_t sdBuf[SD_CHUNK];  // SDチャンクバッファ
+static size_t  sdLen = 0;        // バッファ内有効バイト数
+
 static const int RX_PIN  = 34;
 static const int SD_CS   = 5;
 static const int SYNC_IN = 26;
@@ -57,10 +64,10 @@ void startTrial(){
   String path = nextPath();
   f = SD.open(path, FILE_WRITE);
   if (!f) { Serial.println("[SD] open FAIL"); return; }
-  f.println("ms,voltage,current,power");
+  f.println("ms,raw_payload");
   logging = true;
   t0_ms = millis(); tPrev = t0_ms; E_mJ = 0.0; lineN = 0;
-  sumV = sumI = sumPcalc = 0.0; sumDt = sumDt2 = 0.0; dtMin = 0xFFFFFFFF; dtMax = 0; badLines = 0;
+  sumV = sumI = sumPcalc = 0.0; sumDt = sumDt2 = 0.0; dtMin = 0xFFFFFFFF; dtMax = 0; badLines = 0; sdLen = 0;
   Serial.printf("[PWR] start %s (mode=OFF)\n", path.c_str());
 }
 
@@ -70,13 +77,12 @@ void endTrial(){
   uint32_t t_ms = millis() - t0_ms;
   const uint32_t N = 0; // 広告OFF: adv_countは0
   const double Eper_uJ = 0.0;
-  // Derived diagnostics
+  // 未書き出しバッファをドレイン
+  if (sdLen) { f.write(sdBuf, sdLen); sdLen = 0; }
+  // Diagnostics（パース不要の範囲）
   double samples = (double)lineN;
   double dur_s = t_ms / 1000.0;
   double rate_hz = (dur_s>0)? (samples / dur_s) : 0.0;
-  double meanV = (samples>0)? (sumV / samples) : 0.0;
-  double meanI = (samples>0)? (sumI / samples) : 0.0;
-  double meanPmW = (samples>0)? (sumPcalc / samples) : 0.0;
   double meanDt = (samples>0)? (sumDt / samples) : 0.0;
   double varDt = (samples>0)? (sumDt2 / samples) - (meanDt*meanDt) : 0.0;
   double stdDt = (varDt>0)? sqrt(varDt) : 0.0;
@@ -87,8 +93,8 @@ void endTrial(){
   uint32_t free_heap = ESP.getFreeHeap();
   f.printf("# summary, ms_total=%lu, adv_count=%lu, E_total_mJ=%.3f, E_per_adv_uJ=%.1f\r\n",
            (unsigned long)t_ms, (unsigned long)N, E_mJ, Eper_uJ);
-  f.printf("# diag, samples=%lu, rate_hz=%.2f, mean_v=%.3f, mean_i=%.3f, mean_p_mW=%.1f\r\n",
-           (unsigned long)lineN, rate_hz, meanV, meanI, meanPmW);
+  f.printf("# diag, samples=%lu, rate_hz=%.2f\r\n",
+           (unsigned long)lineN, rate_hz);
   f.printf("# diag, dt_ms_mean=%.3f, dt_ms_std=%.3f, dt_ms_min=%lu, dt_ms_max=%lu, parse_drop=%lu\r\n",
            meanDt, stdDt, (unsigned long)(dtMin==0xFFFFFFFF?0:dtMin), (unsigned long)dtMax, (unsigned long)badLines);
   f.printf("# sys, cpu_mhz=%d, wifi_mode=%s, free_heap=%lu\r\n",
@@ -107,6 +113,9 @@ void setup(){
 
   // UART
   uart1.begin(230400, SERIAL_8N1, RX_PIN, -1);
+#if defined(ARDUINO_ARCH_ESP32)
+  uart1.setRxBufferSize(RXBUF_SIZE);
+#endif
 
   // SYNC
   pinMode(SYNC_IN, INPUT_PULLDOWN);
@@ -128,30 +137,32 @@ void loop(){
     endTrial();
   }
 
-  // UART受信→SD保存＆エネルギー積分（V×I）
+  // UART受信→SD保存（パススルー）
   while (uart1.available()){
     char c = uart1.read();
     if (c == '\n'){
       if (logging && f){
         uint32_t tNow = millis();
-        double v=0, i=0, p=0;
-        if (sscanf(lineBuf.c_str(), "%lf,%lf,%lf", &v,&i,&p) != 3) { badLines++; lineBuf = ""; continue; }
-
-        // Only compute dt for numeric samples
-        uint32_t dt   = tNow - tPrev;
-        tPrev = tNow;
-
-        double p_calc_mW = v * i;            // V[Volt] × I[mA] = mW
-        E_mJ += p_calc_mW * (dt / 1000.0);
-        sumV += v; sumI += i; sumPcalc += p_calc_mW;
+        // dt統計のみ計測
+        uint32_t dt   = tNow - tPrev; tPrev = tNow;
         sumDt += dt; sumDt2 += (double)dt * (double)dt;
         if (dt < dtMin) dtMin = dt;
         if (dt > dtMax) dtMax = dt;
 
+#if PASS_THRU_ONLY
+        // 受信行をそのままSDへ（先頭に相対時刻msを付与）
         uint32_t tRel = tNow - t0_ms;
-        f.printf("%lu,%.3f,%.1f,%.1f\r\n",
-                 (unsigned long)tRel, v, i, p);
-        if ((++lineN % 200) == 0) f.flush();
+        char tbuf[16];
+        int n = snprintf(tbuf, sizeof(tbuf), "%lu,", (unsigned long)tRel);
+        if (sdLen + n + lineBuf.length() + 2 > SD_CHUNK) { f.write(sdBuf, sdLen); sdLen = 0; }
+        memcpy(sdBuf + sdLen, tbuf, n);                 sdLen += n;
+        memcpy(sdBuf + sdLen, lineBuf.c_str(), lineBuf.length()); sdLen += lineBuf.length();
+        sdBuf[sdLen++] = '\r'; sdBuf[sdLen++] = '\n';
+        lineN++;
+        if (sdLen >= SD_CHUNK) { f.write(sdBuf, sdLen); sdLen = 0; }
+#else
+        // 既存の数値パース＋積分（停止中）
+#endif
       }
       lineBuf = "";
     } else if (c != '\r'){
