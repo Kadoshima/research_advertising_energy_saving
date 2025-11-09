@@ -166,5 +166,5 @@ void loop(){
   if (trial && (millis() - t0Ms >= TRIAL_MS)){
     endTrial();
   }
+  
 }
-
