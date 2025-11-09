@@ -16,6 +16,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <Adafruit_INA219.h>
+#include <WiFi.h>
 
 // ===== ユーザ設定 =====
 static const uint32_t SAMPLE_US       = 2000;    // 計測周期 2ms ≒ 500Hz
@@ -42,6 +43,17 @@ static inline void syncPulse() {
 
 // タイマ（非ブロッキング）
 static uint32_t nextSampleUs;
+static uint32_t nextMetaMs;
+
+static const char* wifiModeName(wifi_mode_t m){
+  switch(m){
+    case WIFI_OFF: return "OFF";
+    case WIFI_STA: return "STA";
+    case WIFI_AP: return "AP";
+    case WIFI_AP_STA: return "AP+STA";
+    default: return "UNK";
+  }
+}
 
 void setup() {
   // Serial.begin(115200); // デバッグ時のみ
@@ -50,7 +62,9 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);       digitalWrite(LED_PIN, LOW);
   pinMode(SYNC_OUT_PIN, OUTPUT);  digitalWrite(SYNC_OUT_PIN, LOW);
 
-  // 無線：広告OFF測定のため、BLE初期化は実施しない
+  // 無線：広告OFF測定のため、BLE/Wi‑Fiは明示的に停止
+  WiFi.persistent(false);
+  WiFi.mode(WIFI_OFF);
 
   // INA219
   Wire.begin(I2C_SDA, I2C_SCL);
@@ -66,6 +80,11 @@ void setup() {
 
   // タイマ開始
   nextSampleUs = micros() + SAMPLE_US;
+  nextMetaMs   = millis() + 1000; // 1sごとにSYSメタを出力
+
+  // 初期メタ（開始時に1回）
+  uart1.printf("# sys, mode=OFF, cpu_mhz=%d, wifi_mode=%s\n",
+               getCpuFrequencyMhz(), wifiModeName(WiFi.getMode()));
 }
 
 void loop() {
@@ -88,5 +107,11 @@ void loop() {
 
   // 他タスクに譲る
   delay(0);
-}
 
+  // 周期メタ出力（状態監視用）
+  uint32_t nowMs = millis();
+  if ((int32_t)(nowMs - nextMetaMs) >= 0) {
+    nextMetaMs += 1000;
+    uart1.printf("# diag, t_ms=%lu\n", (unsigned long)(nowMs));
+  }
+}

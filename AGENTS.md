@@ -36,8 +36,11 @@
 
 ## Recent experiment snapshot (Phase 0-0)
 - Phase: 0-0 baseline. Conditions: E2 (high interference), distance 1 m, adv_interval=100 ms, TxPower=0 dBm, 60 s × 6 runs.
-- Data: `data/実験データ/研究室/1m_ad/` (current set collected with non-separated ON/OFF code). Directory checksums consolidated in `data/実験データ/SHA256.txt`.
+- Data (ON): `data/実験データ/研究室/1m_ad/` (collected with non-separated ON/OFF code). Directory checksums consolidated in `data/実験データ/SHA256.txt`.
+- Data (OFF): `data/実験データ/研究室/1m_off/` (collected with separated OFF code).
 - Results summary: `results/フェーズ0-0_E2_1m_100ms_2025-11-09.md`
+- RX retry summary: `results/フェーズ0-0_E2_1m_100ms_retry_2025-11-09.md` (RX-only; power logs not present)
+- ON retry summary: `results/フェーズ0-0_E2_1m_100ms_retry_latest_2025-11-09.md` (ON power+RX, n=2)
 - Experiment log: `docs/フェーズ0-0/実験ログ_E2_1m_2025-11-09.md`
 - ESP32 sketches
   - RX logger: `esp32/RxLogger_BLE_to_SD_SYNC_B.ino`
@@ -50,7 +53,10 @@
   - E_total_mJ mean ≈ 1933.47 mJ (±10.06)
   - E_per_adv_uJ mean ≈ 3222.45 μJ (±16.75) with `adv_count≈600` (t/100 ms approximation)
   - PDR mean ≈ 0.858 (±0.009); RSSI median ≈ −35 dBm
+- ΔE snapshot: ON−OFF ≈ −3.58 J/60s (OFF>ON; unexpected) — see `results/フェーズ0-0_E2_1m_100ms_deltaE_2025-11-09.md` and verify wiring/range/power domains/stack state.
+  - Latest retry: ON−OFF ≈ −3.85 J/60s — see `results/フェーズ0-0_E2_1m_100ms_retry_latest_2025-11-09.md`.
 - Next steps for ΔE
   - Collect OFF (60 s) under identical conditions and compute ΔE = E_on − E_off
   - Optionally wire TICK (TX 27 → Logger 33) and set `USE_TICK_INPUT=true` for exact `adv_count`
   - Extend analysis to TL distribution and Pout(τ) per Runbook
+  - Ensure ON power logs are captured (`trial_*.csv`) when retrying; see `data/実験データ/研究室/1m_ad_retry/README.md`

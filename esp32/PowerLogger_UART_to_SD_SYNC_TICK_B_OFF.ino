@@ -16,6 +16,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <SD.h>
+#include <WiFi.h>
 
 HardwareSerial uart1(1);
 
@@ -32,6 +33,11 @@ bool     logging=false;
 uint32_t t0_ms=0, tPrev=0, lineN=0;
 double   E_mJ=0.0;
 String   lineBuf;
+// Diagnostics accumulators
+double sumV=0.0, sumI=0.0, sumPcalc=0.0; // mW for Pcalc
+double sumDt=0.0, sumDt2=0.0;            // ms
+uint32_t dtMin=0xFFFFFFFF, dtMax=0;
+uint32_t badLines=0;
 
 void IRAM_ATTR onSync(){
   bool s = digitalRead(SYNC_IN);
@@ -54,6 +60,7 @@ void startTrial(){
   f.println("ms,voltage,current,power");
   logging = true;
   t0_ms = millis(); tPrev = t0_ms; E_mJ = 0.0; lineN = 0;
+  sumV = sumI = sumPcalc = 0.0; sumDt = sumDt2 = 0.0; dtMin = 0xFFFFFFFF; dtMax = 0; badLines = 0;
   Serial.printf("[PWR] start %s (mode=OFF)\n", path.c_str());
 }
 
@@ -63,8 +70,29 @@ void endTrial(){
   uint32_t t_ms = millis() - t0_ms;
   const uint32_t N = 0; // 広告OFF: adv_countは0
   const double Eper_uJ = 0.0;
+  // Derived diagnostics
+  double samples = (double)lineN;
+  double dur_s = t_ms / 1000.0;
+  double rate_hz = (dur_s>0)? (samples / dur_s) : 0.0;
+  double meanV = (samples>0)? (sumV / samples) : 0.0;
+  double meanI = (samples>0)? (sumI / samples) : 0.0;
+  double meanPmW = (samples>0)? (sumPcalc / samples) : 0.0;
+  double meanDt = (samples>0)? (sumDt / samples) : 0.0;
+  double varDt = (samples>0)? (sumDt2 / samples) - (meanDt*meanDt) : 0.0;
+  double stdDt = (varDt>0)? sqrt(varDt) : 0.0;
+  // System state
+  int cpu_mhz = getCpuFrequencyMhz();
+  wifi_mode_t wm = WiFi.getMode();
+  const char* wm_name = (wm==WIFI_OFF?"OFF": (wm==WIFI_STA?"STA": (wm==WIFI_AP?"AP": (wm==WIFI_AP_STA?"AP+STA":"UNK"))));
+  uint32_t free_heap = ESP.getFreeHeap();
   f.printf("# summary, ms_total=%lu, adv_count=%lu, E_total_mJ=%.3f, E_per_adv_uJ=%.1f\r\n",
            (unsigned long)t_ms, (unsigned long)N, E_mJ, Eper_uJ);
+  f.printf("# diag, samples=%lu, rate_hz=%.2f, mean_v=%.3f, mean_i=%.3f, mean_p_mW=%.1f\r\n",
+           (unsigned long)lineN, rate_hz, meanV, meanI, meanPmW);
+  f.printf("# diag, dt_ms_mean=%.3f, dt_ms_std=%.3f, dt_ms_min=%lu, dt_ms_max=%lu, parse_drop=%lu\r\n",
+           meanDt, stdDt, (unsigned long)(dtMin==0xFFFFFFFF?0:dtMin), (unsigned long)dtMax, (unsigned long)badLines);
+  f.printf("# sys, cpu_mhz=%d, wifi_mode=%s, free_heap=%lu\r\n",
+           cpu_mhz, wm_name, (unsigned long)free_heap);
   f.flush(); f.close();
   Serial.printf("[PWR] end t=%lums N=%lu E=%.3fmJ (mode=OFF)\n",
                 (unsigned long)t_ms, (unsigned long)N, E_mJ);
@@ -106,14 +134,19 @@ void loop(){
     if (c == '\n'){
       if (logging && f){
         uint32_t tNow = millis();
+        double v=0, i=0, p=0;
+        if (sscanf(lineBuf.c_str(), "%lf,%lf,%lf", &v,&i,&p) != 3) { badLines++; lineBuf = ""; continue; }
+
+        // Only compute dt for numeric samples
         uint32_t dt   = tNow - tPrev;
         tPrev = tNow;
 
-        double v=0, i=0, p=0;
-        sscanf(lineBuf.c_str(), "%lf,%lf,%lf", &v,&i,&p);
-
         double p_calc_mW = v * i;            // V[Volt] × I[mA] = mW
         E_mJ += p_calc_mW * (dt / 1000.0);
+        sumV += v; sumI += i; sumPcalc += p_calc_mW;
+        sumDt += dt; sumDt2 += (double)dt * (double)dt;
+        if (dt < dtMin) dtMin = dt;
+        if (dt > dtMax) dtMax = dt;
 
         uint32_t tRel = tNow - t0_ms;
         f.printf("%lu,%.3f,%.1f,%.1f\r\n",
@@ -126,4 +159,3 @@ void loop(){
     }
   }
 }
-
