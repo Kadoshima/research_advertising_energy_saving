@@ -33,6 +33,7 @@
 ## Agent-specific instructions
 - Add new material to the appropriate phase directory and store supporting assets beside the referencing document with slugged filenames (e.g., `要件定義_図1.png`).
 - Avoid introducing new tooling or build systems unless coordinated with maintainers.
+- ESP32スケッチとログ収集コードのファイル名は役割ごとに `RX_*`（受信ロガ）, `TX_*`（送信/DUT）, `TXSD_*`（送信側の電力ロガ）で始めること。既存名を変更する際は文書内の参照（README, Runbook など）も併せて更新する。
 
 ## Recent experiment snapshot (Phase 0-0)
 - Phase: 0-0 baseline. Conditions: E2 (high interference), distance 1 m, adv_interval=100 ms, TxPower=0 dBm, 60 s × 6 runs.
