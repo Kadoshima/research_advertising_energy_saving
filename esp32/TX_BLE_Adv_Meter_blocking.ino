@@ -1,4 +1,4 @@
-// === Combined_TX_Meter_UART_C_INTcsv_ON.ino ===
+// === TX_BLE_Adv_Meter_blocking.ino ===
 // Board: ESP32 Dev Module (Arduino-ESP32 v3.x)
 //
 // 役割：BLEアドバタイズ(100ms) + SYNC + TICK + INA219 取得（整数CSV: mv,uA）→ UART送出。

@@ -1,4 +1,4 @@
-// === RxLogger_BLE_to_SD_SYNC_B.ino ===
+// === RX_BLE_to_SD_SYNC_B.ino ===
 // Board: ESP32 Dev Module (Arduino-ESP32 v3.x)
 //
 // 機能：パッシブスキャンでTXのMFD("MFxxxx")を受信 → SDへ記録。

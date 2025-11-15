@@ -1,4 +1,4 @@
-// === PowerLogger_UART_to_SD_PASS_THRU_ON_v2.ino ===
+// === TXSD_PowerLogger_PASS_THRU_ON_v2.ino ===
 // Board: ESP32 Dev Module (Arduino-ESP32 v3.x)
 //
 // 役割：TX(②)からの UART を「パススルー＋軽量集計」で SD に保存。

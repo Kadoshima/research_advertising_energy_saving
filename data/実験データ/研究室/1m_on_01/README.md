@@ -4,9 +4,9 @@
 - 条件: 距離 1 m / 環境 E2 / アドバタイズ ON（100 ms, 0 dBm）
 - 配線: SYNC 25→26, TICK 27→33, UART TX=4→RX=34, SD CS=5 SCK=18 MISO=19 MOSI=23
 - 構成: 
-  - TX+INA219（DUT）: `esp32/Combined_TX_Meter_UART_B_nonblocking.ino`
-  - PowerLogger（パススルー）: `esp32/PowerLogger_UART_to_SD_SYNC_TICK_B_ON.ino`
-  - RX Logger: `esp32/RxLogger_BLE_to_SD_SYNC_B.ino`
+  - TX+INA219（DUT）: `esp32/TX_BLE_Adv_Meter_ON_nonblocking.ino`（旧 `Combined_TX_Meter_UART_B_nonblocking.ino`）
+  - PowerLogger（パススルー）: `esp32/TXSD_PowerLogger_SYNC_TICK_ON.ino`（旧 `PowerLogger_UART_to_SD_SYNC_TICK_B_ON.ino`）
+  - RX Logger: `esp32/RX_BLE_to_SD_SYNC_B.ino`（旧 `RxLogger_BLE_to_SD_SYNC_B.ino`）
 
 ## 含まれるファイル（SHA256）
 
@@ -57,4 +57,3 @@
 - 取得方法: PowerLogger をパススルー（`ms,raw_payload`）で記録。`#summary` の E_total は未計算。
 - 解析手順: オフラインで `ms, v, i` を読み、`E_mJ += v[i]*i[mA]*dt[s]` を積分、`adv_count` はログ末尾（TICK由来）を使用。
 - 集計スクリプト: `scripts/compute_power_and_pdr.py` は「summary=0 のときオフライン積分」へ修正予定。
-

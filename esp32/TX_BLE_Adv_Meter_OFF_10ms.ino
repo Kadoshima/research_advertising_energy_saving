@@ -1,8 +1,8 @@
-// === Combined_TX_Meter_UART_B_nonblocking_OFF.ino ===
+// === TX_BLE_Adv_Meter_OFF_10ms.ino ===
 // Board: ESP32 Dev Module (Arduino-ESP32 v3.x)
 //
 // 役割：BLE広告OFF（無線停止）でのベースライン電力測定用。
-//       SYNCパルスのみを出し、TICKは無効化。INA219を2ms周期で計測し、
+//       SYNCパルスのみを出し、TICKは無効化。INA219を10ms周期（100Hz）で計測し、
 //       UART(230400bps)で v,i,p をCSV送出（非ブロッキング）。
 //
 // 配線：SYNC_OUT=GPIO25 → PowerLogger(26) & RX Logger(26)
@@ -19,7 +19,7 @@
 #include <WiFi.h>
 
 // ===== ユーザ設定 =====
-static const uint32_t SAMPLE_US       = 2000;    // 計測周期 2ms ≒ 500Hz
+static const uint32_t SAMPLE_US       = 10000;   // 計測周期 10ms ≒ 100Hz
 
 // ピンアサイン
 static const int SYNC_OUT_PIN = 25;  // 100ms High を1回だけ出す
@@ -57,6 +57,7 @@ void setup() {
 
   // INA219
   Wire.begin(I2C_SDA, I2C_SCL);
+  Wire.setClock(400000);             // 400kHz I2C で計測遅延を低減
   ina.begin();
   ina.setCalibration_16V_400mA();   // 代表レンジ（必要に応じ変更）
 
@@ -72,7 +73,7 @@ void setup() {
 }
 
 void loop() {
-  // ---- 2ms周期の計測（追いつき処理あり・非ブロッキング）----
+  // ---- 10ms周期の計測（追いつき処理あり・非ブロッキング）----
   uint32_t nowUs = micros();
   int guard = 0; // 1ループでの最大サンプル数（暴走防止）
   while ((int32_t)(nowUs - nextSampleUs) >= 0 && guard < 8) {

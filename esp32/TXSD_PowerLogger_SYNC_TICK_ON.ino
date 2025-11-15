@@ -1,4 +1,4 @@
-// === PowerLogger_UART_to_SD_SYNC_TICK_B_ON.ino ===
+// === TXSD_PowerLogger_SYNC_TICK_ON.ino ===
 // Board: ESP32 Dev Module (Arduino-ESP32 v3.x)
 //
 // 機能：TX(②)からの UART 受信(v,i,p)を SD に保存。SYNCで試行開始/終了。

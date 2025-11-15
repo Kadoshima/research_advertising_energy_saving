@@ -1,4 +1,4 @@
-// === Combined_TX_Meter_UART_B_nonblocking.ino ===
+// === TX_BLE_Adv_Meter_ON_nonblocking.ino ===
 // Board: ESP32 Dev Module (Arduino-ESP32 v3.x)
 //
 // 役割：BLEアドバタイズ(100ms) + SYNCパルス + (任意)TICKパルス
@@ -144,4 +144,3 @@ void loop() {
   // 他タスクに譲る（WiFi/BLEタスク進行用）
   delay(0);
 }
-

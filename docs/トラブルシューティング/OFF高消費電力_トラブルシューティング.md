@@ -12,11 +12,11 @@
 - 期待に反し、OFF > ON が継続。OFF_02 はさらに増加。
 
 ## 環境・構成（現状）
-- TX+INA（DUT, OFF用）: `esp32/Combined_TX_Meter_UART_B_nonblocking_OFF.ino`
+- TX+INA（DUT, OFF用）: `esp32/TX_BLE_Adv_Meter_OFF_10ms.ino`（旧 `Combined_TX_Meter_UART_B_nonblocking_OFF.ino`）
   - BLE初期化なし, `WiFi.mode(WIFI_OFF)` 明示, UARTは数値行（v,i,p）のみ送出（2025-11-09修正）
-- PowerLogger（OFF用）: `esp32/PowerLogger_UART_to_SD_SYNC_TICK_B_OFF.ino`
+- PowerLogger（OFF用）: `esp32/TXSD_PowerLogger_SYNC_TICK_OFF.ino`（旧 `PowerLogger_UART_to_SD_SYNC_TICK_B_OFF.ino`）
   - 受信CSV末尾に `# summary/# diag/# sys` を出力（V×I積分・dt統計・システム状態）
-- 受信ロガ（共通）: `esp32/RxLogger_BLE_to_SD_SYNC_B.ino`
+- 受信ロガ（共通）: `esp32/RX_BLE_to_SD_SYNC_B.ino`（旧 `RxLogger_BLE_to_SD_SYNC_B.ino`）
 - 供給: DUT=3.3V_A（測定対象）, ロガ/INA=3.3V_B（GND共通）
 
 ## データ参照（Paths）
@@ -65,13 +65,13 @@
   - OFF > ON を再確認。受信/SD 経路の詰まりが示唆
 
 ### 2025-11-09 Step 2: TX（OFF）を“数値行のみ”に変更
-- `esp32/Combined_TX_Meter_UART_B_nonblocking_OFF.ino` から `# diag/# sys` を削除（UART1は v,i,p のみ）
+- `esp32/TX_BLE_Adv_Meter_OFF_10ms.ino`（旧 `Combined_TX_Meter_UART_B_nonblocking_OFF.ino`）から `# diag/# sys` を削除（UART1は v,i,p のみ）
 - OFF_03（`data/実験データ/研究室/1m_off_03/`, n=2）:
   - rate_hz ≈ 105.7 Hz, parse_drop ≈ 1.40e4（むしろ悪化）
   - ボトルネックが受信/SD 側であることを確証
 
 ### 2025-11-09 Step 3: PowerLogger を“パススルー”化（受信→SD 最短）
-- `esp32/PowerLogger_UART_to_SD_SYNC_TICK_B_OFF.ino` を改修：
+- `esp32/TXSD_PowerLogger_SYNC_TICK_OFF.ino`（旧 `PowerLogger_UART_to_SD_SYNC_TICK_B_OFF.ino`）を改修：
   - UART RXバッファ拡張（16 KB）
   - 行の数値パース/積分を停止。相対ms前置のうえ 8 KB チャンクで SD へ write（flush は終了時のみ）
   - #diag は rate_hz, dt統計のみを残す

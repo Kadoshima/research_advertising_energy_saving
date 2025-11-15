@@ -46,12 +46,12 @@
   - OFF_04: `results/フェーズ0-0_E2_1m_100ms_off_04_2025-11-09.md` (OFF power, n=2, pass-through logger)
 - Experiment log: `docs/フェーズ0-0/実験ログ_E2_1m_2025-11-09.md`
 - ESP32 sketches
-  - RX logger: `esp32/RxLogger_BLE_to_SD_SYNC_B.ino`
-  - TX+INA (advertising ON): `esp32/Combined_TX_Meter_UART_B_nonblocking.ino`
-  - TX+INA (advertising OFF, baseline): `esp32/Combined_TX_Meter_UART_B_nonblocking_OFF.ino`
-  - Power logger (ON): `esp32/PowerLogger_UART_to_SD_SYNC_TICK_B_ON.ino`
-  - Power logger (OFF): `esp32/PowerLogger_UART_to_SD_SYNC_TICK_B_OFF.ino`
-  - Note: The `1m_ad` dataset was recorded with common (non-separated) variants: `esp32/Combined_TX_Meter_UART_B.ino` and `esp32/PowerLogger_UART_to_SD_SYNC_TICK_B.ino`.
+  - RX logger: `esp32/RX_BLE_to_SD_SYNC_B.ino`（旧 `RxLogger_BLE_to_SD_SYNC_B.ino`）
+  - TX+INA (advertising ON): `esp32/TX_BLE_Adv_Meter_ON_nonblocking.ino`（旧 `Combined_TX_Meter_UART_B_nonblocking.ino`）
+  - TX+INA (advertising OFF, 10 ms baseline): `esp32/TX_BLE_Adv_Meter_OFF_10ms.ino`（旧 `Combined_TX_Meter_UART_B_nonblocking_OFF.ino`）
+  - Power logger (ON, TICKあり): `esp32/TXSD_PowerLogger_SYNC_TICK_ON.ino`（旧 `PowerLogger_UART_to_SD_SYNC_TICK_B_ON.ino`）
+  - Power logger (OFF, adv_count=0): `esp32/TXSD_PowerLogger_SYNC_TICK_OFF.ino`（旧 `PowerLogger_UART_to_SD_SYNC_TICK_B_OFF.ino`）
+  - Note: The `1m_ad` dataset was recorded with the earlier common variants `esp32/TX_BLE_Adv_Meter_blocking.ino` (旧 `Combined_TX_Meter_UART_B.ino`) and `esp32/TXSD_PowerLogger_PASS_THRU_ON_v2.ino` (旧 `PowerLogger_UART_to_SD_SYNC_TICK_B.ino`).
 - Key metrics (this set)
   - E_total_mJ mean ≈ 1933.47 mJ (±10.06)
   - E_per_adv_uJ mean ≈ 3222.45 μJ (±16.75) with `adv_count≈600` (t/100 ms approximation)
