@@ -1,0 +1,5 @@
+ms,mv,uA,p_mW
+# summary, ms_total=60000, adv_count=0, E_total_mJ=0.000, E_per_adv_uJ=0.0
+# diag, samples=0, rate_hz=0.00, mean_v=0.000, mean_i=0.000, mean_p_mW=0.0
+# diag, dt_ms_mean=0.000, dt_ms_std=0.000, dt_ms_min=0, dt_ms_max=0, parse_drop=5999
+# sys, cpu_mhz=240, wifi_mode=OFF, free_heap=260832
