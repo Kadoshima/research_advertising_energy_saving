@@ -43,6 +43,7 @@ bool     logging=false;
 uint32_t t0_ms=0, tPrev=0, lineN=0;
 double   E_mJ=0.0;              // パススルーでは未使用（0のまま）
 String   lineBuf;
+static const char FW_TAG[] = "TXSD_PowerLogger_SYNC_TICK_ON";
 // Diagnostics（パースをせずに取得できる範囲のみ）
 double sumDt=0.0, sumDt2=0.0;   // ms
 uint32_t dtMin=0xFFFFFFFF, dtMax=0;
@@ -68,6 +69,7 @@ void startTrial(){
   f = SD.open(path, FILE_WRITE);
   if (!f) { Serial.println("[SD] open FAIL"); return; }
   f.println("ms,raw_payload");
+  f.printf("# meta, firmware=%s\r\n", FW_TAG);
   logging = true;
   t0_ms = millis(); tPrev = t0_ms; E_mJ = 0.0; lineN = 0; advCountISR = 0; sdLen = 0;
   Serial.printf("[PWR] start %s\n", path.c_str());

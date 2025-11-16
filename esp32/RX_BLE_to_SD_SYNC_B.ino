@@ -37,6 +37,7 @@ static const uint32_t TRIAL_MS        = 60000;
 
 volatile bool syncLvl=false, syncEdge=false;
 File f;
+static const char FW_TAG[] = "RX_BLE_to_SD_SYNC_B";
 
 static inline int nib(char c){
   if(c>='0'&&c<='9')return c-'0';
@@ -74,7 +75,10 @@ String nextPath(){
 void startTrial(){
   String path=nextPath();
   f=SD.open(path, FILE_WRITE);
-  if (f) f.println("ms,event,rssi,addr,mfd");
+  if (f){
+    f.println("ms,event,rssi,addr,mfd");
+    f.printf("# meta, firmware=%s\r\n", FW_TAG);
+  }
   t0Ms=millis(); trial=true; txLock=""; rxCount=0;
   Serial.printf("[RX] start %s\n", path.c_str());
 }
