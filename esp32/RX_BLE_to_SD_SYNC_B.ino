@@ -55,6 +55,7 @@ static bool parseMFD(const String&s, uint16_t& seq){
 
 String txLock="";             // 最初に見えた送信機にロック
 uint32_t t0Ms=0; bool trial=false;
+uint32_t rxCount=0;
 
 void IRAM_ATTR onSync(){
   bool s=digitalRead(SYNC_IN);
@@ -74,7 +75,7 @@ void startTrial(){
   String path=nextPath();
   f=SD.open(path, FILE_WRITE);
   if (f) f.println("ms,event,rssi,addr,mfd");
-  t0Ms=millis(); trial=true; txLock="";
+  t0Ms=millis(); trial=true; txLock=""; rxCount=0;
   Serial.printf("[RX] start %s\n", path.c_str());
 }
 
@@ -82,6 +83,13 @@ void endTrial(){
   if (trial){
     trial=false;
     if (f){ f.flush(); f.close(); }
+    uint32_t t_ms = millis() - t0Ms;
+    double dur_s = t_ms / 1000.0;
+    double rate_hz = (dur_s>0.0)? ((double)rxCount / dur_s) : 0.0;
+    double expected = (double)t_ms / (double)ADV_INTERVAL_MS;
+    double pdr = (expected>0.0)? ((double)rxCount / expected) : 0.0;
+    Serial.printf("[RX] summary ms_total=%lu, rx=%lu, rate_hz=%.2f, est_pdr=%.3f\n",
+                  (unsigned long)t_ms, (unsigned long)rxCount, rate_hz, pdr);
     Serial.println("[RX] end");
   }
 }
@@ -98,8 +106,11 @@ class CB: public NimBLEAdvertisedDeviceCallbacks{
     if (addr != txLock) return;
 
     uint32_t ms = millis() - t0Ms;
-    if (f) f.printf("%lu,ADV,%d,%s,%s\r\n",
-                    (unsigned long)ms, d->getRSSI(), addr.c_str(), mfd.c_str());
+    if (f){
+      f.printf("%lu,ADV,%d,%s,%s\r\n",
+               (unsigned long)ms, d->getRSSI(), addr.c_str(), mfd.c_str());
+      rxCount++;
+    }
   }
 };
 CB cb;
@@ -115,8 +126,11 @@ class CB: public BLEAdvertisedDeviceCallbacks{
     if (addr != txLock) return;
 
     uint32_t ms = millis() - t0Ms;
-    if (f) f.printf("%lu,ADV,%d,%s,%s\r\n",
-                    (unsigned long)ms, d.getRSSI(), addr.c_str(), mfd.c_str());
+    if (f){
+      f.printf("%lu,ADV,%d,%s,%s\r\n",
+               (unsigned long)ms, d.getRSSI(), addr.c_str(), mfd.c_str());
+      rxCount++;
+    }
   }
 };
 CB cb;

@@ -93,12 +93,20 @@ void endTrial(){
   uint32_t free_heap = ESP.getFreeHeap();
   f.printf("# summary, ms_total=%lu, adv_count=%lu, E_total_mJ=%.3f, E_per_adv_uJ=%.1f\r\n",
            (unsigned long)t_ms, (unsigned long)N, E_mJ, Eper_uJ);
+  Serial.printf("# summary, ms_total=%lu, adv_count=%lu, E_total_mJ=%.3f, E_per_adv_uJ=%.1f\n",
+                (unsigned long)t_ms, (unsigned long)N, E_mJ, Eper_uJ);
   f.printf("# diag, samples=%lu, rate_hz=%.2f\r\n",
            (unsigned long)lineN, rate_hz);
+  Serial.printf("# diag, samples=%lu, rate_hz=%.2f\n",
+                (unsigned long)lineN, rate_hz);
   f.printf("# diag, dt_ms_mean=%.3f, dt_ms_std=%.3f, dt_ms_min=%lu, dt_ms_max=%lu, parse_drop=%lu\r\n",
            meanDt, stdDt, (unsigned long)(dtMin==0xFFFFFFFF?0:dtMin), (unsigned long)dtMax, (unsigned long)badLines);
+  Serial.printf("# diag, dt_ms_mean=%.3f, dt_ms_std=%.3f, dt_ms_min=%lu, dt_ms_max=%lu, parse_drop=%lu\n",
+                meanDt, stdDt, (unsigned long)(dtMin==0xFFFFFFFF?0:dtMin), (unsigned long)dtMax, (unsigned long)badLines);
   f.printf("# sys, cpu_mhz=%d, wifi_mode=%s, free_heap=%lu\r\n",
            cpu_mhz, wm_name, (unsigned long)free_heap);
+  Serial.printf("# sys, cpu_mhz=%d, wifi_mode=%s, free_heap=%lu\n",
+                cpu_mhz, wm_name, (unsigned long)free_heap);
   f.flush(); f.close();
   Serial.printf("[PWR] end t=%lums N=%lu E=%.3fmJ (mode=OFF)\n",
                 (unsigned long)t_ms, (unsigned long)N, E_mJ);

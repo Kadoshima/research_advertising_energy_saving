@@ -84,6 +84,8 @@ void endTrial(){
   double Eper_uJ = (N > 0) ? (E_mJ * 1000.0 / N) : 0.0;
   f.printf("# summary, ms_total=%lu, adv_count=%lu, E_total_mJ=%.3f, E_per_adv_uJ=%.1f\r\n",
            (unsigned long)t_ms, (unsigned long)N, E_mJ, Eper_uJ);
+  Serial.printf("# summary, ms_total=%lu, adv_count=%lu, E_total_mJ=%.3f, E_per_adv_uJ=%.1f\n",
+                (unsigned long)t_ms, (unsigned long)N, E_mJ, Eper_uJ);
   // 簡易診断: 受信行数と実効サンプリングレート、dt統計
   double samples = (double)lineN;
   double dur_s = t_ms / 1000.0;
@@ -93,8 +95,12 @@ void endTrial(){
   double stdDt = (varDt>0)? sqrt(varDt) : 0.0;
   f.printf("# diag, samples=%lu, rate_hz=%.2f\r\n",
            (unsigned long)lineN, rate_hz);
+  Serial.printf("# diag, samples=%lu, rate_hz=%.2f\n",
+                (unsigned long)lineN, rate_hz);
   f.printf("# diag, dt_ms_mean=%.3f, dt_ms_std=%.3f, dt_ms_min=%lu, dt_ms_max=%lu, parse_drop=%lu\r\n",
            meanDt, stdDt, (unsigned long)(dtMin==0xFFFFFFFF?0:dtMin), (unsigned long)dtMax, (unsigned long)badLines);
+  Serial.printf("# diag, dt_ms_mean=%.3f, dt_ms_std=%.3f, dt_ms_min=%lu, dt_ms_max=%lu, parse_drop=%lu\n",
+                meanDt, stdDt, (unsigned long)(dtMin==0xFFFFFFFF?0:dtMin), (unsigned long)dtMax, (unsigned long)badLines);
   f.flush(); f.close();
   Serial.printf("[PWR] end t=%lums N=%lu E=%.3fmJ E/adv=%.1f uJ\n",
                 (unsigned long)t_ms, (unsigned long)N, E_mJ, Eper_uJ);
