@@ -15,6 +15,7 @@
 #include <Wire.h>
 #include <Adafruit_INA219.h>
 #include <BLEDevice.h>
+#include <math.h>
 
 // ===== ユーザ設定 =====
 static const uint16_t ADV_INTERVAL_MS = 100;     // アドバタイズ間隔（固定）
@@ -109,10 +110,14 @@ void loop() {
     // センサ取得
     float v = ina.getBusVoltage_V();
     float i = ina.getCurrent_mA();   // 向きは配線依存。必要なら i = -i;
-    float p = ina.getPower_mW();     // 使わなくても送っておく
 
-    // UARTへCSV吐き（短めのフォーマットで帯域節約）
-    uart1.printf("%.3f,%.1f,%.1f\n", v, i, p);
+    // mv/uAに整数化してPowerLoggerとフォーマットを揃える
+    int32_t mv = (int32_t)lroundf(v * 1000.0f);
+    int32_t uA = (int32_t)lroundf(i * 1000.0f);
+    int32_t p_mW = (int32_t)lrintf(v * i); // mW; PowerLogger側で再計算してもよい
+
+    // UARTへCSV吐き（整数形式）
+    uart1.printf("%ld,%ld,%ld\n", (long)mv, (long)uA, (long)p_mW);
 
     guard++;
     nowUs = micros();

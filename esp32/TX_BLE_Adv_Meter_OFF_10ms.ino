@@ -17,6 +17,7 @@
 #include <Wire.h>
 #include <Adafruit_INA219.h>
 #include <WiFi.h>
+#include <math.h>
 
 // ===== ユーザ設定 =====
 static const uint32_t SAMPLE_US       = 10000;   // 計測周期 10ms ≒ 100Hz
@@ -81,10 +82,14 @@ void loop() {
     // センサ取得
     float v = ina.getBusVoltage_V();
     float i = ina.getCurrent_mA();
-    float p = ina.getPower_mW();
 
-    // UARTへCSV吐き（短めのフォーマットで帯域節約）
-    uart1.printf("%.3f,%.1f,%.1f\n", v, i, p);
+    // PowerLoggerに合わせて整数フォーマットに変換
+    int32_t mv = (int32_t)lroundf(v * 1000.0f);
+    int32_t uA = (int32_t)lroundf(i * 1000.0f);
+    int32_t p_mW = (int32_t)lrintf(v * i);
+
+    // UARTへCSV吐き（mv,uA,p_mW）
+    uart1.printf("%ld,%ld,%ld\n", (long)mv, (long)uA, (long)p_mW);
 
     guard++;
     nowUs = micros();
