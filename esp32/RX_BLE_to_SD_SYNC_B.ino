@@ -29,7 +29,7 @@
 static const int SD_CS                = 5;
 static const int SYNC_IN              = 26;
 static const uint16_t ADV_INTERVAL_MS = 100;
-static const uint32_t TRIAL_MS        = 60000;
+static const uint32_t TRIAL_MS        = 60000; // 旧固定窓（互換性のため残置・通常はSYNCで区切る）
 
 #ifndef SCAN_MS
   #define SCAN_MS 50
@@ -38,6 +38,7 @@ static const uint32_t TRIAL_MS        = 60000;
 volatile bool syncLvl=false, syncEdge=false;
 File f;
 static const char FW_TAG[] = "RX_BLE_to_SD_SYNC_B";
+static uint32_t trialIndex = 0;
 
 static inline int nib(char c){
   if(c>='0'&&c<='9')return c-'0';
@@ -77,10 +78,11 @@ void startTrial(){
   f=SD.open(path, FILE_WRITE);
   if (f){
     f.println("ms,event,rssi,addr,mfd");
-    f.printf("# meta, firmware=%s\r\n", FW_TAG);
+    trialIndex++;
+    f.printf("# meta, firmware=%s, trial_index=%lu\r\n", FW_TAG, (unsigned long)trialIndex);
   }
   t0Ms=millis(); trial=true; txLock=""; rxCount=0;
-  Serial.printf("[RX] start %s\n", path.c_str());
+  Serial.printf("[RX] start %s (trial=%lu)\n", path.c_str(), (unsigned long)trialIndex);
 }
 
 void endTrial(){
@@ -92,7 +94,8 @@ void endTrial(){
     double rate_hz = (dur_s>0.0)? ((double)rxCount / dur_s) : 0.0;
     double expected = (double)t_ms / (double)ADV_INTERVAL_MS;
     double pdr = (expected>0.0)? ((double)rxCount / expected) : 0.0;
-    Serial.printf("[RX] summary ms_total=%lu, rx=%lu, rate_hz=%.2f, est_pdr=%.3f\n",
+    Serial.printf("[RX] summary trial=%lu ms_total=%lu, rx=%lu, rate_hz=%.2f, est_pdr=%.3f\n",
+                  (unsigned long)trialIndex,
                   (unsigned long)t_ms, (unsigned long)rxCount, rate_hz, pdr);
     Serial.println("[RX] end");
   }
@@ -177,12 +180,10 @@ void setup(){
 void loop(){
   if (syncEdge){
     noInterrupts(); bool s=syncLvl; syncEdge=false; interrupts();
-    if (s && !trial) startTrial();
+    if (s && !trial) {
+      startTrial();
+    } else if (!s && trial) {
+      endTrial();
+    }
   }
-
-  // 一定時間で終了
-  if (trial && (millis() - t0Ms >= TRIAL_MS)){
-    endTrial();
-  }
-  
 }

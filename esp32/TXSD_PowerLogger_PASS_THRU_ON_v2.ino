@@ -46,6 +46,7 @@ uint32_t dtMin=0xFFFFFFFF, dtMax=0;
 double   sumDt=0.0, sumDt2=0.0;  // ms
 int64_t  sum_mv=0, sum_uA=0;
 uint32_t sampN=0;
+static   uint32_t trialIndex=0;
 
 // SDバッファ（非同期っぽく塊で書く）
 static uint8_t sdBuf[SD_CHUNK_BYTES];
@@ -95,7 +96,8 @@ void startTrial(){
 #else
   f.println("ms,mv,uA");
 #endif
-  f.printf("# meta, firmware=%s\r\n", FW_TAG);
+  trialIndex++;
+  f.printf("# meta, firmware=%s, trial_index=%lu\r\n", FW_TAG, (unsigned long)trialIndex);
 
   logging = true;
   t0_ms = millis(); tPrev = t0_ms; lineN = badLines = 0;
@@ -107,7 +109,7 @@ void startTrial(){
   while (uart1.available()) uart1.read();
   sdLen=0; lbLen=0;
 
-  Serial.printf("[PWR] start %s (ON)\n", path.c_str());
+  Serial.printf("[PWR] start %s (ON, trial=%lu)\n", path.c_str(), (unsigned long)trialIndex);
 }
 void endTrial(){
   if (!logging) return;
@@ -141,8 +143,8 @@ void endTrial(){
            getCpuFrequencyMhz(), (WiFi.getMode()==WIFI_OFF?"OFF":"ON"), (unsigned long)ESP.getFreeHeap());
 
   f.flush(); f.close();
-  Serial.printf("[PWR] end t=%lums N=%lu E=%.3fmJ (ON)\n",
-                (unsigned long)t_ms, (unsigned long)Nadv, E_mJ);
+  Serial.printf("[PWR] end trial=%lu t=%lums N=%lu E=%.3fmJ (ON)\n",
+                (unsigned long)trialIndex, (unsigned long)t_ms, (unsigned long)Nadv, E_mJ);
 }
 
 static inline bool parse_mvuA(const char* s, int32_t& mv, int32_t& uA){
@@ -179,13 +181,15 @@ void setup(){
 }
 
 void loop(){
-  // SYNC立上りで開始（下降は無視）
+  // SYNC立上りで開始、SYNC下降で終了
   if (syncEdge){
     noInterrupts(); bool s=syncLvl; syncEdge=false; interrupts();
-    if (s && !logging) startTrial();
+    if (s && !logging) {
+      startTrial();
+    } else if (!s && logging) {
+      endTrial();
+    }
   }
-  // 固定窓で自動終了（60s想定：必要なら変更）
-  if (logging && (millis() - t0_ms >= 60000UL)) endTrial();
 
   // UART受信（パススルー＋軽量集計）
   while (uart1.available()){
