@@ -25,7 +25,7 @@
 static const uint16_t ADV_INTERVAL_MS   = 100;    // 100 / 500 / 1000 / 2000 などに変更
 static const uint32_t SAMPLE_US         = 10000;  // 計測周期 10ms ≒ 100Hz（固定）
 static const uint16_t N_ADV_PER_TRIAL   = 300;    // 1トライアルあたりの広告回数
-static const uint8_t  N_TRIALS          = 2;      // トライアル回数
+static const uint8_t  N_TRIALS          = 10;      // トライアル回数
 static const uint32_t GAP_BETWEEN_TRIALS_MS = 5000; // トライアル間の待機時間
 static const uint8_t  RUN_GROUP_ID      = 1;      // 条件ID（例: 1=100ms, 2=500ms ...）
 
