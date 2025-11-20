@@ -74,7 +74,7 @@ void setup(){
   ina.begin();
   ina.setCalibration_16V_400mA();      // 代表レンジ（0.1Ω想定）。実装に合わせて要調整。
 
-  // UART
+  // UART（固定桁ゼロ埋めで mv,uA を出力）
   uart1.begin(UART_BAUD, SERIAL_8N1, -1, UART_TX);
 
   // 起動2秒後に同期Pulse
@@ -97,7 +97,10 @@ void loop(){
     // 整数化（mv,uA）→ UART
     int32_t mv = (int32_t)lroundf(v * 1000.0f);
     int32_t uA = (int32_t)lroundf(i * 1000.0f);
-    uart1.printf("%ld,%ld\n", (long)mv, (long)uA);
+    char line[24];
+    // 固定幅: mv=4桁, uA=6桁（文字化け耐性向上）
+    snprintf(line, sizeof(line), "%04ld,%06ld\n", (long)mv, (long)uA);
+    uart1.print(line);
 
     guard++; nowUs = micros();
   }

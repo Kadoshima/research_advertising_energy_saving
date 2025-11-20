@@ -22,6 +22,9 @@
 #include <BLEDevice.h>
 
 // ===== ユーザ設定 =====
+// 使用するアドバタイズ間隔候補（ms）の例: {100, 500, 1000, 2000}
+// BLE仕様上のinterval単位は0.625 msなので、内部では ADV_INTERVAL_MS/0.625 を丸めて使用する。
+// 将来150 msなど0.625 msの整数倍でない値を試す場合は、四捨五入（round）で最も近い値に合わせることを推奨。
 static const uint16_t ADV_INTERVAL_MS   = 100;    // 100 / 500 / 1000 / 2000 などに変更
 static const uint32_t SAMPLE_US         = 10000;  // 計測周期 10ms ≒ 100Hz（固定）
 static const uint16_t N_ADV_PER_TRIAL   = 300;    // 1トライアルあたりの広告回数
@@ -120,7 +123,7 @@ void setup(){
   BLEAdvertising* a = BLEDevice::getAdvertising();
   a->setScanResponse(false);
   a->setMinPreferred(0);
-  uint16_t itv = (uint16_t)(ADV_INTERVAL_MS / 0.625f);
+  uint16_t itv = (uint16_t)lroundf(ADV_INTERVAL_MS / 0.625f);
   a->setMinInterval(itv);
   a->setMaxInterval(itv);
   BLEAdvertisementData ad;
@@ -159,7 +162,9 @@ void loop(){
 
       int32_t mv = (int32_t)lroundf(v * 1000.0f);
       int32_t uA = (int32_t)lroundf(i * 1000.0f);
-      uart1.printf("%ld,%ld\n", (long)mv, (long)uA);
+      char line[24];
+      snprintf(line, sizeof(line), "%04ld,%06ld\n", (long)mv, (long)uA);
+      uart1.print(line);
 
       guard++;
       nowUs = micros();
@@ -205,4 +210,3 @@ void loop(){
   // 他タスクに譲る
   vTaskDelay(1);
 }
-

@@ -88,8 +88,10 @@ void loop() {
     int32_t uA = (int32_t)lroundf(i * 1000.0f);
     int32_t p_mW = (int32_t)lrintf(v * i);
 
-    // UARTへCSV吐き（mv,uA,p_mW）
-    uart1.printf("%ld,%ld,%ld\n", (long)mv, (long)uA, (long)p_mW);
+    // UARTへCSV吐き（mv,uA,p_mW）— mv=4桁, uA=6桁の固定幅で文字化け復元性を確保
+    char line[32];
+    snprintf(line, sizeof(line), "%04ld,%06ld,%ld\n", (long)mv, (long)uA, (long)p_mW);
+    uart1.print(line);
 
     guard++;
     nowUs = micros();

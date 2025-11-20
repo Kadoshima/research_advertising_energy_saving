@@ -98,7 +98,9 @@ void loop(){
     // 整数化（mv,uA）→ UART
     int32_t mv = (int32_t)lroundf(v * 1000.0f);
     int32_t uA = (int32_t)lroundf(i * 1000.0f);
-    uart1.printf("%ld,%ld\n", (long)mv, (long)uA);
+    char line[24];
+    snprintf(line, sizeof(line), "%04ld,%06ld\n", (long)mv, (long)uA);
+    uart1.print(line);
 
     guard++; nowUs = micros();
   }
@@ -125,4 +127,3 @@ void loop(){
   // 低負荷化（ライトスリープ誘導）
   vTaskDelay(1);
 }
-

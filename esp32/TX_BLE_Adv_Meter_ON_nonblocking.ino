@@ -116,8 +116,10 @@ void loop() {
     int32_t uA = (int32_t)lroundf(i * 1000.0f);
     int32_t p_mW = (int32_t)lrintf(v * i); // mW; PowerLogger側で再計算してもよい
 
-    // UARTへCSV吐き（整数形式）
-    uart1.printf("%ld,%ld,%ld\n", (long)mv, (long)uA, (long)p_mW);
+    // UARTへCSV吐き（固定幅整数形式）
+    char line[32];
+    snprintf(line, sizeof(line), "%04ld,%06ld,%ld\n", (long)mv, (long)uA, (long)p_mW);
+    uart1.print(line);
 
     guard++;
     nowUs = micros();

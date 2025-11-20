@@ -79,7 +79,8 @@ void startTrial(){
   if (f){
     f.println("ms,event,rssi,addr,mfd");
     trialIndex++;
-    f.printf("# meta, firmware=%s, trial_index=%lu\r\n", FW_TAG, (unsigned long)trialIndex);
+    f.printf("# meta, firmware=%s, trial_index=%lu, adv_interval_ms=%u\r\n",
+             FW_TAG, (unsigned long)trialIndex, (unsigned)ADV_INTERVAL_MS);
   }
   t0Ms=millis(); trial=true; txLock=""; rxCount=0;
   Serial.printf("[RX] start %s (trial=%lu)\n", path.c_str(), (unsigned long)trialIndex);
@@ -92,9 +93,9 @@ void endTrial(){
     uint32_t t_ms = millis() - t0Ms;
     double dur_s = t_ms / 1000.0;
     double rate_hz = (dur_s>0.0)? ((double)rxCount / dur_s) : 0.0;
-    double expected = (double)t_ms / (double)ADV_INTERVAL_MS;
+    double expected = (double)t_ms / (double)ADV_INTERVAL_MS; // TICKがないため期待値ベースのPDR推定
     double pdr = (expected>0.0)? ((double)rxCount / expected) : 0.0;
-    Serial.printf("[RX] summary trial=%lu ms_total=%lu, rx=%lu, rate_hz=%.2f, est_pdr=%.3f\n",
+    Serial.printf("[RX] summary trial=%lu ms_total=%lu, rx=%lu, rate_hz=%.2f, est_pdr_expected=%.3f\n",
                   (unsigned long)trialIndex,
                   (unsigned long)t_ms, (unsigned long)rxCount, rate_hz, pdr);
     Serial.println("[RX] end");

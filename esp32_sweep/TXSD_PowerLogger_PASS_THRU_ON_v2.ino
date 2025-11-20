@@ -23,7 +23,7 @@ static const int SD_CS    = 5;
 static const int SYNC_IN  = 26;
 static const int TICK_IN  = 33;
 
-// 出力フォーマット：整数CSV（ms,mv,uA[,p_mW]）
+// 出力フォーマット：整数CSV（ms,mV,µA[,p_mW]）
 #define CSV_APPEND_PM_W   1        // 1: p_mW列を付ける
 #define USE_TICK_INPUT    1        // 1: TICKで厳密カウント（ON用）
 #define ADV_INTERVAL_MS   100      // 推定用（TICK未配線時のフォールバック計算に使用しうる）
@@ -92,12 +92,13 @@ void startTrial(){
 
   // ヘッダ
 #if CSV_APPEND_PM_W
-  f.println("ms,mv,uA,p_mW");
+  f.println("ms,mV,µA,p_mW");
 #else
-  f.println("ms,mv,uA");
+  f.println("ms,mV,µA");
 #endif
   trialIndex++;
-  f.printf("# meta, firmware=%s, trial_index=%lu\r\n", FW_TAG, (unsigned long)trialIndex);
+  f.printf("# meta, firmware=%s, trial_index=%lu, adv_interval_ms=%u\r\n",
+           FW_TAG, (unsigned long)trialIndex, (unsigned)ADV_INTERVAL_MS);
 
   logging = true;
   t0_ms = millis(); tPrev = t0_ms; lineN = badLines = 0;
