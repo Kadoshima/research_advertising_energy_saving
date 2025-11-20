@@ -1,3 +1,4 @@
 stm32ai-modelzoo/
 ISWC22-HAR/
 .venv_har/
+row/*

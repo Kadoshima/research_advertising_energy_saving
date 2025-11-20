@@ -31,3 +31,22 @@
 - KPI: avg_current, event_charge_uC, PDR, TL（p50/p95）, Pout(τ)
 - CI/手元チェック: markdownリンク検査、CSVスキーマ検査（ts単調・値域）
 - 併記: 環境ごとに95% CIを併記。P1で{θ_low, θ_high}を確定し、旧{0.40,0.70}を置換
+
+### 6.1 エネルギーKPIとΔE/adv
+- 定義: ΔE/adv = (E_ON − E_OFF) / N_adv [mJ/adv] とし、電力評価は原則としてこの指標を主語にする。
+- ねらい: 測定系の定常負荷（CPU/I2C/UART/LED等）を相殺し、無線1回あたりの純粋コストを比較可能にする。
+- レポート: 平均電流[mA]は補助指標として併記し、ΔE/advとセットで解釈する。
+
+### 6.2 スキャン環境の実務上の注意
+- Android: 実験時は `SCAN_MODE_LOW_LATENCY` を原則とし、Doze/App Standby やベンダ独自の省電力機能は無効化する。
+- iOS: バックグラウンドでは Duplicate Filtering が強制されるため、連続観測は不可前提とし、前景スキャンまたは接続モードでの観測に限定する。
+- Opportunistic Scan: 他アプリのスキャンに合流するため実効スキャンウィンドウは非定常となる。必ず同一端末・同一条件内で A/B 比較を完結させる。
+
+### 6.3 受入基準（品質）
+- PowerLogger: parse_drop=0、rate_hz は設計値±10%以内、E_total_mJ 再現性は10分×2反復で±1%以内。
+- 受信系: 重複除去窓=3×adv_interval とし、Pout(1 s)・TL p95 の差分が受入基準内かを確認する（95% CIを併記）。
+- ログ健全性: ts単調、負値なし、欠損<1%、前処理・設定ハッシュを必須メタとして記録する。
+
+### 6.4 端末別トレースとBlender検証（任意）
+- 端末ごとに scan_interval/window の推定トレースを取得し、非理想スキャン条件（Opportunistic Scan含む）を明示する。
+- trace-driven の Blender 検証で TL分布・Pout(τ)・Valley Area を事前確認し、ポリシが特定位相で「穴」に落ちないことを確認する。

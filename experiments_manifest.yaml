@@ -1,0 +1,1028 @@
+{
+  "schema_version": 1,
+  "generated_at": "2025-11-20T00:00:00",
+  "generator": "scripts/cluster_500ms.py + manual curation",
+  "description": "Trial-level manifest for inclusion/exclusion and metadata. Parsed as JSON (valid YAML).",
+  "trials": [
+    {
+      "trial_id": "1m/trial_231989.csv",
+      "path": "data/実験データ/研究室/1m/trial_231989.csv",
+      "interval_ms": 100,
+      "set_id": "1m",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m/trial_347506.csv",
+      "path": "data/実験データ/研究室/1m/trial_347506.csv",
+      "interval_ms": 100,
+      "set_id": "1m",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m/trial_59584.csv",
+      "path": "data/実験データ/研究室/1m/trial_59584.csv",
+      "interval_ms": 100,
+      "set_id": "1m",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_ad/trial_009.csv",
+      "path": "data/実験データ/研究室/1m_ad/trial_009.csv",
+      "interval_ms": 100,
+      "set_id": "1m_ad",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_ad/trial_010.csv",
+      "path": "data/実験データ/研究室/1m_ad/trial_010.csv",
+      "interval_ms": 100,
+      "set_id": "1m_ad",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_ad/trial_011.csv",
+      "path": "data/実験データ/研究室/1m_ad/trial_011.csv",
+      "interval_ms": 100,
+      "set_id": "1m_ad",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_ad/trial_012.csv",
+      "path": "data/実験データ/研究室/1m_ad/trial_012.csv",
+      "interval_ms": 100,
+      "set_id": "1m_ad",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_ad/trial_013.csv",
+      "path": "data/実験データ/研究室/1m_ad/trial_013.csv",
+      "interval_ms": 100,
+      "set_id": "1m_ad",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_ad/trial_014.csv",
+      "path": "data/実験データ/研究室/1m_ad/trial_014.csv",
+      "interval_ms": 100,
+      "set_id": "1m_ad",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_ad_retry/trial_015.csv",
+      "path": "data/実験データ/研究室/1m_ad_retry/trial_015.csv",
+      "interval_ms": 100,
+      "set_id": "1m_ad_retry",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_ad_retry/trial_016.csv",
+      "path": "data/実験データ/研究室/1m_ad_retry/trial_016.csv",
+      "interval_ms": 100,
+      "set_id": "1m_ad_retry",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_off_01/trial_001_off.csv",
+      "path": "data/実験データ/研究室/1m_off_01/trial_001_off.csv",
+      "interval_ms": null,
+      "set_id": "1m_off_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "off_baseline"
+    },
+    {
+      "trial_id": "1m_off_01/trial_002_off.csv",
+      "path": "data/実験データ/研究室/1m_off_01/trial_002_off.csv",
+      "interval_ms": null,
+      "set_id": "1m_off_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "off_baseline"
+    },
+    {
+      "trial_id": "1m_off_01/trial_003_off.csv",
+      "path": "data/実験データ/研究室/1m_off_01/trial_003_off.csv",
+      "interval_ms": null,
+      "set_id": "1m_off_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "off_baseline"
+    },
+    {
+      "trial_id": "1m_off_01/trial_004_off.csv",
+      "path": "data/実験データ/研究室/1m_off_01/trial_004_off.csv",
+      "interval_ms": null,
+      "set_id": "1m_off_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "off_baseline"
+    },
+    {
+      "trial_id": "1m_off_01/trial_005_off.csv",
+      "path": "data/実験データ/研究室/1m_off_01/trial_005_off.csv",
+      "interval_ms": null,
+      "set_id": "1m_off_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "off_baseline"
+    },
+    {
+      "trial_id": "1m_off_01/trial_006_off.csv",
+      "path": "data/実験データ/研究室/1m_off_01/trial_006_off.csv",
+      "interval_ms": null,
+      "set_id": "1m_off_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "off_baseline"
+    },
+    {
+      "trial_id": "1m_off_02/trial_009_off.csv",
+      "path": "data/実験データ/研究室/1m_off_02/trial_009_off.csv",
+      "interval_ms": null,
+      "set_id": "1m_off_02",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "off_baseline"
+    },
+    {
+      "trial_id": "1m_off_02/trial_010_off.csv",
+      "path": "data/実験データ/研究室/1m_off_02/trial_010_off.csv",
+      "interval_ms": null,
+      "set_id": "1m_off_02",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "off_baseline"
+    },
+    {
+      "trial_id": "1m_off_03/trial_011_off.csv",
+      "path": "data/実験データ/研究室/1m_off_03/trial_011_off.csv",
+      "interval_ms": null,
+      "set_id": "1m_off_03",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "off_baseline"
+    },
+    {
+      "trial_id": "1m_off_03/trial_012_off.csv",
+      "path": "data/実験データ/研究室/1m_off_03/trial_012_off.csv",
+      "interval_ms": null,
+      "set_id": "1m_off_03",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "off_baseline"
+    },
+    {
+      "trial_id": "1m_off_04/trial_013_off.csv",
+      "path": "data/実験データ/研究室/1m_off_04/trial_013_off.csv",
+      "interval_ms": null,
+      "set_id": "1m_off_04",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "off_baseline"
+    },
+    {
+      "trial_id": "1m_off_04/trial_014_off.csv",
+      "path": "data/実験データ/研究室/1m_off_04/trial_014_off.csv",
+      "interval_ms": null,
+      "set_id": "1m_off_04",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "off_baseline"
+    },
+    {
+      "trial_id": "1m_off_05/trial_021_on.csv",
+      "path": "data/実験データ/研究室/1m_off_05/trial_021_on.csv",
+      "interval_ms": null,
+      "set_id": "1m_off_05",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "off_baseline"
+    },
+    {
+      "trial_id": "1m_off_05/trial_022_on.csv",
+      "path": "data/実験データ/研究室/1m_off_05/trial_022_on.csv",
+      "interval_ms": null,
+      "set_id": "1m_off_05",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "off_baseline"
+    },
+    {
+      "trial_id": "1m_off_05/trial_023_on.csv",
+      "path": "data/実験データ/研究室/1m_off_05/trial_023_on.csv",
+      "interval_ms": null,
+      "set_id": "1m_off_05",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "off_baseline"
+    },
+    {
+      "trial_id": "1m_off_05/trial_024_on.csv",
+      "path": "data/実験データ/研究室/1m_off_05/trial_024_on.csv",
+      "interval_ms": null,
+      "set_id": "1m_off_05",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "off_baseline"
+    },
+    {
+      "trial_id": "1m_off_05/trial_025_on.csv",
+      "path": "data/実験データ/研究室/1m_off_05/trial_025_on.csv",
+      "interval_ms": null,
+      "set_id": "1m_off_05",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "off_baseline"
+    },
+    {
+      "trial_id": "1m_on_01/trial_001_on.csv",
+      "path": "data/実験データ/研究室/1m_on_01/trial_001_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_01/trial_002_on.csv",
+      "path": "data/実験データ/研究室/1m_on_01/trial_002_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_02/trial_004_on.csv",
+      "path": "data/実験データ/研究室/1m_on_02/trial_004_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_02",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_02/trial_005_on.csv",
+      "path": "data/実験データ/研究室/1m_on_02/trial_005_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_02",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_03/trial_008_on.csv",
+      "path": "data/実験データ/研究室/1m_on_03/trial_008_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_03",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_03/trial_009_on.csv",
+      "path": "data/実験データ/研究室/1m_on_03/trial_009_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_03",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_04/trial_014_on.csv",
+      "path": "data/実験データ/研究室/1m_on_04/trial_014_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_04",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_05/trial_015_on.csv",
+      "path": "data/実験データ/研究室/1m_on_05/trial_015_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_05",
+      "include": false,
+      "exclude_reason": [
+        "high_current_outlier"
+      ],
+      "notes": "",
+      "cluster_id": "on_high_current"
+    },
+    {
+      "trial_id": "1m_on_05/trial_016_on.csv",
+      "path": "data/実験データ/研究室/1m_on_05/trial_016_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_05",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_05/trial_017_on.csv",
+      "path": "data/実験データ/研究室/1m_on_05/trial_017_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_05",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_05/trial_018_on.csv",
+      "path": "data/実験データ/研究室/1m_on_05/trial_018_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_05",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_05/trial_019_on.csv",
+      "path": "data/実験データ/研究室/1m_on_05/trial_019_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_05",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_06/trial_032_on.csv",
+      "path": "data/実験データ/研究室/1m_on_06/trial_032_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_06",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_06/trial_033_on.csv",
+      "path": "data/実験データ/研究室/1m_on_06/trial_033_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_06",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_1000_01/trial_044_on.csv",
+      "path": "data/実験データ/研究室/1m_on_1000_01/trial_044_on.csv",
+      "interval_ms": 1000,
+      "set_id": "1m_on_1000_01",
+      "include": false,
+      "exclude_reason": [
+        "high_current_outlier"
+      ],
+      "notes": "",
+      "cluster_id": "1000ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_1000_01/trial_045_on.csv",
+      "path": "data/実験データ/研究室/1m_on_1000_01/trial_045_on.csv",
+      "interval_ms": 1000,
+      "set_id": "1m_on_1000_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "1000ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_1000_01/trial_046_on.csv",
+      "path": "data/実験データ/研究室/1m_on_1000_01/trial_046_on.csv",
+      "interval_ms": 1000,
+      "set_id": "1m_on_1000_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "1000ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_1000_01/trial_047_on.csv",
+      "path": "data/実験データ/研究室/1m_on_1000_01/trial_047_on.csv",
+      "interval_ms": 1000,
+      "set_id": "1m_on_1000_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "1000ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_1000_01/trial_048_on.csv",
+      "path": "data/実験データ/研究室/1m_on_1000_01/trial_048_on.csv",
+      "interval_ms": 1000,
+      "set_id": "1m_on_1000_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "1000ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_1000_01/trial_049_on.csv",
+      "path": "data/実験データ/研究室/1m_on_1000_01/trial_049_on.csv",
+      "interval_ms": 1000,
+      "set_id": "1m_on_1000_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "1000ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_1000_01/trial_050_on.csv",
+      "path": "data/実験データ/研究室/1m_on_1000_01/trial_050_on.csv",
+      "interval_ms": 1000,
+      "set_id": "1m_on_1000_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "1000ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_1000_01/trial_051_on.csv",
+      "path": "data/実験データ/研究室/1m_on_1000_01/trial_051_on.csv",
+      "interval_ms": 1000,
+      "set_id": "1m_on_1000_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "1000ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_1000_01/trial_052_on.csv",
+      "path": "data/実験データ/研究室/1m_on_1000_01/trial_052_on.csv",
+      "interval_ms": 1000,
+      "set_id": "1m_on_1000_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "1000ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_100_01/trial_065_on.csv",
+      "path": "data/実験データ/研究室/1m_on_100_01/trial_065_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_100_01",
+      "include": false,
+      "exclude_reason": [
+        "high_current_outlier"
+      ],
+      "notes": "",
+      "cluster_id": "on_high_current"
+    },
+    {
+      "trial_id": "1m_on_100_01/trial_066_on.csv",
+      "path": "data/実験データ/研究室/1m_on_100_01/trial_066_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_100_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_100_01/trial_067_on.csv",
+      "path": "data/実験データ/研究室/1m_on_100_01/trial_067_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_100_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_100_01/trial_068_on.csv",
+      "path": "data/実験データ/研究室/1m_on_100_01/trial_068_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_100_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_100_01/trial_069_on.csv",
+      "path": "data/実験データ/研究室/1m_on_100_01/trial_069_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_100_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_100_01/trial_070_on.csv",
+      "path": "data/実験データ/研究室/1m_on_100_01/trial_070_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_100_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_100_01/trial_071_on.csv",
+      "path": "data/実験データ/研究室/1m_on_100_01/trial_071_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_100_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_100_01/trial_072_on.csv",
+      "path": "data/実験データ/研究室/1m_on_100_01/trial_072_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_100_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_100_01/trial_073_on.csv",
+      "path": "data/実験データ/研究室/1m_on_100_01/trial_073_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_100_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_100_01/trial_074_on.csv",
+      "path": "data/実験データ/研究室/1m_on_100_01/trial_074_on.csv",
+      "interval_ms": 100,
+      "set_id": "1m_on_100_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "on_nominal"
+    },
+    {
+      "trial_id": "1m_on_2000_01/trial_085_on.csv",
+      "path": "data/実験データ/研究室/1m_on_2000_01/trial_085_on.csv",
+      "interval_ms": 2000,
+      "set_id": "1m_on_2000_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "2000ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_2000_01/trial_086_on.csv",
+      "path": "data/実験データ/研究室/1m_on_2000_01/trial_086_on.csv",
+      "interval_ms": 2000,
+      "set_id": "1m_on_2000_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "2000ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_2000_01/trial_087_on.csv",
+      "path": "data/実験データ/研究室/1m_on_2000_01/trial_087_on.csv",
+      "interval_ms": 2000,
+      "set_id": "1m_on_2000_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "2000ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_2000_01/trial_088_on.csv",
+      "path": "data/実験データ/研究室/1m_on_2000_01/trial_088_on.csv",
+      "interval_ms": 2000,
+      "set_id": "1m_on_2000_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "2000ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_2000_01/trial_089_on.csv",
+      "path": "data/実験データ/研究室/1m_on_2000_01/trial_089_on.csv",
+      "interval_ms": 2000,
+      "set_id": "1m_on_2000_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "2000ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_2000_01/trial_090_on.csv",
+      "path": "data/実験データ/研究室/1m_on_2000_01/trial_090_on.csv",
+      "interval_ms": 2000,
+      "set_id": "1m_on_2000_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "2000ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_2000_01/trial_091_on.csv",
+      "path": "data/実験データ/研究室/1m_on_2000_01/trial_091_on.csv",
+      "interval_ms": 2000,
+      "set_id": "1m_on_2000_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "2000ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_2000_01/trial_092_on.csv",
+      "path": "data/実験データ/研究室/1m_on_2000_01/trial_092_on.csv",
+      "interval_ms": 2000,
+      "set_id": "1m_on_2000_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "2000ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_2000_01/trial_093_on.csv",
+      "path": "data/実験データ/研究室/1m_on_2000_01/trial_093_on.csv",
+      "interval_ms": 2000,
+      "set_id": "1m_on_2000_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "2000ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_2000_01/trial_094_on.csv",
+      "path": "data/実験データ/研究室/1m_on_2000_01/trial_094_on.csv",
+      "interval_ms": 2000,
+      "set_id": "1m_on_2000_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "2000ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_01/trial_034_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_01/trial_034_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_01/trial_035_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_01/trial_035_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_01/trial_036_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_01/trial_036_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_01/trial_037_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_01/trial_037_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_01/trial_038_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_01/trial_038_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_01/trial_039_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_01/trial_039_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_01/trial_040_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_01/trial_040_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_01/trial_041_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_01/trial_041_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_01/trial_042_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_01/trial_042_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_01/trial_043_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_01/trial_043_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_01",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_02/trial_075_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_02/trial_075_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_02",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_02/trial_076_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_02/trial_076_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_02",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_02/trial_077_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_02/trial_077_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_02",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_02/trial_078_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_02/trial_078_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_02",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_02/trial_079_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_02/trial_079_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_02",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_02/trial_080_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_02/trial_080_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_02",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_02/trial_081_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_02/trial_081_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_02",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_02/trial_082_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_02/trial_082_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_02",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_02/trial_083_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_02/trial_083_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_02",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_02/trial_084_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_02/trial_084_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_02",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_03/trial_095_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_03/trial_095_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_03",
+      "include": false,
+      "exclude_reason": [
+        "high_current_outlier"
+      ],
+      "notes": "",
+      "cluster_id": "500ms_high_current"
+    },
+    {
+      "trial_id": "1m_on_500_03/trial_096_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_03/trial_096_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_03",
+      "include": false,
+      "exclude_reason": [
+        "high_current_outlier"
+      ],
+      "notes": "",
+      "cluster_id": "500ms_high_current"
+    },
+    {
+      "trial_id": "1m_on_500_03/trial_097_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_03/trial_097_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_03",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_03/trial_098_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_03/trial_098_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_03",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_03/trial_099_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_03/trial_099_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_03",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_03/trial_100_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_03/trial_100_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_03",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_03/trial_101_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_03/trial_101_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_03",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_03/trial_102_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_03/trial_102_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_03",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_03/trial_103_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_03/trial_103_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_03",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "1m_on_500_03/trial_104_on.csv",
+      "path": "data/実験データ/研究室/1m_on_500_03/trial_104_on.csv",
+      "interval_ms": 500,
+      "set_id": "1m_on_500_03",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "",
+      "cluster_id": "500ms_nominal"
+    }
+  ]
+}

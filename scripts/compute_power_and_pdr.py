@@ -13,6 +13,7 @@ Optional ΔE (when OFF dataset is available):
     --data-dir data/実験データ/研究室/1m_ad_on \
     --off-dir  data/実験データ/研究室/1m_ad_off \
     --expected-adv-per-trial 600 \
+    --manifest experiments_manifest.yaml \
     --out results/summary_1m_E2_100ms_deltaE.md
 
 Notes:
@@ -27,18 +28,60 @@ from __future__ import annotations
 import argparse
 import csv
 import glob
+import json
 import os
 import re
 import statistics as stats
-from typing import List, Tuple, Optional
+from typing import Dict, List, Optional, Tuple
 
 
-def read_power_summaries(dir_path: str) -> Tuple[List[float], List[float], List[int]]:
+def load_manifest(path: Optional[str]) -> Dict[str, dict]:
+    """Load manifest (JSON-compatible YAML)."""
+    if not path:
+        return {}
+    try:
+        with open(path, 'r', encoding='utf-8') as fh:
+            raw = json.load(fh)
+    except Exception:
+        return {}
+    index: Dict[str, dict] = {}
+    for entry in raw.get('trials', []):
+        for key in (
+            entry.get('trial_id'),
+            entry.get('path'),
+        ):
+            if not key:
+                continue
+            index[os.path.normpath(key)] = entry
+    return index
+
+
+def manifest_lookup(path: str, manifest_index: Dict[str, dict]) -> Optional[dict]:
+    """Return manifest entry for a given trial file path/base."""
+    if not manifest_index:
+        return None
+    norm = os.path.normpath(path)
+    rel = os.path.normpath(os.path.relpath(path, start=os.getcwd()))
+    base = os.path.splitext(os.path.basename(path))[0]
+    for key in (norm, rel, base):
+        entry = manifest_index.get(key)
+        if entry:
+            return entry
+    return None
+
+
+def read_power_summaries(dir_path: str, manifest_index: Dict[str, dict]) -> Tuple[List[float], List[float], List[int], List[str]]:
     pattern = os.path.join(dir_path, 'trial_*.csv')
     e_totals: List[float] = []
     e_per_adv: List[float] = []
     adv_counts: List[int] = []
+    skipped: List[str] = []
     for f in sorted(glob.glob(pattern)):
+        entry = manifest_lookup(f, manifest_index)
+        if entry and not entry.get('include', True):
+            reason = ','.join(entry.get('exclude_reason', [])) or 'manifest_exclude'
+            skipped.append(f"{os.path.basename(f)} ({reason})")
+            continue
         E_total_mJ = None
         E_per_adv_uJ = None
         adv_count = None
@@ -93,7 +136,7 @@ def read_power_summaries(dir_path: str) -> Tuple[List[float], List[float], List[
             e_per_adv.append(E_per_adv_uJ)
         if adv_count is not None:
             adv_counts.append(adv_count)
-    return e_totals, e_per_adv, adv_counts
+    return e_totals, e_per_adv, adv_counts, skipped
 
 
 def read_rx_pdr(dir_path: str, expected_adv_per_trial: int) -> Tuple[List[int], List[float], List[int]]:
@@ -135,10 +178,13 @@ def main():
     ap.add_argument('--data-dir', required=True, help='Directory with trial_*.csv and rx_trial_*.csv')
     ap.add_argument('--off-dir', help='OFF dataset directory for ΔE computation (trial_*.csv)')
     ap.add_argument('--expected-adv-per-trial', type=int, default=600, help='Expected advertisements per 60s trial (default: 600)')
+    ap.add_argument('--manifest', help='Optional manifest JSON/YAML to include/exclude trials.')
     ap.add_argument('--out', help='Write Markdown summary to this path (prints to stdout if omitted)')
     args = ap.parse_args()
 
-    e_totals, e_per_adv, adv_counts = read_power_summaries(args.data_dir)
+    manifest_index = load_manifest(args.manifest)
+
+    e_totals, e_per_adv, adv_counts, skipped = read_power_summaries(args.data_dir, manifest_index)
     recv_counts, pdrs, rssis_all = read_rx_pdr(args.data_dir, args.expected_adv_per_trial)
 
     e_mean, e_std = fmt_mean_std(e_totals)
@@ -148,7 +194,7 @@ def main():
 
     off_mean = None
     if args.off_dir:
-        off_e, _, _ = read_power_summaries(args.off_dir)
+        off_e, _, _, _ = read_power_summaries(args.off_dir, manifest_index)
         off_mean, _ = fmt_mean_std(off_e)
 
     lines = []
@@ -160,6 +206,8 @@ def main():
     lines.append('- Trials:')
     lines.append(f'  - power files: {len(e_totals)}')
     lines.append(f'  - rx files: {len(recv_counts)}')
+    if skipped:
+        lines.append(f'  - skipped by manifest: {", ".join(skipped)}')
     lines.append('')
     if e_mean is not None:
         lines.append(f'- E_total_mJ mean {e_mean:.3f} (±{(e_std or 0):.3f})')
@@ -185,4 +233,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
