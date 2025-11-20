@@ -1,0 +1,21 @@
+ms,event,rssi,addr,mfd
+# meta, firmware=RX_BLE_to_SD_SYNC_B, trial_index=1
+755,ADV,-44,e0:5a:1b:15:c4:ca,MF010C
+855,ADV,-49,e0:5a:1b:15:c4:ca,MF010D
+1064,ADV,-51,e0:5a:1b:15:c4:ca,MF010F
+1170,ADV,-42,e0:5a:1b:15:c4:ca,MF0110
+1270,ADV,-51,e0:5a:1b:15:c4:ca,MF0111
+1372,ADV,-50,e0:5a:1b:15:c4:ca,MF0112
+1583,ADV,-51,e0:5a:1b:15:c4:ca,MF0114
+1704,ADV,-50,e0:5a:1b:15:c4:ca,MF0115
+1798,ADV,-43,e0:5a:1b:15:c4:ca,MF0116
+1901,ADV,-50,e0:5a:1b:15:c4:ca,MF0117
+2125,ADV,-50,e0:5a:1b:15:c4:ca,MF0119
+2216,ADV,-42,e0:5a:1b:15:c4:ca,MF011A
+2323,ADV,-50,e0:5a:1b:15:c4:ca,MF011B
+2427,ADV,-51,e0:5a:1b:15:c4:ca,MF011D
+2533,ADV,-42,e0:5a:1b:15:c4:ca,MF011E
+2653,ADV,-49,e0:5a:1b:15:c4:ca,MF011F
+2753,ADV,-50,e0:5a:1b:15:c4:ca,MF0120
+2864,ADV,-51,e0:5a:1b:15:c4:ca,MF0121
+2972,ADV,-42,e0:5a:1b:15:c4:ca,MF0122
