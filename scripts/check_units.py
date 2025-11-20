@@ -145,7 +145,7 @@ def integrate_file(path: str) -> Tuple[int, float, float, float, float]:
                             return i
                     return None
                 col_ms = idx({'ms','t','time_ms'}) or col_ms
-                col_mv = idx({'mv','mv ','mv'}) or col_mv
+                col_mv = idx({'mv','mv ','mv','mV'.lower()}) or col_mv
                 col_ua = idx({'ua','µa','ua '}) or col_ua
                 pm_idx = idx({'p_mw'})
                 if pm_idx is not None:

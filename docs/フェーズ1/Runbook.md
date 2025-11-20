@@ -50,3 +50,14 @@
 ### 6.4 端末別トレースとBlender検証（任意）
 - 端末ごとに scan_interval/window の推定トレースを取得し、非理想スキャン条件（Opportunistic Scan含む）を明示する。
 - trace-driven の Blender 検証で TL分布・Pout(τ)・Valley Area を事前確認し、ポリシが特定位相で「穴」に落ちないことを確認する。
+
+
+### 6.x 計測ログ運用アップデート（2025-11-20）
+- **LED/SYNC 統一**: `esp32_sweep/TX_BLE_Adv_Meter_ON_sweep.ino` の trial 中常時HIGHを廃止し、開始時100 msパルスのみ（ベースライン差を解消）。固定桁出力（mv=4桁, uA=6桁）で PowerLogger のパーサ互換。
+- **PowerLogger推奨**: pass-through 版 `esp32_sweep/TXSD_PowerLogger_PASS_THRU_ON_v2.ino` を使用し、p_mW=mv*uA/1e6 をロガ側でも計算（欠落ゼロ前提）。
+- **Manifest運用**: `experiments_manifest.yaml` を必ず渡し、include=false をスキップする。500ms 系はクラスタリング（`scripts/cluster_500ms.py`）で高電流クラスタを自動除外。
+- **ヘッダ方言吸収**: ローダ（`scripts/check_units.py`, `scripts/compute_delta_energy.py`）は mv/mV, ua/µA, p_mW の alias を吸収。旧ログ混在でも再積分で整合を取る。
+- **ΔE/adv集計手順**:
+  1) `python3 scripts/check_units.py --data-dir <dir> --manifest experiments_manifest.yaml`
+  2) 500ms系は `python3 scripts/cluster_500ms.py --set-dir <dir> --manifest experiments_manifest.yaml --out-manifest experiments_manifest.yaml`
+  3) `python3 scripts/compute_delta_energy.py --on-dir <on_dir> --off-dir <off_dir> --manifest experiments_manifest.yaml --expected-adv-per-trial <N_adv>`

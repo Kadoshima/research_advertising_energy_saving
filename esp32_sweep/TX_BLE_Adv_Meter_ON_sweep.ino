@@ -88,7 +88,10 @@ static void startTrial(){
   nextSampleUs = micros() + SAMPLE_US;
   nextAdvMs    = nowMs + ADV_INTERVAL_MS;
 
+  // 100msパルスのみ（trial中はLED/SYNCを常時OFFにする）
   syncStart();
+  delay(100);
+  syncEnd();
   Serial.printf("[TX] start trial group=%u, idx=%u, adv_interval_ms=%u\n",
                 (unsigned)RUN_GROUP_ID,
                 (unsigned)(trialIndex + 1),
