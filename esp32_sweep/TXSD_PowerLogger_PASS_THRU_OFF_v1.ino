@@ -20,7 +20,7 @@ HardwareSerial uart1(1);
 // ---- ピン／定数 ----
 
 static const uint32_t TRIAL_MS        = 60000; // OFF固定窓
-static const bool USE_SYNC_END        = false;  // true: SYNC立ち下がりで終了 / false: TRIAL_MS で終了
+static const bool USE_SYNC_END        = false;  // true: SYNC立ち下がりで終了 / false: TRIAL_MSで終了（立ち下がり無視）
 static const int RX_PIN   = 34;
 static const int SD_CS    = 5;
 static const int SYNC_IN  = 26;
@@ -29,7 +29,7 @@ static const int TICK_IN  = 33;
 // 出力フォーマット：整数CSV（ms,mV,µA[,p_mW]）
 #define CSV_APPEND_PM_W   1        // 1: p_mW列を付ける
 #define USE_TICK_INPUT    0        // 1: TICKで厳密カウント（ON用）
-#define ADV_INTERVAL_MS   0      // 推定用（TICK未配線時のフォールバック計算に使用しうる）
+#define ADV_INTERVAL_MS   0        // OFFでは0（フォールバックは使わない）
 #define SD_CHUNK_BYTES    16384    // SD書込みチャンク（大きいほど良い）
 #define UART_RXBUF_BYTES  16384    // UART受信バッファ拡張
 #define LINE_MAX_BYTES    64       // "mv,uA" 1行の最大想定
@@ -120,8 +120,12 @@ void endTrial(){
   logging = false;
 
   uint32_t t_ms = millis() - t0_ms;
-  uint32_t Nadv = USE_TICK_INPUT ? advCountISR
-                                 : (uint32_t)((t_ms / (double)ADV_INTERVAL_MS) + 0.5);
+  uint32_t Nadv = 0;
+  if (USE_TICK_INPUT) {
+    Nadv = advCountISR;
+  } else if (ADV_INTERVAL_MS > 0) {
+    Nadv = (uint32_t)((t_ms / (double)ADV_INTERVAL_MS) + 0.5);
+  }
   double Eper_uJ = (Nadv>0) ? (E_mJ * 1000.0 / Nadv) : 0.0;
 
   // まとめ（#summary / #diag / #sys）
@@ -185,12 +189,19 @@ void setup(){
 }
 
 void loop(){
-  // SYNC立上りで開始、SYNC下降で終了
+  // SYNC立上りで開始、立下りで終了（USE_SYNC_END=true時のみ）
   if (syncEdge){
     noInterrupts(); bool s=syncLvl; syncEdge=false; interrupts();
     if (s && !logging) {
       startTrial();
-    } else if (!s && logging) {
+    } else if (USE_SYNC_END && !s && logging) {
+      endTrial();
+    }
+  }
+
+  // 固定窓終了（OFF用）
+  if (!USE_SYNC_END && logging){
+    if ((millis() - t0_ms) >= TRIAL_MS){
       endTrial();
     }
   }
