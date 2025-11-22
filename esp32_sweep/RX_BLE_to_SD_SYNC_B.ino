@@ -29,7 +29,8 @@
 static const int SD_CS                = 5;
 static const int SYNC_IN              = 26;
 static const uint16_t ADV_INTERVAL_MS = 100;
-static const uint32_t TRIAL_MS        = 60000; // 旧固定窓（互換性のため残置・通常はSYNCで区切る）
+static const uint32_t TRIAL_MS        = 60000; // 固定窓（短パルス時の保険）
+static const bool USE_SYNC_END        = false;  // true: SYNC立ち下がりで終了 / false: TRIAL_MS で終了
 
 #ifndef SCAN_MS
   #define SCAN_MS 50
@@ -183,7 +184,14 @@ void loop(){
     noInterrupts(); bool s=syncLvl; syncEdge=false; interrupts();
     if (s && !trial) {
       startTrial();
-    } else if (!s && trial) {
+    } else if (USE_SYNC_END && !s && trial) {
+      endTrial();
+    }
+  }
+
+  // 固定窓での自動終了（SYNC立ち下がりを無視する場合）
+  if (trial && !USE_SYNC_END){
+    if ((millis() - t0Ms) >= TRIAL_MS){
       endTrial();
     }
   }
