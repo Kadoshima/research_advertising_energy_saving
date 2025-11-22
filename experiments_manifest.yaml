@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2025-11-20T23:08:38",
-  "generator": "manual-update-iso8601",
+  "generated_at": "2025-11-22T18:31:54",
+  "generator": "auto-import-row1120-clean",
   "description": "Trial-level manifest for inclusion/exclusion and metadata. Parsed as JSON (valid YAML).",
   "trials": [
     {
@@ -1022,6 +1022,630 @@
       "include": true,
       "exclude_reason": [],
       "notes": "",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "row/1120/RX/rx_trial_021.csv",
+      "path": "row/1120/RX/rx_trial_021.csv",
+      "interval_ms": null,
+      "set_id": "row_1120_garbage",
+      "include": false,
+      "exclude_reason": [
+        "garbage"
+      ],
+      "notes": "short/empty or mid-program",
+      "cluster_id": "garbage"
+    },
+    {
+      "trial_id": "row/1120/RX/rx_trial_022.csv",
+      "path": "row/1120/RX/rx_trial_022.csv",
+      "interval_ms": null,
+      "set_id": "row_1120_garbage",
+      "include": false,
+      "exclude_reason": [
+        "garbage"
+      ],
+      "notes": "short/empty or mid-program",
+      "cluster_id": "garbage"
+    },
+    {
+      "trial_id": "row/1120/RX/rx_trial_023.csv",
+      "path": "row/1120/RX/rx_trial_023.csv",
+      "interval_ms": null,
+      "set_id": "row_1120_garbage",
+      "include": false,
+      "exclude_reason": [
+        "garbage"
+      ],
+      "notes": "short/empty or mid-program",
+      "cluster_id": "garbage"
+    },
+    {
+      "trial_id": "row/1120/RX/rx_trial_029.csv",
+      "path": "row/1120/RX/rx_trial_029.csv",
+      "interval_ms": null,
+      "set_id": "row_1120_garbage",
+      "include": false,
+      "exclude_reason": [
+        "garbage"
+      ],
+      "notes": "short/empty or mid-program",
+      "cluster_id": "garbage"
+    },
+    {
+      "trial_id": "row/1120/RX/rx_trial_032.csv",
+      "path": "row/1120/RX/rx_trial_032.csv",
+      "interval_ms": null,
+      "set_id": "row_1120_garbage",
+      "include": false,
+      "exclude_reason": [
+        "garbage"
+      ],
+      "notes": "short/empty or mid-program",
+      "cluster_id": "garbage"
+    },
+    {
+      "trial_id": "row/1120/TX/trial_130_on.csv",
+      "path": "row/1120/TX/trial_130_on.csv",
+      "interval_ms": null,
+      "set_id": "row_1120_garbage",
+      "include": false,
+      "exclude_reason": [
+        "garbage"
+      ],
+      "notes": "short/empty or mid-program",
+      "cluster_id": "garbage"
+    },
+    {
+      "trial_id": "row/1120/TX/trial_133_on.csv",
+      "path": "row/1120/TX/trial_133_on.csv",
+      "interval_ms": null,
+      "set_id": "row_1120_garbage",
+      "include": false,
+      "exclude_reason": [
+        "garbage"
+      ],
+      "notes": "short/empty or mid-program",
+      "cluster_id": "garbage"
+    },
+    {
+      "trial_id": "row_1120_on_1000_rx/1m_on_1000_001.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_1000_001.csv",
+      "interval_ms": 1000,
+      "set_id": "row_1120_on_1000_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "1000ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_1000_rx/1m_on_1000_002.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_1000_002.csv",
+      "interval_ms": 1000,
+      "set_id": "row_1120_on_1000_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "1000ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_1000_rx/1m_on_1000_003.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_1000_003.csv",
+      "interval_ms": 1000,
+      "set_id": "row_1120_on_1000_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "1000ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_1000_rx/1m_on_1000_004.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_1000_004.csv",
+      "interval_ms": 1000,
+      "set_id": "row_1120_on_1000_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "1000ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_1000_rx/1m_on_1000_005.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_1000_005.csv",
+      "interval_ms": 1000,
+      "set_id": "row_1120_on_1000_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "1000ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_1000_tx/1m_on_1000_001.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_1000_001.csv",
+      "interval_ms": 1000,
+      "set_id": "row_1120_on_1000_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "1000ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_1000_tx/1m_on_1000_002.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_1000_002.csv",
+      "interval_ms": 1000,
+      "set_id": "row_1120_on_1000_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "1000ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_1000_tx/1m_on_1000_003.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_1000_003.csv",
+      "interval_ms": 1000,
+      "set_id": "row_1120_on_1000_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "1000ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_1000_tx/1m_on_1000_004.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_1000_004.csv",
+      "interval_ms": 1000,
+      "set_id": "row_1120_on_1000_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "1000ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_1000_tx/1m_on_1000_005.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_1000_005.csv",
+      "interval_ms": 1000,
+      "set_id": "row_1120_on_1000_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "1000ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_100_rx/1m_on_100_001.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_100_001.csv",
+      "interval_ms": 100,
+      "set_id": "row_1120_on_100_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "100ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_100_rx/1m_on_100_002.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_100_002.csv",
+      "interval_ms": 100,
+      "set_id": "row_1120_on_100_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "100ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_100_rx/1m_on_100_003.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_100_003.csv",
+      "interval_ms": 100,
+      "set_id": "row_1120_on_100_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "100ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_100_rx/1m_on_100_004.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_100_004.csv",
+      "interval_ms": 100,
+      "set_id": "row_1120_on_100_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "100ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_100_rx/1m_on_100_005.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_100_005.csv",
+      "interval_ms": 100,
+      "set_id": "row_1120_on_100_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "100ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_100_rx/1m_on_100_006.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_100_006.csv",
+      "interval_ms": 100,
+      "set_id": "row_1120_on_100_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "100ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_100_rx/1m_on_100_007.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_100_007.csv",
+      "interval_ms": 100,
+      "set_id": "row_1120_on_100_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "100ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_100_rx/1m_on_100_008.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_100_008.csv",
+      "interval_ms": 100,
+      "set_id": "row_1120_on_100_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "100ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_100_rx/1m_on_100_009.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_100_009.csv",
+      "interval_ms": 100,
+      "set_id": "row_1120_on_100_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "100ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_100_rx/1m_on_100_010.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_100_010.csv",
+      "interval_ms": 100,
+      "set_id": "row_1120_on_100_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "100ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_100_tx/1m_on_100_001.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_100_001.csv",
+      "interval_ms": 100,
+      "set_id": "row_1120_on_100_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "100ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_100_tx/1m_on_100_002.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_100_002.csv",
+      "interval_ms": 100,
+      "set_id": "row_1120_on_100_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "100ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_100_tx/1m_on_100_003.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_100_003.csv",
+      "interval_ms": 100,
+      "set_id": "row_1120_on_100_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "100ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_100_tx/1m_on_100_004.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_100_004.csv",
+      "interval_ms": 100,
+      "set_id": "row_1120_on_100_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "100ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_100_tx/1m_on_100_005.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_100_005.csv",
+      "interval_ms": 100,
+      "set_id": "row_1120_on_100_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "100ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_100_tx/1m_on_100_006.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_100_006.csv",
+      "interval_ms": 100,
+      "set_id": "row_1120_on_100_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "100ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_100_tx/1m_on_100_007.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_100_007.csv",
+      "interval_ms": 100,
+      "set_id": "row_1120_on_100_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "100ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_100_tx/1m_on_100_008.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_100_008.csv",
+      "interval_ms": 100,
+      "set_id": "row_1120_on_100_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "100ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_100_tx/1m_on_100_009.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_100_009.csv",
+      "interval_ms": 100,
+      "set_id": "row_1120_on_100_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "100ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_100_tx/1m_on_100_010.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_100_010.csv",
+      "interval_ms": 100,
+      "set_id": "row_1120_on_100_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "100ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_2000_rx/1m_on_2000_001.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_2000_001.csv",
+      "interval_ms": 2000,
+      "set_id": "row_1120_on_2000_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "2000ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_2000_rx/1m_on_2000_002.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_2000_002.csv",
+      "interval_ms": 2000,
+      "set_id": "row_1120_on_2000_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "2000ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_2000_tx/1m_on_2000_001.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_2000_001.csv",
+      "interval_ms": 2000,
+      "set_id": "row_1120_on_2000_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "2000ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_2000_tx/1m_on_2000_002.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_2000_002.csv",
+      "interval_ms": 2000,
+      "set_id": "row_1120_on_2000_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "2000ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_500_rx/1m_on_500_001.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_500_001.csv",
+      "interval_ms": 500,
+      "set_id": "row_1120_on_500_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_500_rx/1m_on_500_002.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_500_002.csv",
+      "interval_ms": 500,
+      "set_id": "row_1120_on_500_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_500_rx/1m_on_500_003.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_500_003.csv",
+      "interval_ms": 500,
+      "set_id": "row_1120_on_500_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_500_rx/1m_on_500_004.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_500_004.csv",
+      "interval_ms": 500,
+      "set_id": "row_1120_on_500_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_500_rx/1m_on_500_005.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_500_005.csv",
+      "interval_ms": 500,
+      "set_id": "row_1120_on_500_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_500_rx/1m_on_500_006.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_500_006.csv",
+      "interval_ms": 500,
+      "set_id": "row_1120_on_500_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_500_rx/1m_on_500_007.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_500_007.csv",
+      "interval_ms": 500,
+      "set_id": "row_1120_on_500_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_500_rx/1m_on_500_008.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_500_008.csv",
+      "interval_ms": 500,
+      "set_id": "row_1120_on_500_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_500_rx/1m_on_500_009.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_500_009.csv",
+      "interval_ms": 500,
+      "set_id": "row_1120_on_500_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_500_rx/1m_on_500_010.csv",
+      "path": "data/実験データ/研究室/row_1120/RX/1m_on_500_010.csv",
+      "interval_ms": 500,
+      "set_id": "row_1120_on_500_rx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_500_tx/1m_on_500_001.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_500_001.csv",
+      "interval_ms": 500,
+      "set_id": "row_1120_on_500_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_500_tx/1m_on_500_002.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_500_002.csv",
+      "interval_ms": 500,
+      "set_id": "row_1120_on_500_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_500_tx/1m_on_500_003.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_500_003.csv",
+      "interval_ms": 500,
+      "set_id": "row_1120_on_500_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_500_tx/1m_on_500_004.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_500_004.csv",
+      "interval_ms": 500,
+      "set_id": "row_1120_on_500_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_500_tx/1m_on_500_005.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_500_005.csv",
+      "interval_ms": 500,
+      "set_id": "row_1120_on_500_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_500_tx/1m_on_500_006.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_500_006.csv",
+      "interval_ms": 500,
+      "set_id": "row_1120_on_500_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_500_tx/1m_on_500_007.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_500_007.csv",
+      "interval_ms": 500,
+      "set_id": "row_1120_on_500_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_500_tx/1m_on_500_008.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_500_008.csv",
+      "interval_ms": 500,
+      "set_id": "row_1120_on_500_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_500_tx/1m_on_500_009.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_500_009.csv",
+      "interval_ms": 500,
+      "set_id": "row_1120_on_500_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
+      "cluster_id": "500ms_nominal"
+    },
+    {
+      "trial_id": "row_1120_on_500_tx/1m_on_500_010.csv",
+      "path": "data/実験データ/研究室/row_1120/TX/1m_on_500_010.csv",
+      "interval_ms": 500,
+      "set_id": "row_1120_on_500_tx",
+      "include": true,
+      "exclude_reason": [],
+      "notes": "row1120 import",
       "cluster_id": "500ms_nominal"
     }
   ]
