@@ -33,9 +33,17 @@
 - 併記: 環境ごとに95% CIを併記。P1で{θ_low, θ_high}を確定し、旧{0.40,0.70}を置換
 
 ### 6.1 エネルギーKPIとΔE/adv
-- 定義: ΔE/adv = (E_ON − E_OFF) / N_adv [mJ/adv] とし、電力評価は原則としてこの指標を主語にする。
-- ねらい: 測定系の定常負荷（CPU/I2C/UART/LED等）を相殺し、無線1回あたりの純粋コストを比較可能にする。
+- 定義: ΔE/adv = (E_ON − P_off × T_ON) / N_adv [mJ/adv]。P_off は OFF 試行の平均電力（E_off/T_off、外れ値除外後）で、T_ON に時間スケールを合わせて引く。
+- ねらい: 測定系の定常負荷（CPU/I2C/UART/LED等）を相殺し、無線1回あたりの純粋コストを比較可能にする。T_on≠T_off でも整合。
 - レポート: 平均電流[mA]は補助指標として併記し、ΔE/advとセットで解釈する。
+
+### 6.2 PDR の扱い（v1）
+- 正式指標: `PDR_ms = rx_unique / (ms_rx / interval_ms)`（RXログを seq 去重、時間から期待 ADV 数を推定）。0〜1に収まる想定。
+- 参考指標: `PDR_raw = rx_count_raw / adv_count`、`PDR_unique = rx_count_unique / adv_count`（TXSD adv_count依存）。`--clip-pdr` で max=1.0 を適用。
+- 運用ルール:
+  - レポート・図表は `PDR_ms`（clip済み）を用いる。
+  - `PDR_ms > 1.1` または `<0` が出た trial は manifest で `cluster_id="<interval>ms_pdr_inconsistent"`、`exclude_reason=["pdr_inconsistent"]` として再測定対象。
+  - RX単体 est_pdr は QC用。`0<=est_pdr<=1.1` を許容、それ以外は `rx_pdr_out_of_range` として除外候補。
 
 ### 6.2 スキャン環境の実務上の注意
 - Android: 実験時は `SCAN_MODE_LOW_LATENCY` を原則とし、Doze/App Standby やベンダ独自の省電力機能は無効化する。
@@ -57,7 +65,11 @@
 - **PowerLogger推奨**: pass-through 版 `esp32_sweep/TXSD_PowerLogger_PASS_THRU_ON_v2.ino` を使用し、p_mW=mv*uA/1e6 をロガ側でも計算（欠落ゼロ前提）。
 - **Manifest運用**: `experiments_manifest.yaml` を必ず渡し、include=false をスキップする。500ms 系はクラスタリング（`scripts/cluster_500ms.py`）で高電流クラスタを自動除外。
 - **ヘッダ方言吸収**: ローダ（`scripts/check_units.py`, `scripts/compute_delta_energy.py`）は mv/mV, ua/µA, p_mW の alias を吸収。旧ログ混在でも再積分で整合を取る。
-- **ΔE/adv集計手順**:
-  1) `python3 scripts/check_units.py --data-dir <dir> --manifest experiments_manifest.yaml`
-  2) 500ms系は `python3 scripts/cluster_500ms.py --set-dir <dir> --manifest experiments_manifest.yaml --out-manifest experiments_manifest.yaml`
-  3) `python3 scripts/compute_delta_energy.py --on-dir <on_dir> --off-dir <off_dir> --manifest experiments_manifest.yaml --expected-adv-per-trial <N_adv>`
+- **計測前提（固定値）**: ON は 1 trial あたり ADV 300 回送出を設計値とし、TXSD の `adv_count` を真値とする。OFF は 60 s 固定窓（必要なら 120 s まで延長可）で P_off を推定し、P_off_trial の median±3MAD で high_baseline_outlier を除外（manifest の include=false で管理）。
+- **外れ値ルール（manifest）**: ON は interval ごとに `E_total_mJ`（または mean_p）を median±3MAD で判定し、超過を `high_current_outlier` として include=false。OFF は `P_off_trial` に median±3MAD を適用し、`high_baseline_outlier` として include=false。
+- **ΔE/adv集計手順（時間スケール吸収版）**:
+  1) `python3 scripts/check_units.py --data-dir <on_tx_dir> --manifest experiments_manifest.yaml`
+  2) OFF 側: `python3 scripts/check_units_off.py --data-dir <off_dir> --manifest experiments_manifest.yaml --mad-multiplier 3`
+  3) 必要に応じて 500ms 系クラスタ除外: `python3 scripts/cluster_500ms.py --set-dir <dir> --manifest experiments_manifest.yaml --out-manifest experiments_manifest.yaml`
+  4) ΔE/adv 計算: `python3 scripts/compute_delta_energy_off.py --on-dir <on_tx_dir> --off-dir <off_dir> --manifest experiments_manifest.yaml --mad-multiplier 3 --expected-adv-per-trial 300`
+- **PDR 集計**: TXSD と RX を join し、PDR = rx_count/adv_count を interval ごとに算出する（`scripts/compute_pdr_join.py` を使用）。RX 単体の est_pdr はデバッグ参照値。
