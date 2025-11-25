@@ -83,9 +83,8 @@ class WindowDataset(Dataset):
             data = np.load(p, allow_pickle=True)
             X = data["X"]
             y = data["y4" if use_labels4 else "y12"]
-            if not use_labels4:
-                # y12 are 1-12; shift to 0-11 for CE loss
-                y = y - 1
+            # y12 is already 0-indexed (0-11) after preprocessing
+            # y4 is 0-indexed (0=Locomotion, 1=Transition, 2=Stationary)
             for i in range(len(X)):
                 self.samples.append((X[i], int(y[i])))
         self.return_logits = return_logits
