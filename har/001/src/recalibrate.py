@@ -1,4 +1,13 @@
-"""Recalibrate saved model logits with expanded temperature search range."""
+"""Recalibrate saved model logits with expanded temperature search range.
+
+WARNING: This script is DEPRECATED due to test leakage.
+It uses TEST logits to search for T/tau, which violates proper validation protocol.
+
+DO NOT USE for final results. train_phase0-1.py already performs proper
+calibration using validation set.
+
+This file is kept for historical reference only.
+"""
 from __future__ import annotations
 
 import argparse

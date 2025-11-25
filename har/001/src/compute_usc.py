@@ -19,16 +19,22 @@ import torch
 
 
 def compute_uncertainty(probs: np.ndarray) -> np.ndarray:
-    """Compute uncertainty U = 1 - max(softmax).
+    """Compute normalized entropy as uncertainty.
+
+    U = -Σ(p * log(p)) / log(n_classes)
 
     Args:
         probs: [N, n_classes] probability matrix (after softmax)
 
     Returns:
-        U: [N] uncertainty values in [0, 1]
+        U: [N] normalized entropy values in [0, 1]
+        where 0 = certain (one class has p=1), 1 = maximum uncertainty (uniform distribution)
     """
-    max_prob = probs.max(axis=1)
-    return 1.0 - max_prob
+    n_classes = probs.shape[1]
+    eps = 1e-10
+    entropy = -np.sum(probs * np.log(probs + eps), axis=1)
+    max_entropy = np.log(n_classes)
+    return entropy / max_entropy
 
 
 def compute_stability(predictions: np.ndarray, window_size: int = 10) -> np.ndarray:
@@ -218,10 +224,11 @@ def compute_usc_for_fold(fold_dir: Path, config: Dict, use_recalibrated: bool = 
                                    theta_low=config["ccs"]["theta_low"],
                                    theta_high=config["ccs"]["theta_high"])
 
-    # Apply dwell time filter (min_stay_s * fs_hz)
-    fs_hz = config.get("data", {}).get("fs_hz", 50)
-    min_dwell_samples = int(config["ccs"]["min_stay_s"] * fs_hz)
-    states_filtered = apply_dwell_time_filter(states_raw, min_dwell_samples)
+    # Apply dwell time filter (convert seconds to window count)
+    # min_dwell_windows = min_stay_s / hop_s
+    hop_s = config.get("data", {}).get("hop_s", 1.0)
+    min_dwell_windows = int(config["ccs"]["min_stay_s"] / hop_s)
+    states_filtered = apply_dwell_time_filter(states_raw, min_dwell_windows)
 
     # Compute statistics
     stats = {

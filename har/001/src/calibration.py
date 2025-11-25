@@ -14,18 +14,33 @@ def temperature_scale(logits: torch.Tensor, T: float) -> torch.Tensor:
 
 
 def eval_ece(probs: np.ndarray, labels: np.ndarray, n_bins: int = 15) -> float:
+    """Compute ECE with equal-frequency binning (matches train_phase0-1.py).
+
+    Args:
+        probs: [N, n_classes] probability matrix
+        labels: [N] ground truth labels
+        n_bins: number of bins (default 15)
+
+    Returns:
+        ECE value
+    """
     labels = np.asarray(labels)
     confidences = probs.max(axis=1)
     preds = probs.argmax(axis=1)
-    bins = np.linspace(0.0, 1.0, n_bins + 1)
+    accuracies = (preds == labels).astype(float)
+
+    # Equal-frequency binning
+    bin_boundaries = np.percentile(confidences, np.linspace(0, 100, n_bins + 1))
+    bin_boundaries[-1] += 1e-8  # ensure last bin includes max
+
     ece = 0.0
     for i in range(n_bins):
-        mask = (confidences > bins[i]) & (confidences <= bins[i + 1])
-        if not np.any(mask):
-            continue
-        acc = (preds[mask] == labels[mask]).mean()
-        conf = confidences[mask].mean()
-        ece += np.abs(acc - conf) * mask.mean()
+        mask = (confidences >= bin_boundaries[i]) & (confidences < bin_boundaries[i + 1])
+        if mask.sum() > 0:
+            bin_conf = confidences[mask].mean()
+            bin_acc = accuracies[mask].mean()
+            bin_size = mask.sum()
+            ece += (bin_size / len(confidences)) * abs(bin_conf - bin_acc)
     return float(ece)
 
 

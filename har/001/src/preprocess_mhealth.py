@@ -29,9 +29,29 @@ def load_subject(path: Path) -> pd.DataFrame:
 
 
 def map_to_operational(label12: np.ndarray) -> np.ndarray:
-    locomotion = {4, 9, 10, 11, 12}
-    transition = {5, 6, 7, 8}
-    stationary = {1, 2, 3}
+    """Map mHealth 12-class labels (1-indexed) to 4-class operational labels.
+
+    mHealth labels (1-indexed from dataset):
+    - L1: Standing, L2: Sitting, L3: Lying
+    - L4: Walking, L5: Stairs, L6: Bends, L7: Arms, L8: Crouch
+    - L9: Cycling, L10: Jogging, L11: Running, L12: Jump
+    - L0: Null (no label)
+
+    After conversion to 0-indexed (subtract 1):
+    - 0: Standing, 1: Sitting, 2: Lying
+    - 3: Walking, 4: Stairs, 5: Bends, 6: Arms, 7: Crouch
+    - 8: Cycling, 9: Jogging, 10: Running, 11: Jump
+
+    Operational 4-class mapping:
+    - 0 (Locomotion): Walking(3), Cycling(8), Jogging(9), Running(10)
+    - 1 (Transition): Stairs(4), Bends(5), Arms(6), Crouch(7), Jump(11)
+    - 2 (Stationary): Standing(0), Sitting(1), Lying(2)
+    - -1 (Ignore): Null/unlabeled
+    """
+    locomotion = {3, 8, 9, 10}  # 0-indexed after conversion
+    transition = {4, 5, 6, 7, 11}
+    stationary = {0, 1, 2}
+
     out = np.full_like(label12, fill_value=-1)
     for cls in locomotion:
         out[label12 == cls] = 0
@@ -39,7 +59,7 @@ def map_to_operational(label12: np.ndarray) -> np.ndarray:
         out[label12 == cls] = 1
     for cls in stationary:
         out[label12 == cls] = 2
-    out[label12 == 0] = -1
+    # Label 0 (null) and any unknown values remain -1 (Ignore)
     return out
 
 
@@ -93,10 +113,26 @@ def run_one(subject_id: int, cfg: PreprocessConfig, raw_dir: Path, out_dir: Path
     acc = df.iloc[:, CHEST_ACC_COLS].to_numpy(dtype=np.float32)
     gyro = df.iloc[:, WRIST_GYRO_COLS].to_numpy(dtype=np.float32) if cfg.use_gyro else None
     labels = df.iloc[:, LABEL_COL].to_numpy(dtype=np.int64)
-    X, y12, spans = window_data(acc, gyro, labels, cfg.fs_hz, cfg.window_s, cfg.hop_s, cfg.purity_min, cfg.boundary_exclude_s)
+    X, y12_1indexed, spans = window_data(acc, gyro, labels, cfg.fs_hz, cfg.window_s, cfg.hop_s, cfg.purity_min, cfg.boundary_exclude_s)
     if X.shape[0] == 0:
         print(f"[warn] subject {subject_id}: no valid windows")
         return
+
+    # Convert to 0-indexed for model training
+    # mHealth labels are 1-12 (1-indexed), convert to 0-11
+    # Note: window_data should have filtered out label=0 (null), but verify
+    y12 = y12_1indexed - 1
+
+    # Filter out any remaining null labels (originally 0, now -1 after conversion)
+    valid_mask = y12 >= 0
+    X = X[valid_mask]
+    y12 = y12[valid_mask]
+    spans = [spans[i] for i in range(len(spans)) if valid_mask[i]]
+
+    if X.shape[0] == 0:
+        print(f"[warn] subject {subject_id}: no valid windows after filtering")
+        return
+
     X = zscore_per_subject(X)
     y4 = map_to_operational(y12)
     out_dir.mkdir(parents=True, exist_ok=True)

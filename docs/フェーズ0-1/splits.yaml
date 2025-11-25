@@ -4,18 +4,38 @@ folds:
     val: [2]
     train: [3,4,5,6,7,8,9,10]
   - id: fold2
+    test: [2]
+    val: [3]
+    train: [1,4,5,6,7,8,9,10]
+  - id: fold3
     test: [3]
     val: [4]
     train: [1,2,5,6,7,8,9,10]
-  - id: fold3
+  - id: fold4
+    test: [4]
+    val: [5]
+    train: [1,2,3,6,7,8,9,10]
+  - id: fold5
     test: [5]
     val: [6]
     train: [1,2,3,4,7,8,9,10]
-  - id: fold4
+  - id: fold6
+    test: [6]
+    val: [7]
+    train: [1,2,3,4,5,8,9,10]
+  - id: fold7
     test: [7]
     val: [8]
     train: [1,2,3,4,5,6,9,10]
-  - id: fold5
+  - id: fold8
+    test: [8]
+    val: [9]
+    train: [1,2,3,4,5,6,7,10]
+  - id: fold9
     test: [9]
     val: [10]
     train: [1,2,3,4,5,6,7,8]
+  - id: fold10
+    test: [10]
+    val: [1]
+    train: [2,3,4,5,6,7,8,9]
