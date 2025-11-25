@@ -2,3 +2,37 @@ stm32ai-modelzoo/
 ISWC22-HAR/
 .venv_har/
 row/*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+har/001/.venv*/
+har/001/.uv*/
+har/*/venv/
+har/*/.venv*/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data files (exclude large binary data)
+har/001/data_processed/*.npz
+
+# Model checkpoints (exclude large binary files)
+har/001/runs/**/*.pth
+har/001/runs/**/*.pt
+
+# Logs
+*.log

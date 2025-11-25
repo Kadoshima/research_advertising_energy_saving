@@ -1,0 +1,44 @@
+# Local override for HAR phase0-1 (imports values from repo root configs/phase0-1.yaml)
+#
+# Use this to add paths/output locations specific to har/001 runs without touching the canonical config.
+
+include: "../../configs/phase0-1.yaml"
+
+paths:
+  raw_dir: "data/MHEALTHDATASET"              # repo root 起点
+  processed_dir: "har/001/data_processed"     # repo root 起点
+  runs_dir: "har/001/runs/phase0-1"           # repo root 起点
+  splits_yaml: "docs/フェーズ0-1/splits.yaml"  # repo root 起点
+
+training:
+  device: "cpu"  # set "mps" if安定動作する場合のみ
+  num_workers: 0
+  log_interval: 20
+  save_predictions: true
+model:
+  in_ch: 3  # chest acc only (default). set to 6 if use_gyro flag is enabled and model is adjusted.
+
+train:
+  optim: "adam"
+  lr: 0.001
+  batch: 128       # reduce batch for stability
+  max_epoch: 80    # revert to full training
+  early_stop_patience: 10
+  weight_decay: 0.0001
+
+calibration:
+  ece_bins: 15
+  ece_binning: "equal_frequency"
+  temp_scale: true
+
+unknown:
+  tau_target_coverage: [0.05, 0.15]
+  select_by: "max_F1_macro"
+
+ccs:
+  alpha: 0.6  # U weight
+  beta: 0.4   # (1-S)
+  theta_low: 0.40
+  theta_high: 0.70
+  min_stay_s: 2.0
+  max_switch_per_s: 1
