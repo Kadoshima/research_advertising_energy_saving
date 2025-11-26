@@ -1,0 +1,35 @@
+{
+  "output": {
+    "filePath": "docs/phase0-1_evidence_repomix.xml",
+    "style": "xml",
+    "removeComments": false,
+    "removeEmptyLines": false,
+    "topFilesLength": 50
+  },
+  "include": [
+    "src/preprocess_mhealth.py",
+    "src/train_phase0-1.py",
+    "src/calibration.py",
+    "src/compute_usc.py",
+    "src/analyze_subject_outliers.py",
+    "src/analyze_confusion_detail.py",
+    "configs/phase0-1.local.yaml",
+    "runs/phase0-1/summary.json",
+    "runs/phase0-1/fold5/metrics.json",
+    "analysis/subject_statistics.json",
+    "analysis/subject_comparison.csv",
+    "analysis/confusion_detail_12class.json",
+    "analysis/confusion_4class.json",
+    "analysis/ble_interval_errors.json",
+    "analysis/ble_impact_summary.csv",
+    "docs/Phase0-1_作業ログ_2025-11-25.md",
+    "docs/実験完了報告書_phase0-1_2025-11-25.md",
+    "docs/外れ値分析_Sub02_Sub08.md",
+    "docs/Phase0-1再評価報告書_2025-11-25.md"
+  ],
+  "ignore": {
+    "useGitignore": false,
+    "useDefaultPatterns": false,
+    "customPatterns": []
+  }
+}

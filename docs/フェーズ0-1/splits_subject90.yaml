@@ -1,0 +1,5 @@
+folds:
+  - id: fold90
+    train: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    val: []        # 空の場合はtrainからval_ratioでサブサンプル
+    test: [10]
