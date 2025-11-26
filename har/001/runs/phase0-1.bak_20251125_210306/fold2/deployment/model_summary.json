@@ -1,0 +1,101 @@
+{
+  "model": "DSCNN",
+  "input_shape": [
+    1,
+    100,
+    3
+  ],
+  "output_shape": [
+    1,
+    12
+  ],
+  "parameters": 10988,
+  "model_size_bytes_float32": 43952,
+  "model_size_bytes_int8_est": 10988,
+  "flops_millions": 6.856704,
+  "inference_time_ms_cpu": 0.915980339050293,
+  "layers": [
+    {
+      "name": "features.0",
+      "type": "Conv1d",
+      "in_channels": 3,
+      "out_channels": 32,
+      "kernel_size": 5,
+      "stride": 1,
+      "padding": 2,
+      "groups": 1
+    },
+    {
+      "name": "features.1",
+      "type": "BatchNorm1d",
+      "num_features": 32
+    },
+    {
+      "name": "features.3.depthwise",
+      "type": "Conv1d",
+      "in_channels": 32,
+      "out_channels": 32,
+      "kernel_size": 5,
+      "stride": 1,
+      "padding": 2,
+      "groups": 32
+    },
+    {
+      "name": "features.3.pointwise",
+      "type": "Conv1d",
+      "in_channels": 32,
+      "out_channels": 64,
+      "kernel_size": 1,
+      "stride": 1,
+      "padding": 0,
+      "groups": 1
+    },
+    {
+      "name": "features.3.bn",
+      "type": "BatchNorm1d",
+      "num_features": 64
+    },
+    {
+      "name": "features.4.depthwise",
+      "type": "Conv1d",
+      "in_channels": 64,
+      "out_channels": 64,
+      "kernel_size": 5,
+      "stride": 1,
+      "padding": 2,
+      "groups": 64
+    },
+    {
+      "name": "features.4.pointwise",
+      "type": "Conv1d",
+      "in_channels": 64,
+      "out_channels": 96,
+      "kernel_size": 1,
+      "stride": 1,
+      "padding": 0,
+      "groups": 1
+    },
+    {
+      "name": "features.4.bn",
+      "type": "BatchNorm1d",
+      "num_features": 96
+    },
+    {
+      "name": "classifier",
+      "type": "Linear",
+      "in_features": 96,
+      "out_features": 12
+    }
+  ],
+  "calibration": {
+    "temperature": 0.732,
+    "tau_unknown": 0.5800000000000003
+  },
+  "deployment": {
+    "target": "ESP32-S3",
+    "framework": "TensorFlow Lite for Microcontrollers",
+    "quantization": "int8",
+    "tensor_arena_kb_target": 80,
+    "flash_kb_target": 200
+  }
+}

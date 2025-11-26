@@ -1,0 +1,49 @@
+# Local override for HAR phase0-1 (gyro使用版). Root configs/phase0-1.yaml を include し、パスだけ切り替える。
+
+include: "../../configs/phase0-1.yaml"
+
+paths:
+  raw_dir: "data/MHEALTHDATASET"                 # repo root 起点
+  processed_dir: "har/001/data_processed_gyro"   # gyro付き前処理出力
+  runs_dir: "har/001/runs/phase0-1-gyro"         # 新しいruns保存先
+  splits_yaml: "docs/フェーズ0-1/splits.yaml"     # LOSO 5fold
+
+data:
+  fs_hz: 50
+  window_s: 2.0
+  hop_s: 1.0
+
+training:
+  device: "cpu"  # mpsは不安定なのでCPU固定
+  num_workers: 0
+  log_interval: 20
+  save_predictions: true
+
+model:
+  in_ch: 6  # Acc+Gyro
+
+train:
+  optim: "adam"
+  lr: 0.001
+  batch: 128
+  max_epoch: 5
+  early_stop_patience: 2
+  val_ratio: 0.1    # valが未指定のときにtrainから切り出す比率
+  weight_decay: 0.0001
+
+calibration:
+  ece_bins: 20
+  ece_binning: "equal_frequency"
+  temp_scale: true
+
+unknown:
+  tau_target_coverage: [0.05, 0.15]
+  select_by: "max_F1_macro"
+
+ccs:
+  alpha: 0.6  # U weight
+  beta: 0.4   # (1-S)
+  theta_low: 0.40
+  theta_high: 0.70
+  min_stay_s: 2.0
+  max_switch_per_s: 1

@@ -1,0 +1,49 @@
+# 3軸版（Accのみ）設定。root configs/phase0-1.yaml を include。
+
+include: "../../configs/phase0-1.yaml"
+
+paths:
+  raw_dir: "data/MHEALTHDATASET"
+  processed_dir: "har/001/data_processed"         # 3ch (Acc) 前処理出力
+  runs_dir: "har/001/runs/phase0-1-acc"
+  splits_yaml: "docs/フェーズ0-1/splits_subject90.yaml"
+
+data:
+  fs_hz: 50
+  window_s: 2.0
+  hop_s: 1.0
+
+training:
+  device: "cpu"
+  num_workers: 0
+  log_interval: 20
+  save_predictions: true
+
+model:
+  in_ch: 3  # Accのみ
+
+train:
+  optim: "adam"
+  lr: 0.001
+  batch: 128
+  max_epoch: 5
+  early_stop_patience: 2
+  val_ratio: 0.1
+  weight_decay: 0.0001
+
+calibration:
+  ece_bins: 20
+  ece_binning: "equal_frequency"
+  temp_scale: true
+
+unknown:
+  tau_target_coverage: [0.05, 0.15]
+  select_by: "max_F1_macro"
+
+ccs:
+  alpha: 0.6
+  beta: 0.4
+  theta_low: 0.40
+  theta_high: 0.70
+  min_stay_s: 2.0
+  max_switch_per_s: 1
