@@ -9,6 +9,8 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 import numpy as np
+import random
+from math import cos, sin
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -76,24 +78,77 @@ def load_config(path: Path) -> dict:
         return yaml.safe_load(f)
 
 
+def _time_stretch(x: np.ndarray, factor: float) -> np.ndarray:
+    """Linear interp time stretch; x shape [T, C]."""
+    T, C = x.shape
+    new_T = max(1, int(T * factor))
+    t_orig = np.arange(T)
+    t_new = np.linspace(0, T - 1, new_T)
+    stretched = np.stack([np.interp(t_new, t_orig, x[:, c]) for c in range(C)], axis=1)
+    if new_T > T:
+        stretched = stretched[:T]
+    elif new_T < T:
+        pad_len = T - new_T
+        pad = np.repeat(stretched[-1:], pad_len, axis=0)
+        stretched = np.concatenate([stretched, pad], axis=0)
+    return stretched.astype(np.float32)
+
+
+def _small_rotation_matrix(deg: float) -> np.ndarray:
+    rad = np.deg2rad(deg)
+    c, s = cos(rad), sin(rad)
+    return np.array([[1, 0, 0], [0, c, -s], [0, s, c]], dtype=np.float32)
+
+
+def augment_sample(x: np.ndarray) -> np.ndarray:
+    """Augment 6ch (or 3ch) sample; x shape [T, C]."""
+    T, C = x.shape
+    # time stretch
+    factor = random.uniform(0.9, 1.1)
+    x = _time_stretch(x, factor)
+    # small rotation on first 3 axes (and next 3 if present)
+    deg = random.uniform(-10, 10)
+    R = _small_rotation_matrix(deg)
+    if C >= 3:
+        x[:, 0:3] = x[:, 0:3] @ R.T
+    if C >= 6:
+        x[:, 3:6] = x[:, 3:6] @ R.T
+    # axis scaling
+    scale = 1.0 + random.uniform(-0.05, 0.05)
+    x = x * scale
+    # phase shift
+    shift = random.randint(-2, 2)
+    if shift != 0:
+        if shift > 0:
+            x = np.concatenate([np.zeros((shift, C), dtype=np.float32), x[:-shift]], axis=0)
+        else:
+            x = np.concatenate([x[-shift:], np.zeros((-shift, C), dtype=np.float32)], axis=0)
+    # gaussian noise
+    std = max(1e-6, x.std()) * 0.05
+    noise = np.random.normal(0, std, size=x.shape).astype(np.float32)
+    x = x + noise
+    return x.astype(np.float32)
+
+
 class WindowDataset(Dataset):
-    def __init__(self, npz_paths: List[Path], use_labels4: bool = False, return_logits: bool = False):
+    def __init__(self, npz_paths: List[Path], use_labels4: bool = False, return_logits: bool = False, apply_aug: bool = False):
         self.samples: List[Tuple[np.ndarray, int]] = []
         for p in npz_paths:
             data = np.load(p, allow_pickle=True)
             X = data["X"]
             y = data["y4" if use_labels4 else "y12"]
-            # y12 is already 0-indexed (0-11) after preprocessing
-            # y4 is 0-indexed (0=Locomotion, 1=Transition, 2=Stationary)
             for i in range(len(X)):
                 self.samples.append((X[i], int(y[i])))
         self.return_logits = return_logits
+        self.apply_aug = apply_aug
 
     def __len__(self):
         return len(self.samples)
 
     def __getitem__(self, idx):
         x, y = self.samples[idx]
+        if self.apply_aug:
+            x = augment_sample(x.copy())
         return torch.from_numpy(x), torch.tensor(y, dtype=torch.long)
 
 
@@ -110,13 +165,22 @@ def train_one_fold(args, cfg: dict, fold: dict, fold_dir: Path) -> Dict:
     device = torch.device(cfg.get("training", {}).get("device", "cpu"))
     torch.set_num_threads(1)
     processed_dir = Path(cfg["paths"]["processed_dir"])
+    val_ratio = cfg["train"].get("val_ratio", 0.1)
 
     train_paths = split_paths(processed_dir, fold["train"])
-    val_paths = split_paths(processed_dir, fold["val"])
+    val_paths = split_paths(processed_dir, fold.get("val", []))
     test_paths = split_paths(processed_dir, fold["test"])
 
-    train_ds = WindowDataset(train_paths)
-    val_ds = WindowDataset(val_paths)
+    train_ds_full = WindowDataset(train_paths, apply_aug=True)
+    if len(val_paths) == 0:
+        # split train into train/val
+        val_size = max(1, int(len(train_ds_full) * val_ratio))
+        train_size = len(train_ds_full) - val_size
+        g = torch.Generator().manual_seed(42)
+        train_ds, val_ds = torch.utils.data.random_split(train_ds_full, [train_size, val_size], generator=g)
+    else:
+        train_ds = train_ds_full
+        val_ds = WindowDataset(val_paths)
     test_ds = WindowDataset(test_paths)
     print(f"[fold {fold['id']}] train/val/test sizes: {len(train_ds)}/{len(val_ds)}/{len(test_ds)}")
 

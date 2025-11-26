@@ -10,7 +10,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Structure
 
-- **`docs/フェーズN/`**: Phase deliverables (requirements, design documents, runbooks). Phase 1 focuses on fixed-baseline + uncertainty-driven (rule-based mapping) evaluation.
+- **`docs/フェーズN/`**: **MASTER DATA - READ ONLY**. Phase deliverables (requirements, design documents, runbooks). **NEVER modify files in this directory.** Phase 1 focuses on fixed-baseline + uncertainty-driven (rule-based mapping) evaluation.
+- **`har/001/`**: Phase 0-1 HAR development workspace with dedicated venv. Working documents go in `har/001/docs/`, not in `docs/フェーズ0-1/`.
 - **`data/`**: Curated datasets (mHealthDataset, experimental data). Source, version, and SHA256 must be documented when adding new data.
 - **`ISWC22-HAR/`**: HAR model training codebase (TinyHAR and variants). Used for training lightweight models for deployment on ESP32-S3/C3.
 - **`stm32ai-modelzoo/`**: Reference TinyML models (mostly STM32-focused). Included for model selection research.

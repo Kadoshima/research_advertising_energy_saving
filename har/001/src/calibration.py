@@ -44,13 +44,19 @@ def eval_ece(probs: np.ndarray, labels: np.ndarray, n_bins: int = 15) -> float:
     return float(ece)
 
 
-def search_temperature(logits: np.ndarray, labels: np.ndarray, n_bins: int = 15, T_range: Tuple[float, float] = (0.5, 3.0)) -> float:
+def search_temperature(
+    logits: np.ndarray,
+    labels: np.ndarray,
+    n_bins: int = 15,
+    T_range: Tuple[float, float] = (0.3, 4.0),
+    num: int = 80,
+) -> float:
     logits = np.asarray(logits)
     labels = np.asarray(labels)
     # grid search for simplicity
     best_T = 1.0
     best_ece = 1e9
-    for T in np.linspace(T_range[0], T_range[1], 26):
+    for T in np.linspace(T_range[0], T_range[1], num):
         scaled = logits / T
         probs = torch.softmax(torch.from_numpy(scaled), dim=1).numpy()
         ece = eval_ece(probs, labels, n_bins=n_bins)

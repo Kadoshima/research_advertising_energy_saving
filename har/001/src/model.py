@@ -22,23 +22,31 @@ class DepthwiseSeparableConv(nn.Module):
 
 
 class DSCNN(nn.Module):
-    """Lightweight 1D DSCNN for HAR. Input shape [B, T, C]."""
+    """Slightly wider/deeper 1D DSCNN for HAR. Input shape [B, T, C]."""
 
-    def __init__(self, n_classes: int = 12, in_ch: int = 3):
+    def __init__(self, n_classes: int = 12, in_ch: int = 3, dropout: float = 0.3):
         super().__init__()
         self.features = nn.Sequential(
-            nn.Conv1d(in_ch, 32, kernel_size=5, stride=1, padding=2),
-            nn.BatchNorm1d(32),
+            nn.Conv1d(in_ch, 48, kernel_size=5, stride=1, padding=2),
+            nn.BatchNorm1d(48),
             nn.ReLU(inplace=True),
-            DepthwiseSeparableConv(32, 64, k=5, s=1),
-            DepthwiseSeparableConv(64, 96, k=5, s=1),
+            DepthwiseSeparableConv(48, 96, k=5, s=1),
+            DepthwiseSeparableConv(96, 128, k=5, s=1),
+            DepthwiseSeparableConv(128, 160, k=5, s=1),
+            nn.Dropout(dropout),
         )
         self.pool = nn.AdaptiveAvgPool1d(1)
-        self.classifier = nn.Linear(96, n_classes)
+        self.classifier = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(160, 128),
+            nn.ReLU(inplace=True),
+            nn.Dropout(dropout),
+            nn.Linear(128, n_classes),
+        )
 
     def forward(self, x):
         # x: [B, T, C] -> [B, C, T]
         x = x.permute(0, 2, 1)
         x = self.features(x)
-        x = self.pool(x).squeeze(-1)
+        x = self.pool(x)
         return self.classifier(x)

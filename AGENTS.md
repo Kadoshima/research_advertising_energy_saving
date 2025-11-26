@@ -2,6 +2,7 @@
 
 ## Project structure & module organization
 - `docs/フェーズ1/` contains phase-one deliverables such as `要件定義.md` and `Runbook.md`. Add new phases as `docs/フェーズN/` and mirror folder names inside references.
+- `docs/フェーズ0-1/` はフェーズ0-1のマスターフォルダ。原本として扱い、直接変更しない（参照のみ、派生は別フェーズ側で作成）。
 - `data/` stores curated datasets; log source, version, and SHA256 in the consuming document. Do not commit raw exports without documentation.
 - `configs/` tracks reusable parameter sets; align filenames with the related doc slug (e.g., `要件定義_simulation.yaml`).
 - `results/` captures derived tables, charts, or summaries. Note generation date and script in the adjacent Markdown file.
