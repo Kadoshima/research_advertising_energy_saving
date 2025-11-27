@@ -84,9 +84,9 @@ def collect_representative(npz_paths: List[Path], sample_count: int, rng: np.ran
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--config", type=Path, default=Path("har/001/configs/phase0-1.acc.v1.yaml"))
-    ap.add_argument("--ckpt", type=Path, default=Path("har/001/runs/phase0-1-acc/fold90/best_model.pth"))
-    ap.add_argument("--outdir", type=Path, default=Path("har/001/export/acc_v1"))
+    ap.add_argument("--config", type=Path, default=Path("har/004/configs/phase0-1.acc.v1.yaml"))
+    ap.add_argument("--ckpt", type=Path, default=Path("har/004/runs/phase0-1-acc/fold90/best_model.pth"))
+    ap.add_argument("--outdir", type=Path, default=Path("har/004/export/acc_v1"))
     ap.add_argument("--sample-dir", type=Path, default=None, help="Directory with subjectXX.npz (uses config paths.processed_dir if omitted)")
     ap.add_argument("--sample-count", type=int, default=2000, help="Representative sample count for PTQ")
     args = ap.parse_args()

@@ -1,0 +1,55 @@
+# 3軸 Tiny 版（acc.v2_tiny）。入力仕様はA0と同じ (100,3, 50Hz, 1.0s/0.5hop)。
+# モデルのみチャンネル幅を削減し、パラメータ/サイズ削減を狙う。
+# train条件・splitは A0 と同一（fold90）。runs_dir を別にして上書きしない。
+
+include: "../../configs/phase0-1.yaml"
+
+paths:
+  raw_dir: "data/MHEALTHDATASET"
+  processed_dir: "har/001/data_processed"          # A0と同じ前処理出力
+  runs_dir: "har/004/runs/phase0-1-acc-tiny"       # 新しいruns保存先
+  splits_yaml: "docs/フェーズ0-1/splits_subject90.yaml"
+
+data:
+  fs_hz: 50
+  window_s: 2.0
+  hop_s: 1.0
+
+training:
+  device: "cpu"
+  num_workers: 0
+  log_interval: 20
+  save_predictions: true
+
+model:
+  in_ch: 3
+  stem_channels: 32
+  dw_channels: [48, 64]
+  fc_hidden: 64
+  dropout: 0.2
+
+train:
+  optim: "adam"
+  lr: 0.001
+  batch: 128
+  max_epoch: 5
+  early_stop_patience: 2
+  val_ratio: 0.1
+  weight_decay: 0.0001
+
+calibration:
+  ece_bins: 20
+  ece_binning: "equal_frequency"
+  temp_scale: true
+
+unknown:
+  tau_target_coverage: [0.05, 0.15]
+  select_by: "max_F1_macro"
+
+ccs:
+  alpha: 0.6
+  beta: 0.4
+  theta_low: 0.40
+  theta_high: 0.70
+  min_stay_s: 2.0
+  max_switch_per_s: 1

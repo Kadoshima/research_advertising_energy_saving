@@ -79,26 +79,33 @@ def run_tflite(tflite_path: Path, x_np: np.ndarray) -> np.ndarray:
     input_detail = interpreter.get_input_details()[0]
     output_detail = interpreter.get_output_details()[0]
 
-    # If model is int8, quantize input; otherwise feed float32
-    if input_detail["dtype"] == np.int8:
-        scale, zero = input_detail["quantization"]
-        x_int8 = np.round(x_np / scale + zero).astype(np.int8)
-        interpreter.set_tensor(input_detail["index"], x_int8)
-    else:
-        interpreter.set_tensor(input_detail["index"], x_np.astype(np.float32))
-
-    interpreter.invoke()
-    out = interpreter.get_tensor(output_detail["index"])
-    if output_detail["dtype"] == np.int8:
-        scale, zero = output_detail["quantization"]
-        out = (out.astype(np.float32) - zero) * scale
+    # TFLite expects [1, T, C], so run sample by sample
+    outputs = []
+    scale_in, zero_in = input_detail["quantization"]
+    scale_out, zero_out = output_detail["quantization"]
+    for i in range(len(x_np)):
+        x = x_np[i:i+1]
+        if input_detail["dtype"] == np.int8:
+            x_int8 = np.round(x / scale_in + zero_in).astype(np.int8)
+            interpreter.set_tensor(input_detail["index"], x_int8)
+        else:
+            interpreter.set_tensor(input_detail["index"], x.astype(np.float32))
+        interpreter.invoke()
+        out = interpreter.get_tensor(output_detail["index"])
+        if output_detail["dtype"] == np.int8:
+            out = (out.astype(np.float32) - zero_out) * scale_out
+        # convert logits -> probs
+        exp = np.exp(out - out.max(axis=-1, keepdims=True))
+        probs = exp / exp.sum(axis=-1, keepdims=True)
+        outputs.append(probs[0])
+    out = np.stack(outputs)
     return out
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--config", type=Path, default=Path("har/001/configs/phase0-1.acc.v1.yaml"))
-    ap.add_argument("--ckpt", type=Path, default=Path("har/001/runs/phase0-1-acc/fold90/best_model.pth"))
+    ap.add_argument("--config", type=Path, default=Path("har/004/configs/phase0-1.acc.v1.yaml"))
+    ap.add_argument("--ckpt", type=Path, default=Path("har/004/runs/phase0-1-acc/fold90/best_model.pth"))
     ap.add_argument("--tflite", type=Path, required=True)
     ap.add_argument("--npz", type=Path, required=True, help="A subjectXX.npz file to draw samples from")
     ap.add_argument("--num", type=int, default=200)

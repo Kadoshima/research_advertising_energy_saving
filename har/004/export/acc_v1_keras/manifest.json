@@ -1,0 +1,19 @@
+{
+  "config": "har/004/configs/phase0-1.acc.v1.yaml",
+  "ckpt": "har/004/runs/phase0-1-acc/fold90/best_model.pth",
+  "model_id_sha256": "d9fcb1364f888c98e0b61f034519f5e5d794e3e5574cb275b6e4c0083024fd30",
+  "tflite_int8": "har/001/export/acc_v1_keras/phase0-1-acc.v1.int8.tflite",
+  "tflite_sha256": "e1c3ff0042badac5dd9bb478a17fac79991736c813143b45e5cb981d9db68610",
+  "saved_model": "har/001/export/acc_v1_keras/saved_model",
+  "rep_data": "har/001/export/acc_v1/rep_data.npy",
+  "rep_samples": 2000,
+  "input_shape": [1, 100, 3],
+  "pt_vs_tflite": {
+    "argmax_match": 0.98,
+    "max_prob_mae": 0.0277,
+    "num_samples": 200,
+    "compare_npz": "har/001/data_processed/subject01.npz"
+  },
+  "export_tool": "convert_acc_v1_keras_tflite.py",
+  "created_at": "2025-11-26"
+}

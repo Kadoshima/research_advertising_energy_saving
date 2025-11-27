@@ -1,9 +1,16 @@
 from __future__ import annotations
 
+import os
+
+# omp/libomp 周りの競合を避けるため、torch import より前に環境変数を固定
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ.setdefault("MKL_NUM_THREADS", "1")
+os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
+os.environ.setdefault("KMP_INIT_AT_FORK", "FALSE")
+
 import argparse
 import json
 import math
-import os
 import traceback
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -14,7 +21,6 @@ from math import cos, sin
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from sklearn.metrics import balanced_accuracy_score, f1_score
 from torch.utils.data import DataLoader, Dataset
 
 from model import DSCNN
@@ -41,6 +47,51 @@ def compute_ece(y_true: np.ndarray, probs: np.ndarray, n_bins: int = 15) -> floa
             ece += (bin_size / len(y_true)) * abs(bin_conf - bin_acc)
 
     return ece
+
+
+def _confusion_matrix(y_true: np.ndarray, y_pred: np.ndarray, num_classes: int) -> np.ndarray:
+    cm = np.zeros((num_classes, num_classes), dtype=np.int64)
+    for t, p in zip(y_true, y_pred):
+        cm[int(t), int(p)] += 1
+    return cm
+
+
+def balanced_accuracy_score(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    y_true = np.asarray(y_true)
+    y_pred = np.asarray(y_pred)
+    num_classes = int(max(y_true.max(initial=0), y_pred.max(initial=0))) + 1
+    cm = _confusion_matrix(y_true, y_pred, num_classes)
+    recalls = []
+    for c in range(num_classes):
+        tp = cm[c, c]
+        fn = cm[c, :].sum() - tp
+        denom = tp + fn
+        recalls.append(tp / denom if denom > 0 else 0.0)
+    return float(np.mean(recalls))
+
+
+def f1_score(y_true: np.ndarray, y_pred: np.ndarray, *, average: str = "macro", zero_division: float = 0.0) -> float:
+    if average != "macro":
+        raise ValueError("Only macro average is supported in this lightweight implementation.")
+    y_true = np.asarray(y_true)
+    y_pred = np.asarray(y_pred)
+    num_classes = int(max(y_true.max(initial=0), y_pred.max(initial=0))) + 1
+    cm = _confusion_matrix(y_true, y_pred, num_classes)
+    f1s = []
+    for c in range(num_classes):
+        tp = cm[c, c]
+        fn = cm[c, :].sum() - tp
+        fp = cm[:, c].sum() - tp
+        prec_denom = tp + fp
+        rec_denom = tp + fn
+        precision = tp / prec_denom if prec_denom > 0 else zero_division
+        recall = tp / rec_denom if rec_denom > 0 else zero_division
+        if precision + recall == 0:
+            f1 = zero_division
+        else:
+            f1 = 2 * precision * recall / (precision + recall)
+        f1s.append(f1)
+    return float(np.mean(f1s))
 
 
 def compute_4class_metrics(y_true_12: list, y_pred_12: list) -> dict:
@@ -184,11 +235,20 @@ def train_one_fold(args, cfg: dict, fold: dict, fold_dir: Path) -> Dict:
     test_ds = WindowDataset(test_paths)
     print(f"[fold {fold['id']}] train/val/test sizes: {len(train_ds)}/{len(val_ds)}/{len(test_ds)}")
 
-    train_loader = DataLoader(train_ds, batch_size=cfg["train"]["batch"], shuffle=True, num_workers=cfg["training"].get("num_workers", 0))
-    val_loader = DataLoader(val_ds, batch_size=cfg["train"]["batch"], shuffle=False, num_workers=cfg["training"].get("num_workers", 0))
-    test_loader = DataLoader(test_ds, batch_size=cfg["train"]["batch"], shuffle=False, num_workers=cfg["training"].get("num_workers", 0))
+    # libomp衝突回避のためワーカは0で固定
+    train_loader = DataLoader(train_ds, batch_size=cfg["train"]["batch"], shuffle=True, num_workers=0)
+    val_loader = DataLoader(val_ds, batch_size=cfg["train"]["batch"], shuffle=False, num_workers=0)
+    test_loader = DataLoader(test_ds, batch_size=cfg["train"]["batch"], shuffle=False, num_workers=0)
 
-    model = DSCNN(n_classes=12, in_ch=cfg.get("model", {}).get("in_ch", 3)).to(device)
+    m_cfg = cfg.get("model", {})
+    model = DSCNN(
+        n_classes=12,
+        in_ch=m_cfg.get("in_ch", 3),
+        stem_channels=m_cfg.get("stem_channels", 48),
+        dw_channels=m_cfg.get("dw_channels", (96, 128, 160)),
+        fc_hidden=m_cfg.get("fc_hidden", 128),
+        dropout=m_cfg.get("dropout", 0.3),
+    ).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=cfg["train"]["lr"], weight_decay=cfg["train"]["weight_decay"])
     best_val = -math.inf

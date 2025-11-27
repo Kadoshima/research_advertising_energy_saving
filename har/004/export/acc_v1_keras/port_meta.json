@@ -1,0 +1,14 @@
+{
+  "config": "har/004/configs/phase0-1.acc.v1.yaml",
+  "ckpt": "har/004/runs/phase0-1-acc/fold90/best_model.pth",
+  "model_id_sha256": "d9fcb1364f888c98e0b61f034519f5e5d794e3e5574cb275b6e4c0083024fd30",
+  "saved_model": "har/001/export/acc_v1_keras/saved_model",
+  "tflite_int8": "har/001/export/acc_v1_keras/phase0-1-acc.v1.int8.tflite",
+  "rep_data": "har/001/export/acc_v1/rep_data.npy",
+  "rep_samples": 2000,
+  "input_shape": [
+    1,
+    100,
+    3
+  ]
+}

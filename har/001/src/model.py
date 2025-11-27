@@ -22,27 +22,51 @@ class DepthwiseSeparableConv(nn.Module):
 
 
 class DSCNN(nn.Module):
-    """Slightly wider/deeper 1D DSCNN for HAR. Input shape [B, T, C]."""
+    """1D DSCNN for HAR. Input shape [B, T, C].
 
-    def __init__(self, n_classes: int = 12, in_ch: int = 3, dropout: float = 0.3):
+    チャネル幅を可変にして Tiny 構成を試せるようにしつつ、
+    デフォルト値は従来の幅広構成（48→96→128→160, FC=128）を保持する。
+    """
+
+    def __init__(
+        self,
+        n_classes: int = 12,
+        in_ch: int = 3,
+        *,
+        stem_channels: int = 48,
+        dw_channels: tuple[int, ...] | list[int] = (96, 128, 160),
+        fc_hidden: int = 128,
+        dropout: float = 0.3,
+    ):
         super().__init__()
-        self.features = nn.Sequential(
-            nn.Conv1d(in_ch, 48, kernel_size=5, stride=1, padding=2),
-            nn.BatchNorm1d(48),
+        dw_channels = list(dw_channels)
+
+        layers = [
+            nn.Conv1d(in_ch, stem_channels, kernel_size=5, stride=1, padding=2),
+            nn.BatchNorm1d(stem_channels),
             nn.ReLU(inplace=True),
-            DepthwiseSeparableConv(48, 96, k=5, s=1),
-            DepthwiseSeparableConv(96, 128, k=5, s=1),
-            DepthwiseSeparableConv(128, 160, k=5, s=1),
-            nn.Dropout(dropout),
-        )
+        ]
+        prev = stem_channels
+        for out_ch in dw_channels:
+            layers.append(DepthwiseSeparableConv(prev, out_ch, k=5, s=1))
+            prev = out_ch
+        layers.append(nn.Dropout(dropout))
+        self.features = nn.Sequential(*layers)
+
         self.pool = nn.AdaptiveAvgPool1d(1)
-        self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(160, 128),
-            nn.ReLU(inplace=True),
-            nn.Dropout(dropout),
-            nn.Linear(128, n_classes),
-        )
+        classifier = [nn.Flatten()]
+        if fc_hidden and fc_hidden > 0:
+            classifier.extend(
+                [
+                    nn.Linear(prev, fc_hidden),
+                    nn.ReLU(inplace=True),
+                    nn.Dropout(dropout),
+                    nn.Linear(fc_hidden, n_classes),
+                ]
+            )
+        else:
+            classifier.append(nn.Linear(prev, n_classes))
+        self.classifier = nn.Sequential(*classifier)
 
     def forward(self, x):
         # x: [B, T, C] -> [B, C, T]
