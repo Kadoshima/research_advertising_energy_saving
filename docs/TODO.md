@@ -93,113 +93,126 @@
 
 ---
 
-### 1.2 ESP32ファームウェア開発
+### 1.2 ESP32ファームウェア開発 ✅ (大部分完了)
 
-**目的**: CCS時系列を読み込み、T_advを動的に変更するファームウェア
+**目的**: CCS時系列に基づき、T_advを動的に変更するファームウェア
 
-#### 1.2.1 基本機能実装
+**既存資産** (Phase 0-0から継承):
+- `esp32_sweep/TX_BLE_Adv_Meter_ON_sweep.ino` - TX送信+電流測定
+- `esp32_sweep/TXSD_PowerLogger_PASS_THRU_ON_v2.ino` - 電力ロガー
+- `esp32_sweep/RX_BLE_to_SD_SYNC_B.ino` - BLE受信ロガー
+- `docs/フェーズ0-0/実験装置最終仕様書.md` - 完全な設計書（GPIO, 配線, シーケンス）
 
-- [ ] **SDカード読み込み機能**
-  - CSVファイルからCCS時系列を読み込み
-  - タイムスタンプに従って次のT_adv値を取得
+#### 1.2.1 基本機能実装 ✅ (既存コードで対応)
 
-- [ ] **BLE Advertising制御**
-  - `esp_ble_gap_config_adv_data()` でペイロード設定
-  - `esp_ble_gap_start_advertising()` でinterval動的変更
-  - 対応interval: 100, 500, 1000, 2000 ms
+- [x] **BLE Advertising制御** - `TX_BLE_Adv_Meter_ON_sweep.ino`
+  - `ADV_INTERVAL_MS` 定数変更で100/500/1000/2000ms対応
+  - INA219による電流測定、UART出力実装済み
+- [x] **ログ出力機能** - TX→TXSD→SD構成で実装済み
+  - フォーマット: `mv,uA` (10ms周期)
 
-- [ ] **ログ出力機能**
-  - SDカードに送信ログを記録
-  - フォーマット: `t_local_ms, interval_ms, ccs, u, s, adv_seq`
+#### 1.2.2 実験モード実装 ✅ (全モード完了)
 
-#### 1.2.2 実験モード実装
+- [x] **FIXED-100/500/1000/2000モード** - `TX_BLE_Adv_Meter_ON_sweep.ino` の `ADV_INTERVAL_MS` 定数変更
+- [x] **CCSモード** - `TX_BLE_Adv_CCS_Mode.ino` (2025-11-28 新規作成)
+  - `RUN_MODE` で `MODE_FIXED_100` / `MODE_FIXED_2000` / `MODE_CCS` を選択
+  - CCS時系列は `ccs_session_data.h` として定数配列に埋め込み
+  - 1秒解像度でT_adv動的変更（100/500/2000ms）
+  - BLE interval動的再設定: `adv->stop()` → `setMinInterval/setMaxInterval` → `adv->start()`
 
-- [ ] **FIXED-100モード**
-  - T_adv = 100ms 固定
-  - CCS計算はスキップ
+#### 1.2.3 同期機能実装 ✅ (既存コードで実装済み)
 
-- [ ] **FIXED-2000モード**
-  - T_adv = 2000ms 固定
-  - CCS計算はスキップ
+- [x] **SYNC_OUT_PIN (GPIO25)** - トライアル開始/終了マーカー
+- [x] **TICK_OUT_PIN (GPIO27)** - 各広告イベントのパルス
+- [x] **LED_PIN (GPIO2)** - 状態インジケータ
 
-- [ ] **CCSモード**
-  - CCS時系列に従ってT_advを動的変更
-  - ヒステリシス・最小滞在時間を適用
+#### 1.2.4 ビルド手順（CCSモード）
 
-#### 1.2.3 同期機能実装
+```bash
+# 1. セッションヘッダー生成
+python3 scripts/convert_session_to_header.py --session 01
 
-- [ ] **セッション開始マーカー**
-  - LED点滅パターン（3秒）
-  - シリアル出力（タイムスタンプ）
-  - GPIOパルス（PPK-II同期用）
+# 2. TX_BLE_Adv_CCS_Mode.ino で RUN_MODE を設定
+#    MODE_FIXED_100, MODE_FIXED_2000, MODE_CCS から選択
 
-- [ ] **セッション終了マーカー**
-  - 同上
+# 3. Arduino IDEでビルド・書き込み
+#    Board: ESP32 Dev Module
+```
 
 **成果物チェックリスト**:
-- [ ] `firmware/har_ble_adv/main.c`
-- [ ] `firmware/har_ble_adv/README.md`（ビルド・書き込み手順）
-- [ ] 動作確認済みバイナリ
+- [x] `esp32_sweep/TX_BLE_Adv_Meter_ON_sweep.ino` - FIXEDモード用TX
+- [x] `esp32_sweep/TX_BLE_Adv_CCS_Mode.ino` - CCSモード対応TX (NEW)
+- [x] `esp32_sweep/TXSD_PowerLogger_PASS_THRU_ON_v2.ino` - FIXEDモード用TXSD
+- [x] `esp32_sweep/TXSD_PowerLogger_CCS_Mode.ino` - CCSモード対応TXSD (NEW)
+- [x] `esp32_sweep/RX_BLE_to_SD_SYNC_B.ino` - BLE受信ロガー（共用）
+- [x] `esp32_sweep/ccs_session_data.h` - セッションデータ（自動生成）
+- [x] `scripts/convert_session_to_header.py` - CSV→ヘッダー変換スクリプト
+- [x] `docs/フェーズ0-0/実験装置最終仕様書.md`（ビルド・配線手順）
 
 ---
 
-### 1.3 Android受信アプリ準備
+### 1.3 Android受信アプリ準備 ✅ (nRF Connect使用)
 
 **目的**: BLE広告を受信し、タイムスタンプ付きでログを記録
 
-#### 1.3.1 アプリ要件
+**使用アプリ**: **nRF Connect for Mobile** (Nordic Semiconductor)
+- Google Play: https://play.google.com/store/apps/details?id=no.nordicsemi.android.mcp
 
-- [ ] **スキャン設定**
-  - モード: `SCAN_MODE_LOW_LATENCY`
-  - フィルタ: ESP32のMACアドレスまたはサービスUUID
+#### 1.3.1 nRF Connect設定
 
-- [ ] **ログ記録項目**
-  - t_rx_ms: 受信タイムスタンプ（Unix epoch ms）
-  - rssi: 受信信号強度
-  - adv_seq: 広告シーケンス番号（ペイロードから抽出）
-  - raw_payload: 生データ（デバッグ用）
+- [x] **スキャン設定**
+  - Scanner → Settings → Scan mode: Low Latency
+  - フィルタ: "TXM_ESP32" (デバイス名)
 
-- [ ] **ログ出力**
-  - CSV形式でストレージに保存
-  - ファイル名: `rx_log_YYYYMMDD_HHMMSS.csv`
+- [x] **ログ記録項目** (nRF Connectで自動取得)
+  - タイムスタンプ
+  - RSSI
+  - Advertising Data (Manufacturer Specific Data含む)
 
-#### 1.3.2 既存アプリの確認 or 新規開発
+- [x] **ログ出力**
+  - Scanner → Export → CSV形式
 
-- [ ] 既存のBLEスキャンアプリが使えるか確認
-  - nRF Connect app?
-  - 自作アプリ?
-- [ ] 必要に応じて修正・新規開発
+#### 1.3.2 運用手順
+
+1. nRF Connectを起動
+2. Scanner画面でフィルタ設定（"TXM_ESP32"）
+3. スキャン開始
+4. 実験終了後、Export → CSVで保存
 
 **成果物チェックリスト**:
-- [ ] Android APK または使用するアプリの特定
-- [ ] ログフォーマットのサンプル
+- [x] 使用アプリ: nRF Connect for Mobile
+- [ ] ログフォーマットのサンプル取得（実験時に確認）
 
 ---
 
-### 1.4 電力計測セットアップ
+### 1.4 電力計測セットアップ ✅ (既存構成で対応)
 
-**目的**: PPK-IIでESP32の電力を正確に計測する
+**目的**: INA219でESP32の電力を正確に計測する（PPK-IIは使用しない）
 
-#### 1.4.1 配線
+**既存資産**: `docs/フェーズ0-0/実験装置最終仕様書.md` に完全記載
 
-- [ ] ESP32のVBAT端子を特定
-- [ ] PPK-IIのAmpere Meter端子に直列接続
-- [ ] GND共通化
+#### 1.4.1 配線 ✅ (設計書に記載済み)
 
-#### 1.4.2 計測設定
+- [x] ESP32 3V3ピンへの外部電源供給（INA219経由）
+- [x] INA219 VIN+/VIN-で電流測定
+- [x] GND共通化（TX/TXSD/RX/外部電源）
 
-- [ ] サンプリングレート: 100kS/s
-- [ ] トリガ設定: 外部GPIOまたはマニュアル
-- [ ] ログファイル形式: CSV（t_us, current_uA）
+#### 1.4.2 計測設定 ✅ (既存コードで実装済み)
+
+- [x] サンプリングレート: 100Hz (10ms周期)
+- [x] UART出力: `mv,uA` 形式
+- [x] TXSDでSDカードに記録
 
 #### 1.4.3 動作確認
 
-- [ ] FIXED-100で5分間計測、ΔE/advがフェーズ0-0と±10%以内か確認
-- [ ] FIXED-2000で5分間計測、同上
+- [x] Phase 0-0で実施済み
+  - ΔE/adv実測値: 100/500/1000/2000ms (`docs/フェーズ1/results/delta_energy_row1120_row1123_off.md`)
+  - P_off = 22.106 mW
+- [ ] Phase 1実験前に再校正（±10%以内を確認）
 
 **成果物チェックリスト**:
-- [ ] 配線図（写真 or 図）
-- [ ] 校正確認レポート
+- [x] 配線図: `docs/フェーズ0-0/実験装置最終仕様書.md` セクション3
+- [ ] Phase 1校正確認レポート
 
 ---
 
@@ -207,26 +220,28 @@
 
 ### 2.1 実験プロトコル
 
-#### 2.1.1 セッション手順（1セッション15分）
+#### 2.1.1 セッション手順（1セッション10分）
+
+**注**: mHealthデータ制約（各被験者約11分）により、当初の15分→**10分**に変更
 
 ```
 [開始前]
-1. ESP32にCCS時系列ファイルをセット（CCSモードの場合）
+1. ESP32にCCS時系列をビルド（CCSモードの場合）
 2. ESP32のモード選択（FIXED-100 / FIXED-2000 / CCS）
 3. Android受信アプリ起動、ログ記録開始
-4. PPK-II計測開始
+4. INA219計測準備（TX→TXSD構成）
 5. ESP32電源ON
 
 [セッション中]
-6. 同期マーカー（LED点滅3秒）を記録
-7. 15分間待機（介入なし）
+6. 同期マーカー（SYNC_OUT HIGH→LOW）を記録
+7. 10分間待機（介入なし）
 8. 終了マーカーを記録
 
 [終了後]
 9. ESP32電源OFF
-10. PPK-IIログ保存
+10. TXSD SDカードから電力ログ回収
 11. Androidログ保存
-12. ESP32 SDカードログ回収
+12. RX SDカードからBLE受信ログ回収
 13. ファイル名をセッションIDでリネーム
 ```
 
@@ -498,17 +513,34 @@ References (~15件)
 ## 6. 成果物一覧
 
 ### コード
-- [ ] `scripts/load_mhealth.py`
-- [ ] `scripts/run_har_inference.py`
-- [ ] `scripts/compute_uncertainty.py`
-- [ ] `scripts/ccs_policy.py`
+
+**CCS生成（完了）**:
+- [x] `scripts/generate_ccs_sequences.py` - TFLite推論+U/S/CCS計算+時系列出力
+- [x] `scripts/create_esp32_sessions.py` - ESP32用セッション選定
+
+**ESP32ファームウェア（完了）**:
+- [x] `esp32_sweep/TX_BLE_Adv_Meter_ON_sweep.ino` - FIXEDモード用
+- [x] `esp32_sweep/TX_BLE_Adv_CCS_Mode.ino` - CCSモード対応 (NEW)
+- [x] `esp32_sweep/TXSD_PowerLogger_PASS_THRU_ON_v2.ino` - FIXEDモード用
+- [x] `esp32_sweep/TXSD_PowerLogger_CCS_Mode.ino` - CCSモード対応 (NEW)
+- [x] `esp32_sweep/RX_BLE_to_SD_SYNC_B.ino` - 共用
+- [x] `esp32_sweep/ccs_session_data.h` - 自動生成
+
+**データ処理（未実装）**:
 - [ ] `scripts/sync_logs.py`
 - [ ] `scripts/compute_event_charge.py`
 - [ ] `scripts/compute_pout.py`
-- [ ] `firmware/har_ble_adv/`
 
 ### データ
-- [ ] `data/ccs_sequences/session_*.csv`
+
+**CCS時系列（完了）**:
+- [x] `data/ccs_sequences/subject{01-10}_ccs.csv`
+- [x] `data/ccs_sequences/generation_summary.json`
+- [x] `data/esp32_sessions/session_{01-10}.csv`
+- [x] `data/esp32_sessions/session_manifest.json`
+- [x] `data/esp32_sessions/session_selection_report.md`
+
+**実験データ（未取得）**:
 - [ ] `data/raw/E1/`, `data/raw/E2/`
 - [ ] `data/experiments_manifest.yaml`
 
@@ -520,7 +552,7 @@ References (~15件)
 - [ ] `figures/fig3_energy_saving.pdf`
 
 ### 文書
-- [ ] `docs/session_selection_report.md`
+- [x] `data/esp32_sessions/session_selection_report.md`
 - [ ] `docs/experiment_log.md`
 - [ ] `paper/main.tex`
 
@@ -528,15 +560,18 @@ References (~15件)
 
 ## 次のアクション
 
-**今日やること**:
-1. [ ] 0.1 既存資産の棚卸し（30分）
-2. [ ] 0.2 ハードウェア準備状況の確認（30分）
-3. [ ] 1.1.1 データ読み込みスクリプトの着手
+**完了済み（2025-11-27）**:
+- [x] 0.1 既存資産の棚卸し
+- [x] 0.2 ハードウェア準備状況の確認
+- [x] 1.1 mHealth CCS時系列生成
+- [x] 閾値調整（θ_high=0.90, θ_low=0.80）
 
-**明日やること**:
-1. [ ] 1.1 mHealth CCS時系列生成の完了
-2. [ ] 1.2 ESP32ファームウェア開発の着手
+**残タスク**:
+1. [x] ~~1.2 CCSモード拡張~~ (2025-11-28 完了)
+2. [x] ~~1.3 Android受信アプリ~~ → nRF Connect使用 (2025-11-28 決定)
+3. [ ] 1.4.3 Phase 1実験前の電力計測再校正
+4. [ ] 0.2 Android OSバージョン確認、E1環境確認
 
 ---
 
-*Last updated: 2025-11-27*
+*Last updated: 2025-11-28*
