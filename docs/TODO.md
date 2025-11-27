@@ -10,125 +10,86 @@
 
 ### 0.1 既存資産の棚卸し
 
-- [ ] **フェーズ0-0データの確認**
-  - [ ] ΔE/adv実測値（100/500/1000/2000ms）が使える状態か
-  - [ ] P_off_mean = 22.106 mW の値を再利用できるか
-  - [ ] PDR実測値（p_d ≈ 0.85）の根拠データがあるか
+- [x] **フェーズ0-0データの確認** (2025-11-27 完了)
+  - [x] ΔE/adv実測値（100/500/1000/2000ms）が使える状態か → OK (`docs/フェーズ1/results/delta_energy_row1120_row1123_off.md`)
+  - [x] P_off_mean = 22.106 mW の値を再利用できるか → OK
+  - [x] PDR実測値（p_d ≈ 0.85）の根拠データがあるか → OK (`docs/フェーズ1/results/pdr_row1120_txsd_rx.md`)
 
-- [ ] **HARモデル（A0）の確認**
-  - [ ] TFLite int8モデル（90.6KB）がエクスポート済みか
-  - [ ] 校正パラメータ（T=0.7443, τ=0.66）が確定しているか
-  - [ ] θ_low=0.40, θ_high=0.70 の閾値が設定済みか
+- [x] **HARモデル（A0）の確認** (2025-11-27 完了)
+  - [x] TFLite int8モデル（90.6KB）がエクスポート済みか → OK (`har/004/export/acc_v1_keras/phase0-1-acc.v1.int8.tflite`)
+  - [x] 校正パラメータ（T=0.7443, τ=0.66）が確定しているか → OK (`har/001/docs/A0_acc_v1_baseline_summary.md`)
+  - [x] θ_low=0.40, θ_high=0.70 の閾値が設定済みか → デフォルト値設定済み（TFLite出力ベースで再キャリブ推奨）
 
-- [ ] **mHealthデータセットの確認**
-  - [ ] 生データへのアクセスがあるか
-  - [ ] 被験者数・セッション数・活動ラベルの把握
-  - [ ] データ前処理パイプラインが動作するか
+- [x] **mHealthデータセットの確認** (2025-11-27 完了)
+  - [x] 生データへのアクセスがあるか → OK (`data/MHEALTHDATASET/`)
+  - [x] 被験者数・セッション数・活動ラベルの把握 → 10名、12活動、6,768窓
+  - [x] データ前処理パイプラインが動作するか → OK (`har/001/data_processed/subject*.npz`)
+
+**棚卸しログ**: `logs/inventory_0.1_2025-11-27.md`
 
 ### 0.2 ハードウェア準備状況
 
-- [ ] **ESP32ボード**
-  - [ ] 型番: _______________
-  - [ ] BLE advertising機能の動作確認済みか
-  - [ ] SDカードロギング機能の動作確認済みか
-  - [ ] PPK-II接続用の配線準備ができているか
+- [x] **ESP32ボード** (2025-11-27 確認)
+  - [x] 型番: ESP32 Dev Module (3台: TX/TXSD/RX)
+  - [x] 動作確認済み
 
-- [ ] **PPK-II（電力計測）**
-  - [ ] 機器の動作確認済みか
-  - [ ] nRF Connect for Desktopのインストール済みか
-  - [ ] サンプリングレート設定（≥100kS/s）の確認
+- [x] **電力計測** (2025-11-27 確認)
+  - [x] **INA219構成を継続**（PPK-IIは使用しない）
+  - [x] Phase 0-0と同じ構成
 
-- [ ] **Android端末**
-  - [ ] 機種名: _______________
-  - [ ] OSバージョン: _______________
-  - [ ] BLE受信アプリの準備状況
+- [ ] **Android端末** (一部未確認)
+  - [x] 機種名: Galaxy S9
+  - [ ] OSバージョン: 後日確認
+  - [ ] BLE受信アプリの準備状況: 要確認
 
-- [ ] **実験環境**
-  - [ ] E1（干渉弱）環境の場所確保
-  - [ ] E2（干渉強）環境の場所確保（Wi-Fi 1/6/11稼働）
-  - [ ] 距離1mの固定方法（マーキング等）
+- [ ] **実験環境** (一部未確認)
+  - [ ] E1（干渉弱）環境: 未確認
+  - [x] E2（干渉強）環境: 確保済み（簡易に実施可能）
+  - [ ] 距離1mの固定方法: 要確認
+
+**ハードウェアログ**: `logs/inventory_0.2_2025-11-27.md`
 
 ---
 
 ## 1. 準備フェーズ（Week 1）
 
-### 1.1 mHealth CCS時系列生成
+### 1.1 mHealth CCS時系列生成 ✅ (2025-11-27 完了)
 
 **目的**: mHealthデータからU, S, CCS時系列を生成し、ESP32で再生可能な形式にする
 
-#### 1.1.1 HAR推論パイプライン構築
+#### 1.1.1 HAR推論パイプライン構築 ✅
 
-- [ ] **データ読み込みスクリプト作成**
-  - 入力: mHealth生データ（加速度CSV）
-  - 出力: 窓分割済みデータ（100サンプル × 3軸 × N窓）
-  - ファイル: `scripts/load_mhealth.py`
+- [x] **統合スクリプト作成**: `scripts/generate_ccs_sequences.py`
+  - 既存の前処理済みデータ `har/001/data_processed/subject*.npz` を使用
+  - TFLite int8モデルで推論 → U, S, CCS計算 → CSV出力
+  - 全10被験者分のCCS時系列を生成
 
-- [ ] **HAR推論スクリプト作成**
-  - 入力: 窓分割済みデータ
-  - 出力: クラス確率 p_k（4クラス × N窓）
-  - モデル: A0 TFLite int8
-  - ファイル: `scripts/run_har_inference.py`
+#### 1.1.2 CCS→T_adv変換 ✅
 
-- [ ] **U, S, CCS計算スクリプト作成**
-  - 入力: クラス確率 p_k
-  - 出力: U(t), S(t), CCS(t) 時系列
-  - 計算式:
-    ```
-    U = -Σ p_k log(p_k) / log(4)
-    S = 1 - min(1, n_trans / 5)
-    CCS = 0.7 * (1 - U) + 0.3 * S
-    ```
-  - ファイル: `scripts/compute_uncertainty.py`
+- [x] **ヒステリシス付き写像関数**: `scripts/generate_ccs_sequences.py` 内に実装
+  - **閾値調整済み (2025-11-27)**: θ_high=0.90, θ_low=0.80, hysteresis=0.05, min_stay=2.0s
+  - 理由: mHealthのCCS分布が高め(0.84-0.93)のため、閾値を上げて間隔多様性を確保
+  - 変更ログ: `logs/threshold_adjustment_2025-11-27.md`
+- [x] **CCS時系列出力**: `data/ccs_sequences/subject{01-10}_ccs.csv`
 
-#### 1.1.2 CCS→T_adv変換
+#### 1.1.3 代表セッションの選定 ✅
 
-- [ ] **写像関数実装**
-  ```python
-  def ccs_to_interval(ccs, prev_interval, prev_time):
-      # ヒステリシス付き写像
-      θ_high_up, θ_high_down = 0.70, 0.65
-      θ_low_up, θ_low_down = 0.40, 0.35
-      min_stay = 2.0  # 秒
+- [x] **セッション選定スクリプト**: `scripts/create_esp32_sessions.py`
+  - mHealthデータ制約（各被験者約11分）により15分→**10分セッション**に変更
+  - 遷移回数、間隔多様性、CCS範囲をスコアリングして選定
 
-      # 最小滞在時間チェック
-      if time.now() - prev_time < min_stay:
-          return prev_interval
+**成果物**:
+- [x] `data/ccs_sequences/subject{01-10}_ccs.csv` - 被験者別CCS時系列
+- [x] `data/esp32_sessions/session_{01-10}.csv` - ESP32再生用10分セッション
+- [x] `data/esp32_sessions/session_selection_report.md` - 選定レポート
+- [x] `data/esp32_sessions/session_manifest.json` - セッションメタデータ
 
-      # 上り/下りで閾値を変える
-      if prev_interval == 2000:
-          if ccs >= θ_high_up: return 100
-          elif ccs >= θ_low_up: return 500
-          else: return 2000
-      elif prev_interval == 500:
-          if ccs >= θ_high_up: return 100
-          elif ccs < θ_low_down: return 2000
-          else: return 500
-      else:  # prev_interval == 100
-          if ccs < θ_low_down: return 2000
-          elif ccs < θ_high_down: return 500
-          else: return 100
-  ```
-  - ファイル: `scripts/ccs_policy.py`
-
-- [ ] **T_adv時系列生成**
-  - 入力: CCS(t)時系列
-  - 出力: T_adv(t)時系列（ESP32再生用CSV）
-  - フォーマット: `timestamp_ms, ccs, u, s, interval_ms`
-  - ファイル: `data/ccs_sequences/`
-
-#### 1.1.3 代表セッションの選定
-
-- [ ] **活動パターンの確認**
-  - mHealth全体から「座位→歩行→座位」パターンを含むセッションを抽出
-  - 15分相当のセグメントを10個選定
-
-- [ ] **CCS分布の確認**
-  - 選定セッションでCCSが0.2-0.8の範囲をカバーしているか確認
-  - 遷移回数が適度（5-15回/15分）であるか確認
-
-**成果物チェックリスト**:
-- [ ] `data/ccs_sequences/session_01.csv` 〜 `session_10.csv`
-- [ ] `docs/session_selection_report.md`（選定理由の記録）
+**セッション概要** (10分 = 600秒, θ_high=0.90, θ_low=0.80):
+| Session | Subject | CCS Mean | Transitions | 100ms% | 500ms% | 2000ms% |
+|---------|---------|----------|-------------|--------|--------|---------|
+| 01 | 06 | 0.90 | 13 | 26.2% | 2.3% | 71.5% |
+| 02 | 08 | 0.86 | 32 | 27.3% | 4.7% | 68.0% |
+| 10 | 10 | 0.85 | 66 | 36.7% | 13.2% | 50.2% |
 
 ---
 

@@ -1,0 +1,172 @@
+[
+  {
+    "session_id": 1,
+    "source_subject": 6,
+    "start_idx": 0,
+    "end_idx": 600,
+    "duration_s": 600.0,
+    "ccs_mean": 0.896,
+    "ccs_range": "0.36-1.00",
+    "n_transitions": 13,
+    "interval_dist": {
+      "100ms": 157,
+      "500ms": 14,
+      "2000ms": 429
+    },
+    "score": 0.93,
+    "output_path": "data/esp32_sessions/session_01.csv"
+  },
+  {
+    "session_id": 2,
+    "source_subject": 8,
+    "start_idx": 0,
+    "end_idx": 600,
+    "duration_s": 600.0,
+    "ccs_mean": 0.859,
+    "ccs_range": "0.20-1.00",
+    "n_transitions": 32,
+    "interval_dist": {
+      "100ms": 164,
+      "500ms": 28,
+      "2000ms": 408
+    },
+    "score": 0.88,
+    "output_path": "data/esp32_sessions/session_02.csv"
+  },
+  {
+    "session_id": 3,
+    "source_subject": 9,
+    "start_idx": 0,
+    "end_idx": 600,
+    "duration_s": 600.0,
+    "ccs_mean": 0.888,
+    "ccs_range": "0.54-1.00",
+    "n_transitions": 36,
+    "interval_dist": {
+      "100ms": 145,
+      "500ms": 58,
+      "2000ms": 397
+    },
+    "score": 0.818,
+    "output_path": "data/esp32_sessions/session_03.csv"
+  },
+  {
+    "session_id": 4,
+    "source_subject": 5,
+    "start_idx": 0,
+    "end_idx": 600,
+    "duration_s": 600.0,
+    "ccs_mean": 0.931,
+    "ccs_range": "0.58-1.00",
+    "n_transitions": 34,
+    "interval_dist": {
+      "100ms": 93,
+      "500ms": 46,
+      "2000ms": 461
+    },
+    "score": 0.812,
+    "output_path": "data/esp32_sessions/session_04.csv"
+  },
+  {
+    "session_id": 5,
+    "source_subject": 7,
+    "start_idx": 0,
+    "end_idx": 600,
+    "duration_s": 600.0,
+    "ccs_mean": 0.868,
+    "ccs_range": "0.22-1.00",
+    "n_transitions": 51,
+    "interval_dist": {
+      "100ms": 183,
+      "500ms": 68,
+      "2000ms": 349
+    },
+    "score": 0.69,
+    "output_path": "data/esp32_sessions/session_05.csv"
+  },
+  {
+    "session_id": 6,
+    "source_subject": 4,
+    "start_idx": 0,
+    "end_idx": 600,
+    "duration_s": 600.0,
+    "ccs_mean": 0.86,
+    "ccs_range": "0.32-1.00",
+    "n_transitions": 56,
+    "interval_dist": {
+      "100ms": 192,
+      "500ms": 38,
+      "2000ms": 370
+    },
+    "score": 0.64,
+    "output_path": "data/esp32_sessions/session_06.csv"
+  },
+  {
+    "session_id": 7,
+    "source_subject": 1,
+    "start_idx": 0,
+    "end_idx": 600,
+    "duration_s": 600.0,
+    "ccs_mean": 0.836,
+    "ccs_range": "0.26-1.00",
+    "n_transitions": 64,
+    "interval_dist": {
+      "100ms": 193,
+      "500ms": 60,
+      "2000ms": 347
+    },
+    "score": 0.6,
+    "output_path": "data/esp32_sessions/session_07.csv"
+  },
+  {
+    "session_id": 8,
+    "source_subject": 2,
+    "start_idx": 0,
+    "end_idx": 600,
+    "duration_s": 600.0,
+    "ccs_mean": 0.844,
+    "ccs_range": "0.26-1.00",
+    "n_transitions": 61,
+    "interval_dist": {
+      "100ms": 193,
+      "500ms": 110,
+      "2000ms": 297
+    },
+    "score": 0.6,
+    "output_path": "data/esp32_sessions/session_08.csv"
+  },
+  {
+    "session_id": 9,
+    "source_subject": 3,
+    "start_idx": 0,
+    "end_idx": 600,
+    "duration_s": 600.0,
+    "ccs_mean": 0.898,
+    "ccs_range": "0.44-1.00",
+    "n_transitions": 70,
+    "interval_dist": {
+      "100ms": 119,
+      "500ms": 75,
+      "2000ms": 406
+    },
+    "score": 0.6,
+    "output_path": "data/esp32_sessions/session_09.csv"
+  },
+  {
+    "session_id": 10,
+    "source_subject": 10,
+    "start_idx": 0,
+    "end_idx": 600,
+    "duration_s": 600.0,
+    "ccs_mean": 0.848,
+    "ccs_range": "0.38-1.00",
+    "n_transitions": 66,
+    "interval_dist": {
+      "100ms": 220,
+      "500ms": 79,
+      "2000ms": 301
+    },
+    "score": 0.6,
+    "output_path": "data/esp32_sessions/session_10.csv"
+  }
+]

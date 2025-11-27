@@ -1,0 +1,182 @@
+[
+  {
+    "subject_id": 1,
+    "n_windows": 694,
+    "duration_s": 694.0,
+    "u_mean": 0.20799855065262704,
+    "u_std": 0.2544451503040104,
+    "s_mean": 0.9481268011527377,
+    "s_std": 0.1326550250815729,
+    "ccs_mean": 0.8388390548889822,
+    "ccs_std": 0.19528280039449789,
+    "interval_distribution": {
+      "100ms": 225,
+      "500ms": 72,
+      "2000ms": 397
+    },
+    "n_transitions": 85,
+    "output_path": "data/ccs_sequences/subject01_ccs.csv"
+  },
+  {
+    "subject_id": 2,
+    "n_windows": 704,
+    "duration_s": 704.0,
+    "u_mean": 0.16465926416406662,
+    "u_std": 0.1909329351966812,
+    "s_mean": 0.9329545454545454,
+    "s_std": 0.15464151426406914,
+    "ccs_mean": 0.8646248787215168,
+    "ccs_std": 0.15944998524681528,
+    "interval_distribution": {
+      "100ms": 193,
+      "500ms": 112,
+      "2000ms": 399
+    },
+    "n_transitions": 63,
+    "output_path": "data/ccs_sequences/subject02_ccs.csv"
+  },
+  {
+    "subject_id": 3,
+    "n_windows": 698,
+    "duration_s": 698.0,
+    "u_mean": 0.13055570221102883,
+    "u_std": 0.18929402220000258,
+    "s_mean": 0.9690544412607449,
+    "s_std": 0.10470025390587306,
+    "ccs_mean": 0.8993273408305033,
+    "ccs_std": 0.1392474215031314,
+    "interval_distribution": {
+      "100ms": 133,
+      "500ms": 91,
+      "2000ms": 474
+    },
+    "n_transitions": 85,
+    "output_path": "data/ccs_sequences/subject03_ccs.csv"
+  },
+  {
+    "subject_id": 4,
+    "n_windows": 697,
+    "duration_s": 697.0,
+    "u_mean": 0.16081636890913062,
+    "u_std": 0.22245829654429558,
+    "s_mean": 0.9736011477761836,
+    "s_std": 0.0921157427936106,
+    "ccs_mean": 0.8795088860964636,
+    "ccs_std": 0.1673987387726524,
+    "interval_distribution": {
+      "100ms": 192,
+      "500ms": 38,
+      "2000ms": 467
+    },
+    "n_transitions": 56,
+    "output_path": "data/ccs_sequences/subject04_ccs.csv"
+  },
+  {
+    "subject_id": 5,
+    "n_windows": 669,
+    "duration_s": 669.0,
+    "u_mean": 0.1022784135331204,
+    "u_std": 0.1606838289582094,
+    "s_mean": 0.9904334828101644,
+    "s_std": 0.05039120931334515,
+    "ccs_mean": 0.9255351553698649,
+    "ccs_std": 0.11490016279041977,
+    "interval_distribution": {
+      "100ms": 102,
+      "500ms": 64,
+      "2000ms": 503
+    },
+    "n_transitions": 49,
+    "output_path": "data/ccs_sequences/subject05_ccs.csv"
+  },
+  {
+    "subject_id": 6,
+    "n_windows": 634,
+    "duration_s": 634.0,
+    "u_mean": 0.14066900101577662,
+    "u_std": 0.201417586536593,
+    "s_mean": 0.9899053627760253,
+    "s_std": 0.04921135646687697,
+    "ccs_mean": 0.898503308121764,
+    "ccs_std": 0.14469076899662914,
+    "interval_distribution": {
+      "100ms": 157,
+      "500ms": 18,
+      "2000ms": 459
+    },
+    "n_transitions": 17,
+    "output_path": "data/ccs_sequences/subject06_ccs.csv"
+  },
+  {
+    "subject_id": 7,
+    "n_windows": 670,
+    "duration_s": 670.0,
+    "u_mean": 0.16628872923458687,
+    "u_std": 0.20322010247934827,
+    "s_mean": 0.9916417910447761,
+    "s_std": 0.04427178660647739,
+    "ccs_mean": 0.8810904268492219,
+    "ccs_std": 0.14462370008545636,
+    "interval_distribution": {
+      "100ms": 183,
+      "500ms": 68,
+      "2000ms": 419
+    },
+    "n_transitions": 51,
+    "output_path": "data/ccs_sequences/subject07_ccs.csv"
+  },
+  {
+    "subject_id": 8,
+    "n_windows": 659,
+    "duration_s": 659.0,
+    "u_mean": 0.15952146207938625,
+    "u_std": 0.24486146263428615,
+    "s_mean": 0.9441578148710166,
+    "s_std": 0.1318998998945424,
+    "ccs_mean": 0.8715823210057345,
+    "ccs_std": 0.19399970772251401,
+    "interval_distribution": {
+      "100ms": 164,
+      "500ms": 28,
+      "2000ms": 467
+    },
+    "n_transitions": 32,
+    "output_path": "data/ccs_sequences/subject08_ccs.csv"
+  },
+  {
+    "subject_id": 9,
+    "n_windows": 677,
+    "duration_s": 677.0,
+    "u_mean": 0.14291776779288715,
+    "u_std": 0.19704523696694806,
+    "s_mean": 0.9940915805022157,
+    "s_std": 0.033864058802734645,
+    "ccs_mean": 0.8981850366956436,
+    "ccs_std": 0.13868439534074237,
+    "interval_distribution": {
+      "100ms": 145,
+      "500ms": 60,
+      "2000ms": 472
+    },
+    "n_transitions": 38,
+    "output_path": "data/ccs_sequences/subject09_ccs.csv"
+  },
+  {
+    "subject_id": 10,
+    "n_windows": 666,
+    "duration_s": 666.0,
+    "u_mean": 0.17812452767876755,
+    "u_std": 0.18453962765177725,
+    "s_mean": 0.9555555555555555,
+    "s_std": 0.1388738730621637,
+    "ccs_mean": 0.8619794972915295,
+    "ccs_std": 0.1436177757138373,
+    "interval_distribution": {
+      "100ms": 220,
+      "500ms": 79,
+      "2000ms": 367
+    },
+    "n_transitions": 66,
+    "output_path": "data/ccs_sequences/subject10_ccs.csv"
+  }
+]
