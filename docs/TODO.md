@@ -208,7 +208,10 @@ python3 scripts/convert_session_to_header.py --session 01
 - [x] Phase 0-0で実施済み
   - ΔE/adv実測値: 100/500/1000/2000ms (`docs/フェーズ1/results/delta_energy_row1120_row1123_off.md`)
   - P_off = 22.106 mW
-- [ ] Phase 1実験前に再校正（±10%以内を確認）
+- [ ] Phase 1実験前に簡易校正
+  - **基準値 (100ms)**: ΔE/adv = 2256.82 µJ
+  - **許容範囲**: 2031 〜 2483 µJ (±10%)
+  - 手順: FIXED-100で計測 → TXSDログの`E_per_adv_uJ`を確認
 
 **成果物チェックリスト**:
 - [x] 配線図: `docs/フェーズ0-0/実験装置最終仕様書.md` セクション3
