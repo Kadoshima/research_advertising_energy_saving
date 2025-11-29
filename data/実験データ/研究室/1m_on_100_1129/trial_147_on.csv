@@ -1,0 +1,6 @@
+ms,mV,µA,p_mW
+# meta, firmware=TXSD_PowerLogger_PASS_THRU_ON_v2, trial_index=10, adv_interval_ms=100
+# summary, ms_total=6, adv_count=0, E_total_mJ=0.000, E_per_adv_uJ=0.0
+# diag, samples=0, rate_hz=0.00, mean_v=0.000, mean_i=0.000, mean_p_mW=0.0
+# diag, dt_ms_mean=0.000, dt_ms_std=0.000, dt_ms_min=0, dt_ms_max=0, parse_drop=0
+# sys, cpu_mhz=240, wifi_mode=OFF, free_heap=256116

@@ -1,0 +1,270 @@
+// === TXSD_PowerLogger_PASS_THRU_OFF_v1.ino ===
+// Board: ESP32 Dev Module (Arduino-ESP32 v3.x)
+//
+// 役割：TX(②)からの UART を「パススルー＋軽量集計」で SD に保存。
+//       SYNCで試行開始/終了。TICKで adv_count を厳密カウント。
+//       CSV行は「ms,mv,uA[,p_mW]」形式（整数主体）。末尾に #summary/#diag/#sys を付与。
+// ねらい：受信/パース/SD書込みの負荷を最小化し、実効レートと再現性（±5%）を担保。
+// 配線：UART RX=34 ← ② TX=4（クロス）
+//      SYNC_IN=26 ← ② SYNC_OUT=25
+//      TICK_IN=33 ← ② TICK_OUT=27（推奨）
+//      SD: CS=5, SCK=18, MISO=19, MOSI=23
+
+#include <Arduino.h>
+#include <SPI.h>
+#include <SD.h>
+#include <WiFi.h>
+
+HardwareSerial uart1(1);
+
+// ---- ピン／定数 ----
+
+static const uint32_t TRIAL_MS        = 60000; // OFF固定窓
+static const bool USE_SYNC_END        = false;  // true: SYNC立ち下がりで終了 / false: TRIAL_MSで終了（立ち下がり無視）
+static const int RX_PIN   = 34;
+static const int SD_CS    = 5;
+static const int SYNC_IN  = 26;
+static const int TICK_IN  = 33;
+
+// 出力フォーマット：整数CSV（ms,mV,µA[,p_mW]）
+#define CSV_APPEND_PM_W   1        // 1: p_mW列を付ける
+#define USE_TICK_INPUT    0        // 1: TICKで厳密カウント（ON用）
+#define ADV_INTERVAL_MS   0        // OFFでは0（フォールバックは使わない）
+#define SD_CHUNK_BYTES    16384    // SD書込みチャンク（大きいほど良い）
+#define UART_RXBUF_BYTES  16384    // UART受信バッファ拡張
+#define LINE_MAX_BYTES    64       // "mv,uA" 1行の最大想定
+
+// ---- 変数 ----
+File f;
+volatile bool syncLvl=false, syncEdge=false;
+volatile uint32_t advCountISR=0;
+
+bool     logging=false;
+uint32_t t0_ms=0, tPrev=0;
+uint32_t lineN=0, badLines=0;
+
+// 軽量集計（整数基準）
+double   E_mJ=0.0;
+uint32_t dtMin=0xFFFFFFFF, dtMax=0;
+double   sumDt=0.0, sumDt2=0.0;  // ms
+int64_t  sum_mv=0, sum_uA=0;
+uint32_t sampN=0;
+static   uint32_t trialIndex=0;
+
+// SDバッファ（非同期っぽく塊で書く）
+static uint8_t sdBuf[SD_CHUNK_BYTES];
+static size_t  sdLen=0;
+
+// 行バッファ（固定長）
+static char    lineBuf[LINE_MAX_BYTES];
+static size_t  lbLen=0;
+
+static const char FW_TAG[] = "TXSD_PowerLogger_PASS_THRU_OFF_v1";
+
+static inline void sd_flush_chunk(){
+  if (sdLen){ f.write(sdBuf, sdLen); sdLen=0; }
+}
+static inline void sd_puts(const char* s, size_t n){
+  if (sdLen + n > SD_CHUNK_BYTES) sd_flush_chunk();
+  memcpy(sdBuf + sdLen, s, n); sdLen += n;
+}
+static inline void sd_putc(char c){
+  if (sdLen + 1 > SD_CHUNK_BYTES) sd_flush_chunk();
+  sdBuf[sdLen++] = (uint8_t)c;
+}
+
+void IRAM_ATTR onSync(){
+  bool s = digitalRead(SYNC_IN);
+  if (s != syncLvl){ syncLvl=s; syncEdge=true; }
+}
+void IRAM_ATTR onTick(){ if (logging && USE_TICK_INPUT) advCountISR++; }
+
+String nextPath(){
+  SD.mkdir("/logs");
+  char p[64];
+  for (uint32_t id=1;;++id){
+    snprintf(p,sizeof(p),"/logs/trial_%03lu_off.csv",(unsigned long)id);
+    if (!SD.exists(p)) return String(p);
+  }
+}
+
+void startTrial(){
+  String path = nextPath();
+  f = SD.open(path, FILE_WRITE);
+  if (!f){ Serial.println("[SD] open FAIL"); return; }
+
+  // ヘッダ
+#if CSV_APPEND_PM_W
+  f.println("ms,mV,µA,p_mW");
+#else
+  f.println("ms,mV,µA");
+#endif
+  trialIndex++;
+  f.printf("# meta, firmware=%s, trial_index=%lu, adv_interval_ms=%u\r\n",
+           FW_TAG, (unsigned long)trialIndex, (unsigned)ADV_INTERVAL_MS);
+
+  logging = true;
+  t0_ms = millis(); tPrev = t0_ms; lineN = badLines = 0;
+  E_mJ = 0.0; sampN=0; sum_mv=sum_uA=0;
+  sumDt=sumDt2=0.0; dtMin=0xFFFFFFFF; dtMax=0;
+  advCountISR = 0;
+
+  // UARTバッファを空に
+  while (uart1.available()) uart1.read();
+  sdLen=0; lbLen=0;
+
+  Serial.printf("[PWR] start %s (OFF, trial=%lu)\n", path.c_str(), (unsigned long)trialIndex);
+}
+void endTrial(){
+  if (!logging) return;
+  logging = false;
+
+  uint32_t t_ms = millis() - t0_ms;
+  uint32_t Nadv = 0;
+  if (USE_TICK_INPUT) {
+    Nadv = advCountISR;
+  } else if (ADV_INTERVAL_MS > 0) {
+    Nadv = (uint32_t)((t_ms / (double)ADV_INTERVAL_MS) + 0.5);
+  }
+  double Eper_uJ = (Nadv>0) ? (E_mJ * 1000.0 / Nadv) : 0.0;
+
+  // まとめ（#summary / #diag / #sys）
+  sd_flush_chunk();
+  f.printf("# summary, ms_total=%lu, adv_count=%lu, E_total_mJ=%.3f, E_per_adv_uJ=%.1f\r\n",
+           (unsigned long)t_ms, (unsigned long)Nadv, E_mJ, Eper_uJ);
+
+  double meanDt = (sampN>0)? (sumDt/sampN) : 0.0;
+  double varDt  = (sampN>0)? (sumDt2/sampN) - meanDt*meanDt : 0.0;
+  double stdDt  = (varDt>0)? sqrt(varDt) : 0.0;
+  double rate_hz= (meanDt>0)? (1000.0/meanDt) : 0.0;
+  double mean_mv= (sampN>0)? (double)sum_mv / (double)sampN : 0.0;
+  double mean_uA= (sampN>0)? (double)sum_uA / (double)sampN : 0.0;
+  double mean_mV= mean_mv;                     // 単位名だけ整える
+  double mean_mA= mean_uA / 1000.0;
+  double meanPmW= (mean_mV * mean_uA) / 1000.0;
+
+  f.printf("# diag, samples=%lu, rate_hz=%.2f, mean_v=%.3f, mean_i=%.3f, mean_p_mW=%.1f\r\n",
+           (unsigned long)sampN, rate_hz, mean_mV/1000.0, mean_mA, meanPmW);
+  f.printf("# diag, dt_ms_mean=%.3f, dt_ms_std=%.3f, dt_ms_min=%lu, dt_ms_max=%lu, parse_drop=%lu\r\n",
+           meanDt, stdDt, (unsigned long)(dtMin==0xFFFFFFFF?0:dtMin), (unsigned long)dtMax, (unsigned long)badLines);
+  f.printf("# sys, cpu_mhz=%d, wifi_mode=%s, free_heap=%lu\r\n",
+           getCpuFrequencyMhz(), (WiFi.getMode()==WIFI_OFF?"OFF":"ON"), (unsigned long)ESP.getFreeHeap());
+
+  f.flush(); f.close();
+  Serial.printf("[PWR] end trial=%lu t=%lums N=%lu E=%.3fmJ (OFF)\n",
+                (unsigned long)trialIndex, (unsigned long)t_ms, (unsigned long)Nadv, E_mJ);
+}
+
+static inline bool parse_mvuA(const char* s, int32_t& mv, int32_t& uA){
+  // 期待形式: "1234,567890"
+  // 高速・健全系の簡易パーサ（負号なし前提）
+  const char* p=s; long a=0,b=0;
+  if(!*p) return false;
+  while(*p>='0' && *p<='9'){ a = a*10 + (*p-'0'); ++p; }
+  if(*p!=',') return false; ++p;
+  if(!*p) return false;
+  while(*p>='0' && *p<='9'){ b = b*10 + (*p-'0'); ++p; }
+  mv=(int32_t)a; uA=(int32_t)b; return true;
+}
+
+void setup(){
+  Serial.begin(115200);
+
+  // SD
+  SPI.begin(18,19,23,SD_CS);
+  if (!SD.begin(SD_CS)){ Serial.println("[SD] init FAIL"); while(1) delay(1000); }
+
+  // UART（受信専用）
+  uart1.begin(230400, SERIAL_8N1, RX_PIN, -1);
+  uart1.setRxBufferSize(UART_RXBUF_BYTES);
+
+  // SYNC/TICK
+  pinMode(SYNC_IN, INPUT_PULLDOWN);
+  attachInterrupt(digitalPinToInterrupt(SYNC_IN), onSync, CHANGE);
+  pinMode(TICK_IN, INPUT_PULLDOWN);
+  attachInterrupt(digitalPinToInterrupt(TICK_IN), onTick, RISING);
+
+  syncLvl = digitalRead(SYNC_IN);
+  if (syncLvl) startTrial();
+}
+
+void loop(){
+  // SYNC立上りで開始、立下りで終了（USE_SYNC_END=true時のみ）
+  if (syncEdge){
+    noInterrupts(); bool s=syncLvl; syncEdge=false; interrupts();
+    if (s && !logging) {
+      startTrial();
+    } else if (USE_SYNC_END && !s && logging) {
+      endTrial();
+    }
+  }
+
+  // 固定窓終了（OFF用）
+  if (!USE_SYNC_END && logging){
+    if ((millis() - t0_ms) >= TRIAL_MS){
+      endTrial();
+    }
+  }
+
+  // UART受信（パススルー＋軽量集計）
+  while (uart1.available()){
+    char c = (char)uart1.read();
+    if (c == '\n'){
+      if (logging && f){
+        uint32_t tNow = millis();
+        uint32_t dt   = tNow - tPrev; tPrev = tNow;
+        if (lbLen>0 && lbLen<LINE_MAX_BYTES){
+          // 解析：mv,uA を整数で取得
+          int32_t mv=0, uA=0;
+          if (parse_mvuA(lineBuf, mv, uA)){
+            // 集計
+            sampN++;
+            sum_mv += mv; sum_uA += uA;
+            sumDt += dt; sumDt2 += (double)dt * (double)dt;
+            if (dt < dtMin) dtMin = dt;
+            if (dt > dtMax) dtMax = dt;
+            // エネルギー積分（p_mW = mv*uA/1000）
+            double p_mW = ( (double)mv * (double)uA ) / 1000000.0;
+            E_mJ += p_mW * (dt / 1000.0);
+
+            // SDへ書き出し "ms,mv,uA[,p_mW]\r\n"
+            char hdr[16];
+            int hn = snprintf(hdr, sizeof(hdr), "%lu,", (unsigned long)(tNow - t0_ms));
+            sd_puts(hdr, hn);
+            sd_puts(lineBuf, lbLen);
+#if CSV_APPEND_PM_W
+            char tail[24];
+            int tn = snprintf(tail, sizeof(tail), ",%.1f\r\n", p_mW);
+            sd_puts(tail, tn);
+#else
+            sd_puts("\r\n", 2);
+#endif
+            lineN++;
+          } else {
+            badLines++;
+          }
+        } else {
+          badLines++;
+        }
+      }
+      lbLen=0;
+    } else if (c != '\r'){
+      if (lbLen < LINE_MAX_BYTES-1) lineBuf[lbLen++] = c;
+      else badLines++; // オーバーラン
+    }
+  }
+
+
+  // 固定窓終了 (OFF用)
+  if (!USE_SYNC_END && logging){
+    if ((millis() - t0_ms) >= TRIAL_MS){
+      endTrial();
+    }
+  }
+
+  // SDへ塊書き（受信が一段落したタイミングで）
+  if (sdLen >= (SD_CHUNK_BYTES - 128)) sd_flush_chunk();
+
+  // 他タスクに譲る（スリープ誘導）
+  vTaskDelay(1);
+}
