@@ -167,9 +167,9 @@ void setup(){
   SPI.begin(18,19,23,SD_CS);
   if (!SD.begin(SD_CS)){ Serial.println("[SD] init FAIL"); while(1) delay(1000); }
 
-  // UART（受信専用）
-  uart1.begin(230400, SERIAL_8N1, RX_PIN, -1);
+  // UART（受信専用）- setRxBufferSizeはbeginの前に呼ぶ
   uart1.setRxBufferSize(UART_RXBUF_BYTES);
+  uart1.begin(230400, SERIAL_8N1, RX_PIN, -1);
 
   // SYNC/TICK
   pinMode(SYNC_IN, INPUT_PULLDOWN);
@@ -235,8 +235,12 @@ void loop(){
       }
       lbLen=0;
     } else if (c != '\r'){
-      if (lbLen < LINE_MAX_BYTES-1) lineBuf[lbLen++] = c;
-      else badLines++; // オーバーラン
+      if (lbLen < LINE_MAX_BYTES-2) {
+        lineBuf[lbLen++] = c;
+        lineBuf[lbLen] = '\0';  // 常にnull終端
+      } else {
+        badLines++; // オーバーラン
+      }
     }
   }
 
