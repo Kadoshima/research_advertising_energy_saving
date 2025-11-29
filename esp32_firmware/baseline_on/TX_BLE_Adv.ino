@@ -112,10 +112,8 @@ static void startTrial(){
   nextSampleUs = micros() + SAMPLE_US;
   nextAdvMs    = nowMs + currentIntervalMs;
 
-  // 100msパルスのみ（trial中はLED/SYNCを常時OFFにする）
+  // トライアル開始: SYNC=HIGH維持（endTrial()でLOWにする）
   syncStart();
-  delay(100);
-  syncEnd();
 
   uint32_t expectedDurS = (uint32_t)N_ADV_PER_TRIAL * currentIntervalMs / 1000;
   Serial.printf("[TX] start trial group=%u, idx=%u/%u, interval_ms=%u, expected_dur=%lus\n",
