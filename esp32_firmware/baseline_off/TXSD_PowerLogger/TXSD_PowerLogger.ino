@@ -176,7 +176,7 @@ void setup(){
 
   // UART（受信専用）- setRxBufferSizeはbeginの前に呼ぶ
   uart1.setRxBufferSize(UART_RXBUF_BYTES);
-  uart1.begin(230400, SERIAL_8N1, RX_PIN, -1);
+  uart1.begin(115200, SERIAL_8N1, RX_PIN, -1);  // 230400から下げてノイズ耐性向上
 
   // SYNC/TICK
   pinMode(SYNC_IN, INPUT_PULLDOWN);

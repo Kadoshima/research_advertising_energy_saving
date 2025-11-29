@@ -52,7 +52,7 @@ static const int LED_PIN      = 2;
 static const int I2C_SDA      = 21;
 static const int I2C_SCL      = 22;
 static const int UART_TX      = 4;
-static const long UART_BAUD   = 230400;
+static const long UART_BAUD   = 115200;  // 230400から下げてノイズ耐性向上
 
 // シャント値（ミリオーム）
 #define RSHUNT_MILLIOHM  100   // 実装が 0.1Ω=100 mΩ の場合
