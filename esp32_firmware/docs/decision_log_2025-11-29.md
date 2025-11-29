@@ -126,20 +126,64 @@ INA219のVccをVin-（負荷側）から分岐して供給していた可能性:
 
 ---
 
-## 5. ファイルハッシュ (SHA256)
+## 5. UARTボーレート変更 (2025-11-29 追記)
 
-作成日時: 2025-11-29
+### 問題
+- 230400 bps でデータ化け発生（µA列に記号混入: `05"400`, `06#100` など）
+- 約90%のサンプルがパース不可
 
-| ファイル | SHA256 (先頭16文字) | 用途 |
-|----------|---------------------|------|
-| baseline_on/TX_BLE_Adv.ino | `77b89bb72f34e2dc` | ON計測TX |
-| baseline_on/TXSD_PowerLogger.ino | `922398b12a30f8a0` | ON計測PowerLogger |
-| baseline_on/RX_BLE_to_SD.ino | `1bfad7c308146d3c` | ON計測RX |
-| baseline_off/TX_BLE_OFF.ino | `9e79065ec8e223cf` | OFF計測TX |
-| baseline_off/TXSD_PowerLogger.ino | `93689f503d86c975` | OFF計測PowerLogger |
-| ccs_mode/TX_BLE_Adv_CCS_Mode.ino | `959f134ecde8551c` | CCSモードTX |
-| ccs_mode/TXSD_PowerLogger_CCS_Mode.ino | `0e6da19c0a2ef651` | CCSモードPowerLogger |
-| ccs_mode/RX_BLE_to_SD.ino | `1bfad7c308146d3c` | CCSモードRX |
-| ccs_mode/ccs_session_data.h | `6224539c62880a4d` | CCSセッションデータ |
+### 原因
+- 高ボーレートでのビット化け（配線長・ノイズ）
 
-**検証コマンド**: `shasum -a 256 esp32_firmware/**/*.ino esp32_firmware/**/*.h`
+### 対策
+- 全ファームウェアのUARTボーレートを **230400 → 115200** に変更
+- 変更ファイル:
+  - `baseline_off/TX_BLE_OFF.ino`
+  - `baseline_off/TXSD_PowerLogger.ino`
+  - `baseline_on/TX_BLE_Adv.ino`
+  - `baseline_on/TXSD_PowerLogger.ino`
+
+### 結果
+- データ化け解消、parse_drop=0 達成
+
+---
+
+## 6. ハードウェア確認事項
+
+### 使用ボード
+- **ESP32-WROVER-E (ESP32-DevKitC-VE)** - Espressif純正
+- PSRAM搭載のため通常のWROOMより消費電力が高い
+
+### INA219シャント抵抗
+- **R100 (0.1Ω)** を確認
+- `setCalibration_16V_400mA()` で正しくキャリブレーション
+
+### 電流計測値の差異
+| 測定源 | 電流 | 備考 |
+|--------|------|------|
+| 外部電源表示 | 40 mA | 参考値 |
+| INA219読み取り | 56 mA | 約16mAの差あり |
+
+相対比較（ON-OFF）では相殺されるため、ΔE/adv算出には問題なし。
+
+---
+
+## 7. ファイルハッシュ (SHA256)
+
+作成日時: 2025-11-29 (ボーレート変更後)
+
+※ファイル構成が変更されているため、最新ハッシュは以下コマンドで確認:
+
+```bash
+shasum -a 256 esp32_firmware/baseline_on/*.ino \
+              esp32_firmware/baseline_off/*/*.ino \
+              esp32_firmware/ccs_mode/*.ino \
+              esp32_firmware/ccs_mode/*.h
+```
+
+---
+
+## 8. 関連ドキュメント
+
+- `esp32_firmware/docs/実験装置仕様書_v2.md` - 本ログに基づく更新版仕様書
+- `docs/フェーズ0-0/実験装置最終仕様書.md` - 旧版（v1.0、参照用として保持）
