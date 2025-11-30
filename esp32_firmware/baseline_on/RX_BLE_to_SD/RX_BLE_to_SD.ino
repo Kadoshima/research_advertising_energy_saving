@@ -199,20 +199,20 @@ class CB: public BLEAdvertisedDeviceCallbacks{
   void onResult(BLEAdvertisedDevice d) override {
     if (!trial) return;
 
-    // MFDパース
-    std::string mfdStd = d.getManufacturerData();
-    if (mfdStd.length() < 6) return;
-    if (mfdStd[0] != 'M' || mfdStd[1] != 'F') return;
+    // MFDパース (Arduino String版)
+    String mfdStr = d.getManufacturerData();
+    if (mfdStr.length() < 6) return;
+    if (mfdStr[0] != 'M' || mfdStr[1] != 'F') return;
 
-    // アドレス取得
-    std::string addrStd = d.getAddress().toString();
+    // アドレス取得 (Arduino String版)
+    String addrStr = d.getAddress().toString();
 
     // 最初のTXにロック
     if (txLockAddr[0] == '\0') {
-      strncpy(txLockAddr, addrStd.c_str(), sizeof(txLockAddr)-1);
+      strncpy(txLockAddr, addrStr.c_str(), sizeof(txLockAddr)-1);
       txLockAddr[sizeof(txLockAddr)-1] = '\0';
     }
-    if (strncmp(txLockAddr, addrStd.c_str(), sizeof(txLockAddr)) != 0) return;
+    if (strncmp(txLockAddr, addrStr.c_str(), sizeof(txLockAddr)) != 0) return;
 
     // リングバッファに書き込み（高速）
     uint16_t nextHead = (rxBufHead + 1) % RX_BUF_SIZE;
@@ -225,9 +225,9 @@ class CB: public BLEAdvertisedDeviceCallbacks{
     RxEntry& e = rxBuf[rxBufHead];
     e.ms = millis() - t0Ms;
     e.rssi = (int8_t)d.getRSSI();
-    strncpy(e.addr, addrStd.c_str(), sizeof(e.addr)-1);
+    strncpy(e.addr, addrStr.c_str(), sizeof(e.addr)-1);
     e.addr[sizeof(e.addr)-1] = '\0';
-    strncpy(e.mfd, mfdStd.c_str(), sizeof(e.mfd)-1);
+    strncpy(e.mfd, mfdStr.c_str(), sizeof(e.mfd)-1);
     e.mfd[sizeof(e.mfd)-1] = '\0';
 
     rxBufHead = nextHead;
