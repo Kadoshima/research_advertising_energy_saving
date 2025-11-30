@@ -25,8 +25,9 @@ static const int SD_MISO  = 19;
 static const int SD_MOSI  = 23;
 static const int SYNC_IN  = 26;
 static const uint16_t SCAN_MS = 50;
-static const uint32_t TRIAL_MS = 660000;   // フォールバック
-static const uint32_t MIN_TRIAL_MS = 1000; // 1秒未満は試行として扱わない（短パルス対策）
+static const uint32_t TRIAL_MS      = 660000;   // フォールバック
+static const uint32_t MIN_TRIAL_MS  = 1000;     // 1秒未満は試行として扱わない（短パルス対策）
+static const bool     USE_SYNC_END  = true;     // SYNC立下りで終了するか
 
 // リングバッファ
 static const uint16_t RX_BUF_SIZE = 512;
