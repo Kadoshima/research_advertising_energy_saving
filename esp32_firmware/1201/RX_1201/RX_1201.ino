@@ -124,27 +124,9 @@ void loop(){
     if (s && !trial) {
       startTrial();
     } else if (!s && trial) {
-      uint32_t dur = millis() - t0Ms;
-      if (USE_SYNC_END && dur >= MIN_TRIAL_MS){
+      if (USE_SYNC_END){
         endTrial();
-      } else {
-        // ignore short pulse
       }
-    }
-  }
-
-  // バックアップ: レベルから開始/終了を補足（エッジ取りこぼし対策）
-  bool lvl = digitalRead(SYNC_IN);
-  if (lvl && !trial && !syncLvl){
-    // 立上りを見逃した場合でも開始させる
-    noInterrupts(); syncLvl = true; syncEdge = false; interrupts();
-    startTrial();
-  } else if (!lvl && trial && syncLvl){
-    // 立下りを見逃した場合でも終了させる（短パルスは無視）
-    uint32_t dur = millis() - t0Ms;
-    if (USE_SYNC_END && dur >= MIN_TRIAL_MS){
-      noInterrupts(); syncLvl = false; syncEdge = false; interrupts();
-      endTrial();
     }
   }
 
