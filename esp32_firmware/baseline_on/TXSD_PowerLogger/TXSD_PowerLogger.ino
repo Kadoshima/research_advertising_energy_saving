@@ -31,6 +31,9 @@ static const int TICK_IN  = 33;
 #define UART_RXBUF_BYTES  16384    // UART受信バッファ拡張
 #define LINE_MAX_BYTES    64       // "mv,uA" 1行の最大想定
 
+// 文字化け救済を有効にするか（0でOFF）。0x2x→0x3xのビット落ちを数字へ戻す簡易repair
+#define ENABLE_DIGIT_REPAIR 1
+
 // ---- 変数 ----
 File f;
 volatile bool syncLvl=false, syncEdge=false;
@@ -41,11 +44,14 @@ uint32_t t0_ms=0, tPrev=0;
 uint32_t lineN=0, badLines=0;
 
 // 軽量集計（整数基準）
-double   E_mJ=0.0;
+double   E_mJ=0.0;               // 平均P×durationで算出
 uint32_t dtMin=0xFFFFFFFF, dtMax=0;
-double   sumDt=0.0, sumDt2=0.0;  // ms
+double   sumDt=0.0, sumDt2=0.0;  // 有効サンプル間のdt統計
 int64_t  sum_mv=0, sum_uA=0;
+double   sumP_mW=0.0;            // P[mW]の総和
 uint32_t sampN=0;
+uint32_t firstMs=0, lastMs=0;
+bool     hasSample=false;
 static   uint32_t trialIndex=0;
 
 // SDバッファ（非同期っぽく塊で書く）
@@ -102,9 +108,11 @@ void startTrial(){
 
   logging = true;
   t0_ms = millis(); tPrev = t0_ms; lineN = badLines = 0;
-  E_mJ = 0.0; sampN=0; sum_mv=sum_uA=0;
+  E_mJ = 0.0;
+  sampN=0; sum_mv=sum_uA=0; sumP_mW=0.0;
   sumDt=sumDt2=0.0; dtMin=0xFFFFFFFF; dtMax=0;
   advCountISR = 0;
+  hasSample=false; firstMs=lastMs=0;
 
   // UARTバッファを空に
   while (uart1.available()) uart1.read();
@@ -116,7 +124,16 @@ void endTrial(){
   if (!logging) return;
   logging = false;
 
-  uint32_t t_ms = millis() - t0_ms;
+  uint32_t t_ms = 0;
+  if (hasSample && lastMs >= firstMs) {
+    t_ms = lastMs - firstMs;  // サンプル期間
+  } else {
+    t_ms = millis() - t0_ms;  // フォールバック
+  }
+
+  double meanP_mW = (sampN>0)? (sumP_mW / (double)sampN) : 0.0;
+  E_mJ = meanP_mW * (t_ms / 1000.0);  // 平均P×duration
+
   uint32_t Nadv = USE_TICK_INPUT ? advCountISR
                                  : (uint32_t)((t_ms / (double)ADV_INTERVAL_MS) + 0.5);
   double Eper_uJ = (Nadv>0) ? (E_mJ * 1000.0 / Nadv) : 0.0;
@@ -126,15 +143,15 @@ void endTrial(){
   f.printf("# summary, ms_total=%lu, adv_count=%lu, E_total_mJ=%.3f, E_per_adv_uJ=%.1f\r\n",
            (unsigned long)t_ms, (unsigned long)Nadv, E_mJ, Eper_uJ);
 
-  double meanDt = (sampN>0)? (sumDt/sampN) : 0.0;
-  double varDt  = (sampN>0)? (sumDt2/sampN) - meanDt*meanDt : 0.0;
+  double meanDt = (sampN>1)? (sumDt/(sampN-1)) : 0.0;
+  double varDt  = (sampN>1)? (sumDt2/(sampN-1)) - meanDt*meanDt : 0.0;
   double stdDt  = (varDt>0)? sqrt(varDt) : 0.0;
   double rate_hz= (meanDt>0)? (1000.0/meanDt) : 0.0;
   double mean_mv= (sampN>0)? (double)sum_mv / (double)sampN : 0.0;
   double mean_uA= (sampN>0)? (double)sum_uA / (double)sampN : 0.0;
-  double mean_mV= mean_mv;                     // 単位名だけ整える
+  double mean_mV= mean_mv;
   double mean_mA= mean_uA / 1000.0;
-  double meanPmW= (mean_mV * mean_uA) / 1000.0;
+  double meanPmW= meanP_mW; // スケール修正済み
 
   f.printf("# diag, samples=%lu, rate_hz=%.2f, mean_v=%.3f, mean_i=%.3f, mean_p_mW=%.1f\r\n",
            (unsigned long)sampN, rate_hz, mean_mV/1000.0, mean_mA, meanPmW);
@@ -148,15 +165,35 @@ void endTrial(){
                 (unsigned long)trialIndex, (unsigned long)t_ms, (unsigned long)Nadv, E_mJ);
 }
 
+static inline char repair_digit(char c) {
+  // 0x2x → 0x3x のビット落ちを救済（'&'(0x26)+0x10='6' など）
+  if (c >= '0' && c <= '9') return c;
+  if (c >= 0x20 && c <= 0x2F) {
+    char c2 = c + 0x10;
+    if (c2 >= '0' && c2 <= '9') return c2;
+  }
+  return '\0';
+}
+
+static inline void repair_line_digits(char* s) {
+  if (!ENABLE_DIGIT_REPAIR) return;
+  for (char* p = s; *p; ++p) {
+    if (*p == ',') continue;
+    char r = repair_digit(*p);
+    if (r != '\0') *p = r;
+  }
+}
+
 static inline bool parse_mvuA(const char* s, int32_t& mv, int32_t& uA){
-  // 期待形式: "1234,567890"
-  // 高速・健全系の簡易パーサ（負号なし前提）
+  // 期待形式: "1234,567890" 以外はNG
   const char* p=s; long a=0,b=0;
   if(!*p) return false;
   while(*p>='0' && *p<='9'){ a = a*10 + (*p-'0'); ++p; }
   if(*p!=',') return false; ++p;
   if(!*p) return false;
   while(*p>='0' && *p<='9'){ b = b*10 + (*p-'0'); ++p; }
+  while (*p==' ' || *p=='\t') ++p; // 末尾空白のみ許容
+  if(*p!='\0') return false;      // ゴミ付きは拒否
   mv=(int32_t)a; uA=(int32_t)b; return true;
 }
 
@@ -197,25 +234,35 @@ void loop(){
     char c = (char)uart1.read();
     if (c == '\n'){
       if (logging && f){
-        uint32_t tNow = millis();
-        uint32_t dt   = tNow - tPrev; tPrev = tNow;
+        uint32_t tNowAbs = millis();
+        uint32_t relMs   = tNowAbs - t0_ms;  // 相対時刻
         if (lbLen>0 && lbLen<LINE_MAX_BYTES){
-          // 解析：mv,uA を整数で取得
+          repair_line_digits(lineBuf);
           int32_t mv=0, uA=0;
           if (parse_mvuA(lineBuf, mv, uA)){
+            double p_mW = ( (double)mv * (double)uA ) / 1000000.0;
+
+            // dt統計（有効サンプル間のみ）
+            if (!hasSample) {
+              hasSample = true;
+              firstMs   = relMs;
+              tPrev     = tNowAbs;
+            } else {
+              uint32_t dt = tNowAbs - tPrev; tPrev = tNowAbs;
+              sumDt  += dt; sumDt2 += (double)dt * (double)dt;
+              if (dt < dtMin) dtMin = dt;
+              if (dt > dtMax) dtMax = dt;
+            }
+            lastMs = relMs;
+
             // 集計
             sampN++;
             sum_mv += mv; sum_uA += uA;
-            sumDt += dt; sumDt2 += (double)dt * (double)dt;
-            if (dt < dtMin) dtMin = dt;
-            if (dt > dtMax) dtMax = dt;
-            // エネルギー積分（p_mW = mv*uA/1000）
-            double p_mW = ( (double)mv * (double)uA ) / 1000000.0;
-            E_mJ += p_mW * (dt / 1000.0);
+            sumP_mW += p_mW;
 
             // SDへ書き出し "ms,mv,uA[,p_mW]\r\n"
             char hdr[16];
-            int hn = snprintf(hdr, sizeof(hdr), "%lu,", (unsigned long)(tNow - t0_ms));
+            int hn = snprintf(hdr, sizeof(hdr), "%lu,", (unsigned long)relMs);
             sd_puts(hdr, hn);
             sd_puts(lineBuf, lbLen);
 #if CSV_APPEND_PM_W
