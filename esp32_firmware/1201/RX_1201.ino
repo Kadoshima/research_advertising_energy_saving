@@ -118,7 +118,21 @@ void setup(){
 }
 
 void loop(){
-  if (syncEdge){ noInterrupts(); bool s=syncLvl; syncEdge=false; interrupts(); if (s && !trial) startTrial(); else if (!s && trial) endTrial(); }
+  if (syncEdge){
+    noInterrupts(); bool s=syncLvl; syncEdge=false; interrupts();
+    if (s && !trial) {
+      // 立上りで開始
+      startTrial();
+    } else if (!s && trial) {
+      // 立下り: 短いパルスは無視して継続
+      uint32_t dur = millis() - t0Ms;
+      if (USE_SYNC_END && dur >= MIN_TRIAL_MS){
+        endTrial();
+      } else {
+        // ignore short pulse, keep running
+      }
+    }
+  }
   if (trial){ uint32_t now=millis(); if (now - lastFlushMs >= FLUSH_INTERVAL_MS){ flushBuffer(); lastFlushMs=now; }
     if ((millis()-t0Ms) >= TRIAL_MS) endTrial();
   }
