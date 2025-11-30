@@ -29,8 +29,8 @@
 static const int SD_CS                = 5;
 static const int SYNC_IN              = 26;
 static const uint16_t ADV_INTERVAL_MS = 100;
-static const uint32_t TRIAL_MS        = 60000; // 固定窓（短パルス時の保険）
-static const bool USE_SYNC_END        = false;  // OFF向け: 立ち上がり→TRIAL_MSで終了（立ち下がり無視）
+static const uint32_t TRIAL_MS        = 660000; // フォールバック用（11分 = 2000ms×300+α）
+static const bool USE_SYNC_END        = true;   // ON向け: SYNC立ち下がりで終了（TX/TXSDと同期）
 
 #ifndef SCAN_MS
   #define SCAN_MS 50
