@@ -54,6 +54,25 @@ class RxTrialData:
     adv_interval_ms: int = 0
 
 
+def infer_interval_from_duration(ms_total: float, n_adv: int = 300) -> int:
+    """トライアル時間から広告間隔を推定
+
+    N_ADV_PER_TRIAL=300固定の場合:
+    - ~30s (30000ms) → 100ms
+    - ~150s (150000ms) → 500ms
+    - ~300s (300000ms) → 1000ms
+    - ~600s (600000ms) → 2000ms
+    """
+    if ms_total <= 0:
+        return 100  # デフォルト
+
+    estimated_interval = ms_total / n_adv
+
+    # 最も近い標準interval を選択
+    candidates = [100, 500, 1000, 2000]
+    return min(candidates, key=lambda x: abs(x - estimated_interval))
+
+
 def parse_trial_csv(path: str) -> Optional[TrialData]:
     """CSVファイルからトライアルデータを抽出"""
     data = TrialData(filename=os.path.basename(path))
@@ -63,7 +82,7 @@ def parse_trial_csv(path: str) -> Optional[TrialData]:
             for line in f:
                 line = line.strip()
 
-                # meta行からadv_interval_msを取得
+                # meta行からadv_interval_msを取得（ただし固定値の可能性あり）
                 if line.startswith('# meta'):
                     m = re.search(r'adv_interval_ms=(\d+)', line)
                     if m:
@@ -88,12 +107,26 @@ def parse_trial_csv(path: str) -> Optional[TrialData]:
                         (r'rate_hz=([0-9.]+)', 'rate_hz', float),
                         (r'mean_v=([0-9.]+)', 'mean_v', float),
                         (r'mean_i=([0-9.]+)', 'mean_i_mA', float),
+                        # mean_p_mWは一部ファームウェアで1000倍されている場合あり
                         (r'mean_p_mW=([0-9.]+)', 'mean_p_mW', float),
                         (r'parse_drop=(\d+)', 'parse_drop', int),
                     ]:
                         m = re.search(pattern, line)
                         if m:
                             setattr(data, attr, conv(m.group(1)))
+
+        # ms_total と adv_count からintervalを推定（meta行の値が固定の場合の補正）
+        if data.ms_total > 0 and data.adv_count > 0:
+            inferred = infer_interval_from_duration(data.ms_total, data.adv_count)
+            # meta行の値と大きく異なる場合は推定値を使用
+            if abs(data.adv_interval_ms - inferred) > 50:
+                data.adv_interval_ms = inferred
+
+        # mean_p_mW の補正: ファームウェアバグで1000倍されている場合
+        # 期待値: P = V × I ≈ 3.3V × 60mA ≈ 200mW
+        # 異常値: > 10000 mW の場合は 1000 で割る
+        if data.mean_p_mW > 10000:
+            data.mean_p_mW /= 1000.0
 
         return data
     except Exception as e:
@@ -125,9 +158,17 @@ def parse_rx_csv(path: str) -> Optional[RxTrialData]:
 
         if data.ms_total > 0:
             data.rate_hz = data.rx_count / (data.ms_total / 1000.0)
+
+            # ms_totalからintervalを推定（N_ADV=300前提）
+            # RXのms_totalは最後の受信タイムスタンプなので、トライアル時間より短い可能性あり
+            # ただし大まかな推定には使える
+            inferred = infer_interval_from_duration(data.ms_total, 300)
+            if abs(data.adv_interval_ms - inferred) > 50:
+                data.adv_interval_ms = inferred
+
             if data.adv_interval_ms > 0:
-                expected = data.ms_total / data.adv_interval_ms
-                data.est_pdr = data.rx_count / expected if expected > 0 else 0.0
+                # PDR = rx_count / N_ADV (300固定)
+                data.est_pdr = data.rx_count / 300.0
 
         return data
     except Exception as e:
@@ -259,8 +300,9 @@ def generate_report(
             ms_mean = stats.mean(ms_values) if ms_values else 0
 
             # P_off × T で補正
+            # P [mW] × T [s] = E [mJ] (mW × s = mJ)
             t_sec = ms_mean / 1000.0
-            e_off_adjusted = p_mean * t_sec / 1000.0  # mW * s / 1000 = mJ
+            e_off_adjusted = p_mean * t_sec  # mW × s = mJ
 
             delta_e = e_on_mean - e_off_adjusted
             delta_e_per_adv = (delta_e * 1000.0 / adv_mean) if adv_mean > 0 else 0.0  # µJ

@@ -1,0 +1,5 @@
+Pareto configs (grid, mapping CCS>=theta_high→100ms)
+theta_low=0.70, theta_high=0.82, muC_event_uJ=3258652.0, Pout_2s=14.98%, w100=0.00%, w500=0.10%, w2000=99.90%
+theta_low=0.70, theta_high=0.86, muC_event_uJ=3258652.0, Pout_2s=14.98%, w100=0.00%, w500=0.10%, w2000=99.90%
+theta_low=0.70, theta_high=0.90, muC_event_uJ=3258652.0, Pout_2s=14.98%, w100=0.00%, w500=0.10%, w2000=99.90%
+theta_low=0.70, theta_high=0.94, muC_event_uJ=3258652.0, Pout_2s=14.98%, w100=0.00%, w500=0.10%, w2000=99.90%

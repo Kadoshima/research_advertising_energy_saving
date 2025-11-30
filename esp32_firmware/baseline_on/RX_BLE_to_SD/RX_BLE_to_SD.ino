@@ -8,6 +8,10 @@
 //
 // 出力：/logs/rx_trial_XXX.csv
 //   ms,event,rssi,addr,mfd
+//
+// 2025-11-30: バッファリング実装（SD書き込みボトルネック対策）
+//   - コールバックではリングバッファに書き込み（高速）
+//   - loop()で定期的にSDへフラッシュ
 
 #include <Arduino.h>
 #include <SPI.h>
@@ -36,9 +40,28 @@ static const bool USE_SYNC_END        = true;   // ON向け: SYNC立ち下がり
   #define SCAN_MS 50
 #endif
 
+// ===== リングバッファ設定 =====
+// 100ms interval で 300回 = 最大300エントリ
+// 余裕を見て512エントリ、各48バイト → 約24KB
+static const uint16_t RX_BUF_SIZE = 512;
+static const uint32_t FLUSH_INTERVAL_MS = 500;  // 500ms毎にSDへフラッシュ
+
+struct RxEntry {
+  uint32_t ms;
+  int8_t rssi;
+  char addr[18];  // "xx:xx:xx:xx:xx:xx" + null
+  char mfd[8];    // "MFxxxx" + null
+};
+
+static RxEntry rxBuf[RX_BUF_SIZE];
+static volatile uint16_t rxBufHead = 0;  // 書き込み位置（コールバック）
+static uint16_t rxBufTail = 0;           // 読み出し位置（loop）
+static uint32_t lastFlushMs = 0;
+static uint32_t bufOverflow = 0;         // オーバーフローカウント
+
 volatile bool syncLvl=false, syncEdge=false;
 File f;
-static const char FW_TAG[] = "RX_BLE_to_SD_SYNC_B";
+static const char FW_TAG[] = "RX_BLE_to_SD_SYNC_C";  // バージョンアップ
 static uint32_t trialIndex = 0;
 
 static inline int nib(char c){
@@ -56,7 +79,7 @@ static bool parseMFD(const String&s, uint16_t& seq){
   return true;
 }
 
-String txLock="";             // 最初に見えた送信機にロック
+char txLockAddr[18] = "";  // 最初に見えた送信機にロック
 uint32_t t0Ms=0; bool trial=false;
 uint32_t rxCount=0;
 
@@ -74,31 +97,56 @@ String nextPath(){
   }
 }
 
+// バッファをSDにフラッシュ
+void flushBuffer(){
+  if (!f) return;
+
+  uint16_t head = rxBufHead;  // volatile読み出し
+  while (rxBufTail != head) {
+    RxEntry& e = rxBuf[rxBufTail];
+    f.printf("%lu,ADV,%d,%s,%s\r\n",
+             (unsigned long)e.ms, (int)e.rssi, e.addr, e.mfd);
+    rxBufTail = (rxBufTail + 1) % RX_BUF_SIZE;
+  }
+}
+
 void startTrial(){
   String path=nextPath();
   f=SD.open(path, FILE_WRITE);
   if (f){
     f.println("ms,event,rssi,addr,mfd");
     trialIndex++;
-    f.printf("# meta, firmware=%s, trial_index=%lu, adv_interval_ms=%u\r\n",
-             FW_TAG, (unsigned long)trialIndex, (unsigned)ADV_INTERVAL_MS);
+    f.printf("# meta, firmware=%s, trial_index=%lu, adv_interval_ms=%u, buf_size=%u\r\n",
+             FW_TAG, (unsigned long)trialIndex, (unsigned)ADV_INTERVAL_MS, (unsigned)RX_BUF_SIZE);
   }
-  t0Ms=millis(); trial=true; txLock=""; rxCount=0;
+  t0Ms=millis();
+  trial=true;
+  txLockAddr[0]='\0';
+  rxCount=0;
+  rxBufHead=0;
+  rxBufTail=0;
+  bufOverflow=0;
+  lastFlushMs=millis();
   Serial.printf("[RX] start %s (trial=%lu)\n", path.c_str(), (unsigned long)trialIndex);
 }
 
 void endTrial(){
   if (trial){
     trial=false;
+
+    // 残りバッファをフラッシュ
+    flushBuffer();
+
     if (f){ f.flush(); f.close(); }
     uint32_t t_ms = millis() - t0Ms;
     double dur_s = t_ms / 1000.0;
     double rate_hz = (dur_s>0.0)? ((double)rxCount / dur_s) : 0.0;
-    double expected = (double)t_ms / (double)ADV_INTERVAL_MS; // TICKがないため期待値ベースのPDR推定
+    double expected = (double)t_ms / (double)ADV_INTERVAL_MS;
     double pdr = (expected>0.0)? ((double)rxCount / expected) : 0.0;
-    Serial.printf("[RX] summary trial=%lu ms_total=%lu, rx=%lu, rate_hz=%.2f, est_pdr_expected=%.3f\n",
+    Serial.printf("[RX] summary trial=%lu ms_total=%lu, rx=%lu, rate_hz=%.2f, est_pdr_expected=%.3f, buf_overflow=%lu\n",
                   (unsigned long)trialIndex,
-                  (unsigned long)t_ms, (unsigned long)rxCount, rate_hz, pdr);
+                  (unsigned long)t_ms, (unsigned long)rxCount, rate_hz, pdr,
+                  (unsigned long)bufOverflow);
     Serial.println("[RX] end");
   }
 }
@@ -108,18 +156,40 @@ NimBLEScan* gScan=nullptr;
 class CB: public NimBLEAdvertisedDeviceCallbacks{
   void onResult(NimBLEAdvertisedDevice* d) override {
     if (!trial) return;
-    String mfd = String(d->getManufacturerData().c_str());
-    uint16_t seq=0; if(!parseMFD(mfd,seq)) return;
-    String addr = String(d->getAddress().toString().c_str());
-    if (txLock.length()==0) txLock = addr;
-    if (addr != txLock) return;
 
-    uint32_t ms = millis() - t0Ms;
-    if (f){
-      f.printf("%lu,ADV,%d,%s,%s\r\n",
-               (unsigned long)ms, d->getRSSI(), addr.c_str(), mfd.c_str());
-      rxCount++;
+    // MFDパース
+    std::string mfdStd = d->getManufacturerData();
+    if (mfdStd.length() < 6) return;
+    if (mfdStd[0] != 'M' || mfdStd[1] != 'F') return;
+
+    // アドレス取得
+    std::string addrStd = d->getAddress().toString();
+
+    // 最初のTXにロック
+    if (txLockAddr[0] == '\0') {
+      strncpy(txLockAddr, addrStd.c_str(), sizeof(txLockAddr)-1);
+      txLockAddr[sizeof(txLockAddr)-1] = '\0';
     }
+    if (strncmp(txLockAddr, addrStd.c_str(), sizeof(txLockAddr)) != 0) return;
+
+    // リングバッファに書き込み（高速）
+    uint16_t nextHead = (rxBufHead + 1) % RX_BUF_SIZE;
+    if (nextHead == rxBufTail) {
+      // バッファフル - オーバーフロー
+      bufOverflow++;
+      return;
+    }
+
+    RxEntry& e = rxBuf[rxBufHead];
+    e.ms = millis() - t0Ms;
+    e.rssi = (int8_t)d->getRSSI();
+    strncpy(e.addr, addrStd.c_str(), sizeof(e.addr)-1);
+    e.addr[sizeof(e.addr)-1] = '\0';
+    strncpy(e.mfd, mfdStd.c_str(), sizeof(e.mfd)-1);
+    e.mfd[sizeof(e.mfd)-1] = '\0';
+
+    rxBufHead = nextHead;
+    rxCount++;
   }
 };
 CB cb;
@@ -128,18 +198,40 @@ BLEScan* gScan=nullptr;
 class CB: public BLEAdvertisedDeviceCallbacks{
   void onResult(BLEAdvertisedDevice d) override {
     if (!trial) return;
-    String mfd = String(d.getManufacturerData().c_str());
-    uint16_t seq=0; if(!parseMFD(mfd,seq)) return;
-    String addr = String(d.getAddress().toString().c_str());
-    if (txLock.length()==0) txLock = addr;
-    if (addr != txLock) return;
 
-    uint32_t ms = millis() - t0Ms;
-    if (f){
-      f.printf("%lu,ADV,%d,%s,%s\r\n",
-               (unsigned long)ms, d.getRSSI(), addr.c_str(), mfd.c_str());
-      rxCount++;
+    // MFDパース
+    std::string mfdStd = d.getManufacturerData();
+    if (mfdStd.length() < 6) return;
+    if (mfdStd[0] != 'M' || mfdStd[1] != 'F') return;
+
+    // アドレス取得
+    std::string addrStd = d.getAddress().toString();
+
+    // 最初のTXにロック
+    if (txLockAddr[0] == '\0') {
+      strncpy(txLockAddr, addrStd.c_str(), sizeof(txLockAddr)-1);
+      txLockAddr[sizeof(txLockAddr)-1] = '\0';
     }
+    if (strncmp(txLockAddr, addrStd.c_str(), sizeof(txLockAddr)) != 0) return;
+
+    // リングバッファに書き込み（高速）
+    uint16_t nextHead = (rxBufHead + 1) % RX_BUF_SIZE;
+    if (nextHead == rxBufTail) {
+      // バッファフル - オーバーフロー
+      bufOverflow++;
+      return;
+    }
+
+    RxEntry& e = rxBuf[rxBufHead];
+    e.ms = millis() - t0Ms;
+    e.rssi = (int8_t)d.getRSSI();
+    strncpy(e.addr, addrStd.c_str(), sizeof(e.addr)-1);
+    e.addr[sizeof(e.addr)-1] = '\0';
+    strncpy(e.mfd, mfdStd.c_str(), sizeof(e.mfd)-1);
+    e.mfd[sizeof(e.mfd)-1] = '\0';
+
+    rxBufHead = nextHead;
+    rxCount++;
   }
 };
 CB cb;
@@ -176,7 +268,8 @@ void setup(){
   gScan->setAdvertisedDeviceCallbacks(&cb, true);
   gScan->start(0, nullptr, false);
 #endif
-  Serial.println("[RX] ready");
+  Serial.printf("[RX] ready (buffered, buf_size=%u, flush_interval=%lums)\n",
+                (unsigned)RX_BUF_SIZE, (unsigned long)FLUSH_INTERVAL_MS);
 }
 
 void loop(){
@@ -186,6 +279,15 @@ void loop(){
       startTrial();
     } else if (USE_SYNC_END && !s && trial) {
       endTrial();
+    }
+  }
+
+  // 定期的にバッファをSDへフラッシュ
+  if (trial) {
+    uint32_t now = millis();
+    if (now - lastFlushMs >= FLUSH_INTERVAL_MS) {
+      flushBuffer();
+      lastFlushMs = now;
     }
   }
 

@@ -1,8 +1,9 @@
 # HAR-BLE Safe Contextual Bandit 実験計画書
 
-**文書ID**: RHT-EXP-PLAN-v1.0
+**文書ID**: RHT-EXP-PLAN-v1.2
 **作成日**: 2025-11-27
-**ステータス**: ドラフト
+**最終更新**: 2025-11-30
+**ステータス**: ドラフト（Baseline再計測中、実地検証で発見した問題を反映）
 
 ---
 
@@ -10,15 +11,21 @@
 
 ### 0.1 既存資産の棚卸し
 
-- [x] **フェーズ0-0データの確認** (2025-11-27 完了)
-  - [x] ΔE/adv実測値（100/500/1000/2000ms）が使える状態か → OK (`docs/フェーズ1/results/delta_energy_row1120_row1123_off.md`)
-  - [x] P_off_mean = 22.106 mW の値を再利用できるか → OK
+- [ ] **フェーズ0-0データの確認** (再計測中 2025-11-30)
+  - [ ] ΔE/adv実測値（100/500/1000/2000ms） → **再計測中**
+    - 旧データ: `docs/フェーズ1/results/delta_energy_row1120_row1123_off.md` (参考値)
+    - 2025-11-29 INA219配線修正後、再計測が必要 (`docs/フェーズ0-0/decision_log_2025-11-29.md`)
+  - [ ] P_off_mean → **再計測中**
+    - 旧値 22.106 mW は配線修正前のため参考値
+    - OFF計測完了(11 trials)、解析待ち
   - [x] PDR実測値（p_d ≈ 0.85）の根拠データがあるか → OK (`docs/フェーズ1/results/pdr_row1120_txsd_rx.md`)
 
 - [x] **HARモデル（A0）の確認** (2025-11-27 完了)
   - [x] TFLite int8モデル（90.6KB）がエクスポート済みか → OK (`har/004/export/acc_v1_keras/phase0-1-acc.v1.int8.tflite`)
   - [x] 校正パラメータ（T=0.7443, τ=0.66）が確定しているか → OK (`har/001/docs/A0_acc_v1_baseline_summary.md`)
-  - [x] θ_low=0.40, θ_high=0.70 の閾値が設定済みか → デフォルト値設定済み（TFLite出力ベースで再キャリブ推奨）
+  - [x] θ_low=0.80, θ_high=0.90 の閾値が設定済みか → **調整済み** (`logs/threshold_adjustment_2025-11-27.md`)
+    - 旧デフォルト: θ_low=0.40, θ_high=0.70
+    - mHealthのCCS分布が高め(0.84-0.93)のため閾値を上げて調整
 
 - [x] **mHealthデータセットの確認** (2025-11-27 完了)
   - [x] 生データへのアクセスがあるか → OK (`data/MHEALTHDATASET/`)
@@ -33,9 +40,10 @@
   - [x] 型番: ESP32 Dev Module (3台: TX/TXSD/RX)
   - [x] 動作確認済み
 
-- [x] **電力計測** (2025-11-27 確認)
+- [x] **電力計測** (2025-11-29 配線修正済み)
   - [x] **INA219構成を継続**（PPK-IIは使用しない）
-  - [x] Phase 0-0と同じ構成
+  - [x] INA219 Vcc配線修正済み（外部3.3V直結）
+  - **注意**: Phase 0-0とは構成が異なる（配線修正後）
 
 - [x] **Android端末** (2025-11-28 確認完了)
   - [x] 機種名: Galaxy S9 (SCV38)
@@ -47,7 +55,13 @@
   - [x] E2（干渉強）環境: 確保済み（簡易に実施可能）
   - [ ] 距離1mの固定方法: 要確認
 
-**ハードウェアログ**: `logs/inventory_0.2_2025-11-27.md`
+- [x] **配線修正** (2025-11-29 完了)
+  - [x] INA219 Vcc配線を外部3.3V直結に修正
+  - [x] UARTボーレート 230400→115200 に変更（ノイズ対策）
+  - [x] 詳細: `docs/フェーズ0-0/decision_log_2025-11-29.md`
+  - **注意**: 修正前のP_off/ΔE/advは参考値、再計測が必要
+
+**ハードウェアログ**: `logs/inventory_0.2_2025-11-27.md`, `docs/フェーズ0-0/decision_log_2025-11-29.md`
 
 ---
 
@@ -93,28 +107,32 @@
 
 ---
 
-### 1.2 ESP32ファームウェア開発 ✅ (大部分完了)
+### 1.2 ESP32ファームウェア開発 🔧 (実地検証で問題発見・修正中)
 
 **目的**: CCS時系列に基づき、T_advを動的に変更するファームウェア
 
-**既存資産** (Phase 0-0から継承):
-- `esp32_sweep/TX_BLE_Adv_Meter_ON_sweep.ino` - TX送信+電流測定
-- `esp32_sweep/TXSD_PowerLogger_PASS_THRU_ON_v2.ino` - 電力ロガー
-- `esp32_sweep/RX_BLE_to_SD_SYNC_B.ino` - BLE受信ロガー
-- `docs/フェーズ0-0/実験装置最終仕様書.md` - 完全な設計書（GPIO, 配線, シーケンス）
+**既存資産** (Phase 0-0から継承、2025-11-29 ディレクトリ再編済み):
+- `esp32_firmware/baseline_on/TX_BLE_Adv/` - TX送信+電流測定（マルチinterval自動実行対応）
+- `esp32_firmware/baseline_on/TXSD_PowerLogger/` - 電力ロガー
+- `esp32_firmware/baseline_on/RX_BLE_to_SD/` - BLE受信ロガー
+- `esp32_firmware/baseline_off/` - OFF計測用（BLE無効ベースライン）
+- `esp32_firmware/ccs_mode/` - CCS動的インターバル制御用
+- `docs/フェーズ0-0/decision_log_2025-11-29.md` - 最新の設計決定ログ
 
 #### 1.2.1 基本機能実装 ✅ (既存コードで対応)
 
-- [x] **BLE Advertising制御** - `TX_BLE_Adv_Meter_ON_sweep.ino`
-  - `ADV_INTERVAL_MS` 定数変更で100/500/1000/2000ms対応
+- [x] **BLE Advertising制御** - `esp32_firmware/baseline_on/TX_BLE_Adv/TX_BLE_Adv.ino`
+  - マルチinterval自動実行（100→500→1000→2000ms）
+  - N_ADV_PER_TRIAL=300固定、interval別トライアル長
   - INA219による電流測定、UART出力実装済み
 - [x] **ログ出力機能** - TX→TXSD→SD構成で実装済み
   - フォーマット: `mv,uA` (10ms周期)
 
 #### 1.2.2 実験モード実装 ✅ (全モード完了)
 
-- [x] **FIXED-100/500/1000/2000モード** - `TX_BLE_Adv_Meter_ON_sweep.ino` の `ADV_INTERVAL_MS` 定数変更
-- [x] **CCSモード** - `TX_BLE_Adv_CCS_Mode.ino` (2025-11-28 新規作成)
+- [x] **Baseline ON計測** - `esp32_firmware/baseline_on/` (マルチinterval自動実行)
+- [x] **Baseline OFF計測** - `esp32_firmware/baseline_off/` (60秒固定窓)
+- [x] **CCSモード** - `esp32_firmware/ccs_mode/TX_BLE_Adv_CCS_Mode.ino`
   - `RUN_MODE` で `MODE_FIXED_100` / `MODE_FIXED_2000` / `MODE_CCS` を選択
   - CCS時系列は `ccs_session_data.h` として定数配列に埋め込み
   - 1秒解像度でT_adv動的変更（100/500/2000ms）
@@ -139,15 +157,30 @@ python3 scripts/convert_session_to_header.py --session 01
 #    Board: ESP32 Dev Module
 ```
 
-**成果物チェックリスト**:
-- [x] `esp32_sweep/TX_BLE_Adv_Meter_ON_sweep.ino` - FIXEDモード用TX
-- [x] `esp32_sweep/TX_BLE_Adv_CCS_Mode.ino` - CCSモード対応TX (NEW)
-- [x] `esp32_sweep/TXSD_PowerLogger_PASS_THRU_ON_v2.ino` - FIXEDモード用TXSD
-- [x] `esp32_sweep/TXSD_PowerLogger_CCS_Mode.ino` - CCSモード対応TXSD (NEW)
-- [x] `esp32_sweep/RX_BLE_to_SD_SYNC_B.ino` - BLE受信ロガー（共用）
-- [x] `esp32_sweep/ccs_session_data.h` - セッションデータ（自動生成）
+**成果物チェックリスト** (2025-11-29 ディレクトリ再編後):
+- [x] `esp32_firmware/baseline_on/TX_BLE_Adv/TX_BLE_Adv.ino` - マルチinterval自動実行TX
+- [x] `esp32_firmware/baseline_on/TXSD_PowerLogger/TXSD_PowerLogger.ino` - ON用電力ロガー
+- [x] `esp32_firmware/baseline_on/RX_BLE_to_SD/RX_BLE_to_SD.ino` - BLE受信ロガー
+  - **修正済み (2025-11-30)**: USE_SYNC_END=true に変更（トライアル数不一致問題を解消）
+- [x] `esp32_firmware/baseline_off/TX_BLE_OFF/TX_BLE_OFF.ino` - OFF計測TX
+- [x] `esp32_firmware/baseline_off/TXSD_PowerLogger/TXSD_PowerLogger.ino` - OFF用電力ロガー
+- [x] `esp32_firmware/ccs_mode/TX_BLE_Adv_CCS_Mode.ino` - CCSモード対応TX
+- [x] `esp32_firmware/ccs_mode/TXSD_PowerLogger_CCS_Mode.ino` - CCSモード対応TXSD
+- [x] `esp32_firmware/ccs_mode/ccs_session_data.h` - セッションデータ（自動生成）
 - [x] `scripts/convert_session_to_header.py` - CSV→ヘッダー変換スクリプト
-- [x] `docs/フェーズ0-0/実験装置最終仕様書.md`（ビルド・配線手順）
+- [x] `docs/フェーズ0-0/decision_log_2025-11-29.md`（最新の設計決定ログ）
+
+#### 1.2.5 実地検証で発見した問題 (2025-11-30)
+
+| 問題 | 状態 | 対応 |
+|------|------|------|
+| UARTデータ化け (230400bps) | ✅ 解決 | 115200bpsに変更 |
+| SYNC信号パルス問題 | ✅ 解決 | TX側でSYNC=HIGH維持に変更 |
+| RXトライアル数不一致 | ✅ 修正済み | USE_SYNC_END=true (要再書き込み) |
+| TXSD SD open FAIL | ✅ 解決 | SDカード接触/ファイル数確認で解消 |
+| TXSD SD init FAIL | ✅ 解決 | 電源再投入で解消 |
+
+**詳細**: `docs/フェーズ0-0/decision_log_2025-11-29.md`
 
 ---
 
@@ -185,17 +218,18 @@ python3 scripts/convert_session_to_header.py --session 01
 
 ---
 
-### 1.4 電力計測セットアップ ✅ (既存構成で対応)
+### 1.4 電力計測セットアップ 🔧 (配線修正済み、再校正中)
 
 **目的**: INA219でESP32の電力を正確に計測する（PPK-IIは使用しない）
 
-**既存資産**: `docs/フェーズ0-0/実験装置最終仕様書.md` に完全記載
+**既存資産**: `docs/フェーズ0-0/decision_log_2025-11-29.md` に最新構成を記載
 
-#### 1.4.1 配線 ✅ (設計書に記載済み)
+#### 1.4.1 配線 ✅ (2025-11-29 修正済み)
 
 - [x] ESP32 3V3ピンへの外部電源供給（INA219経由）
 - [x] INA219 VIN+/VIN-で電流測定
 - [x] GND共通化（TX/TXSD/RX/外部電源）
+- [x] **INA219 Vcc配線修正**: 外部3.3V直結（旧: Vin-分岐でブラウンアウト発生）
 
 #### 1.4.2 計測設定 ✅ (既存コードで実装済み)
 
@@ -203,18 +237,22 @@ python3 scripts/convert_session_to_header.py --session 01
 - [x] UART出力: `mv,uA` 形式
 - [x] TXSDでSDカードに記録
 
-#### 1.4.3 動作確認
+#### 1.4.3 動作確認 (再計測中 2025-11-30)
 
-- [x] Phase 0-0で実施済み
-  - ΔE/adv実測値: 100/500/1000/2000ms (`docs/フェーズ1/results/delta_energy_row1120_row1123_off.md`)
-  - P_off = 22.106 mW
-- [ ] Phase 1実験前に簡易校正
-  - **基準値 (100ms)**: ΔE/adv = 2256.82 µJ
-  - **許容範囲**: 2031 〜 2483 µJ (±10%)
-  - 手順: FIXED-100で計測 → TXSDログの`E_per_adv_uJ`を確認
+- [x] Phase 0-0で実施済み（**配線修正前のため参考値**）
+  - 旧ΔE/adv: `docs/フェーズ1/results/delta_energy_row1120_row1123_off.md`
+  - 旧P_off = 22.106 mW
+- [ ] **配線修正後の再計測** (進行中)
+  - [x] OFF計測完了 (11 trials) → P_off再算出待ち
+  - [ ] ON計測 (100/500/1000/2000ms 自動実行中)
+  - [ ] 解析スクリプト: `scripts/analyze_baseline_v2.py`
+- [ ] Phase 1実験前の最終校正
+  - 旧基準値 (100ms): ΔE/adv = 2256.82 µJ（参考）
+  - 新基準値: 再計測後に確定
 
 **成果物チェックリスト**:
-- [x] 配線図: `docs/フェーズ0-0/実験装置最終仕様書.md` セクション3
+- [x] 配線図: `docs/フェーズ0-0/decision_log_2025-11-29.md` セクション2
+- [ ] 再計測レポート（Baseline ON/OFF）
 - [ ] Phase 1校正確認レポート
 
 ---
@@ -223,9 +261,15 @@ python3 scripts/convert_session_to_header.py --session 01
 
 ### 2.1 実験プロトコル
 
-#### 2.1.1 セッション手順（1セッション10分）
+#### 2.1.1 セッション手順
 
-**注**: mHealthデータ制約（各被験者約11分）により、当初の15分→**10分**に変更
+**注意: 計測タイプによりセッション長が異なる**
+
+| 計測タイプ | セッション長 | 説明 |
+|------------|-------------|------|
+| **Baseline ON計測** | interval依存 | N_ADV=300固定、100ms→30s, 500ms→150s, 1000ms→5min, 2000ms→10min |
+| **Baseline OFF計測** | 60秒固定 | P_off算出用 |
+| **CCSモード** | 10分固定 | mHealthセッション再生（mHealthデータ制約により15分→10分）|
 
 ```
 [開始前]
@@ -521,18 +565,18 @@ References (~15件)
 - [x] `scripts/generate_ccs_sequences.py` - TFLite推論+U/S/CCS計算+時系列出力
 - [x] `scripts/create_esp32_sessions.py` - ESP32用セッション選定
 
-**ESP32ファームウェア（完了）**:
-- [x] `esp32_sweep/TX_BLE_Adv_Meter_ON_sweep.ino` - FIXEDモード用
-- [x] `esp32_sweep/TX_BLE_Adv_CCS_Mode.ino` - CCSモード対応 (NEW)
-- [x] `esp32_sweep/TXSD_PowerLogger_PASS_THRU_ON_v2.ino` - FIXEDモード用
-- [x] `esp32_sweep/TXSD_PowerLogger_CCS_Mode.ino` - CCSモード対応 (NEW)
-- [x] `esp32_sweep/RX_BLE_to_SD_SYNC_B.ino` - 共用
-- [x] `esp32_sweep/ccs_session_data.h` - 自動生成
+**ESP32ファームウェア（完了、2025-11-29 ディレクトリ再編済み）**:
+- [x] `esp32_firmware/baseline_on/` - マルチinterval自動実行（TX/TXSD/RX）
+- [x] `esp32_firmware/baseline_off/` - OFF計測（TX/TXSD）
+- [x] `esp32_firmware/ccs_mode/` - CCSモード（TX/TXSD/RX + ccs_session_data.h）
+- [x] ハッシュ記録: `docs/フェーズ0-0/decision_log_2025-11-29.md` Section 7
 
 **データ処理（未実装）**:
-- [ ] `scripts/sync_logs.py`
-- [ ] `scripts/compute_event_charge.py`
-- [ ] `scripts/compute_pout.py`
+- [ ] `scripts/sync_logs.py` - TX/RX/電力ログのタイムスタンプ統一
+- [ ] `scripts/compute_event_charge.py` - μC/event算出
+- [ ] `scripts/compute_pout.py` - Pout(τ)算出
+
+**暫定代替**: `scripts/analyze_baseline_v2.py` でbaseline ON/OFF計測のΔE/adv算出は可能
 
 ### データ
 
@@ -572,10 +616,14 @@ References (~15件)
 **残タスク**:
 1. [x] ~~1.2 CCSモード拡張~~ (2025-11-28 完了)
 2. [x] ~~1.3 Android受信アプリ~~ → nRF Connect使用 (2025-11-28 決定)
-3. [ ] 1.4.3 Phase 1実験前の電力計測再校正
-4. [x] ~~0.2 Android OSバージョン確認~~ → Android 10 (2025-11-28 確認)
-5. [ ] 0.2 E1環境確認、距離1mマーキング確認
+3. [x] ~~0.2 Android OSバージョン確認~~ → Android 10 (2025-11-28 確認)
+4. [x] ~~配線修正~~ → INA219 Vcc直結、UART 115200bps (2025-11-29 完了)
+5. [ ] **Baseline再計測** (進行中 2025-11-30)
+   - [x] OFF計測完了 (11 trials)
+   - [ ] ON計測 (100/500/1000/2000ms 自動実行中)
+6. [ ] 1.4.3 P_off/ΔE/adv再校正（Baseline再計測データで算出）
+7. [ ] 0.2 E1環境確認、距離1mマーキング確認
 
 ---
 
-*Last updated: 2025-11-28*
+*Last updated: 2025-11-30*

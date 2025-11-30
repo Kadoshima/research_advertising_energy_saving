@@ -1,0 +1,4 @@
+Pareto configs (quantile-informed grid, CCS>=theta_high→100ms)
+theta_low=0.001, theta_high=0.400, muC_event_uJ=3249878.8, Pout_2s=1.35%, w100=4.86%, w500=86.45%, w2000=8.69%
+theta_low=0.001, theta_high=0.280, muC_event_uJ=3297160.6, Pout_2s=1.34%, w100=14.26%, w500=77.05%, w2000=8.69%
+theta_low=0.001, theta_high=0.160, muC_event_uJ=3374476.7, Pout_2s=1.33%, w100=29.62%, w500=61.69%, w2000=8.69%
