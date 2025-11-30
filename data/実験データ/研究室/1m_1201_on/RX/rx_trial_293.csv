@@ -1,0 +1,2 @@
+ms,event,rssi,addr,mfd
+# meta, firmware=RX_BLE_to_SD_SYNC_C, trial_index=3, adv_interval_ms=100, buf_size=512
