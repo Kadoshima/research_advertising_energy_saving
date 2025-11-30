@@ -5,7 +5,19 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <SD.h>
-#include <NimBLEDevice.h>
+
+#ifndef __has_include
+  #define __has_include(x) 0
+#endif
+#if __has_include(<NimBLEDevice.h>)
+  #include <NimBLEDevice.h>
+  #define USE_NIMBLE 1
+#else
+  #include <BLEDevice.h>
+  #include <BLEUtils.h>
+  #include <BLEScan.h>
+  #define USE_NIMBLE 0
+#endif
 
 static const int SD_CS    = 5;
 static const int SD_SCK   = 18;
@@ -48,26 +60,59 @@ static void endTrial(){ if(!trial) return; trial=false; flushBuffer(); if(f){ f.
   Serial.println("[RX] end");
 }
 
-class CB: public NimBLEAdvertisedDeviceCallbacks{
-  void onResult(NimBLEAdvertisedDevice* d) override {
-    if (!trial) return;
-    const std::string& mfd = d->getManufacturerData();
-    if (!parseMFD(mfd)) return;
-    const std::string addr = d->getAddress().toString();
-    uint16_t nextH = (rxHead + 1) % RX_BUF_SIZE; if (nextH == rxTail){ bufOverflow++; return; }
-    RxEntry& e = rxBuf[rxHead];
-    e.ms = millis() - t0Ms; e.rssi = (int8_t)d->getRSSI();
-    strncpy(e.addr, addr.c_str(), sizeof(e.addr)-1); e.addr[sizeof(e.addr)-1]='\0';
-    strncpy(e.mfd, mfd.c_str(), sizeof(e.mfd)-1); e.mfd[sizeof(e.mfd)-1]='\0';
-    rxHead = nextH; rxCount++;
-  }
-};
-
 void setup(){
   Serial.begin(115200);
-  SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS); if(!SD.begin(SD_CS)){ Serial.println("[SD] init FAIL"); while(1) delay(1000);} 
+  SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS); if(!SD.begin(SD_CS)){ Serial.println("[SD] init FAIL"); while(1) delay(1000);}
   pinMode(SYNC_IN, INPUT_PULLDOWN); attachInterrupt(digitalPinToInterrupt(SYNC_IN), onSync, CHANGE); syncLvl=digitalRead(SYNC_IN);
-  NimBLEDevice::init("RX_ESP32"); NimBLEScan* scan=NimBLEDevice::getScan(); scan->setActiveScan(false); scan->setInterval(SCAN_MS); scan->setWindow(SCAN_MS); scan->setAdvertisedDeviceCallbacks(new CB()); scan->start(0,false);
+
+#if USE_NIMBLE
+  class CB: public NimBLEAdvertisedDeviceCallbacks{
+    void onResult(NimBLEAdvertisedDevice* d) override {
+      if (!trial) return;
+      const std::string& mfd = d->getManufacturerData();
+      if (!parseMFD(mfd)) return;
+      const std::string addr = d->getAddress().toString();
+      uint16_t nextH = (rxHead + 1) % RX_BUF_SIZE; if (nextH == rxTail){ bufOverflow++; return; }
+      RxEntry& e = rxBuf[rxHead];
+      e.ms = millis() - t0Ms; e.rssi = (int8_t)d->getRSSI();
+      strncpy(e.addr, addr.c_str(), sizeof(e.addr)-1); e.addr[sizeof(e.addr)-1]='\0';
+      strncpy(e.mfd, mfd.c_str(), sizeof(e.mfd)-1); e.mfd[sizeof(e.mfd)-1]='\0';
+      rxHead = nextH; rxCount++;
+    }
+  };
+
+  NimBLEDevice::init("RX_ESP32");
+  NimBLEScan* scan=NimBLEDevice::getScan();
+  scan->setActiveScan(false);
+  scan->setInterval(SCAN_MS);
+  scan->setWindow(SCAN_MS);
+  scan->setAdvertisedDeviceCallbacks(new CB());
+  scan->start(0,false);
+#else
+  class CB: public BLEAdvertisedDeviceCallbacks{
+    void onResult(BLEAdvertisedDevice d) override {
+      if (!trial) return;
+      String mfdStr = d.getManufacturerData();
+      if (mfdStr.length() < 6 || mfdStr[0]!='M' || mfdStr[1]!='F') return;
+      String addrStr = d.getAddress().toString();
+      uint16_t nextH = (rxHead + 1) % RX_BUF_SIZE; if (nextH == rxTail){ bufOverflow++; return; }
+      RxEntry& e = rxBuf[rxHead];
+      e.ms = millis() - t0Ms; e.rssi = (int8_t)d.getRSSI();
+      strncpy(e.addr, addrStr.c_str(), sizeof(e.addr)-1); e.addr[sizeof(e.addr)-1]='\0';
+      strncpy(e.mfd, mfdStr.c_str(), sizeof(e.mfd)-1); e.mfd[sizeof(e.mfd)-1]='\0';
+      rxHead = nextH; rxCount++;
+    }
+  };
+
+  BLEDevice::init("RX_ESP32");
+  BLEScan* scan = BLEDevice::getScan();
+  scan->setActiveScan(false);
+  scan->setInterval(SCAN_MS);
+  scan->setWindow(SCAN_MS);
+  scan->setAdvertisedDeviceCallbacks(new CB(), true);
+  scan->start(0, nullptr, false);
+#endif
+
   if (syncLvl) startTrial();
   Serial.printf("[RX] ready (buf=%u, flush=%lums)\n", (unsigned)RX_BUF_SIZE, (unsigned long)FLUSH_INTERVAL_MS);
 }
