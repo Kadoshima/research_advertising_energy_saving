@@ -122,19 +122,34 @@ void loop(){
   if (syncEdge){
     noInterrupts(); bool s=syncLvl; syncEdge=false; interrupts();
     if (s && !trial) {
-      // 立上りで開始
       startTrial();
     } else if (!s && trial) {
-      // 立下り: 短いパルスは無視して継続
       uint32_t dur = millis() - t0Ms;
       if (USE_SYNC_END && dur >= MIN_TRIAL_MS){
         endTrial();
       } else {
-        // ignore short pulse, keep running
+        // ignore short pulse
       }
     }
   }
-  if (trial){ uint32_t now=millis(); if (now - lastFlushMs >= FLUSH_INTERVAL_MS){ flushBuffer(); lastFlushMs=now; }
+
+  // バックアップ: レベルから開始/終了を補足（エッジ取りこぼし対策）
+  bool lvl = digitalRead(SYNC_IN);
+  if (lvl && !trial && !syncLvl){
+    // 立上りを見逃した場合でも開始させる
+    noInterrupts(); syncLvl = true; syncEdge = false; interrupts();
+    startTrial();
+  } else if (!lvl && trial && syncLvl){
+    // 立下りを見逃した場合でも終了させる（短パルスは無視）
+    uint32_t dur = millis() - t0Ms;
+    if (USE_SYNC_END && dur >= MIN_TRIAL_MS){
+      noInterrupts(); syncLvl = false; syncEdge = false; interrupts();
+      endTrial();
+    }
+  }
+
+  if (trial){
+    uint32_t now=millis(); if (now - lastFlushMs >= FLUSH_INTERVAL_MS){ flushBuffer(); lastFlushMs=now; }
     if ((millis()-t0Ms) >= TRIAL_MS) endTrial();
   }
   vTaskDelay(1);
