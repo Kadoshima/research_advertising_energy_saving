@@ -14,6 +14,9 @@ static const uint16_t N_ADV_PER_TRIAL  = 300;   // 広告回数/トライアル
 static const uint32_t GAP_TRIAL_MS     = 5000;  // トライアル間隔
 static const uint32_t GAP_GROUP_MS     = 10000; // グループ間隔
 static const bool     USE_TICK_OUT     = true;
+static const bool     USE_LIGHT_SLEEP_LONG = true; // 長いintervalではCPUをlight sleepさせる
+static const uint32_t SLEEP_THRESHOLD_MS  = 400;   // これ以上のintervalでsleep検討
+static const uint32_t SLEEP_GUARD_MS      = 5;     // 復帰ガード
 static const esp_power_level_t TX_PWR  = ESP_PWR_LVL_N0; // 0 dBm
 
 // ピン
@@ -167,6 +170,14 @@ void loop(){
 
       if (advCount >= N_ADV_PER_TRIAL){
         endTrial();
+      } else if (USE_LIGHT_SLEEP_LONG && currentInterval >= SLEEP_THRESHOLD_MS){
+        // 次の送信まで時間がある場合はLight Sleepで待機
+        uint32_t now2 = millis();
+        if (nextAdvMs > now2 + SLEEP_GUARD_MS){
+          uint32_t sleepMs = nextAdvMs - now2 - SLEEP_GUARD_MS;
+          esp_sleep_enable_timer_wakeup((uint64_t)sleepMs * 1000ULL);
+          esp_light_sleep_start();
+        }
       }
     }
   } else {
