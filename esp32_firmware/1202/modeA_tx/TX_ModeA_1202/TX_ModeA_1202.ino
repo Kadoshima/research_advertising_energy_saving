@@ -2,6 +2,7 @@
 // 起動直後に最低限の初期化だけ行い、すぐにDeep Sleepへ移行する。
 // BLE/WiFiは使わない。wake源はタイマーのみ（無効化に近い）。
 
+#include <WiFi.h>
 #include <Arduino.h>
 #include <esp_wifi.h>
 #include <esp_bt.h>
