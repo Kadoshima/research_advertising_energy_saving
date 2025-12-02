@@ -1,0 +1,708 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+RX_1201/
+  RX_1201.ino
+TX_1201/
+  TX_1201.ino
+TXSD_1201/
+  TXSD_1201.ino
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="RX_1201/RX_1201.ino">
+// === RX_1201.ino (SYNCポーリング版) ===
+// パッシブスキャン受信ロガー。SYNC_INをポーリングして試行開始/終了。
+// リングバッファでSD書き込みをバッファリング。
+
+#include <Arduino.h>
+#include <SPI.h>
+#include <SD.h>
+
+#ifndef __has_include
+  #define __has_include(x) 0
+#endif
+#if __has_include(<NimBLEDevice.h>)
+  #include <NimBLEDevice.h>
+  #define USE_NIMBLE 1
+#else
+  #include <BLEDevice.h>
+  #include <BLEUtils.h>
+  #include <BLEScan.h>
+  #define USE_NIMBLE 0
+#endif
+
+// --- ピン設定 ---
+static const int SD_CS    = 5;
+static const int SD_SCK   = 18;
+static const int SD_MISO  = 19;
+static const int SD_MOSI  = 23;
+static const int SYNC_IN  = 26;
+
+// --- 試行・スキャン設定 ---
+static const uint16_t SCAN_MS       = 50;
+static const uint32_t TRIAL_MS_FALLBACK = 660000;  // SYNCを使わない場合のフォールバック（オプション）
+static const uint32_t MIN_TRIAL_MS       = 1000;   // 1秒未満は試行とみなさない（ノイズ対策）
+static const bool     USE_SYNC_END       = true;   // SYNC立下りで終了するか（true推奨）
+
+// --- リングバッファ ---
+static const uint16_t RX_BUF_SIZE        = 512;
+static const uint32_t FLUSH_INTERVAL_MS  = 500;
+
+struct RxEntry {
+  uint32_t ms;
+  int8_t   rssi;
+  char     addr[18];
+  char     mfd[8];
+};
+
+static RxEntry rxBuf[RX_BUF_SIZE];
+static volatile uint16_t rxHead = 0;  // コールバック側（書き込み）
+static uint16_t          rxTail = 0;  // loop側（読み出し）
+static uint32_t          bufOverflow = 0;
+static uint32_t          lastFlushMs = 0;
+
+// --- SYNC & trial 状態 ---
+static bool     syncPrev   = false;   // 直前ループのSYNCレベル
+static bool     trial      = false;   // trial中か
+static uint32_t t0Ms       = 0;       // trial開始時刻
+static uint32_t rxCount    = 0;       // 受信ADV数
+static uint32_t trialIndex = 0;
+
+static File     f;
+static const char FW_TAG[] = "RX_1201_SYNC_POLL";
+
+// --- ユーティリティ ---
+static inline int nib(char c){
+  if(c>='0'&&c<='9')return c-'0';
+  if(c>='A'&&c<='F')return c-'A'+10;
+  if(c>='a'&&c<='f')return c-'a'+10;
+  return -1;
+}
+
+// NimBLE用 MFDパース
+static bool parseMFD(const std::string& s){
+  if (s.size() < 6) return false;
+  if (s[0] != 'M' || s[1] != 'F') return false;
+  int n0=nib(s[2]), n1=nib(s[3]), n2=nib(s[4]), n3=nib(s[5]);
+  if (n0<0||n1<0||n2<0||n3<0) return false;
+  return true;
+}
+
+// Classic BLE用 MFDパース
+static bool parseMFD(const String& s){
+  if (s.length() < 6) return false;
+  if (s[0] != 'M' || s[1] != 'F') return false;
+  int n0=nib(s[2]), n1=nib(s[3]), n2=nib(s[4]), n3=nib(s[5]);
+  if (n0<0||n1<0||n2<0||n3<0) return false;
+  return true;
+}
+
+static String nextPath(){
+  SD.mkdir("/logs");
+  char p[64];
+  for(uint32_t id=1;;++id){
+    snprintf(p,sizeof(p),"/logs/rx_trial_%03lu.csv",(unsigned long)id);
+    if(!SD.exists(p)) return String(p);
+  }
+}
+
+// バッファをSDへフラッシュ
+static void flushBuffer(){
+  if (!f) return;
+  uint16_t head = rxHead; // volatile読み出し
+  while (rxTail != head){
+    RxEntry& e = rxBuf[rxTail];
+    f.printf("%lu,ADV,%d,%s,%s\r\n",
+             (unsigned long)e.ms,
+             (int)e.rssi,
+             e.addr,
+             e.mfd);
+    rxTail = (rxTail + 1) % RX_BUF_SIZE;
+  }
+}
+
+static void startTrial(){
+  String path = nextPath();
+  f = SD.open(path, FILE_WRITE);
+  if (f){
+    f.println("ms,event,rssi,addr,mfd");
+    trialIndex++;
+    f.printf("# meta, firmware=%s, trial_index=%lu, buf_size=%u\r\n",
+             FW_TAG, (unsigned long)trialIndex, (unsigned)RX_BUF_SIZE);
+  }
+  trial    = true;
+  t0Ms     = millis();
+  rxCount  = 0;
+  rxHead   = 0;
+  rxTail   = 0;
+  bufOverflow = 0;
+  lastFlushMs = t0Ms;
+  Serial.printf("[RX] start %s (trial=%lu)\n", path.c_str(), (unsigned long)trialIndex);
+}
+
+static void endTrial(bool fromTimeout = false){
+  if (!trial) return;
+  trial = false;
+
+  flushBuffer();
+  if (f){
+    f.flush();
+    f.close();
+  }
+
+  uint32_t t_ms = millis() - t0Ms;
+  if (t_ms < MIN_TRIAL_MS){
+    Serial.printf("[RX] ignore short trial (%lums)\n", (unsigned long)t_ms);
+    return;
+  }
+
+  double dur_s   = t_ms / 1000.0;
+  double rate_hz = (dur_s>0.0) ? ((double)rxCount / dur_s) : 0.0;
+  // 期待値PDRは便宜的に100ms interval想定のままにしておく（必要ならTX側メタと合わせて計算）
+  double expected = (double)t_ms / 100.0;
+  double pdr      = (expected>0.0) ? ((double)rxCount / expected) : 0.0;
+
+  Serial.printf("[RX] summary trial=%lu ms_total=%lu, rx=%lu, rate_hz=%.2f, est_pdr_expected=%.3f, buf_overflow=%lu%s\n",
+                (unsigned long)trialIndex,
+                (unsigned long)t_ms,
+                (unsigned long)rxCount,
+                rate_hz,
+                pdr,
+                (unsigned long)bufOverflow,
+                fromTimeout ? " (timeout)" : "");
+  Serial.println("[RX] end");
+}
+
+// === BLEコールバック ===
+#if USE_NIMBLE
+class CB: public NimBLEAdvertisedDeviceCallbacks{
+  void onResult(NimBLEAdvertisedDevice* d) override {
+    if (!trial) return;
+    const std::string& mfd = d->getManufacturerData();
+    if (!parseMFD(mfd)) return;
+    const std::string addr = d->getAddress().toString();
+
+    uint16_t nextH = (rxHead + 1) % RX_BUF_SIZE;
+    if (nextH == rxTail){
+      bufOverflow++;
+      return;
+    }
+
+    RxEntry& e = rxBuf[rxHead];
+    e.ms   = millis() - t0Ms;
+    e.rssi = (int8_t)d->getRSSI();
+    strncpy(e.addr, addr.c_str(), sizeof(e.addr)-1);
+    e.addr[sizeof(e.addr)-1] = '\0';
+    strncpy(e.mfd, mfd.c_str(), sizeof(e.mfd)-1);
+    e.mfd[sizeof(e.mfd)-1] = '\0';
+
+    rxHead = nextH;
+    rxCount++;
+  }
+};
+#else
+class CB: public BLEAdvertisedDeviceCallbacks{
+  void onResult(BLEAdvertisedDevice d) override {
+    if (!trial) return;
+    String mfdStr  = d.getManufacturerData();
+    uint16_t dummySeq;
+    if (!parseMFD(mfdStr)) return;
+
+    String addrStr = d.getAddress().toString();
+
+    uint16_t nextH = (rxHead + 1) % RX_BUF_SIZE;
+    if (nextH == rxTail){
+      bufOverflow++;
+      return;
+    }
+
+    RxEntry& e = rxBuf[rxHead];
+    e.ms   = millis() - t0Ms;
+    e.rssi = (int8_t)d.getRSSI();
+    strncpy(e.addr, addrStr.c_str(), sizeof(e.addr)-1);
+    e.addr[sizeof(e.addr)-1] = '\0';
+    strncpy(e.mfd, mfdStr.c_str(), sizeof(e.mfd)-1);
+    e.mfd[sizeof(e.mfd)-1] = '\0';
+
+    rxHead = nextH;
+    rxCount++;
+  }
+};
+#endif
+
+void setup(){
+  Serial.begin(115200);
+
+  // --- SD初期化 ---
+  SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
+  if (!SD.begin(SD_CS)){
+    Serial.println("[SD] init FAIL");
+    while(1) delay(1000);
+  }
+
+  // --- SYNC入力（割り込みは使わない） ---
+  pinMode(SYNC_IN, INPUT_PULLDOWN);
+  syncPrev = digitalRead(SYNC_IN); // ここでは trial を開始しない
+
+  // --- BLE Passive Scan 初期化 ---
+#if USE_NIMBLE
+  NimBLEDevice::init("RX_ESP32");
+  NimBLEScan* scan = NimBLEDevice::getScan();
+  scan->setActiveScan(false);
+  scan->setInterval(SCAN_MS);
+  scan->setWindow(SCAN_MS);
+  scan->setAdvertisedDeviceCallbacks(new CB());
+  scan->start(0, false);
+#else
+  BLEDevice::init("RX_ESP32");
+  BLEScan* scan = BLEDevice::getScan();
+  scan->setActiveScan(false);
+  scan->setInterval(SCAN_MS);
+  scan->setWindow(SCAN_MS);
+  scan->setAdvertisedDeviceCallbacks(new CB(), true);
+  scan->start(0, nullptr, false);
+#endif
+
+  Serial.printf("[RX] ready (buf=%u, flush=%lums)\n",
+                (unsigned)RX_BUF_SIZE,
+                (unsigned long)FLUSH_INTERVAL_MS);
+}
+
+void loop(){
+  uint32_t nowMs = millis();
+
+  // --- SYNC ポーリングによる trial 開始/終了検出 ---
+  bool syncCur = digitalRead(SYNC_IN);
+  if (syncCur != syncPrev){
+    // エッジ検出
+    syncPrev = syncCur;
+    if (syncCur && !trial){
+      // 立ち上がり → trial開始
+      startTrial();
+    } else if (!syncCur && trial){
+      // 立ち下がり → trial終了（短すぎるパルスは無視）
+      uint32_t dur = nowMs - t0Ms;
+      if (!USE_SYNC_END){
+        // SYNCを終了に使わないモード（option）なら何もしない
+      } else if (dur >= MIN_TRIAL_MS){
+        endTrial(false);
+      } else {
+        // 1秒未満のパルスはノイズとみなして無視
+        Serial.printf("[RX] ignore short SYNC pulse dur=%lums\n", (unsigned long)dur);
+      }
+    }
+  }
+
+  // --- trial 中のフラッシュ & フォールバック終了 ---
+  if (trial){
+    if (nowMs - lastFlushMs >= FLUSH_INTERVAL_MS){
+      flushBuffer();
+      lastFlushMs = nowMs;
+    }
+    if (!USE_SYNC_END){
+      if (nowMs - t0Ms >= TRIAL_MS_FALLBACK){
+        endTrial(true);
+      }
+    }
+  }
+
+  vTaskDelay(1);
+}
+</file>
+
+<file path="TX_1201/TX_1201.ino">
+// === TX_1201.ino (with debug) ===
+// BLE広告専用の被測定体。SYNC/TICKを出しつつ、シリアルにtrialとSYNCの長さを出力。
+// intervalごとにN_ADV_PER_TRIAL回送信し、全グループを順次実行。
+
+#include <Arduino.h>
+#include <BLEDevice.h>
+
+// ---- ユーザ設定 ----
+static const uint16_t intervals[]      = {100, 500, 1000, 2000};
+static const uint8_t  trialsPerGroup[] = {10,  10,   5,    5};
+static const uint8_t  N_GROUPS         = 4;
+static const uint8_t  START_GROUP      = 0;     // 0=100ms から開始
+static const uint16_t N_ADV_PER_TRIAL  = 300;   // 広告回数/トライアル
+static const uint32_t GAP_TRIAL_MS     = 5000;  // トライアル間隔
+static const uint32_t GAP_GROUP_MS     = 10000; // グループ間隔
+static const bool     USE_TICK_OUT     = true;
+static const esp_power_level_t TX_PWR  = ESP_PWR_LVL_N0; // 0 dBm
+
+// ピン
+static const int SYNC_OUT_PIN = 25;
+static const int TICK_OUT_PIN = 27;
+static const int LED_PIN      = 2;
+static const long UART_BAUD   = 115200; // デバッグ用
+
+// 内部状態
+BLEAdvertising* adv = nullptr;
+uint32_t nextAdvMs    = 0;
+uint8_t  groupIdx     = 0;
+uint8_t  trialIdx     = 0;
+bool     trialRunning = false;
+uint16_t advCount     = 0;
+uint16_t currentInterval = 100;
+bool     allDone      = false;
+
+// DEBUG用
+static uint32_t dbgSyncHighMs    = 0;   // SYNCをHIGHにした時刻
+static uint32_t dbgTrialStartMs  = 0;   // trial開始時刻
+
+static inline String makeMFD(uint16_t seq){
+  char b[7];
+  snprintf(b, sizeof(b), "MF%04X", (unsigned)seq);
+  return String(b);
+}
+
+static void syncStart(){
+  digitalWrite(LED_PIN, HIGH);
+  digitalWrite(SYNC_OUT_PIN, HIGH);
+  dbgSyncHighMs = millis();  // DEBUG
+  Serial.printf("[TX][SYNC] HIGH at %lums\n", (unsigned long)dbgSyncHighMs);
+}
+
+static void syncEnd(){
+  uint32_t now = millis();
+  digitalWrite(SYNC_OUT_PIN, LOW);
+  digitalWrite(LED_PIN, LOW);
+  uint32_t dur = (dbgSyncHighMs > 0) ? (now - dbgSyncHighMs) : 0; // DEBUG
+  Serial.printf("[TX][SYNC] LOW  at %lums (dur=%lums)\n",
+                (unsigned long)now, (unsigned long)dur);
+}
+
+static void updateBLEInterval(uint16_t ms){
+  currentInterval = ms;
+  uint16_t itvUnits = (uint16_t)lroundf(ms / 0.625f);
+  adv->stop();
+  adv->setMinInterval(itvUnits);
+  adv->setMaxInterval(itvUnits);
+  adv->start();
+  Serial.printf("[TX] interval=%u ms (0x%04X)\n",
+                (unsigned)ms, (unsigned)itvUnits);
+}
+
+static void startTrial(){
+  advCount = 0;
+  uint32_t now = millis();
+  dbgTrialStartMs = now;           // DEBUG
+  nextAdvMs = now;                 // すぐ送信開始
+  syncStart();
+  Serial.printf("[TX] start group=%u/%u trial=%u/%u interval=%u ms (t=%lums)\n",
+                (unsigned)(groupIdx+1), (unsigned)N_GROUPS,
+                (unsigned)(trialIdx+1), (unsigned)trialsPerGroup[groupIdx],
+                (unsigned)currentInterval,
+                (unsigned long)now);
+  trialRunning = true;
+}
+
+static void endTrial(){
+  uint32_t now = millis();
+  trialRunning = false;
+  syncEnd();
+  uint32_t trialDur = now - dbgTrialStartMs;  // DEBUG
+  Serial.printf("[TX] end   group=%u trial=%u adv_sent=%u dur=%lums\n",
+                (unsigned)(groupIdx+1),
+                (unsigned)(trialIdx+1),
+                (unsigned)advCount,
+                (unsigned long)trialDur);
+}
+
+static void startGroup(){
+  currentInterval = intervals[groupIdx];
+  trialIdx = 0;
+  Serial.printf("\n[TX] === Group %u start (interval=%u ms, n=%u) ===\n",
+                (unsigned)(groupIdx+1),
+                (unsigned)currentInterval,
+                (unsigned)trialsPerGroup[groupIdx]);
+  updateBLEInterval(currentInterval);
+  delay(1000);
+  startTrial();
+}
+
+void setup(){
+  Serial.begin(UART_BAUD);
+  delay(100); // 少し待ってから
+  Serial.println("\n[TX] boot");  // DEBUG: リセット検出用
+
+  pinMode(LED_PIN, OUTPUT);      digitalWrite(LED_PIN, LOW);
+  pinMode(SYNC_OUT_PIN, OUTPUT); digitalWrite(SYNC_OUT_PIN, LOW);
+  if (USE_TICK_OUT){
+    pinMode(TICK_OUT_PIN, OUTPUT);
+    digitalWrite(TICK_OUT_PIN, LOW);
+  }
+
+  BLEDevice::init("TXM_ESP32");
+  BLEDevice::setPower(TX_PWR);
+  adv = BLEDevice::getAdvertising();
+  adv->setScanResponse(false);
+  adv->setMinPreferred(0);
+  BLEAdvertisementData ad;
+  ad.setName("TXM_ESP32");
+  ad.setManufacturerData(makeMFD(0));
+  adv->setAdvertisementData(ad);
+  adv->start();
+
+  groupIdx = START_GROUP;
+  startGroup();
+}
+
+void loop(){
+  if (allDone){
+    vTaskDelay(100);
+    return;
+  }
+
+  uint32_t nowMs = millis();
+
+  if (trialRunning){
+    if ((int32_t)(nowMs - nextAdvMs) >= 0){
+      nextAdvMs += currentInterval;
+
+      BLEAdvertisementData ad;
+      ad.setName("TXM_ESP32");
+      ad.setManufacturerData(makeMFD(advCount));
+      adv->setAdvertisementData(ad);
+
+      if (USE_TICK_OUT){
+        digitalWrite(TICK_OUT_PIN, HIGH);
+        delayMicroseconds(200);
+        digitalWrite(TICK_OUT_PIN, LOW);
+      }
+
+      advCount++;
+
+      // DEBUG: たまに進捗表示
+      if ((advCount % 50) == 0){
+        Serial.printf("[TX]   adv seq=%u at t=%lums\n",
+                      (unsigned)advCount, (unsigned long)nowMs);
+      }
+
+      if (advCount >= N_ADV_PER_TRIAL){
+        endTrial();
+      }
+    }
+  } else {
+    // 次トライアル/グループへ
+    if (trialIdx + 1 < trialsPerGroup[groupIdx]){
+      if (nowMs - nextAdvMs >= GAP_TRIAL_MS){
+        trialIdx++;
+        Serial.printf("[TX] gap done, next trial=%u at t=%lums\n",
+                      (unsigned)(trialIdx+1), (unsigned long)nowMs);  // DEBUG
+        startTrial();
+      }
+    } else if (groupIdx + 1 < N_GROUPS){
+      if (nowMs - nextAdvMs >= GAP_GROUP_MS){
+        groupIdx++;
+        Serial.printf("[TX] gap done, next group=%u at t=%lums\n",
+                      (unsigned)(groupIdx+1), (unsigned long)nowMs);   // DEBUG
+        startGroup();
+      }
+    } else {
+      allDone = true;
+      adv->stop();
+      Serial.println("[TX] all groups done");
+    }
+  }
+
+  vTaskDelay(1);
+}
+</file>
+
+<file path="TXSD_1201/TXSD_1201.ino">
+// === TXSD_1201.ino ===
+// INA219をTXSD側で直読みし、SDに ms,mV,µA,p_mW を記録する。
+// SYNC_INで開始/終了、TICK_INでadv_countを取得。平均P×durationでE_total計算。
+// 板: ESP32-DevKitC (WROVER-E想定)
+
+#include <Arduino.h>
+#include <Wire.h>
+#include <SPI.h>
+#include <SD.h>
+#include <Adafruit_INA219.h>
+
+// ピン設定
+static const int SD_CS   = 5;
+static const int SD_SCK  = 18;
+static const int SD_MISO = 19;
+static const int SD_MOSI = 23;
+static const int SYNC_IN = 26;
+static const int TICK_IN = 33;
+static const int I2C_SDA = 21;
+static const int I2C_SCL = 22;
+
+// 設定
+static const uint32_t SAMPLE_US   = 10000;   // 10ms = 100Hz
+static const bool     USE_SYNC_END= true;    // SYNC立下りで終了
+static const uint32_t FALLBACK_MS = 660000;  // SYNCなし時のフォールバック
+static const uint32_t MIN_TRIAL_MS= 1000;    // 1秒未満はtrialとして扱わない（短パルス対策）
+
+HardwareSerial Debug(0);
+Adafruit_INA219 ina;
+File f;
+
+volatile uint32_t tickCount=0;
+bool logging=false;
+uint32_t t0_ms=0, nextSampleUs=0;
+uint32_t lineN=0, badLines=0;
+bool syncPrev=false;
+
+// 統計
+double sumP=0.0; double sumV=0.0; double sumI=0.0; uint32_t sampN=0;
+uint32_t firstMs=0, lastMs=0; bool hasSample=false;
+
+static inline String nextPath(){
+  SD.mkdir("/logs");
+  char p[64];
+  for (uint32_t id=1;;++id){ snprintf(p,sizeof(p),"/logs/trial_%03lu_on.csv",(unsigned long)id); if(!SD.exists(p)) return String(p); }
+}
+void IRAM_ATTR onTick(){ if (logging) tickCount++; }
+
+static void startTrial(){
+  String path=nextPath();
+  f=SD.open(path, FILE_WRITE);
+  if (!f){ Debug.println("[SD] open FAIL"); return; }
+  f.println("ms,mV,µA,p_mW");
+  f.printf("# meta, firmware=TXSD_1201, trial_index=auto, adv_interval_ms=0\r\n");
+  logging=true; t0_ms=millis(); nextSampleUs=micros()+SAMPLE_US; lineN=badLines=0; tickCount=0;
+  sumP=sumV=sumI=0.0; sampN=0; hasSample=false; firstMs=lastMs=0;
+  Debug.printf("[PWR] start %s\n", path.c_str());
+}
+
+static void endTrial(){
+  if (!logging) return;
+  logging=false;
+  uint32_t now_ms = millis();
+  uint32_t ms_total = now_ms - t0_ms; // trial開始〜終了の壁時計差分で素直に計算
+
+  // 短いtrialは無視（短パルス対策）
+  if (ms_total < MIN_TRIAL_MS){
+    Debug.printf("[PWR] ignore short trial ms_total=%lu\n", (unsigned long)ms_total);
+    if (f){ f.flush(); f.close(); }
+    return;
+  }
+
+  double meanP = (sampN>0)? (sumP/sampN) : 0.0;
+  double meanV = (sampN>0)? (sumV/sampN) : 0.0;
+  double meanI = (sampN>0)? (sumI/sampN) : 0.0;
+  double E_mJ  = meanP * (ms_total/1000.0);
+  double Eper_uJ = (tickCount>0)? (E_mJ*1000.0/tickCount) : 0.0;
+
+  f.printf("# summary, ms_total=%lu, adv_count=%lu, E_total_mJ=%.3f, E_per_adv_uJ=%.1f\r\n",
+           (unsigned long)ms_total, (unsigned long)tickCount, E_mJ, Eper_uJ);
+  f.printf("# diag, samples=%lu, rate_hz=%.2f, mean_v=%.3f, mean_i=%.3f, mean_p_mW=%.1f, parse_drop=%lu\r\n",
+           (unsigned long)sampN, (ms_total>0? (double)sampN/(ms_total/1000.0):0.0), meanV, meanI, meanP, (unsigned long)badLines);
+  f.flush(); f.close();
+  Debug.printf("[PWR] end ms=%lu Nadv=%lu E=%.3fmJ\n", (unsigned long)ms_total, (unsigned long)tickCount, E_mJ);
+}
+
+void setup(){
+  Debug.begin(115200);
+  SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
+  if (!SD.begin(SD_CS)){ Debug.println("[SD] init FAIL"); while(1) delay(1000); }
+
+  pinMode(SYNC_IN, INPUT_PULLDOWN); // SYNCはポーリングで処理
+  syncPrev = digitalRead(SYNC_IN);
+  pinMode(TICK_IN, INPUT_PULLDOWN);
+  attachInterrupt(digitalPinToInterrupt(TICK_IN), onTick, RISING);
+
+  Wire.begin(I2C_SDA, I2C_SCL); Wire.setClock(400000);
+  ina.begin(); ina.setCalibration_16V_400mA();
+
+  // 起動時にSYNCがHIGHでもtrialは開始しない（立上り待ち）
+  Debug.println("[PWR] ready");
+}
+
+void loop(){
+  uint32_t nowMs = millis();
+
+  // SYNCポーリング: 立上りでstart、立下りでend（短パルスは無視）
+  bool syncCur = digitalRead(SYNC_IN);
+  if (syncCur != syncPrev){
+    syncPrev = syncCur;
+    if (syncCur && !logging){
+      startTrial();
+    } else if (!syncCur && logging && USE_SYNC_END){
+      uint32_t dur = nowMs - t0_ms;
+      if (dur >= MIN_TRIAL_MS){
+        endTrial();
+      } else {
+        Debug.printf("[PWR] ignore short SYNC pulse dur=%lums\n", (unsigned long)dur);
+      }
+    }
+  }
+
+  if (logging){
+    uint32_t nowUs=micros();
+    while ((int32_t)(nowUs - nextSampleUs) >= 0){
+      nextSampleUs += SAMPLE_US;
+      float v=ina.getBusVoltage_V();
+      float i=ina.getCurrent_mA();
+      int32_t mv=(int32_t)lroundf(v*1000.0f);
+      int32_t uA=(int32_t)lroundf(i*1000.0f);
+      double p_mW=v*i;
+      uint32_t relMs=millis()-t0_ms;
+
+      // 統計
+      if (!hasSample){ hasSample=true; firstMs=relMs; }
+      lastMs=relMs;
+      sumP+=p_mW; sumV+=v; sumI+=i; sampN++;
+
+      char buf[64];
+      int n=snprintf(buf,sizeof(buf),"%lu,%ld,%ld,%.1f\r\n", (unsigned long)relMs, (long)mv, (long)uA, p_mW);
+      if (n>0) f.write((uint8_t*)buf, n); else badLines++;
+      lineN++;
+      nowUs=micros();
+    }
+
+    // フォールバック終了
+    if (!USE_SYNC_END && (millis()-t0_ms)>=FALLBACK_MS){ endTrial(); }
+  }
+
+  vTaskDelay(1);
+}
+</file>
+
+</files>

@@ -24,6 +24,7 @@ static const uint32_t SAMPLE_US   = 10000;   // 10ms = 100Hz
 static const bool     USE_SYNC_END= true;    // SYNC立下りで終了
 static const uint32_t FALLBACK_MS = 660000;  // SYNCなし時のフォールバック
 static const uint32_t MIN_TRIAL_MS= 1000;    // 1秒未満はtrialとして扱わない（短パルス対策）
+static const bool     USE_TICK_INPUT = true; // TICKでadv_countを取得
 
 HardwareSerial Debug(0);
 Adafruit_INA219 ina;
@@ -34,6 +35,8 @@ bool logging=false;
 uint32_t t0_ms=0, nextSampleUs=0;
 uint32_t lineN=0, badLines=0;
 bool syncPrev=false;
+uint32_t syncLowStartMs=0;
+static const uint32_t SYNC_OFF_DELAY_MS = 500; // 500ms未満の瞬断は無視
 
 // 統計
 double sumP=0.0; double sumV=0.0; double sumI=0.0; uint32_t sampN=0;
@@ -104,19 +107,21 @@ void setup(){
 void loop(){
   uint32_t nowMs = millis();
 
-  // SYNCポーリング: 立上りでstart、立下りでend（短パルスは無視）
+  // SYNCポーリング: 立上りでstart、立下りが一定時間続いたらend（瞬断は無視）
   bool syncCur = digitalRead(SYNC_IN);
-  if (syncCur != syncPrev){
-    syncPrev = syncCur;
-    if (syncCur && !logging){
-      startTrial();
-    } else if (!syncCur && logging && USE_SYNC_END){
-      uint32_t dur = nowMs - t0_ms;
-      if (dur >= MIN_TRIAL_MS){
+  if (syncCur && !logging){
+    startTrial();
+    syncLowStartMs = 0;
+  }
+  if (logging && USE_SYNC_END){
+    if (!syncCur){
+      if (syncLowStartMs == 0) syncLowStartMs = nowMs;
+      if (nowMs - syncLowStartMs > SYNC_OFF_DELAY_MS){
         endTrial();
-      } else {
-        Debug.printf("[PWR] ignore short SYNC pulse dur=%lums\n", (unsigned long)dur);
+        syncLowStartMs = 0;
       }
+    } else {
+      syncLowStartMs = 0;
     }
   }
 

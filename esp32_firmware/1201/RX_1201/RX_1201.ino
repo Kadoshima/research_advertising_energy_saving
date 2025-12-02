@@ -55,6 +55,8 @@ static bool     trial      = false;   // trial中か
 static uint32_t t0Ms       = 0;       // trial開始時刻
 static uint32_t rxCount    = 0;       // 受信ADV数
 static uint32_t trialIndex = 0;
+static uint32_t syncLowStartMs = 0;   // SYNCがLOWになり始めた時刻
+static const uint32_t SYNC_OFF_DELAY_MS = 500; // 500ms未満の瞬断は無視
 
 static File     f;
 static const char FW_TAG[] = "RX_1201_SYNC_POLL";
@@ -259,25 +261,26 @@ void setup(){
 void loop(){
   uint32_t nowMs = millis();
 
-  // --- SYNC ポーリングによる trial 開始/終了検出 ---
+  // --- SYNC ポーリングによる trial 開始/終了検出（OFF遅延付き） ---
   bool syncCur = digitalRead(SYNC_IN);
-  if (syncCur != syncPrev){
-    // エッジ検出
-    syncPrev = syncCur;
-    if (syncCur && !trial){
-      // 立ち上がり → trial開始
-      startTrial();
-    } else if (!syncCur && trial){
-      // 立ち下がり → trial終了（短すぎるパルスは無視）
-      uint32_t dur = nowMs - t0Ms;
-      if (!USE_SYNC_END){
-        // SYNCを終了に使わないモード（option）なら何もしない
-      } else if (dur >= MIN_TRIAL_MS){
+
+  // 立ち上がり: すぐ開始
+  if (syncCur && !trial){
+    startTrial();
+    syncLowStartMs = 0;
+  }
+
+  // 立ち下がり: 500ms以上続いたら終了（瞬断無視）
+  if (trial){
+    if (!syncCur){
+      if (syncLowStartMs == 0) syncLowStartMs = nowMs;
+      if (nowMs - syncLowStartMs > SYNC_OFF_DELAY_MS && USE_SYNC_END){
         endTrial(false);
-      } else {
-        // 1秒未満のパルスはノイズとみなして無視
-        Serial.printf("[RX] ignore short SYNC pulse dur=%lums\n", (unsigned long)dur);
+        syncLowStartMs = 0;
       }
+    } else {
+      // HIGHに戻ったらタイマーリセット
+      syncLowStartMs = 0;
     }
   }
 
