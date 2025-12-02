@@ -86,6 +86,10 @@ static void endTrial(){
            (unsigned long)sampN, (ms_total>0? (double)sampN/(ms_total/1000.0):0.0), meanV, meanI, meanP, (unsigned long)badLines);
   f.flush(); f.close();
   Debug.printf("[PWR] end ms=%lu Nadv=%lu E=%.3fmJ\n", (unsigned long)ms_total, (unsigned long)tickCount, E_mJ);
+  Debug.printf("[PWR] diag samples=%lu rate=%.2f mean_v=%.3f mean_i=%.3f mean_p=%.1f parse_drop=%lu\n",
+               (unsigned long)sampN, (ms_total>0? (double)sampN/(ms_total/1000.0):0.0), meanV, meanI, meanP, (unsigned long)badLines);
+  Debug.printf("[PWR] tick_raw=%lu tick_start=%lu tick_count=%lu\n",
+               (unsigned long)tickCountRaw, (unsigned long)tickStart, (unsigned long)tickCount);
 }
 
 void setup(){
@@ -107,15 +111,18 @@ void setup(){
 void loop(){
   uint32_t nowMs = millis();
 
-  // --- TICK到来で自動開始（SYNCは使わない） ---
-  if (!logging && tickCountRaw != lastTickSnapshot){
+  // --- TICKまたはSYNCで自動開始（どちらか来れば開始） ---
+  bool syncCur = digitalRead(SYNC_IN);
+  if (!logging && (tickCountRaw != lastTickSnapshot || syncCur)){
     startTrial();
+    Debug.printf("[PWR] trigger start (sync=%d, tickDelta=%lu)\n", (int)syncCur, (unsigned long)(tickCountRaw - lastTickSnapshot));
   }
 
   if (logging){
     // TICKによる終了判定
     tickCount = tickCountRaw - tickStart;
     if (tickCount >= TICK_PER_TRIAL){
+      Debug.printf("[PWR] force end by TICK (count=%lu)\n", (unsigned long)tickCount);
       endTrial();
     } else if ((nowMs - t0_ms) >= FALLBACK_MS){
       Debug.println("[PWR] Force end (fallback)");
