@@ -60,9 +60,10 @@ static void startTrial(){
 static void endTrial(){
   if (!logging) return;
   logging=false;
-  uint32_t ms_total= hasSample && lastMs>=firstMs ? (lastMs-firstMs) : (millis()-t0_ms);
+  uint32_t now_ms = millis();
+  uint32_t ms_total = now_ms - t0_ms; // trial開始〜終了の壁時計差分で素直に計算
 
-   // 短いtrialは無視（短パルス対策）
+  // 短いtrialは無視（短パルス対策）
   if (ms_total < MIN_TRIAL_MS){
     Debug.printf("[PWR] ignore short trial ms_total=%lu\n", (unsigned long)ms_total);
     if (f){ f.flush(); f.close(); }
