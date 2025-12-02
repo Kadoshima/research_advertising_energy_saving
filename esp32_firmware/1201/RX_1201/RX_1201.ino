@@ -102,6 +102,7 @@ static void startSession(){
     f.println("ms,event,rssi,seq,addr,mfd");
     f.printf("# meta, firmware=%s, trial_index=%lu, buf_size=%u\r\n",
              FW_TAG, (unsigned long)trialIndex, (unsigned)RX_BUF_SIZE);
+    f.flush();
   }
   t0Ms = millis();
   rxCount = 0;
@@ -195,6 +196,10 @@ void setup(){
 
 void loop(){
   uint32_t now=millis();
-  if (now - lastFlushMs >= FLUSH_INTERVAL_MS){ flushBuffer(); lastFlushMs=now; }
+  if (now - lastFlushMs >= FLUSH_INTERVAL_MS){
+    flushBuffer();
+    if (f) f.flush();
+    lastFlushMs=now;
+  }
   vTaskDelay(1);
 }
