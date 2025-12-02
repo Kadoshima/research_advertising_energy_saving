@@ -6,19 +6,21 @@
 #include <esp_wifi.h>
 #include <esp_bt.h>
 
-static const uint64_t DEEP_SLEEP_US = 0ULL;  // 0: 無期限
+// Wake なしで無期限 Deep Sleep。外部リセットのみで復帰。
 
 void setup() {
   delay(50);                  // 安定化待ち
   WiFi.mode(WIFI_OFF);
   btStop();
   esp_wifi_stop();
-  // 全GPIOはデフォルトのまま。必要ならここで入力プルダウン等を設定。
-  Serial.begin(115200);
-  Serial.println("[TX-A] entering deep sleep (true OFF baseline)");
+  // 必要に応じてGPIOのプルダウン等をここで設定
 
-  // 無期限 Deep Sleep（外部リセットでのみ復帰）
-  esp_sleep_enable_timer_wakeup(DEEP_SLEEP_US);
+  Serial.begin(115200);
+  Serial.println("[TX-A] entering deep sleep (true OFF baseline, no wake source)");
+  Serial.flush();
+
+  // すべてのウェイクアップソースを無効化したうえでDeep Sleepへ
+  esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_ALL);
   esp_deep_sleep_start();
 }
 
