@@ -111,11 +111,12 @@ void setup(){
 void loop(){
   uint32_t nowMs = millis();
 
-  // --- TICKまたはSYNCで自動開始（どちらか来れば開始） ---
-  bool syncCur = digitalRead(SYNC_IN);
-  if (!logging && (tickCountRaw != lastTickSnapshot || syncCur)){
+  // --- TICKで自動開始（SYNCは無視） ---
+  uint32_t tickDelta = tickCountRaw - lastTickSnapshot;
+  if (!logging && tickDelta > 0){
     startTrial();
-    Debug.printf("[PWR] trigger start (sync=%d, tickDelta=%lu)\n", (int)syncCur, (unsigned long)(tickCountRaw - lastTickSnapshot));
+    Debug.printf("[PWR] trigger start by TICK (delta=%lu, raw=%lu)\n",
+                 (unsigned long)tickDelta, (unsigned long)tickCountRaw);
   }
 
   if (logging){
@@ -123,9 +124,6 @@ void loop(){
     tickCount = tickCountRaw - tickStart;
     if (tickCount >= TICK_PER_TRIAL){
       Debug.printf("[PWR] force end by TICK (count=%lu)\n", (unsigned long)tickCount);
-      endTrial();
-    } else if ((nowMs - t0_ms) >= FALLBACK_MS){
-      Debug.println("[PWR] Force end (fallback)");
       endTrial();
     }
 
