@@ -20,19 +20,20 @@ static const int I2C_SDA = 21;
 static const int I2C_SCL = 22;
 
 // 設定
-static const uint32_t SAMPLE_US  = 10000; // 10ms = 100Hz
-static const bool USE_SYNC_END   = true;  // SYNC立下りで終了
-static const uint32_t FALLBACK_MS= 660000; // SYNCなし時のフォールバック
+static const uint32_t SAMPLE_US   = 10000;   // 10ms = 100Hz
+static const bool     USE_SYNC_END= true;    // SYNC立下りで終了
+static const uint32_t FALLBACK_MS = 660000;  // SYNCなし時のフォールバック
+static const uint32_t MIN_TRIAL_MS= 1000;    // 1秒未満はtrialとして扱わない（短パルス対策）
 
 HardwareSerial Debug(0);
 Adafruit_INA219 ina;
 File f;
 
-volatile bool syncLvl=false, syncEdge=false;
 volatile uint32_t tickCount=0;
 bool logging=false;
-uint32_t t0_ms=0, nextSampleUs=0, lastSyncMs=0;
+uint32_t t0_ms=0, nextSampleUs=0;
 uint32_t lineN=0, badLines=0;
+bool syncPrev=false;
 
 // 統計
 double sumP=0.0; double sumV=0.0; double sumI=0.0; uint32_t sampN=0;
@@ -43,8 +44,6 @@ static inline String nextPath(){
   char p[64];
   for (uint32_t id=1;;++id){ snprintf(p,sizeof(p),"/logs/trial_%03lu_on.csv",(unsigned long)id); if(!SD.exists(p)) return String(p); }
 }
-
-void IRAM_ATTR onSync(){ bool s=digitalRead(SYNC_IN); if (s!=syncLvl){ syncLvl=s; syncEdge=true; } }
 void IRAM_ATTR onTick(){ if (logging) tickCount++; }
 
 static void startTrial(){
@@ -62,6 +61,14 @@ static void endTrial(){
   if (!logging) return;
   logging=false;
   uint32_t ms_total= hasSample && lastMs>=firstMs ? (lastMs-firstMs) : (millis()-t0_ms);
+
+   // 短いtrialは無視（短パルス対策）
+  if (ms_total < MIN_TRIAL_MS){
+    Debug.printf("[PWR] ignore short trial ms_total=%lu\n", (unsigned long)ms_total);
+    if (f){ f.flush(); f.close(); }
+    return;
+  }
+
   double meanP = (sampN>0)? (sumP/sampN) : 0.0;
   double meanV = (sampN>0)? (sumV/sampN) : 0.0;
   double meanI = (sampN>0)? (sumI/sampN) : 0.0;
@@ -81,24 +88,35 @@ void setup(){
   SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
   if (!SD.begin(SD_CS)){ Debug.println("[SD] init FAIL"); while(1) delay(1000); }
 
-  pinMode(SYNC_IN, INPUT_PULLDOWN);
-  attachInterrupt(digitalPinToInterrupt(SYNC_IN), onSync, CHANGE);
+  pinMode(SYNC_IN, INPUT_PULLDOWN); // SYNCはポーリングで処理
+  syncPrev = digitalRead(SYNC_IN);
   pinMode(TICK_IN, INPUT_PULLDOWN);
   attachInterrupt(digitalPinToInterrupt(TICK_IN), onTick, RISING);
 
   Wire.begin(I2C_SDA, I2C_SCL); Wire.setClock(400000);
   ina.begin(); ina.setCalibration_16V_400mA();
 
-  syncLvl=digitalRead(SYNC_IN);
-  if (syncLvl) startTrial();
+  // 起動時にSYNCがHIGHでもtrialは開始しない（立上り待ち）
   Debug.println("[PWR] ready");
 }
 
 void loop(){
-  if (syncEdge){
-    noInterrupts(); bool s=syncLvl; syncEdge=false; interrupts();
-    if (s && !logging) startTrial();
-    else if (!s && logging && USE_SYNC_END) endTrial();
+  uint32_t nowMs = millis();
+
+  // SYNCポーリング: 立上りでstart、立下りでend（短パルスは無視）
+  bool syncCur = digitalRead(SYNC_IN);
+  if (syncCur != syncPrev){
+    syncPrev = syncCur;
+    if (syncCur && !logging){
+      startTrial();
+    } else if (!syncCur && logging && USE_SYNC_END){
+      uint32_t dur = nowMs - t0_ms;
+      if (dur >= MIN_TRIAL_MS){
+        endTrial();
+      } else {
+        Debug.printf("[PWR] ignore short SYNC pulse dur=%lums\n", (unsigned long)dur);
+      }
+    }
   }
 
   if (logging){
