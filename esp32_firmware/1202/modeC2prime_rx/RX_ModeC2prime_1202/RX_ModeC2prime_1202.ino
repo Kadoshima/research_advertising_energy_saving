@@ -33,6 +33,7 @@ static volatile uint16_t rxHead = 0;
 static uint16_t rxTail = 0;
 static uint32_t bufOverflow = 0;
 static uint32_t lastFlushMs = 0;
+static uint32_t lastReportMs = 0;
 
 // セッション状態
 static bool trial = true;
@@ -156,6 +157,13 @@ void loop() {
   if (now - lastFlushMs >= FLUSH_INTERVAL_MS) {
     flushBuffer();
     lastFlushMs = now;
+    // 5秒に1回進捗を表示
+    if (now - lastReportMs >= 5000) {
+      Serial.printf("[RX] rx=%lu buf_overflow=%lu\n",
+                    (unsigned long)rxCount,
+                    (unsigned long)bufOverflow);
+      lastReportMs = now;
+    }
   }
   vTaskDelay(1);
 }
