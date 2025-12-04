@@ -7,8 +7,8 @@
 
 #include <NimBLEDevice.h>  // ArduinoBLEと衝突しないようNimBLEを明示利用
 
-// ラベル列を定義したヘッダをここで選択（例: subject05）
-#include "../labels_subjects/labels_subject05.h"  // 他のsubjectに差し替える場合はここを変更
+// フラッシュ内に全セッションのラベルを持たせる
+#include "../labels_all.h"
 
 static const uint16_t ADV_MS        = 100;    // 固定間隔
 static const uint16_t N_ADV_PER_TR  = 300;
@@ -16,17 +16,13 @@ static const int SYNC_OUT_PIN = 25;
 static const int TICK_OUT_PIN = 27;
 static const int LED_PIN      = 2;
 
-// labels_generated.h を生成して include する場合:
-//   python3 scripts/gen_labels_header.py --csv <path> --label-col <col> --out esp32_firmware/1202/modeC2prime_tx/labels_generated.h
-//   生成後、下の include を有効にし、手書き配列は削除/コメントアウト
-//   既に用意済みの subject別ヘッダ: esp32_firmware/1202/modeC2prime_tx/labels_subjects/labels_subjectXX.h
-//   例) #include "labels_subjects/labels_subject05.h"  // subject05_ccsのラベル列
-// #include "labels_generated.h"
-
 NimBLEAdvertising* adv = nullptr;
 uint32_t nextAdvMs=0;
 uint16_t advCount=0;
 bool trialRunning=false;
+uint8_t sessionIdx=0;
+const uint8_t* labels=nullptr;
+uint16_t nLabels=0;
 
 static inline String makeMFD(uint16_t seq, const char* label){
   char buf[16];
@@ -42,12 +38,21 @@ void startTrial(){
   nextAdvMs = millis();
   syncStart();
   trialRunning=true;
-  Serial.printf("[TX] start trial interval=%ums labels=%u (flash)\n", (unsigned)ADV_MS, (unsigned)nLabels);
+  Serial.printf("[TX] start trial session=%s interval=%ums labels=%u (flash)\n",
+                SESSIONS[sessionIdx].id,
+                (unsigned)ADV_MS,
+                (unsigned)nLabels);
 }
 void endTrial(){
   trialRunning=false;
   syncEnd();
-  Serial.printf("[TX] end trial adv_sent=%u\n", (unsigned)advCount);
+  Serial.printf("[TX] end trial session=%s adv_sent=%u\n",
+                SESSIONS[sessionIdx].id,
+                (unsigned)advCount);
+  // 次のセッションへローテート
+  sessionIdx = (sessionIdx + 1) % NUM_SESSIONS;
+  labels  = SESSIONS[sessionIdx].seq;
+  nLabels = SESSIONS[sessionIdx].len;
 }
 
 void setup(){
@@ -60,6 +65,10 @@ void setup(){
   NimBLEDevice::init("TXM_LABEL_FLASH");
   NimBLEDevice::setPower(ESP_PWR_LVL_N0);
   adv = NimBLEDevice::getAdvertising();
+
+  // 最初のセッションをセット
+  labels  = SESSIONS[sessionIdx].seq;
+  nLabels = SESSIONS[sessionIdx].len;
 
   NimBLEAdvertisementData ad;
   ad.setName("TXM_LABEL");
