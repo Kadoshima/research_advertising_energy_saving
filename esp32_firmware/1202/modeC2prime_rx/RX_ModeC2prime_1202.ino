@@ -114,7 +114,7 @@ static void endSession() {
 }
 
 class ScanCB : public NimBLEScanCallbacks {
-  void onResult(NimBLEAdvertisedDevice* d) override {
+  void onResult(NimBLEAdvertisedDevice* d) {
     const std::string& mfd = d->getManufacturerData();
     uint16_t seq;
     std::string label;
