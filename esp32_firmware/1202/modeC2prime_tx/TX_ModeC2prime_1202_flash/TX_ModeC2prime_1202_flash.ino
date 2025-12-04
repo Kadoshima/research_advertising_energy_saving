@@ -5,10 +5,7 @@
 
 #include <Arduino.h>
 
-#ifndef __has_include
-  #define __has_include(x) 0
-#endif
-#include <NimBLEDevice.h>
+#include <NimBLEDevice.h>  // ArduinoBLEと衝突しないようNimBLEを明示利用
 
 // ラベル列を定義したヘッダをここで選択（例: subject05）
 #include "../labels_subjects/labels_subject05.h"  // 他のsubjectに差し替える場合はここを変更
@@ -26,17 +23,7 @@ static const int LED_PIN      = 2;
 //   例) #include "labels_subjects/labels_subject05.h"  // subject05_ccsのラベル列
 // #include "labels_generated.h"
 
-// 手書きサンプル（生成ヘッダを使う場合はこの配列を削除）
-// #ifndef nLabels
-// static const char* labels[] = { "0","0","1","1","2","2","0","1","2","0" };
-// static const uint16_t nLabels = sizeof(labels)/sizeof(labels[0]);
-// #endif
-
-#if USE_NIMBLE
 NimBLEAdvertising* adv = nullptr;
-#else
-BLEAdvertising* adv = nullptr;
-#endif
 uint32_t nextAdvMs=0;
 uint16_t advCount=0;
 bool trialRunning=false;
@@ -70,23 +57,13 @@ void setup(){
   pinMode(SYNC_OUT_PIN, OUTPUT); digitalWrite(SYNC_OUT_PIN, LOW);
   pinMode(TICK_OUT_PIN, OUTPUT); digitalWrite(TICK_OUT_PIN, LOW);
 
-#if USE_NIMBLE
   NimBLEDevice::init("TXM_LABEL_FLASH");
   NimBLEDevice::setPower(ESP_PWR_LVL_N0);
   adv = NimBLEDevice::getAdvertising();
-#else
-  BLEDevice::init("TXM_LABEL_FLASH");
-  BLEDevice::setPower(ESP_PWR_LVL_N0);
-  adv = BLEDevice::getAdvertising();
-#endif
   adv->setScanResponse(false);
   adv->setMinPreferred(0);
 
-#if USE_NIMBLE
   NimBLEAdvertisementData ad;
-#else
-  BLEAdvertisementData ad;
-#endif
   ad.setName("TXM_LABEL");
   ad.setManufacturerData(makeMFD(0, labels[0]));
   adv->setAdvertisementData(ad);
@@ -104,11 +81,7 @@ void loop(){
   if((int32_t)(nowMs - nextAdvMs) >= 0){
     nextAdvMs += ADV_MS;
     const char* lbl = labels[advCount % nLabels];
-#if USE_NIMBLE
     NimBLEAdvertisementData ad;
-#else
-    BLEAdvertisementData ad;
-#endif
     ad.setName("TXM_LABEL");
     ad.setManufacturerData(makeMFD(advCount, lbl));
     adv->setAdvertisementData(ad);
