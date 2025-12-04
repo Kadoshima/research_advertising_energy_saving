@@ -5,7 +5,7 @@
 
 #include <Arduino.h>
 #include <BLEDevice.h>
-#include "labels_subjects/labels_subject05.h"
+#include "../labels_subjects/labels_subject05.h"
 
 static const uint16_t ADV_MS        = 100;    // 固定間隔
 static const uint16_t N_ADV_PER_TR  = 300;
