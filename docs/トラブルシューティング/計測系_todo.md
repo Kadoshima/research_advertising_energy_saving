@@ -25,10 +25,11 @@
 - ΔE/adv: `scripts/compute_delta_energy.py` を追加（manifest適用で ON/OFF を集計し ΔE/adv を出力）。
 - 次の着手: 500 ms 系クラスタリング→manifest反映（高電流クラスタ自動判定）、旧ログヘッダ方言吸収レイヤの実装。
 
-進捗メモ（2025-11-23）
-- OFF row_1123_off: `check_units_off.py --mad-multiplier 3` で外れ無し（keep 7/7）。manifest の high_baseline_outlier を off_high_baseline に整理。P_off_mean ≈ 22.106 mW（n=7）。
-- ΔE/adv（row_1120 × row_1123_off, MAD3, manifest適用）: 100/500/1000/2000 ms → 2.257 / 9.760 / 19.661 / 39.482 mJ/adv（std: 0.162 / 0.339 / 0.134 / 0.063）。1000ms は MAD>3 の 1 本を除外。
-- PDR v1 仕様（msベースを正式指標）: PDR_ms_mean 100=0.814, 500=0.845, 1000=0.872, 2000=0.876。参考: PDR_raw_mean 100=1.149, 500=0.921, 1000=0.921, 2000=0.915 / PDR_unique_mean 100=1.120, 500=0.897, 1000=0.898, 2000=0.888。
+進捗メモ（2025-11-23, 旧構成）  
+- OFF row_1123_off: `check_units_off.py --mad-multiplier 3` で外れ無し（keep 7/7）。manifest の high_baseline_outlier を off_high_baseline に整理。P_off_mean ≈ 22.106 mW（n=7）。  
+- ΔE/adv（row_1120 × row_1123_off, MAD3, manifest適用）: 100/500/1000/2000 ms → 2.257 / 9.760 / 19.661 / 39.482 mJ/adv（std: 0.162 / 0.339 / 0.134 / 0.063）。1000ms は MAD>3 の 1 本を除外。  
+- PDR v1 仕様（msベースを正式指標）: PDR_ms_mean 100=0.814, 500=0.845, 1000=0.872, 2000=0.876。参考: PDR_raw_mean 100=1.149, 500=0.921, 1000=0.921, 2000=0.915 / PDR_unique_mean 100=1.120, 500=0.897, 1000=0.898, 2000=0.888。  
+**※注意: 上記は v2 rig (計測込み) + UART化けの旧構成。現在の正式基準は v3 rig 再計測 (Mode A/B/C…) で、P_off 基準は Mode B ≈ 23 mW (待機)、下限は Mode A ≈ 11.8 mW。旧数値は歴史的参照にとどめる。**
 
 ### A‑1. トライアル選別マニフェスト（Manifest）
 

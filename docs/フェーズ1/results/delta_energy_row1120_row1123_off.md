@@ -1,4 +1,5 @@
-# ΔE/adv (flex patterns, time-scaled OFF)
+# ΔE/adv (flex patterns, time-scaled OFF) — 旧構成 (参照用)
+> 2025-12-03 注: 本ページの値は v2 rig（計測込み）＋UART化けの旧構成 (row_1120/row_1123_off) に基づく歴史的参照値です。正式な比較・設計には v3 rig 再計測（Mode A/B/C…、P_off_B≈23 mW, P_off_A≈11.8 mW, Mode C2/C2' の新ΔE/adv）を使用してください。
 
 - ON dir: `data/実験データ/研究室/row_1120/TX`
 - OFF dir: `data/実験データ/研究室/row_1123_off/TX`
