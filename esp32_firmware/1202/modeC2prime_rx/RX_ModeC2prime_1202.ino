@@ -113,7 +113,7 @@ static void endSession() {
   trial = false;
 }
 
-class CB : public NimBLEAdvertisedDeviceCallbacks {
+class ScanCB : public NimBLEScanCallbacks {
   void onResult(NimBLEAdvertisedDevice* d) override {
     const std::string& mfd = d->getManufacturerData();
     uint16_t seq;
@@ -144,7 +144,7 @@ void setup() {
   scan->setActiveScan(false);
   scan->setInterval(SCAN_MS);
   scan->setWindow(SCAN_MS);
-  scan->setAdvertisedDeviceCallbacks(new CB());
+  scan->setScanCallbacks(new ScanCB());
   scan->start(0, false);
 
   startSession();
