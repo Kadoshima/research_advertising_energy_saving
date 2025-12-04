@@ -114,8 +114,8 @@ static void endSession() {
   trial = false;
 }
 
-class AdvCB : public NimBLEAdvertisedDeviceCallbacks {
-  void onResult(NimBLEAdvertisedDevice* d) override {
+class AdvCB : public NimBLEScanCallbacks {
+  void onResult(NimBLEAdvertisedDevice* d) {
     const std::string& mfd = d->getManufacturerData();
     uint16_t seq;
     std::string label;
@@ -146,7 +146,7 @@ void setup() {
   scan->setActiveScan(true); // active scan to ensure MFD取得
   scan->setInterval(SCAN_MS);
   scan->setWindow(SCAN_MS);
-  scan->setAdvertisedDeviceCallbacks(new AdvCB(), true);
+  scan->setScanCallbacks(new AdvCB());
   scan->start(0, false);
 
   startSession();
