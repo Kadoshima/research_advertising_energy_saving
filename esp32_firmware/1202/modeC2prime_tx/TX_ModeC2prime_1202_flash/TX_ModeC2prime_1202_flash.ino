@@ -8,13 +8,7 @@
 #ifndef __has_include
   #define __has_include(x) 0
 #endif
-#if __has_include(<NimBLEDevice.h>)
-  #include <NimBLEDevice.h>
-  #define USE_NIMBLE 1
-#else
-  #include <BLEDevice.h>
-  #define USE_NIMBLE 0
-#endif
+#include <NimBLEDevice.h>
 
 // ラベル列を定義したヘッダをここで選択（例: subject05）
 #include "../labels_subjects/labels_subject05.h"  // 他のsubjectに差し替える場合はここを変更
@@ -33,10 +27,10 @@ static const int LED_PIN      = 2;
 // #include "labels_generated.h"
 
 // 手書きサンプル（生成ヘッダを使う場合はこの配列を削除）
-#ifndef nLabels
-static const char* labels[] = { "0","0","1","1","2","2","0","1","2","0" };
-static const uint16_t nLabels = sizeof(labels)/sizeof(labels[0]);
-#endif
+// #ifndef nLabels
+// static const char* labels[] = { "0","0","1","1","2","2","0","1","2","0" };
+// static const uint16_t nLabels = sizeof(labels)/sizeof(labels[0]);
+// #endif
 
 #if USE_NIMBLE
 NimBLEAdvertising* adv = nullptr;
