@@ -17,7 +17,7 @@
 #endif
 
 // ラベル列を定義したヘッダをここで選択（例: subject05）
-#include "labels_subjects/labels_subject05.h"  // 他のsubjectに差し替える場合はここを変更
+#include "../labels_subjects/labels_subject05.h"  // 他のsubjectに差し替える場合はここを変更
 
 static const uint16_t ADV_MS        = 100;    // 固定間隔
 static const uint16_t N_ADV_PER_TR  = 300;
