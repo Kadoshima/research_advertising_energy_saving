@@ -2,6 +2,7 @@
 // BLEはOFF。一定周期で軽い処理を行い、間は light sleep。
 // 計測対象: 「実運用待機」想定の消費電力。
 
+#include <WiFi.h>
 #include <Arduino.h>
 #include <esp_wifi.h>
 #include <esp_bt.h>
