@@ -60,12 +60,11 @@ void setup(){
   NimBLEDevice::init("TXM_LABEL_FLASH");
   NimBLEDevice::setPower(ESP_PWR_LVL_N0);
   adv = NimBLEDevice::getAdvertising();
-  adv->setScanResponse(false);
-  adv->setMinPreferred(0);
 
   NimBLEAdvertisementData ad;
   ad.setName("TXM_LABEL");
-  ad.setManufacturerData(makeMFD(0, labels[0]));
+  std::string mfd0 = makeMFD(0, labels[0]).c_str();
+  ad.setManufacturerData(mfd0);
   adv->setAdvertisementData(ad);
   adv->start();
 
@@ -83,7 +82,8 @@ void loop(){
     const char* lbl = labels[advCount % nLabels];
     NimBLEAdvertisementData ad;
     ad.setName("TXM_LABEL");
-    ad.setManufacturerData(makeMFD(advCount, lbl));
+    std::string mfd = makeMFD(advCount, lbl).c_str();
+    ad.setManufacturerData(mfd);
     adv->setAdvertisementData(ad);
 
     digitalWrite(TICK_OUT_PIN, HIGH);
