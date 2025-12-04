@@ -23,10 +23,14 @@ bool trialRunning=false;
 uint8_t sessionIdx=0;
 const uint8_t* labels=nullptr;
 uint16_t nLabels=0;
+uint16_t advIntervalMs = 100;
+static const uint16_t ADV_LIST[] = {100, 500, 1000, 2000};
+static const uint8_t NUM_ADV_LIST = sizeof(ADV_LIST)/sizeof(ADV_LIST[0]);
+uint8_t advIdx = 0;
 
-static inline String makeMFD(uint16_t seq, const char* label){
+static inline String makeMFD(uint16_t seq, uint8_t label){
   char buf[16];
-  snprintf(buf, sizeof(buf), "%04u_%s", (unsigned)seq, label);
+  snprintf(buf, sizeof(buf), "%04u_%u", (unsigned)seq, (unsigned)label);
   return String(buf);
 }
 
@@ -40,19 +44,30 @@ void startTrial(){
   trialRunning=true;
   Serial.printf("[TX] start trial session=%s interval=%ums labels=%u (flash)\n",
                 SESSIONS[sessionIdx].id,
-                (unsigned)ADV_MS,
+                (unsigned)advIntervalMs,
                 (unsigned)nLabels);
 }
 void endTrial(){
   trialRunning=false;
   syncEnd();
-  Serial.printf("[TX] end trial session=%s adv_sent=%u\n",
+  Serial.printf("[TX] end trial session=%s interval=%ums adv_sent=%u\n",
                 SESSIONS[sessionIdx].id,
+                (unsigned)advIntervalMs,
                 (unsigned)advCount);
-  // 次のセッションへローテート
+  // 次のセッションへローテート（セッション1→10の後にintervalを切り替える二重ループ）
   sessionIdx = (sessionIdx + 1) % NUM_SESSIONS;
+  if (sessionIdx == 0) { // 1周終えたらintervalを次へ
+    advIdx = (advIdx + 1) % NUM_ADV_LIST;
+    advIntervalMs = ADV_LIST[advIdx];
+  }
   labels  = SESSIONS[sessionIdx].seq;
   nLabels = SESSIONS[sessionIdx].len;
+  // 次セッション用にBLE intervalを更新
+  if (adv) {
+    uint16_t itv = (uint16_t)lroundf(advIntervalMs / 0.625f);
+    adv->setMinInterval(itv);
+    adv->setMaxInterval(itv);
+  }
 }
 
 void setup(){
@@ -69,11 +84,15 @@ void setup(){
   // 最初のセッションをセット
   labels  = SESSIONS[sessionIdx].seq;
   nLabels = SESSIONS[sessionIdx].len;
+  advIntervalMs = ADV_LIST[advIdx];
 
   NimBLEAdvertisementData ad;
   ad.setName("TXM_LABEL");
   std::string mfd0 = makeMFD(0, labels[0]).c_str();
   ad.setManufacturerData(mfd0);
+  uint16_t itv0 = (uint16_t)lroundf(advIntervalMs / 0.625f);
+  adv->setMinInterval(itv0);
+  adv->setMaxInterval(itv0);
   adv->setAdvertisementData(ad);
   adv->start();
 
@@ -87,8 +106,8 @@ void loop(){
   }
   uint32_t nowMs = millis();
   if((int32_t)(nowMs - nextAdvMs) >= 0){
-    nextAdvMs += ADV_MS;
-    const char* lbl = labels[advCount % nLabels];
+    nextAdvMs += advIntervalMs;
+    uint8_t lbl = labels[advCount % nLabels];
     NimBLEAdvertisementData ad;
     ad.setName("TXM_LABEL");
     std::string mfd = makeMFD(advCount, lbl).c_str();
@@ -101,7 +120,7 @@ void loop(){
 
     advCount++;
     if((advCount % 50)==0){
-      Serial.printf("[TX] adv=%u label=%s\n", (unsigned)advCount, lbl);
+      Serial.printf("[TX] adv=%u label=%u\n", (unsigned)advCount, (unsigned)lbl);
     }
     if(advCount >= N_ADV_PER_TR){
       endTrial();
