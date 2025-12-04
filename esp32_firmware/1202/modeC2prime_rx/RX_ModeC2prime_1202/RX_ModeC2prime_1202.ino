@@ -114,8 +114,8 @@ static void endSession() {
   trial = false;
 }
 
-class ScanCB : public NimBLEScanCallbacks {
-  void onResult(NimBLEAdvertisedDevice* d) {
+class AdvCB : public NimBLEAdvertisedDeviceCallbacks {
+  void onResult(NimBLEAdvertisedDevice* d) override {
     const std::string& mfd = d->getManufacturerData();
     uint16_t seq;
     std::string label;
@@ -143,10 +143,10 @@ void setup() {
 
   NimBLEDevice::init("RX_ESP32");
   NimBLEScan* scan = NimBLEDevice::getScan();
-  scan->setActiveScan(false);
+  scan->setActiveScan(true); // active scan to ensure MFD取得
   scan->setInterval(SCAN_MS);
   scan->setWindow(SCAN_MS);
-  scan->setScanCallbacks(new ScanCB());
+  scan->setAdvertisedDeviceCallbacks(new AdvCB(), true);
   scan->start(0, false);
 
   startSession();
