@@ -1,10 +1,11 @@
 // Mode C2' フラッシュ版: subjectXX_ccs.csv を使わず、labels配列をフラッシュに埋め込む版。
-// - 下の labels[] に必要なラベル列をハードコードする。
+// - labels_generated.h を生成して include することも可。
 // - interval は ADV_MS で固定。1トライアル300 advで終了。TICK/SYNCは従来通り。
 // - HAR計算なし。ラベル再生のみ。
 
 #include <Arduino.h>
 #include <BLEDevice.h>
+#include "labels_subjects/labels_subject05.h"
 
 static const uint16_t ADV_MS        = 100;    // 固定間隔
 static const uint16_t N_ADV_PER_TR  = 300;
@@ -12,10 +13,14 @@ static const int SYNC_OUT_PIN = 25;
 static const int TICK_OUT_PIN = 27;
 static const int LED_PIN      = 2;
 
-// ここにラベル列を埋め込む（例として 10 件）
-static const char* labels[] = {
-  "0","0","1","1","2","2","0","1","2","0"
-};
+// labels_generated.h を生成して include する場合:
+//   python3 scripts/gen_labels_header.py --csv <path> --label-col <col> --out esp32_firmware/1202/modeC2prime_tx/labels_generated.h
+//   生成後、下の include を有効にし、手書き配列は削除/コメントアウト
+//   既に用意済みの subject別ヘッダ: esp32_firmware/1202/modeC2prime_tx/labels_subjects/labels_subjectXX.h
+//   例) #include "labels_subjects/labels_subject05.h"  // subject05_ccsのラベル列
+// #include "labels_generated.h"
+
+// 手書きサンプル（生成ヘッダを使う場合はこの配列を削除）
 static const uint16_t nLabels = sizeof(labels)/sizeof(labels[0]);
 
 BLEAdvertising* adv = nullptr;
