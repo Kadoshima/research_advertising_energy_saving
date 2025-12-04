@@ -137,6 +137,7 @@ class ScanCB : public NimBLEScanCallbacks {
 
 void setup() {
   Serial.begin(115200);
+  Serial.println("[RX] FW=RX_ModeC2prime_1202");
   SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
   if (!SD.begin(SD_CS)) { Serial.println("[SD] init FAIL"); while (1) delay(1000); }
 

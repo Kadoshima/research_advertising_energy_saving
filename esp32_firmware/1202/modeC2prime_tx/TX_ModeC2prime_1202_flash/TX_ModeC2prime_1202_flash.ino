@@ -73,6 +73,7 @@ void endTrial(){
 void setup(){
   Serial.begin(115200);
   delay(50);
+  Serial.println("[TX] FW=TX_ModeC2prime_1202_flash");
   pinMode(LED_PIN, OUTPUT); digitalWrite(LED_PIN, LOW);
   pinMode(SYNC_OUT_PIN, OUTPUT); digitalWrite(SYNC_OUT_PIN, LOW);
   pinMode(TICK_OUT_PIN, OUTPUT); digitalWrite(TICK_OUT_PIN, LOW);

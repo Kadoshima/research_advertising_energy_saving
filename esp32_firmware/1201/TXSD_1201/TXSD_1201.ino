@@ -94,6 +94,7 @@ static void endTrial(){
 
 void setup(){
   Debug.begin(115200);
+  Debug.println("[PWR] FW=TXSD_1201");
   SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
   if (!SD.begin(SD_CS)){ Debug.println("[SD] init FAIL"); while(1) delay(1000); }
 
