@@ -1,0 +1,3 @@
+interval_bucket_ms,trials,pdr_raw_mean,pdr_unique_mean,E_per_adv_uJ_mean
+100,8,0.4613,0.4613,20632.7
+500,5,2.3913,0.9680,101794.5
