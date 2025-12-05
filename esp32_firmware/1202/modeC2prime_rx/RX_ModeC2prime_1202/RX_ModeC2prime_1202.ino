@@ -69,6 +69,7 @@ static String nextPath() {
 static void flushBuffer() {
   if (!f) return;
   uint16_t head = rxHead;
+  bool wrote = false;
   while (rxTail != head) {
     RxEntry& e = rxBuf[rxTail];
     f.printf("%lu,ADV,%d,%u,%s,%s,%s\r\n",
@@ -79,6 +80,10 @@ static void flushBuffer() {
              e.addr,
              e.mfd);
     rxTail = (rxTail + 1) % RX_BUF_SIZE;
+    wrote = true;
+  }
+  if (wrote) {
+    f.flush(); // power断でもSDに残るよう明示フラッシュ
   }
 }
 
@@ -114,8 +119,9 @@ static void endSession() {
   trial = false;
 }
 
+// パッシブスキャン＋AdvertisedDeviceコールバック相当
 class AdvCB : public NimBLEScanCallbacks {
-  void onResult(NimBLEAdvertisedDevice* d) {
+  void onResult(const NimBLEAdvertisedDevice* d) override {
     const std::string& mfd = d->getManufacturerData();
     uint16_t seq;
     std::string label;

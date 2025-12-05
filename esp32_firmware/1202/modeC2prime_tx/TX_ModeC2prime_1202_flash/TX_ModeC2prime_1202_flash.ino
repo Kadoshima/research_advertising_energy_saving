@@ -68,6 +68,7 @@ void endTrial(){
     adv->setMinInterval(itv);
     adv->setMaxInterval(itv);
   }
+  startTrial();
 }
 
 void setup(){
