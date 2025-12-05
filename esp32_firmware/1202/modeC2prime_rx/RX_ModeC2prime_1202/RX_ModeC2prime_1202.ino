@@ -1,14 +1,14 @@
 // === RX_ModeC2prime_1202.ino ===
-// 目的: Mode C2' の TX (makeMFD("%04u_%s")) を受信し、seq と label をSDへ記録する。
-// - SYNCは使用せず、セッション全体を1ファイルで収集。
-// - NimBLE（ESP32ボード付属）前提。ArduinoBLEは使わない。
+// 目皁E Mode C2' の TX (makeMFD("%04u_%s")) を受信し、seq と label をSDへ記録する、E
+// - SYNCは使用せず、セチE��ョン全体を1ファイルで収集、E
+// - NimBLE�E�ESP32ボ�Eド付属）前提、ErduinoBLEは使わなぁE��E
 
 #include <Arduino.h>
 #include <SPI.h>
 #include <SD.h>
 #include <NimBLEDevice.h>
 
-// ピン設定
+// ピン設宁E
 static const int SD_CS   = 5;
 static const int SD_SCK  = 18;
 static const int SD_MISO = 19;
@@ -35,7 +35,7 @@ static uint32_t bufOverflow = 0;
 static uint32_t lastFlushMs = 0;
 static uint32_t lastReportMs = 0;
 
-// セッション状態
+// セチE��ョン状慁E
 static bool trial = true;
 static uint32_t t0Ms = 0;
 static uint32_t rxCount = 0;
@@ -44,7 +44,7 @@ static const char FW_TAG[] = "RX_MODEC2P_1202";
 
 // MFD parser: "0001_label"
 static bool parseMFD(const std::string& s, uint16_t& seq, std::string& label) {
-  // 例: "0001_2" / "0123_walk"
+  // 侁E "0001_2" / "0123_walk"
   size_t usPos = s.find('_');
   if (usPos == std::string::npos || usPos < 1) return false;
   std::string seqStr = s.substr(0, usPos);
@@ -83,7 +83,7 @@ static void flushBuffer() {
     wrote = true;
   }
   if (wrote) {
-    f.flush(); // power断でもSDに残るよう明示フラッシュ
+    f.flush(); // power断でもSDに残るよう明示フラチE��ュ
   }
 }
 
@@ -119,7 +119,7 @@ static void endSession() {
   trial = false;
 }
 
-// パッシブスキャン＋AdvertisedDeviceコールバック相当
+// �p�b�V�u�X�L�����{AdvertisedDevice�R�[���o�b�N����
 class AdvCB : public NimBLEScanCallbacks {
   void onResult(const NimBLEAdvertisedDevice* d) override {
     const std::string& mfd = d->getManufacturerData();
@@ -149,7 +149,7 @@ void setup() {
 
   NimBLEDevice::init("RX_ESP32");
   NimBLEScan* scan = NimBLEDevice::getScan();
-  scan->setActiveScan(true); // active scan to ensure MFD取得
+  scan->setActiveScan(false); // passive scan (no scan response)
   scan->setInterval(SCAN_MS);
   scan->setWindow(SCAN_MS);
   scan->setScanCallbacks(new AdvCB());
