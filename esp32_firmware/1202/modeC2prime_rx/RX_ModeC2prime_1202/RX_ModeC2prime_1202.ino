@@ -1,21 +1,19 @@
-// === RX_ModeC2prime_1202.ino ===
-// 逶ｮ逧・ Mode C2' 縺ｮ TX (makeMFD("%04u_%s")) 繧貞女菫｡縺励《eq 縺ｨ label 繧担D縺ｸ險倬鹸縺吶ｋ縲・
-// - SYNC縺ｯ菴ｿ逕ｨ縺帙★縲√そ繝・す繝ｧ繝ｳ蜈ｨ菴薙ｒ1繝輔ぃ繧､繝ｫ縺ｧ蜿朱寔縲・
-// - NimBLE・・SP32繝懊・繝我ｻ伜ｱ橸ｼ牙燕謠舌・rduinoBLE縺ｯ菴ｿ繧上↑縺・・
+// RX_ModeC2prime_1202.ino
+// Receive Mode C2' TX (MFD "%04u_%s") and log seq/label to SD.
+// - No SYNC; one session per file.
+// - NimBLE passive scan; ArduinoBLE not used.
 
 #include <Arduino.h>
 #include <SPI.h>
 #include <SD.h>
 #include <NimBLEDevice.h>
 
-// 繝斐Φ險ｭ螳・
 static const int SD_CS   = 5;
 static const int SD_SCK  = 18;
 static const int SD_MISO = 19;
 static const int SD_MOSI = 23;
 static const uint16_t SCAN_MS = 50;
 
-// 繝ｪ繝ｳ繧ｰ繝舌ャ繝輔ぃ
 static const uint16_t RX_BUF_SIZE = 512;
 static const uint32_t FLUSH_INTERVAL_MS = 500;
 
@@ -35,7 +33,6 @@ static uint32_t bufOverflow = 0;
 static uint32_t lastFlushMs = 0;
 static uint32_t lastReportMs = 0;
 
-// 繧ｻ繝・す繝ｧ繝ｳ迥ｶ諷・
 static bool trial = true;
 static uint32_t t0Ms = 0;
 static uint32_t rxCount = 0;
@@ -44,7 +41,6 @@ static const char FW_TAG[] = "RX_MODEC2P_1202";
 
 // MFD parser: "0001_label"
 static bool parseMFD(const std::string& s, uint16_t& seq, std::string& label) {
-  // 萓・ "0001_2" / "0123_walk"
   size_t usPos = s.find('_');
   if (usPos == std::string::npos || usPos < 1) return false;
   std::string seqStr = s.substr(0, usPos);
@@ -83,7 +79,7 @@ static void flushBuffer() {
     wrote = true;
   }
   if (wrote) {
-    f.flush(); // power譁ｭ縺ｧ繧４D縺ｫ谿九ｋ繧医≧譏守､ｺ繝輔Λ繝・す繝･
+    f.flush(); // ensure data persists even if power is cut
   }
 }
 
@@ -119,7 +115,7 @@ static void endSession() {
   trial = false;
 }
 
-// パッシブスキャン＋AdvertisedDeviceコールバック相当
+// Passive scan with advertised-device style callback
 class AdvCB : public NimBLEScanCallbacks {
   void onResult(const NimBLEAdvertisedDevice* d) override {
     const std::string& mfd = d->getManufacturerData();
@@ -152,7 +148,8 @@ void setup() {
   scan->setActiveScan(false); // passive scan (no scan response)
   scan->setInterval(SCAN_MS);
   scan->setWindow(SCAN_MS);
-  scan->setScanCallbacks(new AdvCB());
+  scan->setDuplicateFilter(0); // report duplicates for better PDR counting
+  scan->setScanCallbacks(new AdvCB(), true);
   scan->start(0, false);
 
   startSession();
@@ -164,7 +161,6 @@ void loop() {
   if (now - lastFlushMs >= FLUSH_INTERVAL_MS) {
     flushBuffer();
     lastFlushMs = now;
-    // 5遘偵↓1蝗樣ｲ謐励ｒ陦ｨ遉ｺ
     if (now - lastReportMs >= 5000) {
       Serial.printf("[RX] rx=%lu buf_overflow=%lu\n",
                     (unsigned long)rxCount,

@@ -24,12 +24,12 @@ except ImportError:
 
 
 # =============================================================================
-# 定数
+# 定数（デフォルト値はCLIで上書き可能）
 # =============================================================================
 TFLITE_MODEL_PATH = Path("har/004/export/acc_v1_keras/phase0-1-acc.v1.int8.tflite")
-DATA_PROCESSED_DIR = Path("har/001/data_processed")
+DEFAULT_DATA_PROCESSED_DIR = Path("har/001/data_processed_gyro")
 WINDOW_DURATION_S = 2.0  # 100サンプル @ 50Hz = 2秒
-WINDOW_STRIDE_S = 1.0    # 50%オーバーラップ = 1秒ストライド
+DEFAULT_WINDOW_STRIDE_S = 1.0    # 50%オーバーラップ = 1秒ストライド
 N_CLASSES = 12           # 12クラス出力（4クラスに集約）
 STABILITY_WINDOW = 5     # 安定度計算用の窓数（W=5）
 
@@ -277,7 +277,9 @@ def ccs_to_interval(
 def process_subject(
     subject_id: int,
     inferencer: TFLiteInferencer,
-    output_dir: Path
+    output_dir: Path,
+    data_dir: Path,
+    window_stride_s: float,
 ) -> dict:
     """
     1被験者分の処理を実行
@@ -291,7 +293,7 @@ def process_subject(
         summary: 処理結果のサマリ
     """
     # データ読み込み
-    npz_path = DATA_PROCESSED_DIR / f"subject{subject_id:02d}.npz"
+    npz_path = data_dir / f"subject{subject_id:02d}.npz"
     data = np.load(npz_path)
     X = data['X']  # [N, 100, 3]
     y12 = data['y12']  # [N] 12クラスラベル
@@ -318,8 +320,8 @@ def process_subject(
     S = compute_stability(pred_labels)
     CCS = compute_ccs(U, S)
 
-    # タイムスタンプ生成（窓ストライド1秒と仮定）
-    timestamps_s = np.arange(N) * WINDOW_STRIDE_S
+    # タイムスタンプ生成（窓ストライドは引数で指定）
+    timestamps_s = np.arange(N) * window_stride_s
     timestamps_ms = (timestamps_s * 1000).astype(np.int64)
 
     # CCS→T_adv変換
@@ -340,7 +342,7 @@ def process_subject(
     summary = {
         "subject_id": subject_id,
         "n_windows": N,
-        "duration_s": N * WINDOW_STRIDE_S,
+        "duration_s": N * window_stride_s,
         "u_mean": float(np.mean(U)),
         "u_std": float(np.std(U)),
         "s_mean": float(np.mean(S)),
@@ -365,6 +367,10 @@ def main():
     parser.add_argument("--all", action="store_true", help="Process all subjects")
     parser.add_argument("--output", type=Path, default=Path("data/ccs_sequences"),
                         help="Output directory")
+    parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_PROCESSED_DIR,
+                        help="Input npz directory (preprocessed windows)")
+    parser.add_argument("--stride-s", type=float, default=DEFAULT_WINDOW_STRIDE_S,
+                        help="Window stride (seconds) to reconstruct timestamps")
     args = parser.parse_args()
 
     if not args.subject and not args.all:
@@ -386,7 +392,13 @@ def main():
         subjects = [args.subject]
 
     for sid in subjects:
-        summary = process_subject(sid, inferencer, args.output)
+        summary = process_subject(
+            sid,
+            inferencer,
+            args.output,
+            args.data_dir,
+            args.stride_s,
+        )
         summaries.append(summary)
         print(f"  CCS mean={summary['ccs_mean']:.3f}, transitions={summary['n_transitions']}")
         print()
