@@ -27,7 +27,7 @@ uint16_t advCount = 0;
 bool trialRunning = false;
 bool allDone = false;
 
-uint8_t subjectIdx = 0;
+uint8_t subjectIdx = 0;  // TODO: adjust if you want to skip subjects
 uint8_t intervalIdx = 0;
 uint8_t repeatIdx = 0;
 uint16_t advIntervalMs = INTERVALS[0];

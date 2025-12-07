@@ -1,6 +1,6 @@
 // RX_ModeC2prime_1202.ino
 // Receive Mode C2' TX (MFD "%04u_%s") and log seq/label to SD.
-// - No SYNC; one session per file.
+// - Optional SYNC gate: if SYNC pin stays LOW, logging is paused; rising edge starts a session, falling edge ends it.
 // - NimBLE passive scan; ArduinoBLE not used.
 
 #include <Arduino.h>
@@ -12,6 +12,7 @@ static const int SD_CS   = 5;
 static const int SD_SCK  = 18;
 static const int SD_MISO = 19;
 static const int SD_MOSI = 23;
+static const int SYNC_IN = 26;        // TX GPIO25 -> RX GPIO26
 static const uint16_t SCAN_MS = 50;
 
 static const uint16_t RX_BUF_SIZE = 512;
@@ -33,7 +34,8 @@ static uint32_t bufOverflow = 0;
 static uint32_t lastFlushMs = 0;
 static uint32_t lastReportMs = 0;
 
-static bool trial = true;
+static bool trial = false;
+static bool syncState = false;
 static uint32_t t0Ms = 0;
 static uint32_t rxCount = 0;
 static File f;
@@ -97,6 +99,7 @@ static void startSession() {
   bufOverflow = 0;
   lastFlushMs = t0Ms;
   Serial.printf("[RX] start %s\n", path.c_str());
+  trial = true;
 }
 
 static void endSession() {
@@ -118,6 +121,7 @@ static void endSession() {
 // Passive scan with advertised-device style callback
 class AdvCB : public NimBLEScanCallbacks {
   void onResult(const NimBLEAdvertisedDevice* d) override {
+    if (!trial) return;
     const std::string& mfd = d->getManufacturerData();
     uint16_t seq;
     std::string label;
@@ -142,6 +146,7 @@ void setup() {
   Serial.println("[RX] FW=RX_ModeC2prime_1202");
   SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
   if (!SD.begin(SD_CS)) { Serial.println("[SD] init FAIL"); while (1) delay(1000); }
+  pinMode(SYNC_IN, INPUT_PULLDOWN);
 
   NimBLEDevice::init("RX_ESP32");
   NimBLEScan* scan = NimBLEDevice::getScan();
@@ -151,20 +156,28 @@ void setup() {
   scan->setDuplicateFilter(0); // report duplicates for better PDR counting
   scan->setScanCallbacks(new AdvCB(), true);
   scan->start(0, false);
-
-  startSession();
-  Serial.printf("[RX] ready (buf=%u, flush=%lums)\n", (unsigned)RX_BUF_SIZE, (unsigned long)FLUSH_INTERVAL_MS);
+  Serial.printf("[RX] ready (buf=%u, flush=%lums, wait SYNC pin=%d)\n", (unsigned)RX_BUF_SIZE, (unsigned long)FLUSH_INTERVAL_MS, SYNC_IN);
 }
 
 void loop() {
+  int syncIn = digitalRead(SYNC_IN);
+  if (!trial && syncIn == HIGH) {
+    startSession();
+    syncState = true;
+  } else if (trial && syncIn == LOW && syncState) {
+    endSession();
+    syncState = false;
+  }
+
   uint32_t now = millis();
   if (now - lastFlushMs >= FLUSH_INTERVAL_MS) {
     flushBuffer();
     lastFlushMs = now;
     if (now - lastReportMs >= 5000) {
-      Serial.printf("[RX] rx=%lu buf_overflow=%lu\n",
+      Serial.printf("[RX] rx=%lu buf_overflow=%lu sync=%d\n",
                     (unsigned long)rxCount,
-                    (unsigned long)bufOverflow);
+                    (unsigned long)bufOverflow,
+                    syncIn);
       lastReportMs = now;
     }
   }

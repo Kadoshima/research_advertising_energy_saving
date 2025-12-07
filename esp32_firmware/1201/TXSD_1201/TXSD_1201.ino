@@ -13,7 +13,8 @@ static const int SD_CS   = 5;
 static const int SD_SCK  = 18;
 static const int SD_MISO = 19;
 static const int SD_MOSI = 23;
-static const int SYNC_IN = 25;   // must match TX SYNC_OUT_PIN
+static const int SYNC_IN = 26;     // RX/TXSD側で受けるSYNCピン（TX GPIO25と接続）
+static const int SYNC_OFF_IN = -1; // 使わない場合は -1（OFFゲート未使用）
 static const int TICK_IN = 33;
 static const int I2C_SDA = 21;
 static const int I2C_SCL = 22;
@@ -33,6 +34,7 @@ volatile uint32_t tickCountRaw=0; // cumulative TICK count
 uint32_t tickStart=0;             // TICK count at trial start
 uint32_t tickCount=0;             // adv count in trial
 bool syncState=false;
+bool syncOffState=false;
 bool logging=false;
 uint32_t t0_ms=0, nextSampleUs=0;
 uint32_t lineN=0, badLines=0;
@@ -103,6 +105,7 @@ void setup(){
   if (!SD.begin(SD_CS)){ Debug.println("[SD] init FAIL"); while(1) delay(1000); }
 
   pinMode(SYNC_IN, INPUT_PULLDOWN);
+  if (SYNC_OFF_IN >= 0) pinMode(SYNC_OFF_IN, INPUT_PULLDOWN);
   pinMode(TICK_IN, INPUT_PULLDOWN);
   attachInterrupt(digitalPinToInterrupt(TICK_IN), onTickRaw, RISING);
 
@@ -117,18 +120,21 @@ void loop(){
 
   // --- start/stop controlled by SYNC_IN ---
   int syncIn = digitalRead(SYNC_IN);
+  int syncOff = (SYNC_OFF_IN >= 0) ? digitalRead(SYNC_OFF_IN) : HIGH; // default HIGH if not used
   if (!logging && syncIn == HIGH){
     startTrial();
     syncState = true;
+    syncOffState = (syncOff == HIGH);
     Debug.printf("[PWR] trigger start by SYNC (raw=%lu)\n", (unsigned long)tickCountRaw);
   }
 
   if (logging){
     // end when SYNC drops, or fallback by TICK_PER_TRIAL if enabled
-    if (syncIn == LOW && syncState){
-      Debug.println("[PWR] end by SYNC");
+    if ((syncIn == LOW && syncState) || (syncOff == LOW)){
+      Debug.printf("[PWR] end by SYNC/SYNC_OFF sync=%d sync_off=%d\n", syncIn, syncOff);
       endTrial();
       syncState = false;
+      syncOffState = false;
     } else {
       tickCount = tickCountRaw - tickStart;
       if (TICK_PER_TRIAL > 0 && tickCount >= TICK_PER_TRIAL){
