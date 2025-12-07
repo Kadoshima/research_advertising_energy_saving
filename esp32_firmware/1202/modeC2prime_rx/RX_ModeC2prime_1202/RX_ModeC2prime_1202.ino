@@ -39,6 +39,7 @@ static uint32_t lastReportMs = 0;
 static bool trial = false;
 static bool syncState = false;
 static uint32_t t0Ms = 0;
+static uint32_t bootMs = 0;
 static uint32_t rxCount = 0;
 static uint32_t syncLowSince = 0;
 static uint32_t syncHighSince = 0;
@@ -152,6 +153,7 @@ void setup() {
   SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
   if (!SD.begin(SD_CS)) { Serial.println("[SD] init FAIL"); while (1) delay(1000); }
   pinMode(SYNC_IN, INPUT_PULLDOWN);
+  bootMs = millis();
 
   NimBLEDevice::init("RX_ESP32");
   NimBLEScan* scan = NimBLEDevice::getScan();
@@ -168,11 +170,12 @@ void loop() {
   int syncIn = digitalRead(SYNC_IN);
   bool syncHigh = (syncIn == HIGH);
 
-  // Start only on rising edge held HIGH for at least 200 ms
+  // Start when SYNC is HIGH (edge or level) held for >=200ms
   if (!trial) {
     if (syncHigh) {
       if (syncHighSince == 0) syncHighSince = millis();
-      if (!lastSyncLevel && (millis() - syncHighSince) >= 200) {
+      // If we missed the edge (RX booted after SYNC already HIGH), also allow level-detect after 200ms
+      if ((millis() - syncHighSince) >= 200) {
         startSession();
         syncState = true;
         syncLowSince = 0;
