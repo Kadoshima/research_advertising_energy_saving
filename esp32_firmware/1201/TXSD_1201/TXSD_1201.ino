@@ -21,10 +21,10 @@ static const int I2C_SCL = 22;
 
 // Settings
 static const uint32_t SAMPLE_US    = 10000;   // 10ms = 100Hz
-static const uint32_t FALLBACK_MS  = 660000;  // safety fallback
+static const uint32_t FALLBACK_MS  = 900000;  // safety fallback (~15 min)
 static const uint32_t MIN_TRIAL_MS = 1000;    // ignore trials shorter than 1s
 static const uint32_t TICK_PER_TRIAL = 0;     // 0=disabled (use SYNC to end); fallback if >0
-static const char SUBJECT_ID[] = "subject_unknown"; // set per experiment
+static const char SUBJECT_ID[] = "subject_flash"; // set per experiment
 
 HardwareSerial Debug(0);
 Adafruit_INA219 ina;
@@ -39,6 +39,7 @@ bool logging=false;
 uint32_t t0_ms=0, nextSampleUs=0;
 uint32_t lineN=0, badLines=0;
 uint32_t lastTickSnapshot=0;
+uint32_t syncLowSince=0;
 
 // Stats
 double sumP=0.0; double sumV=0.0; double sumI=0.0; uint32_t sampN=0;
@@ -129,16 +130,27 @@ void loop(){
   }
 
   if (logging){
-    // end when SYNC drops, or fallback by TICK_PER_TRIAL if enabled
-    if ((syncIn == LOW && syncState) || (syncOff == LOW)){
-      Debug.printf("[PWR] end by SYNC/SYNC_OFF sync=%d sync_off=%d\n", syncIn, syncOff);
-      endTrial();
-      syncState = false;
-      syncOffState = false;
+    bool syncLow = (syncIn == LOW) || (syncOff == LOW);
+    // end when SYNC stays LOW for >=100ms, or fallback by TICK_PER_TRIAL/timeout if enabled
+    if (syncLow){
+      if (syncLowSince == 0) syncLowSince = nowMs;
+      if ((nowMs - syncLowSince) >= 100){
+        Debug.printf("[PWR] end by SYNC/SYNC_OFF sync=%d sync_off=%d\n", syncIn, syncOff);
+        endTrial();
+        syncState = false;
+        syncOffState = false;
+        syncLowSince = 0;
+      }
     } else {
+      syncLowSince = 0;
       tickCount = tickCountRaw - tickStart;
       if (TICK_PER_TRIAL > 0 && tickCount >= TICK_PER_TRIAL){
         Debug.printf("[PWR] force end by TICK (count=%lu)\n", (unsigned long)tickCount);
+        endTrial();
+        syncState = false;
+      }
+      if (nowMs - t0_ms >= FALLBACK_MS){
+        Debug.printf("[PWR] force end by timeout (ms=%lu)\n", (unsigned long)(nowMs - t0_ms));
         endTrial();
         syncState = false;
       }

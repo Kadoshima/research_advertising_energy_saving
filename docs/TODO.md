@@ -7,18 +7,27 @@
 
 ---
 
+## 設計レビュー指摘（2025-12-08 追記）
+
+- 計測方式の一本化: 実験設計書のPPK-II記述をINA219+TXSD(I²C)前提に揃える。ΔE/advはper_adv、活動遷移用は別指標名（例: μC_transition）で式を明記。
+- CCSパラメータ: World Modelデフォルト閾値(0.4/0.7)と今回実験値(0.80/0.90)を区別し、ログに `theta_low/high`, `model_id`, `calib_T` を必須出力。
+- HARモデル前提: Phase1デフォルトはA0、A_tiny準備でき次第差し替えOKと明記。
+- セッション長の整合: 10分 vs 15分の差異を解消（どちらかに統一。必要なら10分×2で15分扱い等ルール決め）。
+- E1/E2の具体化: 低/高干渉を場所・Wi-Fi条件で仕様書に明記。
+- スクリプト/ログ仕様: `sync_logs.py`のSYNC条件（短パルス無視など）を仕様書に記載。`compute_event_charge.py`のevent単位をper_advかper_transitionか明記。ログにモデル/閾値情報を必ず残す。
+- フェイルセーフ: Phase1は観測のみ、Phase2で制約付きBandit実装と明記（Pout超過時の戻し方はPhase2で実装）。
+- 実験A〜Eの章立てと整合: A/B=物理レンジ（Mode A/B）、C=HARラベル固定間隔基準線、D=不確実性閾値方策（Phase1ゴール）、E=self-UCB/Safe Bandit（Phase2）。どれを実機/シミュレーションでやるかを実験計画に明示。
+
+---
+
 ## 0. 前提条件の確認
 
 ### 0.1 既存資産の棚卸し
 
-- [ ] **フェーズ0-0データの確認** (再計測中 2025-11-30)
-  - [ ] ΔE/adv実測値（100/500/1000/2000ms） → **再計測中**
-    - 旧データ: `docs/フェーズ1/results/delta_energy_row1120_row1123_off.md` (参考値)
-    - 2025-11-29 INA219配線修正後、再計測が必要 (`docs/フェーズ0-0/decision_log_2025-11-29.md`)
-  - [ ] P_off_mean → **再計測中**
-    - 旧値 22.106 mW は配線修正前のため参考値
-    - OFF計測完了(11 trials)、解析待ち
-  - [x] PDR実測値（p_d ≈ 0.85）の根拠データがあるか → OK (`docs/フェーズ1/results/pdr_row1120_txsd_rx.md`)
+- [x] **フェーズ0-0データの確認** (2025-12-07 更新)
+  - [x] ΔE/adv実測値（100/500/1000/2000ms） → Mode A/B (1202配線変更後, 1203) 再計測済み。旧参考: `docs/フェーズ1/results/delta_energy_row1120_row1123_off.md` / `docs/フェーズ0-0/decision_log_2025-11-29.md`
+  - [x] P_off_mean → OFF計測11本完了（配線修正後）。旧値 22.106 mW は参考のみ。
+  - [x] PDR実測値（p_d ≈ 0.85）の根拠データ → OK (`docs/フェーズ1/results/pdr_row1120_txsd_rx.md`)
 
 - [x] **HARモデル（A0）の確認** (2025-11-27 完了)
   - [x] TFLite int8モデル（90.6KB）がエクスポート済みか → OK (`har/004/export/acc_v1_keras/phase0-1-acc.v1.int8.tflite`)
@@ -365,11 +374,11 @@ python3 scripts/convert_session_to_header.py --session 01
 
 ### 3.2 KPI算出
 
-#### 3.2.1 μC/event算出
+#### 3.2.1 エネルギー指標の分離
 
-- [ ] **イベント定義**
-  - CCSモード: T_adv遷移が発生した時点
-  - FIXEDモード: 活動遷移時点（CCS時系列から推定）
+- [ ] **μC_adv (mJ/adv)** : ΔE/adv = (E_on − P_off×T) / N_adv（物理層の基準。FIXED/CCS共通）
+- [ ] **μC_transition (mJ/transition)** : 活動遷移区間のΔEを遷移回数で割る（CCS/FIXEDで比較）
+- [ ] スクリプト/ドキュメントで per_adv と per_transition を明記し、名前を揃える（旧「μC/event」は per_adv に一本化するか上記2分割で）
 
 - [ ] **電荷計算**
   ```python
@@ -531,7 +540,7 @@ References (~15件)
 |--------|------|------|
 | ESP32のT_adv動的変更が不安定 | 実験不可 | 事前に100セッション分の安定性テスト |
 | Android受信漏れ | Pout過大評価 | LOW_LATENCYモード固定、バックグラウンド処理停止 |
-| PPK-II同期ずれ | μC算出誤差 | GPIOマーカーで±10ms以内に補正 |
+| TXSD/INA219ログの同期ずれ | μC算出誤差 | GPIOマーカーで±10ms以内に補正 |
 | mHealthのCCS分布が偏る | 効果が見えない | 事前にCCS分布を確認、必要なら複数被験者使用 |
 
 ### 5.2 スケジュールリスク
@@ -548,7 +557,7 @@ References (~15件)
 - [ ] CCS時系列10セッション分が生成済み
 - [ ] ESP32ファームウェアが3モードで動作
 - [ ] Android受信ログが正常に取れる
-- [ ] PPK-IIでの電力計測がフェーズ0-0と整合
+- [ ] INA219での電力計測がフェーズ0-0(再計測)と整合
 
 **揃っていない場合**:
 - 不足分の優先対応
@@ -623,6 +632,14 @@ References (~15件)
    - [ ] ON計測 (100/500/1000/2000ms 自動実行中)
 6. [ ] 1.4.3 P_off/ΔE/adv再校正（Baseline再計測データで算出）
 7. [ ] 0.2 E1環境確認、距離1mマーキング確認
+
+### 緊急対応（Mode C2′再計測・SYNC安定化）※2025-12-07追記
+- [ ] labels_all.h を100ms版で再生成（subject01≒6946など、各6.3k〜7.0k）
+- [ ] TX: trial終了後にSYNC LOWを数百ms保持 → 次trial開始を遅延させ、RX/TXSDが境界を確実に検出
+- [ ] TXSD/RX: SYNC=26で開始/終了を確認（ログに sync=1→0 が出ること）
+- [ ] REPEAT=3時の所要時間 ≒ 2.1h/被験者（4区間×3回×約10.6分）→ 長時間放置でも12本に分割されているか確認
+- [ ] 期待adv_count目安: 100ms≒6352, 500ms≒1271, 1000ms≒636, 2000ms≒318（REPEAT=3で総計≒25.7k）
+- [ ] シリアルで “all trials completed” を確認。リセット・SYNC抜けをチェック
 
 ---
 

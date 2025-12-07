@@ -14,6 +14,8 @@ static const int SD_MISO = 19;
 static const int SD_MOSI = 23;
 static const int SYNC_IN = 26;        // TX GPIO25 -> RX GPIO26
 static const uint16_t SCAN_MS = 50;
+static const uint32_t SESSION_TIMEOUT_MS = 900000;   // safety timeout ~15 min
+static const uint32_t SYNC_LOW_DEBOUNCE_MS = 100;     // require SYNC low for this long
 
 static const uint16_t RX_BUF_SIZE = 512;
 static const uint32_t FLUSH_INTERVAL_MS = 500;
@@ -38,6 +40,7 @@ static bool trial = false;
 static bool syncState = false;
 static uint32_t t0Ms = 0;
 static uint32_t rxCount = 0;
+static uint32_t syncLowSince = 0;
 static File f;
 static const char FW_TAG[] = "RX_MODEC2P_1202";
 
@@ -164,9 +167,24 @@ void loop() {
   if (!trial && syncIn == HIGH) {
     startSession();
     syncState = true;
-  } else if (trial && syncIn == LOW && syncState) {
-    endSession();
-    syncState = false;
+    syncLowSince = 0;
+  } else if (trial) {
+    if (syncIn == LOW && syncState) {
+      if (syncLowSince == 0) syncLowSince = millis();
+      if ((millis() - syncLowSince) >= SYNC_LOW_DEBOUNCE_MS) {
+        endSession();
+        syncState = false;
+        syncLowSince = 0;
+      }
+    } else {
+      syncLowSince = 0;
+    }
+    if (trial && (millis() - t0Ms) >= SESSION_TIMEOUT_MS) {
+      Serial.println("[RX] force end by timeout");
+      endSession();
+      syncState = false;
+      syncLowSince = 0;
+    }
   }
 
   uint32_t now = millis();

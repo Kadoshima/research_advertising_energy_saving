@@ -98,6 +98,9 @@ void endTrial() {
                 (unsigned)advIntervalMs,
                 (unsigned)advCount);
 
+  // Hold SYNC LOW before starting the next trial so RX/TXSD can detect the boundary.
+  vTaskDelay(pdMS_TO_TICKS(1000));
+
   advanceScheduleOrStop();
   if (!allDone) startTrial();
 }
