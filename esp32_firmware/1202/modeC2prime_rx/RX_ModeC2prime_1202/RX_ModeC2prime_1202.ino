@@ -41,6 +41,8 @@ static bool syncState = false;
 static uint32_t t0Ms = 0;
 static uint32_t rxCount = 0;
 static uint32_t syncLowSince = 0;
+static uint32_t syncHighSince = 0;
+static bool lastSyncLevel = false;
 static File f;
 static const char FW_TAG[] = "RX_MODEC2P_1202";
 
@@ -164,12 +166,22 @@ void setup() {
 
 void loop() {
   int syncIn = digitalRead(SYNC_IN);
-  if (!trial && syncIn == HIGH) {
-    startSession();
-    syncState = true;
-    syncLowSince = 0;
-  } else if (trial) {
-    if (syncIn == LOW && syncState) {
+  bool syncHigh = (syncIn == HIGH);
+
+  // Start only on rising edge held HIGH for at least 200 ms
+  if (!trial) {
+    if (syncHigh) {
+      if (syncHighSince == 0) syncHighSince = millis();
+      if (!lastSyncLevel && (millis() - syncHighSince) >= 200) {
+        startSession();
+        syncState = true;
+        syncLowSince = 0;
+      }
+    } else {
+      syncHighSince = 0;
+    }
+  } else {
+    if (!syncHigh && syncState) {
       if (syncLowSince == 0) syncLowSince = millis();
       if ((millis() - syncLowSince) >= SYNC_LOW_DEBOUNCE_MS) {
         endSession();
@@ -186,12 +198,13 @@ void loop() {
       syncLowSince = 0;
     }
   }
+  lastSyncLevel = syncHigh;
 
   uint32_t now = millis();
   if (now - lastFlushMs >= FLUSH_INTERVAL_MS) {
     flushBuffer();
     lastFlushMs = now;
-    if (now - lastReportMs >= 5000) {
+    if (trial && (now - lastReportMs >= 5000)) {
       Serial.printf("[RX] rx=%lu buf_overflow=%lu sync=%d\n",
                     (unsigned long)rxCount,
                     (unsigned long)bufOverflow,
