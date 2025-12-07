@@ -118,6 +118,7 @@ void setup(){
 
 void loop(){
   uint32_t nowMs = millis();
+  bool justStarted = false;
 
   // --- start/stop controlled by SYNC_IN ---
   int syncIn = digitalRead(SYNC_IN);
@@ -127,9 +128,15 @@ void loop(){
     syncState = true;
     syncOffState = (syncOff == HIGH);
     Debug.printf("[PWR] trigger start by SYNC (raw=%lu)\n", (unsigned long)tickCountRaw);
+    justStarted = true;
+    nowMs = millis();      // refresh to avoid immediate timeout underflow
+    syncLowSince = 0;
   }
 
   if (logging){
+    if (justStarted) {
+      nowMs = millis();    // ensure fresh timestamp on first loop after start
+    }
     bool syncLow = (syncIn == LOW) || (syncOff == LOW);
     // end when SYNC stays LOW for >=100ms, or fallback by TICK_PER_TRIAL/timeout if enabled
     if (syncLow){
@@ -149,7 +156,8 @@ void loop(){
         endTrial();
         syncState = false;
       }
-      if (nowMs - t0_ms >= FALLBACK_MS){
+      int32_t dt_ms = (int32_t)(nowMs - t0_ms);
+      if (dt_ms >= 0 && (uint32_t)dt_ms >= FALLBACK_MS){
         Debug.printf("[PWR] force end by timeout (ms=%lu)\n", (unsigned long)(nowMs - t0_ms));
         endTrial();
         syncState = false;

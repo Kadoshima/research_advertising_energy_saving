@@ -15,10 +15,10 @@ static const int SYNC_OUT_PIN = 25;
 static const int TICK_OUT_PIN = 27;
 static const int LED_PIN = 2;
 
-// Intervals to sweep per subject
-static const uint16_t INTERVALS[] = {100, 500, 1000, 2000};
+// Intervals to sweep per subject (smoke: only 100 ms, 1 repeat)
+static const uint16_t INTERVALS[] = {100};
 static const uint8_t NUM_INTERVALS = sizeof(INTERVALS) / sizeof(INTERVALS[0]);
-static const uint8_t REPEAT_PER_INTERVAL = 3;
+static const uint8_t REPEAT_PER_INTERVAL = 1;
 static const uint16_t EFFECTIVE_LEN = 6352;  // clamp subject length to common window
 
 NimBLEAdvertising* adv = nullptr;
@@ -27,7 +27,7 @@ uint16_t advCount = 0;
 bool trialRunning = false;
 bool allDone = false;
 
-uint8_t subjectIdx = 0;  // TODO: adjust if you want to skip subjects
+uint8_t subjectIdx = 0;  // smoke: first subject only
 uint8_t intervalIdx = 0;
 uint8_t repeatIdx = 0;
 uint16_t advIntervalMs = INTERVALS[0];
@@ -73,21 +73,10 @@ void startTrial() {
 }
 
 void advanceScheduleOrStop() {
-  repeatIdx++;
-  if (repeatIdx >= REPEAT_PER_INTERVAL) {
-    repeatIdx = 0;
-    intervalIdx++;
-    if (intervalIdx >= NUM_INTERVALS) {
-      intervalIdx = 0;
-      subjectIdx++;
-    }
-  }
-
-  if (subjectIdx >= NUM_SESSIONS) {
-    allDone = true;
-    if (adv) adv->stop();
-    Serial.println("[TX] all trials completed");
-  }
+  // Smoke: single subject, single interval, single repeat -> stop here
+  allDone = true;
+  if (adv) adv->stop();
+  Serial.println("[TX] all trials completed");
 }
 
 void endTrial() {
