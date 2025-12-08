@@ -1,5 +1,5 @@
 // Mode C2' flash: play labels from labels_all.h (subjectXX_ccs.csv embedded).
-// Schedule: 10 subjects × 4 intervals (100/500/1000/2000 ms) × 5 repeats each.
+// Schedule: 10 subjects x 4 intervals (100/500/1000/2000 ms) x 3 repeats.
 // Each trial length = subject timeline duration (100 ms grid) sampled at interval_ms.
 //   target_adv = ceil(nLabels * 100ms / interval_ms) = ceil(nLabels / step).
 // TICK/SYNC same as before. No HAR computation.
@@ -15,8 +15,8 @@ static const int SYNC_OUT_PIN = 25;
 static const int TICK_OUT_PIN = 27;
 static const int LED_PIN = 2;
 
-// Intervals to sweep per subject (smoke: only 100 ms, 1 repeat)
-static const uint16_t INTERVALS[] = {100};
+// Intervals to sweep per subject
+static const uint16_t INTERVALS[] = {100, 500, 1000, 2000};
 static const uint8_t NUM_INTERVALS = sizeof(INTERVALS) / sizeof(INTERVALS[0]);
 static const uint8_t REPEAT_PER_INTERVAL = 1;
 static const uint16_t EFFECTIVE_LEN = 6352;  // clamp subject length to common window
@@ -63,26 +63,36 @@ void startTrial() {
   }
   syncStart();
   trialRunning = true;
-  Serial.printf("[TX] start trial subj=%s interval=%ums repeat=%u/%u labels=%u target_adv=%lu\n",
+  Serial.printf("[TX] start subj=%s interval=%ums repeat=%u/%u adv_target=%lu\n",
                 SESSIONS[subjectIdx].id,
                 (unsigned)advIntervalMs,
                 (unsigned)(repeatIdx + 1),
                 (unsigned)REPEAT_PER_INTERVAL,
-                (unsigned)nLabels,
                 (unsigned long)targetAdv);
 }
 
 void advanceScheduleOrStop() {
-  // Smoke: single subject, single interval, single repeat -> stop here
-  allDone = true;
-  if (adv) adv->stop();
-  Serial.println("[TX] all trials completed");
+  repeatIdx++;
+  if (repeatIdx >= REPEAT_PER_INTERVAL) {
+    repeatIdx = 0;
+    intervalIdx++;
+    if (intervalIdx >= NUM_INTERVALS) {
+      intervalIdx = 0;
+      subjectIdx++;
+    }
+  }
+
+  if (subjectIdx >= NUM_SESSIONS) {
+    allDone = true;
+    if (adv) adv->stop();
+    Serial.println("[TX] all trials completed");
+  }
 }
 
 void endTrial() {
   trialRunning = false;
   syncEnd();
-  Serial.printf("[TX] end trial subj=%s interval=%ums adv_sent=%u\n",
+  Serial.printf("[TX] end subj=%s interval=%ums adv_sent=%u\n",
                 SESSIONS[subjectIdx].id,
                 (unsigned)advIntervalMs,
                 (unsigned)advCount);
@@ -155,9 +165,6 @@ void loop() {
     digitalWrite(TICK_OUT_PIN, LOW);
 
     advCount++;
-    if ((advCount % 50) == 0) {
-      Serial.printf("[TX] adv=%u label=%u\n", (unsigned)advCount, (unsigned)lbl);
-    }
     if (advCount >= targetAdv) {
       endTrial();
     }

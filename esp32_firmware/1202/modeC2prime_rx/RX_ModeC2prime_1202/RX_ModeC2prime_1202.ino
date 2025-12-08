@@ -115,12 +115,11 @@ static void endSession() {
   uint32_t t_ms = millis() - t0Ms;
   double dur_s = t_ms / 1000.0;
   double rate_hz = dur_s > 0 ? (double)rxCount / dur_s : 0.0;
-  Serial.printf("[RX] summary ms_total=%lu, rx=%lu, rate_hz=%.2f, buf_overflow=%lu\n",
+  Serial.printf("[RX] end ms_total=%lu rx=%lu buf_overflow=%lu rate_hz=%.2f\n",
                 (unsigned long)t_ms,
                 (unsigned long)rxCount,
-                rate_hz,
-                (unsigned long)bufOverflow);
-  Serial.println("[RX] end");
+                (unsigned long)bufOverflow,
+                rate_hz);
   trial = false;
 }
 
@@ -207,13 +206,6 @@ void loop() {
   if (now - lastFlushMs >= FLUSH_INTERVAL_MS) {
     flushBuffer();
     lastFlushMs = now;
-    if (trial && (now - lastReportMs >= 5000)) {
-      Serial.printf("[RX] rx=%lu buf_overflow=%lu sync=%d\n",
-                    (unsigned long)rxCount,
-                    (unsigned long)bufOverflow,
-                    syncIn);
-      lastReportMs = now;
-    }
   }
   vTaskDelay(1);
 }
