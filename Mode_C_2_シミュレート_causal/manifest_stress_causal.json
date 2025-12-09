@@ -1,0 +1,71 @@
+{
+  "note": "Causal CCS: S uses only time since last transition (no future lookahead). U=1-S+N(0,0.05^2). T_adv thresholds 0.3/0.7.",
+  "sessions": [
+    {
+      "id": "S1",
+      "p_stay": 0.99,
+      "seed": 101,
+      "transitions": 60,
+      "interval_frac": {
+        "100ms": 0.14,
+        "500ms": 0.1588,
+        "2000ms": 0.7012
+      }
+    },
+    {
+      "id": "S2",
+      "p_stay": 0.99,
+      "seed": 102,
+      "transitions": 52,
+      "interval_frac": {
+        "100ms": 0.1248,
+        "500ms": 0.1313,
+        "2000ms": 0.7439
+      }
+    },
+    {
+      "id": "S3",
+      "p_stay": 0.99,
+      "seed": 103,
+      "transitions": 79,
+      "interval_frac": {
+        "100ms": 0.1777,
+        "500ms": 0.1958,
+        "2000ms": 0.6264
+      }
+    },
+    {
+      "id": "S4",
+      "p_stay": 0.98,
+      "seed": 201,
+      "transitions": 141,
+      "interval_frac": {
+        "100ms": 0.2914,
+        "500ms": 0.2508,
+        "2000ms": 0.4578
+      }
+    },
+    {
+      "id": "S5",
+      "p_stay": 0.98,
+      "seed": 202,
+      "transitions": 129,
+      "interval_frac": {
+        "100ms": 0.2702,
+        "500ms": 0.2467,
+        "2000ms": 0.4832
+      }
+    },
+    {
+      "id": "S6",
+      "p_stay": 0.98,
+      "seed": 203,
+      "transitions": 121,
+      "interval_frac": {
+        "100ms": 0.2475,
+        "500ms": 0.2365,
+        "2000ms": 0.5161
+      }
+    }
+  ]
+}
