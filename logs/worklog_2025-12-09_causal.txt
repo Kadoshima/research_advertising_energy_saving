@@ -1,0 +1,4 @@
+2025-12-09
+- add script scripts/generate_modec2_stress_causal.py (causal CCS: S from time since last transition only; U=1-S+N(0,0.05^2); CCS=0.7*(1-U)+0.3*S; T_adv thresholds 0.3/0.7 -> 100/500/2000ms)
+- generated Mode_C_2_シミュレート_causal/ccs/stress_causal_S1..S6.csv and manifest_stress_causal.json
+- ran causal simulation (PDR=1) to produce Mode_C_2_シミュレート_causal/sim_timeline_metrics_causal.csv and sim_timeline_metrics_causal_agg.csv (agg: FIXED_100 acc=1.0, FIXED_500 acc≈0.972 TL≈2.9s, FIXED_1000 acc≈0.935 TL≈5.3s, FIXED_2000 acc≈0.870 TL≈9.4s; CCS_causal acc≈0.916 TL≈6.8s)
