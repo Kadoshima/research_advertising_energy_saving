@@ -2,7 +2,7 @@
 
 **文書ID**: RHT-EXP-PLAN-v1.2
 **作成日**: 2025-11-27
-**最終更新**: 2025-11-30
+**最終更新**: 2025-12-10
 **ステータス**: ドラフト（Baseline再計測中、実地検証で発見した問題を反映）
 
 ---
@@ -28,6 +28,39 @@
 - 悪化チャネル E2 設計: 目標 PDR(100ms)=0.6〜0.7 を達成できる距離/障害物/Wi-Fi干渉/scan duty の条件を決め、調整ログを残す。
 - E2 での再計測: Mode_C_2_06（低遷移）と dyn（高遷移）をE2で取得し、エネルギー・QoSの2×2比較を作成。必要ならE3（より悪化）も検討。
 - 解析スクリプト更新: dyn マニフェストと `labels_all_dyn` 読み込みに対応し、PDR劣化時の理論曲線と実測を同じスクリプトで出力できるようにする。
+
+---
+
+### 因果CCSアップデート (2025-12-10)
+
+- 生成: `scripts/generate_modec2_stress_causal.py` で S を「最後の遷移からの経過時間」に変更し U/CCS/T_adv/manifest を再生成。PDR=1 ストレス6セッション平均で CCS_causal: acc≈0.916, TL≈6.8s (`Mode_C_2_シミュレート_causal/sim_timeline_metrics_causal_agg.csv`)。
+- 設計ゴール（メタ）:
+  - [ ] CCS_causal は PDR≒1 前提で QoS(Pout/TL) は FIXED_2000 より良く、エネルギーは FIXED_500 より小さい領域を狙うと明文化する。
+
+#### A. 因果CCSシミュレーションの読み解き＆設計判断
+- [x] A-1: `Mode_C_2_シミュレート_causal/sim_timeline_metrics_causal_agg.csv` で確認。CCS_causal: acc=0.9160, TL_mean=6.81s, Pout(1s/2s/3s)=0.323/0.091/0.088。位置づけ: FIXED_1000(0.935,5.26s,Pout1s=0.064) と FIXED_2000(0.870,9.40s,Pout1s=0.492) の中間〜やや2000寄り。FIXED_500: acc=0.972, TL=2.92s, Pout1s=0.036。
+- [x] A-2: `Mode_C_2_シミュレート_causal/manifest_stress_causal.json` より interval_frac 平均 {100ms:0.2086, 500ms:0.2033, 2000ms:0.5881}。E[T_adv]≈1298.7ms。Mode_C_2_03 E_per_adv_uJ を用いた加重 E/adv≈256,025 μJ → 相対 (per-adv): vs100ms=12.88x, vs500ms=2.65x, vs2000ms=0.65x。加重平均電力（E/adv÷T_adv）≈196.9 mW で FIXED_500比 ≈1.02x, FIXED_100比 ≈0.99x（パワーはほぼ横並びで、per-adv指標は区間長依存で大きくなる点に注意）。
+- [x] A-3: しきい値/重みの決定（ストレスケースは凍結）。採用値:
+  - CCS形: CCS=0.7*(1−U)+0.3*S（正史に合わせる）
+  - S_causal: clip(time_since_last_transition/5.0, 0, 1)
+  - U_causal: clip(1−S_causal+N(0,0.05^2), 0, 1)
+  - T_adv写像: CCS<0.30→100ms, 0.30≤CCS<0.70→500ms, CCS≥0.70→2000ms
+  - ヒステリシス/最小滞在: ストレスケースのオフライン評価・実機再生では無し（本番Phase1は θ_low=0.40/θ_high=0.70＋ヒステリシスを別途適用）
+  - 見直しトリガ（参考メモ）: 実機で CCS が FIXED-2000 より QoS悪化、またはエネルギーが FIXED-500 と同等・優位性なし、または実データで Pout が FIXED-100 より悪化する場合に再検討。
+- [x] A-4: PDR=0.95/0.9 の簡易シミュで順位確認（sim_timeline_metrics_causal_pdr_sweep.csv）。結果: 順位は概ね維持。例: PDR=0.95 → FIXED_500 acc≈0.968 TL≈0.33s Pout1s=0, CCS_causal acc≈0.915 TL≈0.69s Pout1s≈0.30; FIXED_2000 acc≈0.860 TL≈1.21s Pout1s≈0.55. PDR=0.9 でも同様の傾向で CCS は FIXED_1000〜2000 中間寄り。
+
+#### B. Mode_C_2_stress_causal 実機最小セット
+- [ ] B-1: TX 実装方式を決定（オンラインS計算 vs `T_adv`列再生）。工数次第でオフライン再生→オンライン化の二段階でも可。使用データ: `Mode_C_2_シミュレート/labels_stress.h` + `Mode_C_2_シミュレート_causal/ccs/stress_causal_S*.csv`。
+- [ ] B-2: 実験プロトコル確定（E1想定）。セッション: S2（中遷移）/S5（高遷移）。条件: C1=FIXED_100, C2=FIXED_2000, C3=CCS_causal。繰返し: 各1〜3 trial。指標: PDR, Pout(1s)+TL_mean, ΔE/adv(μC) from TXSD summary。
+- [ ] B-3: 実機 vs シミュの比較フォーマットを先に決め、集計スクリプト出力を合わせる（例: x軸モード、左軸Pout(1s)棒＋右軸相対エネ線; 青=シミュ、橙=実機）。
+
+#### C. 実データ (mHealth/ccs_sequences) への因果CCS適用（余裕タスク）
+- [ ] C-1: `data/ccs_sequences/subjectXX_ccs.csv` に S_causal/U/CCS/T_adv を付与し、ratio_100/500/2000 を確認。
+- [ ] C-2: PDR=1 の簡易シミュで FIXED_100/500/2000 vs CCS_causal の Pout/TL/エネルギー位置を把握（低遷移での効果の有無を確認）。
+
+#### D. 記述整理
+- [ ] D-1: Oracle CCS vs Causal CCS の違い（S定義、U/CCS式、T_advしきい値、振る舞い: oracle=上界/因果=FIXED100-2000中間）を docs に明文化。
+- [ ] D-2: Phase1レター用の図・表候補を箇条書き（Fig: Mode A/B/Cエネ、ストレス FIXED vs CCS_causal シミュ/実機、Tab: Pout/TL/エネ）。
 
 ---
 
@@ -654,4 +687,4 @@ References (~15件)
 
 ---
 
-*Last updated: 2025-11-30*
+*Last updated: 2025-12-10*

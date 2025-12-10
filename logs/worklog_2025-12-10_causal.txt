@@ -1,0 +1,10 @@
+2025-12-10
+- A-1/A-2: read Mode_C_2_シミュレート_causal/sim_timeline_metrics_causal_agg.csv → CCS_causal acc=0.9160, TL_mean=6.81s, Pout(1s/2s/3s)=0.323/0.091/0.088; positioned between FIXED_1000(0.935,5.26s,0.064) and FIXED_2000(0.870,9.40s,0.492), with FIXED_500 as upper-QoS reference (acc=0.972, TL=2.92s, Pout1s=0.036).
+- A-2: from manifest_stress_causal.json interval_frac mean {100ms:0.2086, 500ms:0.2033, 2000ms:0.5881}, E[T_adv]≈1298.7ms. Using Mode_C_2_03 E_per_adv_uJ (100:19872.3, 500:96739.4, 1000:197036.0, 2000:394849.8) → weighted E/adv≈256,025 μJ (rel vs 100ms=12.88x, vs 500ms=2.65x, vs 2000ms=0.65x); weighted power≈196.9 mW (~0.99x vs FIXED_100, ~1.02x vs FIXED_500, ~1.00x vs FIXED_1000/2000).
+- docs/TODO.md: marked A-1/A-2 as done, added the above QoS/energy numbers, kept A-3 frozen parameters (CCS=0.7*(1-U)+0.3*S; S_causal=time_since_last_transition/5s clip; U_causal=1-S+N(0,0.05^2); thresholds 0.30/0.70 -> 100/500/2000ms; no hysteresis for stress case).
+- A-4: PDR<1 sweep (0.95/0.9) → Mode_C_2_シミュレート_causal/sim_timeline_metrics_causal_pdr_sweep.csv. Ranking stable: CCS_causal remains between FIXED_1000 and 2000 (PDR=0.95: CCS acc≈0.915 TL≈0.69s Pout1s≈0.30; FIXED_500 acc≈0.968 TL≈0.33s Pout1s=0; FIXED_2000 acc≈0.860 TL≈1.21s Pout1s≈0.55). TODO.md A-4 checked.
+- B-1 prep: added scripts/analyze_stress_causal_real.py (RX+TXSD→ per-trial PDR, Pout, TL_mean/p95, E_total/E_per_adv/avg_power; supports truth map; outputs CSV summary).
+- B-2 prep: added scripts/plot_stress_causal_real_vs_sim.py (aggregates real summary, reads sim agg, plots Pout(1s) bars real/sim + relative energy line vs ref mode).
+- Firmware prep: duplicated 1202 modeC2prime code into new versioned path esp32_firmware/1210:
+  - RX: esp32_firmware/1210/modeC2prime_rx/RX_ModeC2prime_1210/RX_ModeC2prime_1210.ino (from 1202 RX)
+  - TX: esp32_firmware/1210/modeC2prime_tx/{TX_ModeC2prime_1210.ino, TX_ModeC2prime_1210_flash/*.ino, labels_all.h, labels_subjects/*}
