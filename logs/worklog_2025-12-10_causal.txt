@@ -13,3 +13,5 @@
   - clarified schedule comment (subjects × intervals 100/500/1000/2000 × repeats), added <cmath>
   - added SUBJECT_START/SUBJECT_END knobs (default all subjects)
   - start/end serial prints include stepCount/len; FW banner notes fixed-intervals sweep
+- TXSD: created esp32_firmware/1210/modeC2prime_txsd/TXSD_ModeC2prime_1210.ino from TXSD_1201
+  - FW banner/meta updated, pin comments aligned (SYNC=26 from TX GPIO25, TICK=33), SUBJECT_ID default set to modeC2prime_1210, SYNC gate + optional TICK end logic retained.
