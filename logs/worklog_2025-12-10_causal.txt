@@ -19,3 +19,18 @@
   - Completed TXSD trials 010–019 (~10 trials): adv_counts ≈ {100ms: 6345/6344/6343; 500ms: 1270/1269/1269; 1000ms: 635/635; 2000ms: 317/317}. Each trial ~634s, mean power ~198–204 mW, E_total ~125–132 J. PDR calc pending (RX dup filter off; needs uniq postproc).
   - RX logs rx_trial_003–013 aligned with TXSD times; buf_overflow=0, rate ≈8.3 Hz (dup-on).
   - Remaining time if full 10 subjects: ~30 trials left → ~5.3h; if stop after subject3 (two more trials), ~20 min.
+- Data commit (0d34217): added RX logs rx_trial_003–014 and TXSD logs trial_010_on–021_on under data/1210_modeC2prime_fixed/.
+  - Interval mapping by adv_count: 100ms → 010/014/018; 500ms → 011/015/019; 1000ms → 012/016/020; 2000ms → 013/017/021.
+- Analysis run: generated results/stress_causal_real_summary.csv using manifest (rx↔txsd mapping).
+  - PDR (uniq seq): 100ms ≈0.83–0.84; 500/1000/2000ms ≈1.0.
+  - E_per_adv_uJ: ~20.1k–20.8k (100ms), ~99.0k–99.6k (500ms), ~197.9k–198.7k (1000ms), ~396.5k–396.9k (2000ms).
+  - TL/Pout remain 0.0 because truth_file not specified in manifest; add truth mapping to compute TL/Pout.
+- Truth export + TL/Pout計算:
+  - 1202 labels_all.h を CSV 化 (scripts/export_labels_all_to_csv.py) → data/1210_modeC2prime_fixed/truth/subject01..10.csv
+  - manifest に truth_file 列を追加（subject01→trial_003–006, subject02→007–010, subject03→011–014）
+  - 再解析で TL/Pout 取得: results/stress_causal_real_summary.csv 更新
+    - subj01: tl_mean≈0.05–0.56s, pout<=0.25; subj02: tl_mean≈10s, pout=0.167 (ラベル滞留区間が長いため)
+    - PDR/E_per_adv は前回同等（100ms≈0.83, 500/1000/2000≈1.0; E_per_adv 既報）
+- Truth clip fix: subject02 に TX再生範囲外の遷移あり (idx=6410>6352)。export を EFFECTIVE_LEN=6352 にクリップするよう修正し再出力、再解析。
+  - 全trialの TL/Pout 正常化（subj02 の tl_mean≈10s→~1s 台、pout_1s=0 except 2000ms=0.25）。PDR/E_per_adv は不変。
+  - scripts/export_labels_all_to_csv.py に seq[:6352] clip を追加。

@@ -206,6 +206,7 @@ def main() -> None:
     ap.add_argument("--txsd-dir", required=True, type=Path)
     ap.add_argument("--truth-dir", type=Path, help="Directory with truth timelines (idx,label,...) e.g., Mode_C_2_シミュレート_causal/ccs")
     ap.add_argument("--truth-map", type=Path, help="CSV mapping trial_id -> truth_file[,mode]")
+    ap.add_argument("--manifest", type=Path, help="CSV mapping trial_id -> rx_file,txsd_file,mode,interval_ms,subject (optional)")
     ap.add_argument("--mode", type=str, help="Force mode name for all trials (e.g., FIXED_100)")
     ap.add_argument("--out", required=True, type=Path, help="Output CSV summary path")
     args = ap.parse_args()
@@ -219,6 +220,22 @@ def main() -> None:
                 truth_map[tid] = {
                     "truth_file": row.get("truth_file", ""),
                     "mode": row.get("mode", "") or "",
+                }
+
+    manifest_map: Dict[str, Dict[str, str]] = {}
+    if args.manifest and args.manifest.exists():
+        with args.manifest.open() as f:
+            rdr = csv.DictReader(f)
+            for row in rdr:
+                tid = row.get("trial_id")
+                if not tid:
+                    continue
+                manifest_map[tid] = {
+                    "rx_file": row.get("rx_file", ""),
+                    "txsd_file": row.get("txsd_file", ""),
+                    "mode": row.get("mode", ""),
+                    "interval_ms": row.get("interval_ms", ""),
+                    "subject": row.get("subject", ""),
                 }
 
     rx_files = sorted(args.rx_dir.glob("rx_trial_*.csv"))
@@ -251,11 +268,26 @@ def main() -> None:
         w.writeheader()
 
         for rx_path in rx_files:
-            m = re.search(r"rx_trial_(\\d+)", rx_path.name)
+            m = re.search(r"rx_trial_(\d+)", rx_path.name)
             trial_id = m.group(1) if m else rx_path.stem
-            txsd_path = args.txsd_dir / f"trial_{trial_id}_on.csv"
-            if not txsd_path.exists():
-                txsd_path = args.txsd_dir / f"trial_{trial_id}.csv"
+
+            # manifest overrides
+            rx_path_use = rx_path
+            txsd_path = None
+            manifest_entry = manifest_map.get(trial_id, {})
+            if manifest_entry.get("rx_file"):
+                cand = args.rx_dir / manifest_entry["rx_file"]
+                if cand.exists():
+                    rx_path_use = cand
+            if manifest_entry.get("txsd_file"):
+                cand = args.txsd_dir / manifest_entry["txsd_file"]
+                if cand.exists():
+                    txsd_path = cand
+
+            if txsd_path is None:
+                txsd_path = args.txsd_dir / f"trial_{trial_id}_on.csv"
+                if not txsd_path.exists():
+                    txsd_path = args.txsd_dir / f"trial_{trial_id}.csv"
             if not txsd_path.exists():
                 print(f"[WARN] TXSD missing for trial {trial_id}, skip")
                 continue
@@ -275,7 +307,7 @@ def main() -> None:
 
             truth_labels = read_truth_labels(truth_path) if truth_path and truth_path.exists() else None
 
-            rx_events, rx_count, rx_unique = parse_rx(rx_path)
+            rx_events, rx_count, rx_unique = parse_rx(rx_path_use)
             e_total_mj, e_per_adv_uj, adv_count, duration_ms = read_txsd_summary(txsd_path)
 
             if adv_count is None:
@@ -299,7 +331,11 @@ def main() -> None:
             if e_total_mj is not None and duration_ms:
                 avg_power_mw = e_total_mj / (duration_ms / 1000.0)
 
-            mode = infer_mode(trial_id, rx_path.name, args.mode or mode_override)
+            mode = infer_mode(trial_id, rx_path_use.name, args.mode or mode_override)
+            if trial_id in manifest_map:
+                m_mode = manifest_map[trial_id].get("mode") or ""
+                if m_mode:
+                    mode = m_mode
 
             row = {
                 "trial_id": trial_id,
