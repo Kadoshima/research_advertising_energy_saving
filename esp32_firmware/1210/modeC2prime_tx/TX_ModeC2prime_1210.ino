@@ -1,4 +1,4 @@
-// Mode C2' (HARラベル再生 + 固定広告間隔)
+// Mode C2' (HARラベル再生 + 固定広告間隔) 1210版
 // - subjectXX_ccs.csv を SD から順に読み込み（1行1ラベル; 先頭フィールドを使用）
 // - interval は ADV_MS で固定（例: 100ms or 2000ms）
 // - 300 adv で1トライアル終了。TICK(27) と SYNC(25) を出力。ManufacturerData に label と seq を載せる。

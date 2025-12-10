@@ -8,3 +8,8 @@
 - Firmware prep: duplicated 1202 modeC2prime code into new versioned path esp32_firmware/1210:
   - RX: esp32_firmware/1210/modeC2prime_rx/RX_ModeC2prime_1210/RX_ModeC2prime_1210.ino (from 1202 RX)
   - TX: esp32_firmware/1210/modeC2prime_tx/{TX_ModeC2prime_1210.ino, TX_ModeC2prime_1210_flash/*.ino, labels_all.h, labels_subjects/*}
+- Firmware tweaks: bumped version strings/comments to 1210 (RX FW_TAG/boot log; TX flash banner; TX comment).
+- TX flash sweep tweaks: esp32_firmware/1210/modeC2prime_tx/TX_ModeC2prime_1210_flash/TX_ModeC2prime_1210_flash.ino
+  - clarified schedule comment (subjects × intervals 100/500/1000/2000 × repeats), added <cmath>
+  - added SUBJECT_START/SUBJECT_END knobs (default all subjects)
+  - start/end serial prints include stepCount/len; FW banner notes fixed-intervals sweep

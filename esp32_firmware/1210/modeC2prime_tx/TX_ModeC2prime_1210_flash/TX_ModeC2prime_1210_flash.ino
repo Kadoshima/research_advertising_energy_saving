@@ -1,11 +1,12 @@
-// Mode C2' flash: play labels from labels_all.h (subjectXX_ccs.csv embedded).
-// Schedule: 10 subjects x 4 intervals (100/500/1000/2000 ms) x 3 repeats.
-// Each trial length = subject timeline duration (100 ms grid) sampled at interval_ms.
-//   target_adv = ceil(nLabels * 100ms / interval_ms) = ceil(nLabels / step).
+// Mode C2' flash: play labels from labels_all.h (embedded) — 1210版
+// Schedule: subjects range × INTERVALS (100/500/1000/2000 ms) × REPEAT_PER_INTERVAL.
+// Each trial length = subject timeline (100 ms grid) sampled at interval_ms.
+//   target_adv = ceil(nLabels / stepCount) where stepCount = ceil(interval_ms/100).
 // TICK/SYNC same as before. No HAR computation.
 
 #include <Arduino.h>
 #include <NimBLEDevice.h>  // Explicit NimBLE use (avoid ArduinoBLE)
+#include <cmath>
 
 // All subjects are embedded in flash via labels_all.h
 #include "../labels_all.h"
@@ -18,8 +19,10 @@ static const int LED_PIN = 2;
 // Intervals to sweep per subject
 static const uint16_t INTERVALS[] = {100, 500, 1000, 2000};
 static const uint8_t NUM_INTERVALS = sizeof(INTERVALS) / sizeof(INTERVALS[0]);
-static const uint8_t REPEAT_PER_INTERVAL = 1;
-static const uint16_t EFFECTIVE_LEN = 6352;  // clamp subject length to common window
+static const uint8_t REPEAT_PER_INTERVAL = 1;   // per interval
+static const uint8_t SUBJECT_START = 0;         // inclusive index into SESSIONS
+static const uint8_t SUBJECT_END = NUM_SESSIONS; // exclusive upper bound
+static const uint16_t EFFECTIVE_LEN = 6352;     // clamp subject length to common window (100ms grid)
 
 NimBLEAdvertising* adv = nullptr;
 uint32_t nextAdvMs = 0;
@@ -27,7 +30,7 @@ uint16_t advCount = 0;
 bool trialRunning = false;
 bool allDone = false;
 
-uint8_t subjectIdx = 0;  // smoke: first subject only
+uint8_t subjectIdx = SUBJECT_START;
 uint8_t intervalIdx = 0;
 uint8_t repeatIdx = 0;
 uint16_t advIntervalMs = INTERVALS[0];
@@ -63,12 +66,14 @@ void startTrial() {
   }
   syncStart();
   trialRunning = true;
-  Serial.printf("[TX] start subj=%s interval=%ums repeat=%u/%u adv_target=%lu\n",
+  Serial.printf("[TX] start subj=%s interval=%ums repeat=%u/%u adv_target=%lu step=%u len=%u\n",
                 SESSIONS[subjectIdx].id,
                 (unsigned)advIntervalMs,
                 (unsigned)(repeatIdx + 1),
                 (unsigned)REPEAT_PER_INTERVAL,
-                (unsigned long)targetAdv);
+                (unsigned long)targetAdv,
+                (unsigned)stepCount,
+                (unsigned)nLabels);
 }
 
 void advanceScheduleOrStop() {
@@ -92,10 +97,11 @@ void advanceScheduleOrStop() {
 void endTrial() {
   trialRunning = false;
   syncEnd();
-  Serial.printf("[TX] end subj=%s interval=%ums adv_sent=%u\n",
+  Serial.printf("[TX] end subj=%s interval=%ums adv_sent=%u step=%u\n",
                 SESSIONS[subjectIdx].id,
                 (unsigned)advIntervalMs,
-                (unsigned)advCount);
+                (unsigned)advCount,
+                (unsigned)stepCount);
 
   // Hold SYNC LOW before starting the next trial so RX/TXSD can detect the boundary.
   vTaskDelay(pdMS_TO_TICKS(1000));
@@ -107,7 +113,7 @@ void endTrial() {
 void setup() {
   Serial.begin(115200);
   delay(50);
-  Serial.println("[TX] FW=TX_ModeC2prime_1202_flash");
+  Serial.println("[TX] FW=TX_ModeC2prime_1210_flash (fixed intervals sweep)");
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, LOW);
   pinMode(SYNC_OUT_PIN, OUTPUT);

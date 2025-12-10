@@ -1,4 +1,4 @@
-// RX_ModeC2prime_1202.ino
+// RX_ModeC2prime_1210.ino
 // Receive Mode C2' TX (MFD "%04u_%s") and log seq/label to SD.
 // - Optional SYNC gate: if SYNC pin stays LOW, logging is paused; rising edge starts a session, falling edge ends it.
 // - NimBLE passive scan; ArduinoBLE not used.
@@ -45,7 +45,7 @@ static uint32_t syncLowSince = 0;
 static uint32_t syncHighSince = 0;
 static bool lastSyncLevel = false;
 static File f;
-static const char FW_TAG[] = "RX_MODEC2P_1202";
+static const char FW_TAG[] = "RX_MODEC2P_1210";
 
 // MFD parser: "0001_label"
 static bool parseMFD(const std::string& s, uint16_t& seq, std::string& label) {
@@ -148,7 +148,7 @@ class AdvCB : public NimBLEScanCallbacks {
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("[RX] FW=RX_ModeC2prime_1202");
+  Serial.println("[RX] FW=RX_ModeC2prime_1210");
   SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
   if (!SD.begin(SD_CS)) { Serial.println("[SD] init FAIL"); while (1) delay(1000); }
   pinMode(SYNC_IN, INPUT_PULLDOWN);
