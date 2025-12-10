@@ -15,3 +15,7 @@
   - start/end serial prints include stepCount/len; FW banner notes fixed-intervals sweep
 - TXSD: created esp32_firmware/1210/modeC2prime_txsd/TXSD_ModeC2prime_1210.ino from TXSD_1201
   - FW banner/meta updated, pin comments aligned (SYNC=26 from TX GPIO25, TICK=33), SUBJECT_ID default set to modeC2prime_1210, SYNC gate + optional TICK end logic retained.
+- TXSD/RX run (fixed-interval sweep auto):
+  - Completed TXSD trials 010–019 (~10 trials): adv_counts ≈ {100ms: 6345/6344/6343; 500ms: 1270/1269/1269; 1000ms: 635/635; 2000ms: 317/317}. Each trial ~634s, mean power ~198–204 mW, E_total ~125–132 J. PDR calc pending (RX dup filter off; needs uniq postproc).
+  - RX logs rx_trial_003–013 aligned with TXSD times; buf_overflow=0, rate ≈8.3 Hz (dup-on).
+  - Remaining time if full 10 subjects: ~30 trials left → ~5.3h; if stop after subject3 (two more trials), ~20 min.
