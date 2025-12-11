@@ -1,0 +1,9 @@
+trial_id,truth_file,mode,session
+018,stress_causal_S1.csv,FIXED_100,S1
+019,stress_causal_S1.csv,FIXED_500,S1
+020,stress_causal_S1.csv,FIXED_1000,S1
+021,stress_causal_S1.csv,FIXED_2000,S1
+022,stress_causal_S4.csv,FIXED_100,S4
+023,stress_causal_S4.csv,FIXED_500,S4
+024,stress_causal_S4.csv,FIXED_1000,S4
+025,stress_causal_S4.csv,FIXED_2000,S4

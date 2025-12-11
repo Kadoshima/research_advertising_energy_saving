@@ -250,7 +250,8 @@ def main() -> None:
             "adv_count",
             "rx_count",
             "rx_unique",
-            "pdr",
+            "pdr_raw",
+            "pdr_unique",
             "tl_mean_s",
             "tl_p95_s",
             "pout_1s",
@@ -308,11 +309,17 @@ def main() -> None:
             truth_labels = read_truth_labels(truth_path) if truth_path and truth_path.exists() else None
 
             rx_events, rx_count, rx_unique = parse_rx(rx_path_use)
-            e_total_mj, e_per_adv_uj, adv_count, duration_ms = read_txsd_summary(txsd_path)
+            e_total_mj, e_per_adv_uj, adv_count_txsd, duration_ms = read_txsd_summary(txsd_path)
 
-            if adv_count is None:
+            # Prefer TXSD adv_count; fall back to RX-derived if missing.
+            if adv_count_txsd is not None:
+                adv_count = adv_count_txsd
+            else:
                 adv_count = max((seq for _, seq, _ in rx_events), default=0) + 1
-            pdr = (rx_unique / adv_count) if adv_count else 0.0
+
+            # Clamp PDR to [0,1] using adv_count as denominator.
+            pdr_raw = (min(rx_count, adv_count) / adv_count) if adv_count else 0.0
+            pdr_unique = (min(rx_unique, adv_count) / adv_count) if adv_count else 0.0
 
             tl_mean_s = tl_p95_s = 0.0
             pout = {tau: 0.0 for tau in TAU_VALUES}
@@ -343,7 +350,8 @@ def main() -> None:
                 "adv_count": adv_count,
                 "rx_count": rx_count,
                 "rx_unique": rx_unique,
-                "pdr": round(pdr, 6),
+                "pdr_raw": round(pdr_raw, 6),
+                "pdr_unique": round(pdr_unique, 6),
                 "tl_mean_s": round(tl_mean_s, 6),
                 "tl_p95_s": round(tl_p95_s, 6),
                 "pout_1s": round(pout[1.0], 6),

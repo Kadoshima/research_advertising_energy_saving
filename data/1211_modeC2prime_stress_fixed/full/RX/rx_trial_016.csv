@@ -1,0 +1,4 @@
+ms,event,rssi,seq,label,addr,mfd
+# meta, firmware=RX_MODEC2P_1202, buf_size=512
+89,ADV,-56,7,9,e0:5a:1b:15:c4:ca,0007_9
+189,ADV,-50,8,9,e0:5a:1b:15:c4:ca,0008_9
