@@ -34,3 +34,6 @@
 - Truth clip fix: subject02 に TX再生範囲外の遷移あり (idx=6410>6352)。export を EFFECTIVE_LEN=6352 にクリップするよう修正し再出力、再解析。
   - 全trialの TL/Pout 正常化（subj02 の tl_mean≈10s→~1s 台、pout_1s=0 except 2000ms=0.25）。PDR/E_per_adv は不変。
   - scripts/export_labels_all_to_csv.py に seq[:6352] clip を追加。
+
+[2025-12-11 11:33 JST] Note: stress auto-sweep run aborted early (Nadv~77); user says alternate dataset available and will use that instead. Awaiting path/manifest for analysis.
+[2025-12-11 11:35 JST] User opted to use alternate stress fixed dataset (path/manifest TBD). Next: await dataset path + RX/TXSD mapping, then run scripts/analyze_stress_causal_real.py with manifest and optional plots.
