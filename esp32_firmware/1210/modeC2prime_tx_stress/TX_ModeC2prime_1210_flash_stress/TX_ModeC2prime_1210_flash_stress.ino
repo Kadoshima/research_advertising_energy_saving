@@ -1,5 +1,5 @@
 // Mode C2' flash (stress labels): play labels_stress.h (SESSIONS_STRESS) — 1210版
-// Schedule: select one stress session (S_IDX) and one fixed interval (INTERVAL_MS).
+// Auto sweep: sessions_list × intervals_list, each REPEAT times.
 // TICK/SYNC same as before. No HAR computation.
 
 #include <Arduino.h>
@@ -10,9 +10,13 @@
 #include "../labels_stress.h"  // defines SESSIONS_STRESS[], NUM_SESSIONS_STRESS
 
 // --- Config ---
-static const uint8_t S_IDX = 0;           // 0-based index into SESSIONS_STRESS (e.g., 0=S1, 3=S4)
-static const uint16_t INTERVAL_MS = 100;  // fixed interval for this build (e.g., 100 or 2000)
-static const uint8_t REPEAT = 1;          // how many trials to repeat for the same session/interval
+// Sessions to sweep (0-based index into SESSIONS_STRESS). Default: S1 (0) and S4 (3).
+static const uint8_t SESS_LIST[] = {0, 3};
+static const uint8_t N_SESS = sizeof(SESS_LIST) / sizeof(SESS_LIST[0]);
+// Intervals to sweep. Default: 100ms and 2000ms.
+static const uint16_t INTERVALS[] = {100, 2000};
+static const uint8_t N_INTERVALS = sizeof(INTERVALS) / sizeof(INTERVALS[0]);
+static const uint8_t REPEAT = 1;          // how many trials per (session, interval)
 static const uint16_t EFFECTIVE_LEN = 6352;  // clamp to common window (100ms grid)
 
 // Pins
@@ -27,6 +31,8 @@ uint16_t advCount = 0;
 bool trialRunning = false;
 bool allDone = false;
 uint8_t repeatIdx = 0;
+uint8_t sessIdxPos = 0;
+uint8_t intervalPos = 0;
 
 const uint8_t* labels = nullptr;
 uint16_t nLabels = 0;
@@ -46,22 +52,24 @@ void startTrial() {
   if (allDone) return;
   advCount = 0;
   nextAdvMs = millis();
-  labels = SESSIONS_STRESS[S_IDX].seq;
-  nLabels = SESSIONS_STRESS[S_IDX].len;
+  uint8_t sid = SESS_LIST[sessIdxPos];
+  labels = SESSIONS_STRESS[sid].seq;
+  nLabels = SESSIONS_STRESS[sid].len;
   uint16_t effectiveLen = (nLabels > EFFECTIVE_LEN) ? EFFECTIVE_LEN : nLabels;
-  stepCount = (INTERVAL_MS + 99) / 100;              // 100→1, 2000→20
+  uint16_t intervalMs = INTERVALS[intervalPos];
+  stepCount = (intervalMs + 99) / 100;              // 100→1, 2000→20
   targetAdv = (effectiveLen + stepCount - 1) / stepCount;
 
   if (adv) {
-    uint16_t itv = (uint16_t)lroundf(INTERVAL_MS / 0.625f);
+    uint16_t itv = (uint16_t)lroundf(intervalMs / 0.625f);
     adv->setMinInterval(itv);
     adv->setMaxInterval(itv);
   }
   syncStart();
   trialRunning = true;
   Serial.printf("[TX] start stress=%s interval=%ums repeat=%u/%u adv_target=%lu step=%u len=%u eff_len=%u\n",
-                SESSIONS_STRESS[S_IDX].id,
-                (unsigned)INTERVAL_MS,
+                SESSIONS_STRESS[sid].id,
+                (unsigned)intervalMs,
                 (unsigned)(repeatIdx + 1),
                 (unsigned)REPEAT,
                 (unsigned long)targetAdv,
@@ -73,18 +81,28 @@ void startTrial() {
 void advanceOrStop() {
   repeatIdx++;
   if (repeatIdx >= REPEAT) {
+    repeatIdx = 0;
+    intervalPos++;
+    if (intervalPos >= N_INTERVALS) {
+      intervalPos = 0;
+      sessIdxPos++;
+    }
+  }
+  if (sessIdxPos >= N_SESS) {
     allDone = true;
     if (adv) adv->stop();
-    Serial.println("[TX] all trials completed (stress fixed interval)");
+    Serial.println("[TX] all trials completed (stress fixed interval sweep)");
   }
 }
 
 void endTrial() {
   trialRunning = false;
   syncEnd();
+  uint8_t sid = SESS_LIST[sessIdxPos];
+  uint16_t intervalMs = INTERVALS[intervalPos];
   Serial.printf("[TX] end stress=%s interval=%ums adv_sent=%u step=%u\n",
-                SESSIONS_STRESS[S_IDX].id,
-                (unsigned)INTERVAL_MS,
+                SESSIONS_STRESS[sid].id,
+                (unsigned)intervalMs,
                 (unsigned)advCount,
                 (unsigned)stepCount);
   vTaskDelay(pdMS_TO_TICKS(1000));  // hold SYNC LOW before next
