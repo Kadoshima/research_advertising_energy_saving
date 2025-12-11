@@ -123,13 +123,14 @@ void setup() {
   adv = NimBLEDevice::getAdvertising();
 
   // seed first payload
-  labels = SESSIONS_STRESS[S_IDX].seq;
-  nLabels = SESSIONS_STRESS[S_IDX].len;
+  uint8_t sid0 = SESS_LIST[sessIdxPos];
+  labels = SESSIONS_STRESS[sid0].seq;
+  nLabels = SESSIONS_STRESS[sid0].len;
   NimBLEAdvertisementData ad;
   ad.setName("TXM_LABEL");
   std::string mfd0 = makeMFD(0, labels[0]).c_str();
   ad.setManufacturerData(mfd0);
-  uint16_t itv0 = (uint16_t)lroundf(INTERVAL_MS / 0.625f);
+  uint16_t itv0 = (uint16_t)lroundf(INTERVALS[intervalPos] / 0.625f);
   adv->setMinInterval(itv0);
   adv->setMaxInterval(itv0);
   adv->setAdvertisementData(ad);
@@ -144,7 +145,7 @@ void loop() {
 
   uint32_t nowMs = millis();
   if ((int32_t)(nowMs - nextAdvMs) >= 0) {
-    nextAdvMs += INTERVAL_MS;
+    nextAdvMs += INTERVALS[intervalPos];
     uint32_t idx = advCount * stepCount;
     uint16_t effectiveLen = (nLabels > EFFECTIVE_LEN) ? EFFECTIVE_LEN : nLabels;
     if (idx >= effectiveLen) idx = effectiveLen - 1;
