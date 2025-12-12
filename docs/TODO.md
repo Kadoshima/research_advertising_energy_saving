@@ -5,6 +5,13 @@
 **最終更新**: 2025-12-10
 **ステータス**: ドラフト（Baseline再計測中、実地検証で発見した問題を反映）
 
+**進捗メモ (2025-12-12)**  
+- ストレス固定 S1/S4 × {100,500,1000,2000} を E1 で取得し manifest 整備済み（`data/1211_modeC2prime_stress_fixed/full`）。  
+  集計: `results/stress_causal_real_summary_1211_stress_modes.csv`（pdr_raw/pdr_unique/TL/Pout/E_per_adv）。  
+- PDRは TXSD adv_count でクランプ、QoSは `pdr_unique` を参照。2000ms で Pout/TL が顕著に悪化、S4 は PDR も低下。  
+- 次ブロック: CCS/self-UCB 実機（S1/S4）に進む前に、図表化とシミュ比較を完了させる。
+- 指標定義: `docs/metrics_definition.md` 追加（pdr_raw/unique, TL/Pout, 2000msでPout1s≥0.5, EFFECTIVE_LEN など）。  
+
 ---
 
 ## 設計レビュー指摘（2025-12-08 追記）

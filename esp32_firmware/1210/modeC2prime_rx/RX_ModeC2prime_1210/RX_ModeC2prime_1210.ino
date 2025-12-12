@@ -13,7 +13,9 @@ static const int SD_SCK  = 18;
 static const int SD_MISO = 19;
 static const int SD_MOSI = 23;
 static const int SYNC_IN = 26;        // TX GPIO25 -> RX GPIO26
-static const uint16_t SCAN_MS = 50;
+// BLE scan parameters: longer window to improve coverage at 100ms adv.
+static const uint16_t SCAN_INTERVAL_MS = 100;
+static const uint16_t SCAN_WINDOW_MS   = 90;  // duty 90%
 static const uint32_t SESSION_TIMEOUT_MS = 900000;   // safety timeout ~15 min
 static const uint32_t SYNC_LOW_DEBOUNCE_MS = 100;     // require SYNC low for this long
 
@@ -157,8 +159,8 @@ void setup() {
   NimBLEDevice::init("RX_ESP32");
   NimBLEScan* scan = NimBLEDevice::getScan();
   scan->setActiveScan(false); // passive scan (no scan response)
-  scan->setInterval(SCAN_MS);
-  scan->setWindow(SCAN_MS);
+  scan->setInterval(SCAN_INTERVAL_MS);
+  scan->setWindow(SCAN_WINDOW_MS);
   scan->setDuplicateFilter(0); // report duplicates for better PDR counting
   scan->setScanCallbacks(new AdvCB(), true);
   scan->start(0, false);

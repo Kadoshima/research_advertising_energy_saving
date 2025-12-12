@@ -13,3 +13,10 @@
 ## 実験ログの配置
 - ON: `data/実験データ/研究室/row_1120/TX`（TXSD）, `.../row_1120/RX`
 - OFF: `data/実験データ/研究室/row_1123_off/TX`
+
+## 最新データセット (2025-12-12)
+- ストレスラベル固定（S1/S4 × {100,500,1000,2000}ms）: `data/1211_modeC2prime_stress_fixed/full`
+  - manifest: `data/1211_modeC2prime_stress_fixed/full/manifest.csv`
+  - 解析: `results/stress_causal_real_summary_1211_stress_full.csv`, 集約: `results/stress_causal_real_summary_1211_stress_modes.csv`
+  - サマリ: `data/1211_modeC2prime_stress_fixed/README.md`（PDRは pdr_unique を参照）
+  - 指標定義: `docs/metrics_definition.md`（pdr_raw/unique, TL/Pout, 2000msでPout1s≥0.5等）
