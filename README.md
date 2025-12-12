@@ -17,6 +17,7 @@
 ## 最新データセット (2025-12-12)
 - ストレスラベル固定（S1/S4 × {100,500,1000,2000}ms）: `data/1211_modeC2prime_stress_fixed/full`
   - manifest: `data/1211_modeC2prime_stress_fixed/full/manifest.csv`
-  - 解析: `results/stress_causal_real_summary_1211_stress_full.csv`, 集約: `results/stress_causal_real_summary_1211_stress_modes.csv`
+  - 解析: `results/stress_causal_real_summary_1211_stress_full_scan50.csv`（scan50版をアーカイブ; scan90版は取得後 `_scan90` を出力予定）
+  - 集約: `results/stress_causal_real_summary_1211_stress_modes_scan50.csv`（同上）、`..._agg_scan50.csv`
   - サマリ: `data/1211_modeC2prime_stress_fixed/README.md`（PDRは pdr_unique を参照）
   - 指標定義: `docs/metrics_definition.md`（pdr_raw/unique, TL/Pout, 2000msでPout1s≥0.5等）

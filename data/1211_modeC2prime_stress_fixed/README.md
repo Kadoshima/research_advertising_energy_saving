@@ -15,6 +15,7 @@
   - S4: 022(100), 023(500), 024(1000), 025(2000)           ※025は再取得分
 - `full/manifest.csv` : trial ↔ session ↔ interval ↔ truth を定義
 - 旧途中計測（harf/harf2000/2000s4）は参考。解析は `full/` を使用。
+- 現状の解析結果（scan duty 50%）は `results/stress_causal_real_summary_1211_stress_*_scan50.csv` にアーカイブ。scan90% の再取得セットで `_scan90` を出力予定。
 
 ## 解析
 ```bash
