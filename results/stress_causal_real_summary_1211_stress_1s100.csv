@@ -1,0 +1,2 @@
+trial_id,mode,adv_count,rx_count,rx_unique,pdr_raw,pdr_unique,tl_mean_s,tl_p95_s,pout_1s,pout_2s,pout_3s,E_total_mJ,E_per_adv_uJ,avg_power_mW,duration_ms,rx_path,txsd_path,truth_path
+040,FIXED_100,6342,5263,5263,0.829864,0.829864,8.37875,49.5042,0.066667,0.066667,0.066667,128143.855,20205.6,202.0492147059148,634221.0,data/1211_modeC2prime_stress_fixed/1s100ms/rx_trial_040.csv,data/1211_modeC2prime_stress_fixed/1s100ms/trial_044_on.csv,Mode_C_2_シミュレート_causal/ccs/stress_causal_S1.csv

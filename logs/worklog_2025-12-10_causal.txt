@@ -60,3 +60,5 @@
 [2025-12-12 13:40 JST] Updated README.md to link metrics_definition.md; updated docs/TODO.md progress memo to mention metrics_definition.md.
 [2025-12-12 13:50 JST] RX_ModeC2prime_1210: increased scan duty (interval 100ms, window 90ms, passive) to improve coverage at 100ms adv. No other logic changes.
 [2025-12-12 13:55 JST] TX_ModeC2prime_1210_flash_stress.ino: retargeted to S1 only, 100ms only, REPEAT=1 (single trial). RX scan duty already increased earlier (interval=100, window=90).
+[2025-12-12 14:05 JST] Retest S1@100ms with increased scan duty (interval=100, window=90): trial_044_on/rx_trial_040 -> pdr_unique=0.8299, Pout1s=0.0667, TL_mean=8.38s, E_per_adv=20205.6 uJ. Manifest used in 1s100ms folder.
+[2025-12-12 14:20 JST] TX_ModeC2prime_1210_flash_stress.ino reset to full sweep: S1/S4 x {100,500,1000,2000}, REPEAT=1 (8 trials total). RX scan duty already set to interval=100ms, window=90ms. Ready to retake full set under scan90.

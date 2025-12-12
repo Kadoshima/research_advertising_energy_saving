@@ -1,0 +1,2 @@
+trial_id,rx_file,txsd_file,truth_file,mode,session
+040,rx_trial_040.csv,trial_044_on.csv,stress_causal_S1.csv,FIXED_100,S1

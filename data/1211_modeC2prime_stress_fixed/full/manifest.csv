@@ -1,5 +1,6 @@
 trial_id,truth_file,mode,session
-018,stress_causal_S1.csv,FIXED_100,S1
+018,stress_causal_S1.csv,FIXED_100,S1   # old 100ms (pdr_u≈0.20)
+040,stress_causal_S1.csv,FIXED_100,S1   # retake 100ms (scan duty↑, pdr_u≈0.83)
 019,stress_causal_S1.csv,FIXED_500,S1
 020,stress_causal_S1.csv,FIXED_1000,S1
 030,stress_causal_S1.csv,FIXED_2000,S1
