@@ -1,0 +1,40 @@
+# Savepoint 0001 (2025-12-12 JST)
+
+## 現在の状況
+- メイン結果は RX scan duty 90%（SCAN_INTERVAL=100ms, WINDOW=90ms）で取得したストレス固定フルセット（S1/S4 × 100/500/1000/2000）
+- 旧 scan50 結果はアーカイブ扱い（比較用）
+- ディレクトリ再編済み：`results/stress_fixed/{scan50,scan90,compare,misc}` に整理
+- 指標定義を docs/metrics_definition.md に明文化（PDR, TL/Pout, Pout下限, EFFECTIVE_LEN, 注意点）
+- index ルール：各作業ディレクトリに index/README を置き、作業内容は index と worklog 両方に記載（AGENTS.md に記載）
+
+## 主なファイル/パス
+- RX変更（scan90%）：esp32_firmware/1210/modeC2prime_rx/RX_ModeC2prime_1210.ino（SCAN_INTERVAL=100, WINDOW=90）
+- TX（フルスイープ）：esp32_firmware/1210/modeC2prime_tx_stress/TX_ModeC2prime_1210_flash_stress.ino（S1/S4 × 100/500/1000/2000, REPEAT=1）
+- データ（scan90メイン）：data/1211_modeC2prime_stress_fixed/full_scan90/{RX,TX,manifest.csv}
+- 解析結果（scan90）: results/stress_fixed/scan90/
+  - per-trial: stress_causal_real_summary_1211_stress_full_scan90.csv
+  - modes/agg/enriched: ..._modes_scan90.csv, ..._agg_scan90.csv, ..._agg_enriched_scan90.csv
+  - gap: gap_stats_scan90.csv
+  - missed-state v2: missed_state_scan90_v2.csv（seq->idxスケーリング修正済み）
+- 解析結果（scan50アーカイブ）: results/stress_fixed/scan50/
+- 比較: results/stress_fixed/compare/
+  - scan50 vs scan90: compare_scan50_vs_scan90_stress_fixed.csv, compare_scan50_vs_scan90_pdr.txt
+  - real vs sim: compare_real_vs_sim_stress_fixed.csv (simはpdr_sweep=0.9/0.95のみ)
+- ディレクトリ案内: results/README.md, results/stress_fixed/*/index.md
+- ルール: AGENTS.md（Agent Logging Rules, index設置ルール）
+- ワークログ: logs/worklog_2025-12-10_causal.txt（最新進捗）
+
+## 主要指標（scan90, pdr_unique）
+- S1: 100ms 0.80 / 500ms 1.0 / 1000ms 1.0 / 2000ms 1.0
+- S4: 100ms 0.81 / 500ms 1.0 / 1000ms 1.0 / 2000ms 1.0
+- Gap (scan90): gap_p95 ≈0.216–0.217s, max ≈0.53–0.64s（2000ms再取得旧データのみ長空白あり）
+- Missed-state v2 (scan90): 100msほぼ0%、500ms以降も ≤2%（v1はスケーリング不足で過大評価）
+
+## 作業ルール
+- 重要作業は作業直後に logs/worklog_YYYY-MM-DD_*.txt（JST）に追記
+- 各ディレクトリに index/README を置き、ファイル用途・生成物を記載（AGENTS.md参照）
+
+## 参考（旧データ）
+- scan50系は results/stress_fixed/scan50/ にアーカイブ
+- phase0-0 の 1m/E2/100ms ΔE 等は results/phase0-0/ に集約
+

@@ -35,7 +35,10 @@ from typing import Dict, List, Optional, Tuple
 
 
 TAU_VALUES = (1.0, 2.0, 3.0)  # seconds
-STEP_MS = 100  # label timeline resolution for truth files
+# Label timeline resolution (truth). Most stress timelines are 100 ms grids.
+# Keep STEP_MS explicit to avoid NameError and to make future per-trial overrides easier.
+TRUTH_DT_MS = 100  # fail fast if interval_ms is not a multiple.
+STEP_MS = TRUTH_DT_MS
 
 
 # --------------------------------------------------------------------------- #
@@ -153,7 +156,9 @@ def parse_rx(path: Path) -> Tuple[List[Tuple[float, int, int]], int, int]:
     return events, len(events), len(seq_set)
 
 
-def compute_tl_and_pout(truth_labels: List[int], rx_events: List[Tuple[float, int, int]]) -> Tuple[float, float, Dict[float, float]]:
+def compute_tl_and_pout(
+    truth_labels: List[int], rx_events: List[Tuple[float, int, int]]
+) -> Tuple[float, float, Dict[float, float], Dict[str, float]]:
     # Transitions from truth timeline
     transitions_ms: List[int] = []
     prev = truth_labels[0]
@@ -164,11 +169,16 @@ def compute_tl_and_pout(truth_labels: List[int], rx_events: List[Tuple[float, in
     if not transitions_ms:
         return 0.0, 0.0, {tau: 0.0 for tau in TAU_VALUES}
 
+    clamp_high = 0
     # For each transition, find first RX event after transition whose label matches truth at that time (last-value-hold of truth)
     tl_list_s: List[float] = []
     rx_events_sorted = sorted(rx_events, key=lambda x: x[0])
     for t_ms in transitions_ms:
-        true_label = truth_labels[min(len(truth_labels) - 1, t_ms // STEP_MS)]
+        idx = t_ms // STEP_MS
+        if idx >= len(truth_labels):
+            clamp_high += 1
+            idx = len(truth_labels) - 1
+        true_label = truth_labels[idx]
         arrival = None
         for ms, _, lbl in rx_events_sorted:
             if ms > t_ms and lbl == true_label:
@@ -176,7 +186,7 @@ def compute_tl_and_pout(truth_labels: List[int], rx_events: List[Tuple[float, in
                 break
         if arrival is None:
             # no reception after transition; treat as full duration miss
-            tl_list_s.append((len(truth_labels) * STEP_MS - t_ms) / 1000.0)
+            tl_list_s.append(max((len(truth_labels) * STEP_MS - t_ms), 0) / 1000.0)
         else:
             tl_list_s.append((arrival - t_ms) / 1000.0)
 
@@ -185,7 +195,13 @@ def compute_tl_and_pout(truth_labels: List[int], rx_events: List[Tuple[float, in
     pout = {}
     for tau in TAU_VALUES:
         pout[tau] = sum(1 for tl in tl_list_s if tl > tau) / len(tl_list_s)
-    return tl_mean, tl_p95, pout
+
+    clamp_rate = clamp_high / len(transitions_ms) if transitions_ms else 0.0
+    clamp_stats = {
+        "clamp_high_count": clamp_high,
+        "clamp_high_rate": clamp_rate,
+    }
+    return tl_mean, tl_p95, pout, clamp_stats
 
 
 def infer_mode(trial_id: str, filename: str, override: Optional[str]) -> Optional[str]:
@@ -247,6 +263,7 @@ def main() -> None:
         fieldnames = [
             "trial_id",
             "mode",
+            "interval_ms",
             "adv_count",
             "rx_count",
             "rx_unique",
@@ -257,6 +274,8 @@ def main() -> None:
             "pout_1s",
             "pout_2s",
             "pout_3s",
+            "tl_clamp_high_count",
+            "tl_clamp_high_rate",
             "E_total_mJ",
             "E_per_adv_uJ",
             "avg_power_mW",
@@ -308,6 +327,24 @@ def main() -> None:
 
             truth_labels = read_truth_labels(truth_path) if truth_path and truth_path.exists() else None
 
+            interval_ms: Optional[int] = None
+            if manifest_entry.get("interval_ms"):
+                try:
+                    interval_ms = int(manifest_entry["interval_ms"])
+                except Exception:
+                    interval_ms = None
+            if interval_ms is None:
+                m_itv = re.search(r"FIXED_(\d+)", (mode_override or "") or (args.mode or ""))
+                if m_itv:
+                    try:
+                        interval_ms = int(m_itv.group(1))
+                    except Exception:
+                        interval_ms = None
+            if interval_ms is not None and interval_ms % TRUTH_DT_MS != 0:
+                raise SystemExit(
+                    f"interval_ms={interval_ms} is not a multiple of TRUTH_DT_MS={TRUTH_DT_MS} (trial {trial_id}); fix manifest or truth_dt."
+                )
+
             rx_events, rx_count, rx_unique = parse_rx(rx_path_use)
             e_total_mj, e_per_adv_uj, adv_count_txsd, duration_ms = read_txsd_summary(txsd_path)
 
@@ -323,8 +360,9 @@ def main() -> None:
 
             tl_mean_s = tl_p95_s = 0.0
             pout = {tau: 0.0 for tau in TAU_VALUES}
+            clamp_stats = {"clamp_high_count": 0, "clamp_high_rate": 0.0}
             if truth_labels:
-                tl_mean_s, tl_p95_s, pout = compute_tl_and_pout(truth_labels, rx_events)
+                tl_mean_s, tl_p95_s, pout, clamp_stats = compute_tl_and_pout(truth_labels, rx_events)
 
             if duration_ms is None and rx_events:
                 duration_ms = rx_events[-1][0] - rx_events[0][0]
@@ -347,6 +385,7 @@ def main() -> None:
             row = {
                 "trial_id": trial_id,
                 "mode": mode or "",
+                "interval_ms": interval_ms or "",
                 "adv_count": adv_count,
                 "rx_count": rx_count,
                 "rx_unique": rx_unique,
@@ -357,6 +396,8 @@ def main() -> None:
                 "pout_1s": round(pout[1.0], 6),
                 "pout_2s": round(pout[2.0], 6),
                 "pout_3s": round(pout[3.0], 6),
+                "tl_clamp_high_count": clamp_stats["clamp_high_count"],
+                "tl_clamp_high_rate": round(clamp_stats["clamp_high_rate"], 6),
                 "E_total_mJ": e_total_mj,
                 "E_per_adv_uJ": e_per_adv_uj,
                 "avg_power_mW": avg_power_mw,

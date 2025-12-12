@@ -15,6 +15,9 @@ har/001/.venv*/
 har/001/.uv*/
 har/*/venv/
 har/*/.venv*/
+.venv/
+.venv_*/
+.uv_cache/
 
 # IDEs
 .vscode/

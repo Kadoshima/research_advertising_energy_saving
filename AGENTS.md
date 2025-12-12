@@ -67,3 +67,9 @@
   - Optionally wire TICK (TX 27 → Logger 33) and set `USE_TICK_INPUT=true` for exact `adv_count`
   - Extend analysis to TL distribution and Pout(τ) per Runbook
   - Ensure ON power logs are captured (`trial_*.csv`) when retrying; see `data/実験データ/研究室/1m_ad_retry/README.md`
+
+## Agent Logging Rules (2025-12-12)
+- 重要な作業をしたら、作業直後に `logs/worklog_YYYY-MM-DD_*.txt` に必ず追記する。日時はJSTで記載。
+- 複数回の追記がある日は同じworklogファイルを使う（例: `worklog_2025-12-10_causal.txt`）。
+- 記載内容は、何をやったか・ファイルパス・主要な指標変化（例: PDR改善、解析結果ファイル）を簡潔に。
+- 各作業ディレクトリには簡易 index (README.md 等) を置き、配下ファイルの用途・生成物を記載する。作業内容は index と worklog の両方に残す。

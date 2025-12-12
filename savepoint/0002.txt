@@ -1,0 +1,22 @@
+セーブポイント 0002 （2025-12-13 JST）
+
+現状の凍結ポイント
+- 固定ストレス（scan90%、S1/S4×100/500/1000/2000）を v4 で整理：
+  - per-trial/modes/agg/enriched: `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_*_scan90_v4.csv`
+  - missed-state: `results/stress_fixed/scan90/missed_state_scan90_v4.csv`（v3と同ロジック、seq→idx=interval/100）
+  - gap: `results/stress_fixed/scan90/gap_stats_scan90.csv`
+  - index: `results/stress_fixed/scan90/index.md`（pdr_unique主指標、dup_factor補助、adv_count≠rx_uniqueの+1あり得る旨を明記）
+  - clamp率は全trial 0、interval集合は {100, 500, 1000, 2000}
+- 解析スクリプト強化：
+  - `analyze_stress_causal_real.py`：interval_ms が TRUTH_DT_MS(100ms) の倍数でないと fail-fast、clamp件数出力、interval推定対応。
+- ワークログ更新済み：`logs/worklog_2025-12-10_causal.txt` に v4生成・定義明記・Pout簡易チェックを記録。
+
+未着手（後で再開するもの）
+- 固定系の図表化：S1/S4×intervalで pdr_unique / rx_dup_factor / tl_mean / pout_1s / missed_state_rate / avg_power を1枚にまとめる。
+- PDR/Pout解釈短評の整理（100msでPDR低下→Pout悪化、dup_factorは重複受信の多さ指標、議論は pdr_unique 主軸）。
+- adv_count≠rx_unique(+1) の定義を README/Index に一文追加（indexには記載済み、README側は必要なら）。
+- CCS/self-UCB 実装フェーズ（TXに CCS_causal モード追加→S1/S4で最小本数取得→固定scan90と同指標で比較）。
+
+備考
+- Pout(1s) は「100msより長間隔の方が低い」ケースが S1/S4 ともに3本（100msのPDR低下による可能性）。
+- missed-state v4 は v3 と同内容。必要なら drop版比較や tx_elapsed_ms 埋め込みは CCS 直前に検討。

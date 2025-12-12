@@ -1,0 +1,31 @@
+セーブポイント 0003（不確実性駆動フェーズに入るAI向け、2025-12-13 JST）
+
+読むべきドキュメント・参照パス
+- docs/TODO.md : 現行タスクの優先度と完了/未完リスト（scan90固定完了、CCS/self-UCBは未着手扱い）。
+- docs/metrics_definition.md : PDR/TL/Pout 定義、TRUTH_DT_MS=100ms、Pout(τ) 下限など。
+- results/README.md : 結果インデックス。scan90 がメイン、scan50 は旧アブレーション。
+- results/stress_fixed/scan90/index.md : 最新成果物(v4)の道標と注意書き（pdr_unique主指標、dup_factor補助、adv_count≠rx_uniqueが+1あり得る）。
+- logs/worklog_2025-12-10_causal.txt : 時系列ログ。解析ロジック強化(v3/v4)やmissed-state修正の経緯あり。
+
+固定ストレス（scan90, v4）の基盤データ
+- per-trial/modes/agg/enriched: `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_*_scan90_v4.csv`
+- missed-state: `results/stress_fixed/scan90/missed_state_scan90_v4.csv`（v3と同ロジック: seq→idx=interval/100, truth範囲外はclampカウントで除外）
+- gap: `results/stress_fixed/scan90/gap_stats_scan90.csv`
+- 特記事項: clamp率=0, interval集合={100,500,1000,2000}; Pout(1s)は100msより長間隔が低いケースがS1/S4ともに3本（100msのPDR低下が示唆される）。
+
+解析スクリプトの前提
+- scripts/analyze_stress_causal_real.py : TRUTH_DT_MS=100ms固定。interval_msが倍数でないとfail-fast。clamp件数出力。manifestのinterval_ms or mode(FIXED_xx)から推定。
+- pdr_uniqueを主指標にし、pdr_raw/dup_factorは重複受信の参考指標として扱う方針。
+
+未着手/後回しのタスク（不確実性駆動に入る前提で意識）
+- 図表化: S1/S4×intervalの pdr_unique / rx_dup_factor / tl_mean / pout_1s / missed_state_rate / avg_power を一枚にまとめる（論文用）。
+- PDR/Pout解釈の短評: 100msでPDR低下→Pout悪化があり得る、dup_factorは重複受信度、主張はpdr_uniqueで行う。
+- CCS/self-UCB 実装: TXにCCS_causalモード追加→S1/S4で最小本数取得→固定scan90と同指標で比較（E1環境）。
+
+注意点（不確実性駆動に関連し得る）
+- 現行 truth は100msグリッド。可変interval(CCS等)ではseq×interval推定が崩れるため、tx_elapsed_msやtruth_idx埋め込みを検討すると堅牢。
+- adv_countとrx_uniqueが+1になるケースがある（seq 0始まり/端点差）。主指標はpdr_uniqueで比較する。
+
+データディレクトリ
+- main: `data/1211_modeC2prime_stress_fixed/full_scan90/` （manifestに truth_file/session/interval_ms 記載）
+- archived: scan50系、harf2000等は results/stress_fixed/scan50/, misc/ 参照（必要なら過去ログを確認）。

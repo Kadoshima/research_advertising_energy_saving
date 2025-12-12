@@ -1,0 +1,5 @@
+2025-12-12
+- [16:50 JST] mHealth 高遷移セッション仕様 v1.0 を追加: docs/フェーズ1/results/mhealth_synthetic_sessions_spec_v1.md。15s断片非重複抽出、類似度>0.95除外、0.5sクロスフェード＋境界±1s除外、U=正規化エントロピー/CCS=1-内積、出力・品質ゲートを固定。
+- [17:10 JST] 仕様ドキュメントを results 外に移動: docs/フェーズ1/mhealth_synthetic_sessions_spec_v1.md（格納場所を整理）。
+- [17:45 JST] mHealth 合成セッション生成: scripts/generate_mhealth_synthetic_sessions.py 追加し、.venv_mhealth310(python3.10)+tensorflow-macos 2.15 + pandas で実行。train=subjects1-8, test=9/10, 15s断片類似度>0.95除外、0.5sクロスフェード/境界±1sマスク、U=正規化エントロピー、CCS=1−内積。出力: data/mhealth_synthetic_sessions_v1/{summary.json,sessions/*}（seed0/1/2各1本、mean_U≈0.23-0.26, duration≈870.5s）。README: data/mhealth_synthetic_sessions_v1/README.md。
+- [18:10 JST] TFLite出力shape確認→(1,12)（nullなし）。generate_mhealth_synthetic_sessions.py の 4クラス集約をラベルIDベースに修正（1..12 → Stationary/Locomotion/Transition）。再生成（seed0/1/2各1本）で mean_U≈0.20-0.22, duration≈870.5s, summary.json 更新。
