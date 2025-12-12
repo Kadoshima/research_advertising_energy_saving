@@ -10,13 +10,13 @@
 #include "../labels_stress.h"  // defines SESSIONS_STRESS[], NUM_SESSIONS_STRESS
 
 // --- Config ---
-// Sessions to sweep (0-based index into SESSIONS_STRESS). Default: S1 (0) and S4 (3).
-static const uint8_t SESS_LIST[] = {0, 3};
+// Sessions to sweep (0-based index into SESSIONS_STRESS). For retake: S4 only.
+static const uint8_t SESS_LIST[] = {3};
 static const uint8_t N_SESS = sizeof(SESS_LIST) / sizeof(SESS_LIST[0]);
-// Intervals to sweep. For re-run: only 2000 ms.
+// Intervals to sweep. S4 @ 2000ms only.
 static const uint16_t INTERVALS[] = {2000};
 static const uint8_t N_INTERVALS = sizeof(INTERVALS) / sizeof(INTERVALS[0]);
-static const uint8_t REPEAT = 2;          // how many trials per (session, interval)
+static const uint8_t REPEAT = 1;          // how many trials per (session, interval)
 static const uint16_t EFFECTIVE_LEN = 6352;  // clamp to common window (100ms grid)
 
 // Pins
