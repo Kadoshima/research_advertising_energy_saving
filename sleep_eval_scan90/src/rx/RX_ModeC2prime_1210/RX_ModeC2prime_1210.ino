@@ -7,6 +7,7 @@
 #include <SPI.h>
 #include <SD.h>
 #include <NimBLEDevice.h>
+#include <math.h>
 
 static const int SD_CS   = 5;
 static const int SD_SCK  = 18;
@@ -14,10 +15,12 @@ static const int SD_MISO = 19;
 static const int SD_MOSI = 23;
 static const int SYNC_IN = 26;        // TX GPIO25 -> RX GPIO26
 // BLE scan parameters: longer window to improve coverage at 100ms adv.
-static const uint16_t SCAN_INTERVAL_MS = 100;
-static const uint16_t SCAN_WINDOW_MS   = 90;  // duty 90%
+static const float SCAN_INTERVAL_MS = 100.0f;
+static const float SCAN_WINDOW_MS   = 90.0f;  // duty 90%
 static const uint32_t SESSION_TIMEOUT_MS = 900000;   // safety timeout ~15 min
 static const uint32_t SYNC_LOW_DEBOUNCE_MS = 100;     // require SYNC low for this long
+
+static inline uint16_t ms_to_0p625(float ms){ return (uint16_t)lroundf(ms / 0.625f); }
 
 static const uint16_t RX_BUF_SIZE = 512;
 static const uint32_t FLUSH_INTERVAL_MS = 500;
@@ -159,8 +162,9 @@ void setup() {
   NimBLEDevice::init("RX_ESP32");
   NimBLEScan* scan = NimBLEDevice::getScan();
   scan->setActiveScan(false); // passive scan (no scan response)
-  scan->setInterval(SCAN_INTERVAL_MS);
-  scan->setWindow(SCAN_WINDOW_MS);
+  // NOTE: NimBLE APIは0.625ms単位で解釈される実装が多いので明示変換する
+  scan->setInterval(ms_to_0p625(SCAN_INTERVAL_MS));
+  scan->setWindow(ms_to_0p625(SCAN_WINDOW_MS));
   scan->setDuplicateFilter(0); // report duplicates for better PDR counting
   scan->setScanCallbacks(new AdvCB(), true);
   scan->start(0, false);

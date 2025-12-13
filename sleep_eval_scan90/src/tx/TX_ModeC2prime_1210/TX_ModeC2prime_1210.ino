@@ -1,166 +1,113 @@
-// Mode C2' (HARラベル再生 + 固定広告間隔) 1210版
-// - subjectXX_ccs.csv を SD から順に読み込み（1行1ラベル; 先頭フィールドを使用）
-// - interval は ADV_MS で固定（例: 100ms or 2000ms）
-// - 300 adv で1トライアル終了。TICK(27) と SYNC(25) を出力。ManufacturerData に label と seq を載せる。
-// - HAR計算は行わず、ラベル再生のみ。
-// - SDは TX 側に挿入する想定（TXSDとは別）。もしTXにSDを載せない場合は、labelsをフラッシュ配列に焼く実装に切り替えること。
+// TX_ModeC2prime_1210.ino (sleep_eval_scan90版)
+// 目的: sleep ON/OFF × adv_interval(100ms/2000ms) の平均電力差を最短で確認するための最小TX。
+// 方針:
+// - 固定長/固定内容のManufacturerData（ダミー）。
+// - 広告間隔は controller に設定して任せる（CPU側の周期処理で「擬似100ms」を作らない）。
+// - SYNC(25) をHIGHで trial 開始、終了時にLOW（TXSD/RXのログゲート）。
+// - 余計な周期処理（SD/ラベル再生/Serial/頻繁なpayload更新/TICK）はデフォルト無効。
 
 #include <Arduino.h>
 #include <BLEDevice.h>
-#include <SPI.h>
-#include <SD.h>
+#include <math.h>
 
-// --- 設定 ---
-static const uint16_t ADV_MS        = 100;    // 固定広告間隔をここで切替 (100/500/1000/2000など)
-static const uint16_t N_ADV_PER_TR  = 300;    // 1トライアルの広告回数
-static const uint8_t  MAX_LABELS    = 400;    // 最大読み込み数
-static const uint8_t  N_FILES       = 10;     // subject01_ccs.csv 〜 subject10_ccs.csv
+// ==== 設定 ====
+static const uint16_t ADV_MS = 100;              // 100 or 2000（条件ごとに変更）
+static const uint32_t TRIAL_DURATION_MS = 60000; // 条件間で固定（例: 60s）
+static const bool REPEAT_TRIALS = false;         // 連続実行したい場合のみtrue
+static const uint32_t IDLE_GAP_MS = 5000;        // REPEAT_TRIALS=true のときの休止
 
-// --- ピン ---
-static const int SYNC_OUT_PIN = 25;
-static const int TICK_OUT_PIN = 27;
-static const int LED_PIN      = 2;
-static const int SD_CS        = 5;
-static const int SD_SCK       = 18;
-static const int SD_MISO      = 19;
-static const int SD_MOSI      = 23;
+static const bool USE_LED = false;               // LEDは電力を汚すので基本OFF
+static const bool ENABLE_TICK = false;           // sleep比較ではOFF（周期起床を増やすため）
 
-// --- BLE ---
-BLEAdvertising* adv = nullptr;
-uint32_t nextAdvMs=0;
-uint16_t advCount=0;
-bool trialRunning=false;
-uint8_t fileIndex=0; // 0〜N_FILES-1 を巡回
+// ==== ピン ====
+static const int SYNC_OUT_PIN = 25; // TX -> RX/TXSD SYNC
+static const int TICK_OUT_PIN = 27; // TX -> TXSD TICK (任意)
+static const int LED_PIN = 2;
 
-// --- ラベルバッファ ---
-String labels[MAX_LABELS];
-uint16_t nLabels=0;
+// ==== BLE ====
+static BLEAdvertising* adv = nullptr;
+static bool trialRunning = false;
+static uint32_t trialStartMs = 0;
+static uint32_t idleStartMs = 0;
 
-// --- 助手 ---
-static inline String makeMFD(uint16_t seq, const String& label){
-  // 4桁のseq + '_' + label を載せる (最大12〜14文字程度)
-  char buf[16];
-  snprintf(buf, sizeof(buf), "%04u_%s", (unsigned)seq, label.c_str());
-  return String(buf);
+static inline uint16_t ms_to_0p625(float ms) {
+  // BLE HCI unit: 0.625 ms
+  long v = lroundf(ms / 0.625f);
+  if (v < 0x20) v = 0x20;       // 20ms minimum
+  if (v > 0x4000) v = 0x4000;   // 10.24s maximum
+  return (uint16_t)v;
 }
 
-void syncStart(){
-  digitalWrite(LED_PIN, HIGH);
+static void syncStart() {
+  if (USE_LED) digitalWrite(LED_PIN, HIGH);
   digitalWrite(SYNC_OUT_PIN, HIGH);
 }
-void syncEnd(){
+
+static void syncEnd() {
   digitalWrite(SYNC_OUT_PIN, LOW);
-  digitalWrite(LED_PIN, LOW);
+  if (USE_LED) digitalWrite(LED_PIN, LOW);
 }
 
-String makePath(){
-  char p[32];
-  snprintf(p,sizeof(p),"/subject%02u_ccs.csv",(unsigned)(fileIndex+1));
-  return String(p);
-}
-
-bool loadLabels(){
-  SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
-  if(!SD.begin(SD_CS)){
-    Serial.println("[TX] SD init FAIL");
-    return false;
-  }
-  // SDカードはTX側に挿入し、TXSDとは別。ファイルは /subjectXX_ccs.csv の形式。
-  File f = SD.open(makePath(), FILE_READ);
-  if(!f){
-    Serial.printf("[TX] open %s FAIL\n", makePath().c_str());
-    return false;
-  }
-  nLabels=0;
-  String line;
-  while(f.available() && nLabels < MAX_LABELS){
-    line = f.readStringUntil('\n');
-    line.trim();
-    if(line.length()==0) continue;
-    int comma = line.indexOf(',');
-    if(comma>0) line = line.substring(0, comma);
-    labels[nLabels++] = line;
-  }
-  f.close();
-  Serial.printf("[TX] labels loaded from %s: %u\n", makePath().c_str(), (unsigned)nLabels);
-  return nLabels>0;
-}
-
-void startTrial(){
-  advCount=0;
-  nextAdvMs = millis();
+static void startTrial() {
+  trialStartMs = millis();
+  trialRunning = true;
   syncStart();
-  trialRunning=true;
-  Serial.printf("[TX] start trial interval=%ums labels=%u file=%s\n", (unsigned)ADV_MS, (unsigned)nLabels, makePath().c_str());
+  if (adv) adv->start();
 }
-void endTrial(){
-  trialRunning=false;
+
+static void endTrial() {
+  trialRunning = false;
+  if (adv) adv->stop();
   syncEnd();
-  Serial.printf("[TX] end trial adv_sent=%u\n", (unsigned)advCount);
-  // 次ファイルへ
-  fileIndex = (fileIndex + 1) % N_FILES;
+  idleStartMs = millis();
 }
 
-void setup(){
-  Serial.begin(115200);
-  delay(50);
-  pinMode(LED_PIN, OUTPUT); digitalWrite(LED_PIN, LOW);
-  pinMode(SYNC_OUT_PIN, OUTPUT); digitalWrite(SYNC_OUT_PIN, LOW);
-  pinMode(TICK_OUT_PIN, OUTPUT); digitalWrite(TICK_OUT_PIN, LOW);
+void setup() {
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
+  pinMode(SYNC_OUT_PIN, OUTPUT);
+  digitalWrite(SYNC_OUT_PIN, LOW);
+  pinMode(TICK_OUT_PIN, OUTPUT);
+  digitalWrite(TICK_OUT_PIN, LOW);
 
-  if(!loadLabels()){
-    Serial.println("[TX] label load failed; halt");
-    while(1) delay(1000);
-  }
-
-  BLEDevice::init("TXM_LABEL");
+  BLEDevice::init("TX_SLEEP_EVAL");
   BLEDevice::setPower(ESP_PWR_LVL_N0);
   adv = BLEDevice::getAdvertising();
   adv->setScanResponse(false);
   adv->setMinPreferred(0);
 
-  // 初期広告データ
+  // 広告間隔を明示（0.625ms単位）
+  const uint16_t adv_units = ms_to_0p625((float)ADV_MS);
+  adv->setMinInterval(adv_units);
+  adv->setMaxInterval(adv_units);
+
+  // 固定ダミーペイロード（固定長/固定内容）
   BLEAdvertisementData ad;
-  ad.setName("TXM_LABEL");
-  ad.setManufacturerData(makeMFD(0, labels[0 % nLabels]));
+  ad.setName("TX_SLEEP_EVAL");
+  // RX側の既存パーサ互換: "0000_DUMMY"
+  ad.setManufacturerData(String("0000_DUMMY"));
   adv->setAdvertisementData(ad);
-  adv->start();
 
   startTrial();
 }
 
-void loop(){
-  if(!trialRunning){
-    // 次ファイルをロードして再開
-    if(loadLabels()){
-      startTrial();
-    }
-    vTaskDelay(1000);
-    return;
-  }
-  uint32_t nowMs = millis();
-  if((int32_t)(nowMs - nextAdvMs) >= 0){
-    nextAdvMs += ADV_MS;
+void loop() {
+  const uint32_t nowMs = millis();
 
-    // set payload
-    String lbl = labels[advCount % nLabels];
-    BLEAdvertisementData ad;
-    ad.setName("TXM_LABEL");
-    ad.setManufacturerData(makeMFD(advCount, lbl));
-    adv->setAdvertisementData(ad);
-
-    // TICK pulse
-    digitalWrite(TICK_OUT_PIN, HIGH);
-    delayMicroseconds(200);
-    digitalWrite(TICK_OUT_PIN, LOW);
-
-    advCount++;
-    if((advCount % 50)==0){
-      Serial.printf("[TX] adv=%u label=%s\n", (unsigned)advCount, lbl.c_str());
-    }
-    if(advCount >= N_ADV_PER_TR){
+  if (trialRunning) {
+    if ((nowMs - trialStartMs) >= TRIAL_DURATION_MS) {
       endTrial();
     }
+    // 監視は低頻度にして、sleep可否を汚さない
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    return;
   }
-  vTaskDelay(1);
+
+  if (REPEAT_TRIALS) {
+    if (idleStartMs != 0 && (nowMs - idleStartMs) >= IDLE_GAP_MS) {
+      startTrial();
+    }
+  }
+
+  vTaskDelay(pdMS_TO_TICKS(1000));
 }
