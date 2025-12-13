@@ -7,6 +7,8 @@
   - `RX/` : RXログ（`rx_trial_*.csv`）
 - `sleep_off/<interval_ms>/` : sleep OFF の計測データ（今後追加）
 - `on_off_test_100_2000/` : 4条件（100/2000 × sleep OFF/ON）を1回実行で回すテスト保存先
+- `on_off_test_100~2000/` : interval ∈ {100,500,1000,2000}ms の sweep（sleep ON想定）
+- `on_off_test_100~2000_02/` : 上記の追加取得（複数回リスタートを含む、詳細は各runのREADME参照）
 
 ## 注意
 - TXSDログは末尾に `# summary` と `# diag` が付与される。これが無いファイルは「途中終了」とみなし、集計では除外している。

@@ -1,0 +1,18 @@
+2025-12-14 02:41 JST
+- sleep_eval_scan90: `sleep_eval_scan90/data/on_off_test_100~2000_02`（interval sweep: 100/500/1000/2000, sleep=on）をログ/実データで突合して「採用/除外」を確定。
+  - 除外を移動: `sleep_eval_scan90/data/on_off_test_100~2000_02/TX_excluded/`（unk/0byte/短時間）, `sleep_eval_scan90/data/on_off_test_100~2000_02/RX_excluded/`（短時間）
+  - 集計（TXSD）: `sleep_eval_scan90/analysis/summarize_txsd_power.py --run 'on_off_test_100~2000_02' --min-ms-total 50000`
+    - 出力: `sleep_eval_scan90/metrics/on_off_test_100~2000_02/txsd_power_summary.csv`, `sleep_eval_scan90/plots/on_off_test_100~2000_02/txsd_power_summary.png`
+    - 結果（mean_p_mW, sleep_on）: 100ms=198.56±1.27(n=10), 500ms=180.80±0.68(n=9), 1000ms=178.62±0.77(n=9), 2000ms=177.47±0.63(n=9)
+  - 集計（RX）: `sleep_eval_scan90/analysis/summarize_rx_trials.py --run 'on_off_test_100~2000_02' --min-ms-total 50000`
+    - 出力: `sleep_eval_scan90/metrics/on_off_test_100~2000_02/rx_rate_summary.csv`
+    - サニティ（rate_hz）: I100=7.93, I500=1.67, I1000=0.85, I2000=0.42
+  - 備考: このrunは meta 上 `sleep=on` のみ（sleep OFF未取得のためDoDは不可）。
+  - ドキュメント/スクリプト: `sleep_eval_scan90/data/on_off_test_100~2000_02/README.md` を追加、`sleep_eval_scan90/analysis/summarize_rx_trials.py` を追加、`sleep_eval_scan90/data/SHA256.txt` のREADME分を更新。
+  - gitignore: matplotlib生成物の混入防止で `.mplconfig/` を追加（`.gitignore`）。
+
+2025-12-14 03:12 JST
+- sleep_eval_scan90 firmware更新: sleep ON/OFF × interval(100/500/1000/2000) を1回の実行で取得できるように、TX/TXSDのcond_idマップを拡張。
+  - TX: `sleep_eval_scan90/src/tx/TX_ModeC2prime_1210/TX_ModeC2prime_1210.ino`（labelに `_ON/_OFF` を付与、cond_id=1..8、trialごとにesp_pm_lockでsleep切替）
+  - TXSD: `sleep_eval_scan90/src/txsd/TXSD_ModeC2prime_1210/TXSD_ModeC2prime_1210.ino`（PREAMBLE_MAX_ID=8、cond_id→(interval,sleep_tag)対応を追加）
+  - ドキュメント: `sleep_eval_scan90/README.md` を更新（cond_idマップと集計手順）

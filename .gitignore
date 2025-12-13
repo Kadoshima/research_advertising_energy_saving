@@ -12,8 +12,10 @@ __pycache__/
 .cache/
 .matplotlib/
 .mpl_cache/
+.mplconfig/
 **/.matplotlib/
 **/.mpl_cache/
+**/.mplconfig/
 
 # Virtual environments
 har/001/.venv*/

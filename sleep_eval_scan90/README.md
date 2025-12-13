@@ -19,8 +19,8 @@
   - もし配線を「同じGPIO番号同士（25→25）」で組んでいる場合は、`src/rx` と `src/txsd` の `SYNC_IN` を 25 に揃える。
 
 ## 実験デザイン（ステップ1: ダミー広告で基礎テーブルを取る）
-- 条件: interval ∈ {100ms, 500ms, 1000ms, 2000ms}（4条件、`N_CYCLES=2`で計8試行）。
-- sleep設定は固定（`ALLOW_LIGHT_SLEEP=true/false`）。ON/OFF比較をする場合は別runとして取得する。
+- 条件: interval ∈ {100ms, 500ms, 1000ms, 2000ms}。
+- sleep ON/OFF も同一実行で回す（`sleep_eval_scan90/src/tx` の `CONDS[]` と cond_id マップに従う）。
 - ペイロード: 固定内容でOK（seqカウンタのみ）。HAR推論・U/CCS計算・センサ常時サンプリングは **無効化** する。
 - 禁止: 遷移多いラベル列、頻繁なSerial print、余計な周期タスク。
 - 期待: intervalを長くするほど avg_power (または E_total/dur) が低下する。下がらなければ sleep 設定/PM lock/周辺周期タスクを疑う。
@@ -31,18 +31,22 @@
 - `src/tx` は trial 開始/終了で `adv->start()` / `adv->stop()` と SYNC を揃える（trial外の余計な広告＝余計な消費を混ぜない）。
 
 ## interval sweep を「1回の実行で」取る（sleep_eval TX）
-- `src/tx` の sleep_eval 用TXは、以下の4条件を順に回す（`N_CYCLES=2`で計8試行、合計>=5分）。
-  - (1) 100ms（cond_id=1, label=I100）
-  - (2) 500ms（cond_id=2, label=I500）
-  - (3) 1000ms（cond_id=3, label=I1000）
-  - (4) 2000ms（cond_id=4, label=I2000）
+- `src/tx` の sleep_eval 用TXは、sleep ON/OFF × interval ∈ {100,500,1000,2000} を順に回す（`N_CYCLES=2`なら計16試行）。
 - TXSDは、trial開始直後のTICKパルス数（=cond_id）を `PREAMBLE_WINDOW_MS` 内で数えて、ファイル名とmetaに反映する。
-- RXは、受信したManufacturerDataのlabel（I100等）を `# condition_label=...` としてファイル先頭に書く。
+- RXは、受信したManufacturerDataのlabel（`I100_OFF`等）を `# condition_label=...` としてファイル先頭に書く。
+
+### sleep ON/OFF × interval sweep（2025-12-14 以降）
+- TX/TXSDの `cond_id` マップ（preamble pulses）:
+  - 1: 100ms_OFF, 2: 100ms_ON
+  - 3: 500ms_OFF, 4: 500ms_ON
+  - 5: 1000ms_OFF, 6: 1000ms_ON
+  - 7: 2000ms_OFF, 8: 2000ms_ON
+- RXの `condition_label` は `I100_OFF` などのラベル（ManufacturerData）から自動決定される。
 
 ## よくあるハマり（SDエラーが出る）
 - `src/tx` の sleep_eval 用TXは **SDを使わない**。起動ログに `"[TX] SD init FAIL"` が出る場合、別の古いTX（SDラベル読み込み版）をフラッシュしている可能性が高い。
   - 正しいTXスケッチ: `sleep_eval_scan90/src/tx/TX_ModeC2prime_1210/TX_ModeC2prime_1210.ino`（または同内容の `sleep_eval_scan90/src/tx/TX_ModeC2prime_1210.ino`）
-  - 正しいTXは BLE名が `TX_SLEEP_EVAL`、ManufacturerDataが `0000_I100` 等（条件でラベルが変わる）。
+  - 正しいTXは BLE名が `TX_SLEEP_EVAL`、ManufacturerDataが `0000_I100_OFF` 等（条件でラベルが変わる）。
 
 ## 実験デザイン（ステップ2: 代表負荷1本で現実確認）
 - 条件: 2000msで sleep ON/OFF だけを最小で撮る（必要なら100msも）。
@@ -63,10 +67,9 @@
 ## 備考
 - 平均電力がフラットな場合、sleepが効いていない可能性が高い。sleep有効化後に固定メトリクスを撮り直し、オフライン評価のテーブルを差し替える想定。
 
-## 取得データ（2025-12-13）
-- 生データ: `sleep_eval_scan90/data/`（100ms/2000ms）
-- 集計: `sleep_eval_scan90/analysis/summarize_txsd_power.py`
-- 出力:
-  - `sleep_eval_scan90/metrics/txsd_power_trials.csv`（trial単位）
-  - `sleep_eval_scan90/metrics/txsd_power_summary.csv`（interval別の平均/分散）
-  - `sleep_eval_scan90/plots/txsd_power_summary.png`（図）
+## 取得データ
+- 生データ: `sleep_eval_scan90/data/`（runごとに保存）
+- 集計:
+  - TXSD: `sleep_eval_scan90/analysis/summarize_txsd_power.py --run <run>`
+  - RX: `sleep_eval_scan90/analysis/summarize_rx_trials.py --run <run>`
+- 出力: `sleep_eval_scan90/metrics/<run>/` と `sleep_eval_scan90/plots/<run>/`

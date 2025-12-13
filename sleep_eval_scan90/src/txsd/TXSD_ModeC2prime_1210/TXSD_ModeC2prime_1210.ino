@@ -28,7 +28,7 @@ static const char SUBJECT_ID[] = "sleep_eval_scan90"; // set per experiment
 
 // TX側が trial開始直後に TICK を n回打って「条件ID」を送る前提（sleep_eval TX）
 static const uint32_t PREAMBLE_WINDOW_MS = 800; // SYNC立上り後、この時間だけTICKを数えてcond_idにする
-static const uint8_t PREAMBLE_MAX_ID = 4;       // cond_id=1..4
+static const uint8_t PREAMBLE_MAX_ID = 8;       // cond_id=1..8
 
 HardwareSerial Debug(0);
 Adafruit_INA219 ina;
@@ -55,12 +55,19 @@ uint32_t firstMs=0, lastMs=0; bool hasSample=false;
 
 static bool condInfo(uint8_t id, uint16_t* interval_ms, const char** sleep_tag){
   // TX側の Condition ID と一致させること
-  // 1: 100ms, 2: 500ms, 3: 1000ms, 4: 2000ms（sleepはTX側設定に従うが、ここでは識別用に"on"固定）
+  // 1: 100ms_OFF, 2: 100ms_ON
+  // 3: 500ms_OFF, 4: 500ms_ON
+  // 5: 1000ms_OFF, 6: 1000ms_ON
+  // 7: 2000ms_OFF, 8: 2000ms_ON
   switch(id){
-    case 1: *interval_ms = 100;  *sleep_tag = "on";  return true;
-    case 2: *interval_ms = 500;  *sleep_tag = "on";  return true;
-    case 3: *interval_ms = 1000; *sleep_tag = "on";  return true;
-    case 4: *interval_ms = 2000; *sleep_tag = "on";  return true;
+    case 1: *interval_ms = 100;  *sleep_tag = "off"; return true;
+    case 2: *interval_ms = 100;  *sleep_tag = "on";  return true;
+    case 3: *interval_ms = 500;  *sleep_tag = "off"; return true;
+    case 4: *interval_ms = 500;  *sleep_tag = "on";  return true;
+    case 5: *interval_ms = 1000; *sleep_tag = "off"; return true;
+    case 6: *interval_ms = 1000; *sleep_tag = "on";  return true;
+    case 7: *interval_ms = 2000; *sleep_tag = "off"; return true;
+    case 8: *interval_ms = 2000; *sleep_tag = "on";  return true;
     default: break;
   }
   *interval_ms = 0; *sleep_tag = "unk";
