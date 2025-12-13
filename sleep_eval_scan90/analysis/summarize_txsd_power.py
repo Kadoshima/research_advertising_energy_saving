@@ -188,9 +188,46 @@ def main() -> None:
 
     save_plot(summary_csv, plots_dir / "txsd_power_summary.png")
 
+    # difference-of-differences report (when sleep_off exists)
+    report_md = metrics_dir / "txsd_power_diff.md"
+    lines = [
+        "# sleep_eval_scan90: difference-of-differences",
+        "",
+        f"Source: `{data_dir}`",
+        f"Summary: `{summary_csv}`",
+        "",
+    ]
+    pivot = summary.pivot(index="interval_ms", columns="condition", values="mean_mean_p_mw")
+    if "sleep_on" in pivot.columns and "sleep_off" in pivot.columns:
+        p100_off = float(pivot.loc[100, "sleep_off"]) if 100 in pivot.index else None
+        p100_on = float(pivot.loc[100, "sleep_on"]) if 100 in pivot.index else None
+        p2000_off = float(pivot.loc[2000, "sleep_off"]) if 2000 in pivot.index else None
+        p2000_on = float(pivot.loc[2000, "sleep_on"]) if 2000 in pivot.index else None
+        if None not in (p100_off, p100_on, p2000_off, p2000_on):
+            eff_100 = p100_off - p100_on
+            eff_2000 = p2000_off - p2000_on
+            dod = eff_2000 - eff_100
+            lines += [
+                "## Power (mW)",
+                f"- P(100,OFF)={p100_off:.2f}, P(100,ON)={p100_on:.2f}, sleep_effect@100={eff_100:.2f}",
+                f"- P(2000,OFF)={p2000_off:.2f}, P(2000,ON)={p2000_on:.2f}, sleep_effect@2000={eff_2000:.2f}",
+                f"- DoD = [P(2000,OFF)-P(2000,ON)] - [P(100,OFF)-P(100,ON)] = {dod:.2f}",
+                "",
+            ]
+        else:
+            lines += ["- Missing interval rows (need both 100 and 2000 for both conditions).", ""]
+    else:
+        lines += [
+            "- `sleep_off` が未投入のため、DoD計算は保留。",
+            "  - 期待ディレクトリ: `sleep_eval_scan90/data/sleep_off/{100,2000}/TX/trial_*.csv`",
+            "",
+        ]
+    report_md.write_text("\n".join(lines), encoding="utf-8")
+
     print(f"wrote {trials_csv}")
     print(f"wrote {summary_csv}")
     print(f"wrote {plots_dir / 'txsd_power_summary.png'}")
+    print(f"wrote {report_md}")
 
 
 if __name__ == "__main__":

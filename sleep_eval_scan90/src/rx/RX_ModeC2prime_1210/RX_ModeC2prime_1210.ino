@@ -51,6 +51,9 @@ static uint32_t syncHighSince = 0;
 static bool lastSyncLevel = false;
 static File f;
 static const char FW_TAG[] = "RX_MODEC2P_1210";
+static bool condSeen = false;
+static bool condWritten = false;
+static char condLabel[12] = {0};
 
 // MFD parser: "0001_label"
 static bool parseMFD(const std::string& s, uint16_t& seq, std::string& label) {
@@ -77,6 +80,11 @@ static String nextPath() {
 
 static void flushBuffer() {
   if (!f) return;
+  // 先頭付近に「このセッションの条件ラベル」を書いて、後から判別できるようにする
+  if (!condWritten && condSeen) {
+    f.printf("# condition_label=%s\r\n", condLabel);
+    condWritten = true;
+  }
   uint16_t head = rxHead;
   bool wrote = false;
   while (rxTail != head) {
@@ -109,6 +117,9 @@ static void startSession() {
   rxHead = rxTail = 0;
   bufOverflow = 0;
   lastFlushMs = t0Ms;
+  condSeen = false;
+  condWritten = false;
+  condLabel[0] = '\0';
   Serial.printf("[RX] start %s\n", path.c_str());
   trial = true;
 }
@@ -136,6 +147,11 @@ class AdvCB : public NimBLEScanCallbacks {
     uint16_t seq;
     std::string label;
     if (!parseMFD(mfd, seq, label)) return;
+    if (!condSeen) {
+      strncpy(condLabel, label.c_str(), sizeof(condLabel) - 1);
+      condLabel[sizeof(condLabel) - 1] = '\0';
+      condSeen = true;
+    }
     const std::string addr = d->getAddress().toString();
 
     uint16_t nextH = (rxHead + 1) % RX_BUF_SIZE;

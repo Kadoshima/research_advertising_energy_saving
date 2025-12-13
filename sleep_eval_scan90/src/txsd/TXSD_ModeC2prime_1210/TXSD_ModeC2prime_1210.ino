@@ -24,7 +24,11 @@ static const uint32_t SAMPLE_US    = 10000;   // 10ms = 100Hz
 static const uint32_t FALLBACK_MS  = 900000;  // safety fallback (~15 min)
 static const uint32_t MIN_TRIAL_MS = 1000;    // ignore trials shorter than 1s
 static const uint32_t TICK_PER_TRIAL = 0;     // 0=disabled (use SYNC to end); set >0 to force end by adv count
-static const char SUBJECT_ID[] = "modeC2prime_1210"; // set per experiment
+static const char SUBJECT_ID[] = "sleep_eval_scan90"; // set per experiment
+
+// TX側が trial開始直後に TICK を n回打って「条件ID」を送る前提（sleep_eval TX）
+static const uint32_t PREAMBLE_WINDOW_MS = 300; // SYNC立上り後、この時間だけTICKを数えてcond_idにする
+static const uint8_t PREAMBLE_MAX_ID = 4;       // cond_id=1..4
 
 HardwareSerial Debug(0);
 Adafruit_INA219 ina;
@@ -36,33 +40,61 @@ uint32_t tickCount=0;             // adv count in trial
 bool syncState=false;
 bool syncOffState=false;
 bool logging=false;
+bool pendingStart=false;
 uint32_t t0_ms=0, nextSampleUs=0;
 uint32_t lineN=0, badLines=0;
 uint32_t lastTickSnapshot=0;
 uint32_t syncLowSince=0;
+uint32_t pendingSinceMs=0;
+uint32_t tickAtSync=0;
+uint8_t condId=0;
 
 // Stats
 double sumP=0.0; double sumV=0.0; double sumI=0.0; uint32_t sampN=0;
 uint32_t firstMs=0, lastMs=0; bool hasSample=false;
 
-static inline String nextPath(){
+static bool condInfo(uint8_t id, uint16_t* interval_ms, const char** sleep_tag){
+  // TX側の Condition ID と一致させること
+  // 1: 100ms sleep OFF, 2: 100ms sleep ON, 3: 2000ms sleep OFF, 4: 2000ms sleep ON
+  switch(id){
+    case 1: *interval_ms = 100;  *sleep_tag = "off"; return true;
+    case 2: *interval_ms = 100;  *sleep_tag = "on";  return true;
+    case 3: *interval_ms = 2000; *sleep_tag = "off"; return true;
+    case 4: *interval_ms = 2000; *sleep_tag = "on";  return true;
+    default: break;
+  }
+  *interval_ms = 0; *sleep_tag = "unk";
+  return false;
+}
+
+static inline String nextPath(uint8_t id){
   SD.mkdir("/logs");
   char p[64];
-  for (uint32_t id=1;;++id){
-    snprintf(p,sizeof(p),"/logs/trial_%03lu_on.csv",(unsigned long)id);
+  uint16_t interval_ms=0;
+  const char* sleep_tag="unk";
+  (void)condInfo(id, &interval_ms, &sleep_tag);
+  for (uint32_t trial_idx=1;;++trial_idx){
+    snprintf(p,sizeof(p),"/logs/trial_%03lu_c%u_i%u_%s.csv",
+             (unsigned long)trial_idx, (unsigned)condId, (unsigned)interval_ms, sleep_tag);
     if(!SD.exists(p)) return String(p);
   }
 }
 void IRAM_ATTR onTickRaw(){ tickCountRaw++; }
 
-static void startTrial(){
-  String path=nextPath();
+static void startTrial(uint8_t id){
+  condId = id;
+  String path=nextPath(id);
   f=SD.open(path, FILE_WRITE);
   if (!f){ Debug.println("[SD] open FAIL"); return; }
-  f.println("ms,mV,µA,p_mW");
-  f.printf("# meta, firmware=TXSD_ModeC2prime_1210, trial_index=auto, adv_interval_ms=0, subject=%s\r\n", SUBJECT_ID);
+  f.println("ms,mV,uA,p_mW");
+  uint16_t interval_ms=0;
+  const char* sleep_tag="unk";
+  (void)condInfo(condId, &interval_ms, &sleep_tag);
+  f.printf("# meta, firmware=TXSD_ModeC2prime_1210, trial_index=auto, cond_id=%u, adv_interval_ms=%u, sleep=%s, subject=%s\r\n",
+           (unsigned)condId, (unsigned)interval_ms, sleep_tag, SUBJECT_ID);
   logging=true; t0_ms=millis(); nextSampleUs=micros()+SAMPLE_US; lineN=badLines=0; tickCount=0;
-  tickStart = (tickCountRaw>0) ? (tickCountRaw-1) : 0; // include preceding TICK
+  // preamble分のTICKは除外する（preamble後のtickCountRawを起点にする）
+  tickStart = tickCountRaw;
   lastTickSnapshot=tickCountRaw;
   sumP=sumV=sumI=0.0; sampN=0; hasSample=false; firstMs=lastMs=0;
   Debug.printf("[PWR] start %s subject=%s\n", path.c_str(), SUBJECT_ID);
@@ -123,14 +155,35 @@ void loop(){
   // --- start/stop controlled by SYNC_IN ---
   int syncIn = digitalRead(SYNC_IN);
   int syncOff = (SYNC_OFF_IN >= 0) ? digitalRead(SYNC_OFF_IN) : HIGH; // default HIGH if not used
-  if (!logging && syncIn == HIGH){
-    startTrial();
+
+  // SYNC立ち上がり検出: preamble待ち（この間にTICKパルス数でcond_idを決める）
+  if (!logging && !pendingStart && syncIn == HIGH){
+    pendingStart = true;
+    pendingSinceMs = nowMs;
+    tickAtSync = tickCountRaw;
     syncState = true;
     syncOffState = (syncOff == HIGH);
-    Debug.printf("[PWR] trigger start by SYNC (raw=%lu)\n", (unsigned long)tickCountRaw);
-    justStarted = true;
-    nowMs = millis();      // refresh to avoid immediate timeout underflow
     syncLowSince = 0;
+    Debug.printf("[PWR] SYNC high, wait preamble %lums (tick_raw=%lu)\n",
+                 (unsigned long)PREAMBLE_WINDOW_MS, (unsigned long)tickCountRaw);
+  }
+
+  if (pendingStart){
+    // SYNCが落ちたらキャンセル
+    if (syncIn == LOW){
+      pendingStart = false;
+      syncState = false;
+      Debug.println("[PWR] pending start canceled (SYNC LOW)");
+    } else if ((nowMs - pendingSinceMs) >= PREAMBLE_WINDOW_MS){
+      uint32_t pulses = tickCountRaw - tickAtSync;
+      uint8_t id = (pulses >= 1 && pulses <= PREAMBLE_MAX_ID) ? (uint8_t)pulses : 0;
+      startTrial(id);
+      pendingStart = false;
+      justStarted = true;
+      nowMs = millis();
+      syncLowSince = 0;
+      Debug.printf("[PWR] trigger start by preamble pulses=%lu -> cond_id=%u\n", (unsigned long)pulses, (unsigned)id);
+    }
   }
 
   if (logging){
