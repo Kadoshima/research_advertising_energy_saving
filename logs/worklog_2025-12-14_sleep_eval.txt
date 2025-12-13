@@ -16,3 +16,13 @@
   - TX: `sleep_eval_scan90/src/tx/TX_ModeC2prime_1210/TX_ModeC2prime_1210.ino`（labelに `_ON/_OFF` を付与、cond_id=1..8、trialごとにesp_pm_lockでsleep切替）
   - TXSD: `sleep_eval_scan90/src/txsd/TXSD_ModeC2prime_1210/TXSD_ModeC2prime_1210.ino`（PREAMBLE_MAX_ID=8、cond_id→(interval,sleep_tag)対応を追加）
   - ドキュメント: `sleep_eval_scan90/README.md` を更新（cond_idマップと集計手順）
+
+2025-12-14 04:11 JST
+- sleep_eval_scan90: `sleep_eval_scan90/data/on_off_test_01`（sleep ON/OFF × 100/500/1000/2000, 各n=2）のデータを集計してDoDまで算出。
+  - 短時間ファイルを退避: `sleep_eval_scan90/data/on_off_test_01/TX_excluded/`（2本）, `sleep_eval_scan90/data/on_off_test_01/RX_excluded/`（3本）
+  - TXSD集計: `sleep_eval_scan90/analysis/summarize_txsd_power.py --run 'on_off_test_01' --min-ms-total 50000`
+    - 出力: `sleep_eval_scan90/metrics/on_off_test_01/txsd_power_summary.csv`, `sleep_eval_scan90/metrics/on_off_test_01/txsd_power_diff.md`, `sleep_eval_scan90/plots/on_off_test_01/txsd_power_summary.png`
+    - DoD（100ms基準）: DoD = −0.25 mW（sleep_effect@100ms=−0.10, @2000ms=−0.35）
+  - RXサニティ: `sleep_eval_scan90/analysis/summarize_rx_trials.py --run 'on_off_test_01' --min-ms-total 50000`
+    - 出力: `sleep_eval_scan90/metrics/on_off_test_01/rx_rate_summary.csv`
+  - run README: `sleep_eval_scan90/data/on_off_test_01/README.md` を追加、`sleep_eval_scan90/data/README.md` と `sleep_eval_scan90/data/SHA256.txt` を更新。

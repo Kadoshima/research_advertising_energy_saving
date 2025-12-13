@@ -1,0 +1,17 @@
+run,rel_path,path,condition_label,ok,ms_total,rx,rate_hz
+on_off_test_01,RX/rx_trial_004.csv,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/on_off_test_01/RX/rx_trial_004.csv,I100_OFF,1,59597,459,7.701729952849976
+on_off_test_01,RX/rx_trial_005.csv,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/on_off_test_01/RX/rx_trial_005.csv,I100_ON,1,59825,461,7.705808608441287
+on_off_test_01,RX/rx_trial_006.csv,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/on_off_test_01/RX/rx_trial_006.csv,I500_OFF,1,59528,98,1.6462841015992473
+on_off_test_01,RX/rx_trial_007.csv,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/on_off_test_01/RX/rx_trial_007.csv,I500_ON,1,59564,96,1.611711772211403
+on_off_test_01,RX/rx_trial_008.csv,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/on_off_test_01/RX/rx_trial_008.csv,I1000_OFF,1,57755,49,0.8484113929529911
+on_off_test_01,RX/rx_trial_009.csv,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/on_off_test_01/RX/rx_trial_009.csv,I1000_ON,1,58741,47,0.8001225719684718
+on_off_test_01,RX/rx_trial_010.csv,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/on_off_test_01/RX/rx_trial_010.csv,I2000_OFF,1,57561,27,0.4690675978527128
+on_off_test_01,RX/rx_trial_011.csv,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/on_off_test_01/RX/rx_trial_011.csv,I2000_ON,1,57571,25,0.4342464087821994
+on_off_test_01,RX/rx_trial_012.csv,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/on_off_test_01/RX/rx_trial_012.csv,I100_OFF,1,59733,478,8.002276798419635
+on_off_test_01,RX/rx_trial_013.csv,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/on_off_test_01/RX/rx_trial_013.csv,I100_ON,1,59774,473,7.91313949208686
+on_off_test_01,RX/rx_trial_014.csv,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/on_off_test_01/RX/rx_trial_014.csv,I500_OFF,1,59471,95,1.597417228565183
+on_off_test_01,RX/rx_trial_015.csv,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/on_off_test_01/RX/rx_trial_015.csv,I500_ON,1,59476,98,1.6477234514762258
+on_off_test_01,RX/rx_trial_016.csv,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/on_off_test_01/RX/rx_trial_016.csv,I1000_OFF,1,58653,48,0.8183724617666616
+on_off_test_01,RX/rx_trial_017.csv,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/on_off_test_01/RX/rx_trial_017.csv,I1000_ON,1,58620,49,0.8358921869669055
+on_off_test_01,RX/rx_trial_018.csv,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/on_off_test_01/RX/rx_trial_018.csv,I2000_OFF,1,57530,23,0.3997914131757344
+on_off_test_01,RX/rx_trial_019.csv,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/on_off_test_01/RX/rx_trial_019.csv,I2000_ON,1,57455,25,0.43512313984857715
