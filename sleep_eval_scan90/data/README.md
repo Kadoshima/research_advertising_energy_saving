@@ -6,6 +6,7 @@
   - `TX/` : TXSD（INA219）ログ（`trial_*.csv`）
   - `RX/` : RXログ（`rx_trial_*.csv`）
 - `sleep_off/<interval_ms>/` : sleep OFF の計測データ（今後追加）
+- `on_off_test_100_2000/` : 4条件（100/2000 × sleep OFF/ON）を1回実行で回すテスト保存先
 
 ## 注意
 - TXSDログは末尾に `# summary` と `# diag` が付与される。これが無いファイルは「途中終了」とみなし、集計では除外している。

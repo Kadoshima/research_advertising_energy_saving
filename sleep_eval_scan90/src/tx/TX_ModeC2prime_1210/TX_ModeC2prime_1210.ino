@@ -137,6 +137,9 @@ static void startTrial(const Condition& c) {
   syncStart();
   if (adv) adv->start();
 
+  // TXSD側が SYNC を検出して preamble計数に入る猶予を与える
+  delay(200);
+
   // TXSDへ条件IDを送る（preamble）
   tickPreamble(c.cond_id);
 }
@@ -208,4 +211,3 @@ void loop() {
   startTrial(CONDS[condIndex]);
   vTaskDelay(pdMS_TO_TICKS(200));
 }
-

@@ -27,7 +27,7 @@ static const uint32_t TICK_PER_TRIAL = 0;     // 0=disabled (use SYNC to end); s
 static const char SUBJECT_ID[] = "sleep_eval_scan90"; // set per experiment
 
 // TX側が trial開始直後に TICK を n回打って「条件ID」を送る前提（sleep_eval TX）
-static const uint32_t PREAMBLE_WINDOW_MS = 300; // SYNC立上り後、この時間だけTICKを数えてcond_idにする
+static const uint32_t PREAMBLE_WINDOW_MS = 800; // SYNC立上り後、この時間だけTICKを数えてcond_idにする
 static const uint8_t PREAMBLE_MAX_ID = 4;       // cond_id=1..4
 
 HardwareSerial Debug(0);
