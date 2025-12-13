@@ -10,11 +10,21 @@
 #include <SPI.h>
 #include <SD.h>
 
+#define TX_DEBUG 0
+#if TX_DEBUG
+#define TX_LOGF(...) Serial.printf(__VA_ARGS__)
+#define TX_LOGLN(x) Serial.println(x)
+#else
+#define TX_LOGF(...)
+#define TX_LOGLN(...)
+#endif
+
 // --- 設定 ---
 static const uint16_t ADV_MS        = 100;    // 固定広告間隔をここで切替 (100/500/1000/2000など)
 static const uint16_t N_ADV_PER_TR  = 300;    // 1トライアルの広告回数
 static const uint8_t  MAX_LABELS    = 400;    // 最大読み込み数
 static const uint8_t  N_FILES       = 10;     // subject01_ccs.csv 〜 subject10_ccs.csv
+static const bool     USE_SD        = false;  // sleep検証用: SDを使わず固定ラベルにする
 
 // --- ピン ---
 static const int SYNC_OUT_PIN = 25;
@@ -60,15 +70,20 @@ String makePath(){
 }
 
 bool loadLabels(){
+  if(!USE_SD){
+    labels[0] = "DUMMY";
+    nLabels = 1;
+    return true;
+  }
   SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
   if(!SD.begin(SD_CS)){
-    Serial.println("[TX] SD init FAIL");
+    TX_LOGLN("[TX] SD init FAIL");
     return false;
   }
   // SDカードはTX側に挿入し、TXSDとは別。ファイルは /subjectXX_ccs.csv の形式。
   File f = SD.open(makePath(), FILE_READ);
   if(!f){
-    Serial.printf("[TX] open %s FAIL\n", makePath().c_str());
+    TX_LOGF("[TX] open %s FAIL\n", makePath().c_str());
     return false;
   }
   nLabels=0;
@@ -82,7 +97,7 @@ bool loadLabels(){
     labels[nLabels++] = line;
   }
   f.close();
-  Serial.printf("[TX] labels loaded from %s: %u\n", makePath().c_str(), (unsigned)nLabels);
+  TX_LOGF("[TX] labels loaded from %s: %u\n", makePath().c_str(), (unsigned)nLabels);
   return nLabels>0;
 }
 
@@ -91,25 +106,27 @@ void startTrial(){
   nextAdvMs = millis();
   syncStart();
   trialRunning=true;
-  Serial.printf("[TX] start trial interval=%ums labels=%u file=%s\n", (unsigned)ADV_MS, (unsigned)nLabels, makePath().c_str());
+  TX_LOGF("[TX] start trial interval=%ums labels=%u file=%s\n", (unsigned)ADV_MS, (unsigned)nLabels, makePath().c_str());
 }
 void endTrial(){
   trialRunning=false;
   syncEnd();
-  Serial.printf("[TX] end trial adv_sent=%u\n", (unsigned)advCount);
+  TX_LOGF("[TX] end trial adv_sent=%u\n", (unsigned)advCount);
   // 次ファイルへ
   fileIndex = (fileIndex + 1) % N_FILES;
 }
 
 void setup(){
+#if TX_DEBUG
   Serial.begin(115200);
   delay(50);
+#endif
   pinMode(LED_PIN, OUTPUT); digitalWrite(LED_PIN, LOW);
   pinMode(SYNC_OUT_PIN, OUTPUT); digitalWrite(SYNC_OUT_PIN, LOW);
   pinMode(TICK_OUT_PIN, OUTPUT); digitalWrite(TICK_OUT_PIN, LOW);
 
   if(!loadLabels()){
-    Serial.println("[TX] label load failed; halt");
+    TX_LOGLN("[TX] label load failed; halt");
     while(1) delay(1000);
   }
 
@@ -155,9 +172,7 @@ void loop(){
     digitalWrite(TICK_OUT_PIN, LOW);
 
     advCount++;
-    if((advCount % 50)==0){
-      Serial.printf("[TX] adv=%u label=%s\n", (unsigned)advCount, lbl.c_str());
-    }
+    TX_LOGF(((advCount % 50)==0) ? "[TX] adv=%u label=%s\n" : "", (unsigned)advCount, lbl.c_str());
     if(advCount >= N_ADV_PER_TR){
       endTrial();
     }
