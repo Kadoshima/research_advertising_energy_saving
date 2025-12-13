@@ -1,0 +1,9 @@
+rel_path,condition,interval_ms,cond_id,notes
+TX/trial_005_c0_i0_unk.csv,sleep_off,100,1,"2回目計測(17:49-17:58)の先頭。preamble先頭1パルス欠落の疑い。RX: rx_trial_011=I100_OFF"
+TX/trial_004_c1_i100_off.csv,sleep_on,100,2,"2回目。preambleずれでc1だが実際はI100_ON。RX: rx_trial_012=I100_ON"
+TX/trial_003_c2_i100_on.csv,sleep_off,2000,3,"2回目。preambleずれでc2だが実際はI2000_OFF。RX: rx_trial_013=I2000_OFF"
+TX/trial_003_c3_i2000_off.csv,sleep_on,2000,4,"2回目。preambleずれでc3だが実際はI2000_ON。RX: rx_trial_014=I2000_ON"
+TX/trial_006_c0_i0_unk.csv,sleep_off,100,1,"2回目(2周目)先頭。RX: rx_trial_015=I100_OFF"
+TX/trial_005_c1_i100_off.csv,sleep_on,100,2,"2回目(2周目)。RX: rx_trial_016=I100_ON"
+TX/trial_004_c2_i100_on.csv,sleep_off,2000,3,"2回目(2周目)。RX: rx_trial_017=I2000_OFF"
+TX/trial_004_c3_i2000_off.csv,sleep_on,2000,4,"2回目(2周目)。RX: rx_trial_018=I2000_ON"

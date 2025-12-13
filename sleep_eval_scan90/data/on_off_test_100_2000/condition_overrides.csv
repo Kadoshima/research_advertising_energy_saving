@@ -1,0 +1,9 @@
+rel_path,condition,interval_ms,cond_id,notes
+TX/trial_002_c0_i0_unk.csv,sleep_off,100,1,"preamble missed 1 pulse; inferred from RX #condition_label=I100_OFF and serial timestamps"
+TX/trial_002_c1_i100_off.csv,sleep_on,100,2,"preamble missed 1 pulse; RX says I100_ON"
+TX/trial_001_c2_i100_on.csv,sleep_off,2000,3,"preamble missed 1 pulse; RX says I2000_OFF"
+TX/trial_001_c3_i2000_off.csv,sleep_on,2000,4,"preamble missed 1 pulse; RX says I2000_ON"
+TX/trial_003_c0_i0_unk.csv,sleep_off,100,1,"preamble missed 1 pulse; RX says I100_OFF"
+TX/trial_003_c1_i100_off.csv,sleep_on,100,2,"preamble missed 1 pulse; RX says I100_ON"
+TX/trial_002_c2_i100_on.csv,sleep_off,2000,3,"preamble missed 1 pulse; RX says I2000_OFF"
+TX/trial_002_c3_i2000_off.csv,sleep_on,2000,4,"preamble missed 1 pulse; RX says I2000_ON"

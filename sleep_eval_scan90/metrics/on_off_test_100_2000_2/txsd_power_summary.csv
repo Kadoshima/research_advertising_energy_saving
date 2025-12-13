@@ -1,0 +1,5 @@
+run,condition,interval_ms,n_trials,mean_ms_total,mean_mean_p_mw,std_mean_p_mw
+on_off_test_100_2000_2,sleep_off,100,2,59319.0,200.6,1.2727922061357937
+on_off_test_100_2000_2,sleep_off,2000,2,59534.0,178.9,0.5656854249492461
+on_off_test_100_2000_2,sleep_on,100,2,59478.0,200.4,0.14142135623730148
+on_off_test_100_2000_2,sleep_on,2000,2,59546.5,179.05,0.3535533905932738

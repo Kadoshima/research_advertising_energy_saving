@@ -37,6 +37,7 @@ class Trial:
     condition: str  # sleep_on/sleep_off/unknown
     interval_ms: Optional[int]
     cond_id: Optional[int]
+    rel_path: str
     path: str
     ms_total: Optional[int]
     mean_p_mw: Optional[float]
@@ -53,6 +54,20 @@ def infer_run(fp: Path) -> str:
         if i + 1 < len(parts):
             return parts[i + 1]
     return "unknown_run"
+
+
+def infer_rel_path(fp: Path) -> str:
+    """
+    Returns a stable path under the run directory.
+    Example:
+      sleep_eval_scan90/data/<run>/TX/trial_001.csv -> TX/trial_001.csv
+    """
+    parts = list(fp.parts)
+    if "data" in parts:
+        i = parts.index("data")
+        if i + 2 < len(parts):
+            return str(Path(*parts[i + 2 :]))
+    return fp.name
 
 
 def infer_interval_ms_from_path(fp: Path) -> Optional[int]:
@@ -148,6 +163,7 @@ def parse_footer(fp: Path) -> Trial:
         condition=condition,
         interval_ms=interval_ms,
         cond_id=cond_id,
+        rel_path=infer_rel_path(fp),
         path=str(fp),
         ms_total=ms_total,
         mean_p_mw=mean_p,
@@ -222,6 +238,41 @@ def write_dod(summary_df: pd.DataFrame, report_md: Path, data_root: Path, summar
     report_md.write_text("\n".join(lines), encoding="utf-8")
 
 
+def load_condition_overrides(overrides_csv: Optional[Path]) -> Optional[pd.DataFrame]:
+    """
+    condition_overrides.csv schema (header required):
+      rel_path,condition,interval_ms,cond_id,notes
+
+    Example row:
+      TX/trial_002_c0_i0_unk.csv,sleep_off,100,1,"from RX condition_label + serial timestamp"
+
+    - rel_path: path under data/<run>/ (recommended) or an absolute path.
+    - condition: sleep_on | sleep_off | unknown
+    - interval_ms, cond_id: optional (blank allowed)
+    """
+    if overrides_csv is None or not overrides_csv.exists():
+        return None
+
+    df = pd.read_csv(overrides_csv, dtype=str).fillna("")
+    required = {"rel_path", "condition", "interval_ms", "cond_id"}
+    missing = required - set(df.columns)
+    if missing:
+        raise SystemExit(f"Overrides CSV missing columns: {sorted(missing)} ({overrides_csv})")
+
+    df = df.rename(
+        columns={
+            "condition": "condition_override",
+            "interval_ms": "interval_ms_override",
+            "cond_id": "cond_id_override",
+        }
+    )
+    df["rel_path"] = df["rel_path"].astype(str)
+    df["condition_override"] = df["condition_override"].astype(str)
+    df["interval_ms_override"] = df["interval_ms_override"].astype(str)
+    df["cond_id_override"] = df["cond_id_override"].astype(str)
+    return df
+
+
 def main() -> None:
     repo = Path(__file__).resolve().parents[2]
     base = repo / "sleep_eval_scan90"
@@ -229,6 +280,12 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--data-root", type=Path, default=base / "data")
     ap.add_argument("--run", type=str, default=None, help="Optional run filter (e.g., on_off_test_100_2000)")
+    ap.add_argument(
+        "--overrides",
+        type=Path,
+        default=None,
+        help="Optional override CSV (default: data/<run>/condition_overrides.csv if present)",
+    )
     ap.add_argument("--min-ms-total", type=int, default=50000, help="Filter out too-short trials (default 50s)")
     args = ap.parse_args()
 
@@ -245,6 +302,33 @@ def main() -> None:
     if args.run:
         df = df[df["run"] == args.run].copy()
 
+    overrides_csv = args.overrides
+    if overrides_csv is None and args.run:
+        candidate = data_root / args.run / "condition_overrides.csv"
+        if candidate.exists():
+            overrides_csv = candidate
+    overrides_df = load_condition_overrides(overrides_csv)
+    if overrides_df is not None and not df.empty:
+        df = df.merge(overrides_df, on="rel_path", how="left")
+
+        def _maybe_int(s: str) -> Optional[int]:
+            s = str(s).strip()
+            if not s:
+                return None
+            try:
+                return int(s)
+            except ValueError:
+                return None
+
+        if "condition_override" in df.columns:
+            df["condition"] = df["condition_override"].where(df["condition_override"].str.len() > 0, df["condition"])
+        if "interval_ms_override" in df.columns:
+            df["interval_ms"] = df["interval_ms_override"].apply(_maybe_int).where(
+                df["interval_ms_override"].str.len() > 0, df["interval_ms"]
+            )
+        if "cond_id_override" in df.columns:
+            df["cond_id"] = df["cond_id_override"].apply(_maybe_int).where(df["cond_id_override"].str.len() > 0, df["cond_id"])
+
     metrics_dir.mkdir(parents=True, exist_ok=True)
 
     trials_csv = metrics_dir / "txsd_power_trials.csv"
@@ -256,6 +340,7 @@ def main() -> None:
                 "condition",
                 "interval_ms",
                 "cond_id",
+                "rel_path",
                 "path",
                 "ok",
                 "ms_total",
@@ -272,6 +357,7 @@ def main() -> None:
                     r.get("condition"),
                     r.get("interval_ms"),
                     r.get("cond_id"),
+                    r.get("rel_path"),
                     r.get("path"),
                     int(r.get("ok")),
                     r.get("ms_total"),
