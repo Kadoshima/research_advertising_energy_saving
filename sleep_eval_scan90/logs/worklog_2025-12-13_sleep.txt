@@ -1,0 +1,13 @@
+2025-12-13
+- [JST] sleep_eval_scan90 データ取得（TXSD/RX）
+  - interval: 100ms / 2000ms
+  - sleep設定: TODO（sleep ON/OFF と具体設定を追記: PM/tickless/Light-sleep/lock 等）
+  - TX firmware: TX_SLEEP_EVAL (ManufacturerData=0000_DUMMY)
+  - RX firmware: RX_MODEC2P_1210 (scan interval/window を 0.625ms単位へ変換済み)
+  - TXSD firmware: TXSD_ModeC2prime_1210
+  - データ配置: sleep_eval_scan90/data/{100,2000}/{TX,RX}/
+
+- [JST] 集計
+  - スクリプト: sleep_eval_scan90/analysis/summarize_txsd_power.py
+  - 出力: sleep_eval_scan90/metrics/txsd_power_summary.csv, sleep_eval_scan90/plots/txsd_power_summary.png
+  - 結果（暫定）: 2000ms の mean_p_mW が 100ms より低い（約 -22mW）。

@@ -52,3 +52,11 @@
 
 ## 備考
 - 平均電力がフラットな場合、sleepが効いていない可能性が高い。sleep有効化後に固定メトリクスを撮り直し、オフライン評価のテーブルを差し替える想定。
+
+## 取得データ（2025-12-13）
+- 生データ: `sleep_eval_scan90/data/`（100ms/2000ms）
+- 集計: `sleep_eval_scan90/analysis/summarize_txsd_power.py`
+- 出力:
+  - `sleep_eval_scan90/metrics/txsd_power_trials.csv`（trial単位）
+  - `sleep_eval_scan90/metrics/txsd_power_summary.csv`（interval別の平均/分散）
+  - `sleep_eval_scan90/plots/txsd_power_summary.png`（図）

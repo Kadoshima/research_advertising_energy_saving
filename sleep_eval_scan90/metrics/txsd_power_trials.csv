@@ -1,0 +1,9 @@
+interval_ms,path,ok,ms_total,samples,mean_p_mw,mean_v,mean_i
+100,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/100/TX/trial_064_on.csv,0,,,,,
+100,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/100/TX/trial_065_on.csv,1,59458,5945,201.2,3.213,62.944
+100,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/100/TX/trial_066_on.csv,1,59422,5942,200.4,3.217,62.593
+2000,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/2000/TX/trial_069_on.csv,1,59305,5930,179.9,3.231,55.701
+2000,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/2000/TX/trial_070_on.csv,1,59271,5926,179.3,3.23,55.533
+2000,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/2000/TX/trial_071_on.csv,1,59232,5923,179.9,3.236,55.605
+2000,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/2000/TX/trial_072_on.csv,1,59192,5919,177.8,3.195,55.667
+2000,/Users/kadoshima/Documents/research_advertising-energy_saving/sleep_eval_scan90/data/2000/TX/trial_073_on.csv,1,59151,5914,176.8,3.181,55.609
