@@ -68,3 +68,17 @@
 - B2: レター用に action を {100,500}（2値）へ縮退した評価を追加（説明簡単・電力の主効果に一致）。
 - C1: 実機（動的切替）を最小セットで確認（Fixed 100/500/2000 + 2値制御、各n=1〜3）。
 
+## 生成済み（主張図の固定）
+- δ帯の主張図（固定点＋採用候補3点）:
+  - `results/mhealth_policy_eval/letter_v1/fig_delta_band.png`
+  - 選定点: `results/mhealth_policy_eval/letter_v1/selected_policies.csv`
+
+## 追記（2025-12-13, v5反映後）
+- scan90固定メトリクスを v4 → v5 に更新（TL/Poutの時間同期を追加）:
+  - v5: `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_enriched_scan90_v5.csv`
+  - v4 は開始位相ズレの影響で TL/Pout が歪む可能性があるため、以後は v5 を基準にする（`docs/metrics_definition.md` の「時間同期」参照）。
+- v5を用いて、mHealth Pareto sweep を再実行（power table + context mixing）:
+  - v6: `results/mhealth_policy_eval/pareto_front_v6_power_table_scan90_v5/pareto_summary.md`
+  - 更新点: δ=0.10 が feasible（例: 90/243）となり、従来の「δ=0.12不可/0.13から可」は v4前提の結論として扱う。
+- 影響:
+  - `results/mhealth_policy_eval/letter_v1/` と `pareto_front_v5_power_table/` は v4前提の図表なので、レター本文に使う場合は v6（scan90 v5反映）で再生成が必要。

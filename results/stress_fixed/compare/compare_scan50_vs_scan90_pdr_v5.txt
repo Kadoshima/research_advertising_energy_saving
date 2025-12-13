@@ -1,0 +1,9 @@
+# pdr_unique (scan50 vs scan90, v5)
+S1   # old 100ms (pdr_u≈0.20) @100ms  scan50 0.200 ████
+S1   # old 100ms (pdr_u≈0.20) @100ms  scan90 0.800 ████████████████
+
+S1   # retake 100ms (scan duty↑ @100ms  scan50 0.830 █████████████████
+S1   # retake 100ms (scan duty↑ @100ms  scan90 0.800 ████████████████
+
+S4 @100ms  scan50 0.200 ████
+S4 @100ms  scan90 0.814 ████████████████

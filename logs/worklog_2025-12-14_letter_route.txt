@@ -1,0 +1,6 @@
+2025-12-14
+- [00:17 JST] δ帯を「Fixed500が落ちる帯」に寄せたレター図を作成（解析のみ）: scan90 v5 + power table + context mixing の Pareto（v6）を入力に、δ={0.02,0.03,0.04} のtight帯で `pout_1s vs avg_power_mW` 図を生成。出力: `results/mhealth_policy_eval/letter_v2_scan90_v5_delta_tight/fig_delta_band.png` と選定点 `selected_policies.csv/json`（各δのpower-min点）。生成コマンドは同ディレクトリの `README.md` に記載。
+- [00:17 JST] 図生成スクリプトを拡張: `scripts/plot_letter_delta_band.py` に `--select-deltas`/`--select-style` を追加し、δ帯が小さい場合でも図が見切れないよう y軸範囲を自動化（v1互換は維持）。
+- [00:17 JST] TODO更新: レター関連の参照を scan90 v5 / Pareto v6 / letter_v2 に更新（`docs/TODO.md`）。
+- [00:20 JST] δ tight の要点を1枚に固定: 固定点（Fixed100/500/1000/2000）と、各δのpower-min点（share100/adv_rate/switch_rate付き）を `results/mhealth_policy_eval/letter_v2_scan90_v5_delta_tight/summary.md` に整理。
+- [00:22 JST] 地雷チェック（欠損確認）: scan90 v5 固定メトリクス表 `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_enriched_scan90_v5.csv` に S1×{100,500,1000,2000} と S4×{100,500,1000,2000} が揃っていることを確認。δ tight の context mixing（stable→S1 / transition→S4）計算が「欠損で楽観側にズレる」懸念は scan90 v5 では無し。※ scan50 v5 で S1×100 が欠けて見えるのは session名にコメントが混ざっているため（旧/retakeの扱い）で、scan50を本流に使う場合は整理が必要。

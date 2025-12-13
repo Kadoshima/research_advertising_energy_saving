@@ -18,7 +18,24 @@
 - 遅延: 各遷移時刻 `t_event` から最初に正しいラベルを観測するまでの時間。  
   - `tl_mean`, `tl_p95`: 遷移ごとの遅延の平均 / 95%点。  
   - `Pout(τ)`: 遷移のうち、遅延 > τ の割合。  
-- 下限について: interval=2000ms, τ=1s の場合、受信100%でも遅延は [0, 2s] に分布するため **Pout(1s) の理論下限は 0.5**。実機でこれを上回る分が「追加ロス/空白」に相当。
+
+### 時間同期（重要）
+TL/Pout は **RXログの `ms` と truth の時間軸が一致している**前提で計算する必要がある。実機では開始タイミングのズレ（例: RX開始が遅れる、TXが先に進む）が入りやすく、ズレを補正しないと **TL/Pout が不自然に小さく見える**（特に長間隔側）ことがある。
+
+本リポジトリでは、固定間隔リプレイ（seqが単調増加）を前提に、次の「定数オフセット」で同期する（`scripts/analyze_stress_causal_real.py` の実装）。
+
+- 各 `seq` の最初の観測時刻を `first_ms(seq)` とする（RXログ由来）。
+- 期待される真値時刻は `seq * interval_ms` とみなす。
+- `offset_ms = median_{seq>0}( seq*interval_ms - first_ms(seq) )`
+- TL/Pout 計算では `ms_aligned = ms + offset_ms` を用いる。
+
+出力CSVでは以下で確認できる。
+- `tl_time_offset_ms`: 推定したオフセット（ms）
+- `tl_time_offset_n`: 推定に使ったseq数
+
+### 下限（参考）
+一般に、τ < interval のとき、受信100%でも遅延の量子化により `Pout(τ)` は 0 にならない（例: interval=2000ms, τ=1s なら 0.5 が目安）。
+ただし、実際の `Pout(τ)` の下限は「遷移時刻の分布」と「開始位相」に依存するため、**一律の下限値を前提にせず**、上記の時間同期を行った上で実測値で議論する。
 
 ## EFFECTIVE_LEN / 末端遷移
 - TX は `EFFECTIVE_LEN=6352` ステップ（約10.6分）でクランプ。  
@@ -26,10 +43,12 @@
 - abort試行（短時間）は manifest から除外する。
 
 ## ファイル
-- per-trial: `results/stress_causal_real_summary_1211_stress_full.csv`（pdr_raw/pdr_unique/TL/Pout/E/Power）  
-- per-trial抜粋: `results/stress_causal_real_summary_1211_stress_modes.csv`  
-- 集約: `results/stress_causal_real_summary_1211_stress_agg.csv`（mean/median/std）  
-- 比較: `results/compare_real_vs_sim_stress_fixed.csv`（PDR近似マッチで実測vsシミュ）
+- scan90（固定フルセット, v5）:
+  - per-trial: `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_full_scan90_v5.csv`
+  - per-trial抜粋: `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_modes_scan90_v5.csv`
+  - 集約: `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_scan90_v5.csv`
+  - 集約+派生: `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_enriched_scan90_v5.csv`
+  - インデックス: `results/stress_fixed/scan90/index.md`
 
 ## 補足
 - RX FW は一部 `RX_ModeC2prime_1202` ログが混在。解析時は manifest で trialごとに明示。  

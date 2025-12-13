@@ -5,7 +5,10 @@
     "c_mid": 0.2,
     "c_high": 0.35,
     "hysteresis": 0.05,
-    "initial_interval": 500
+    "initial_interval": 500,
+    "context_mixing": true,
+    "transition_ccs_thresh": 0.3,
+    "power_table": "results/mhealth_policy_eval/power_table_sleep_eval_2025-12-13.csv"
   },
   "counts": {
     "100": 2805,
@@ -20,12 +23,54 @@
     "2000": 0.4367237327962403
   },
   "total_windows": 5958,
-  "expected_metrics": {
-    "pdr_unique_mean": 0.9092200213997985,
-    "pout_1s_mean": 0.1658173469284995,
-    "tl_mean_s_mean": 10.487305998321585,
-    "E_per_adv_uJ_mean": 193347.55570661297,
-    "avg_power_mW_mean": 200.483077544144
+  "counts_ctx": {
+    "stable": {
+      "100": 1453,
+      "500": 541,
+      "1000": 0,
+      "2000": 2602
+    },
+    "transition": {
+      "100": 1352,
+      "500": 10,
+      "1000": 0,
+      "2000": 0
+    }
   },
-  "notes": "Evaluation uses mask_eval_window==1 only; fixed metrics averaged over S1/S4 scan90 agg v4."
+  "shares_ctx": {
+    "stable": {
+      "100": 0.31614447345517843,
+      "500": 0.11771105308964316,
+      "1000": 0.0,
+      "2000": 0.5661444734551784
+    },
+    "transition": {
+      "100": 0.9926578560939795,
+      "500": 0.007342143906020558,
+      "1000": 0.0,
+      "2000": 0.0
+    }
+  },
+  "shares_ctx_weighted": {
+    "stable": {
+      "100": 0.2438737831487076,
+      "500": 0.09080228264518295,
+      "1000": 0.0,
+      "2000": 0.4367237327962403
+    },
+    "transition": {
+      "100": 0.22692178583417255,
+      "500": 0.0016784155756965425,
+      "1000": 0.0,
+      "2000": 0.0
+    }
+  },
+  "expected_metrics": {
+    "pdr_unique_mean": 0.909101552366566,
+    "pout_1s_mean": 0.17209427542799594,
+    "tl_mean_s_mean": 4.3771302269217855,
+    "E_per_adv_uJ_mean": 193565.77371601207,
+    "avg_power_mW_mean": 190.26220208123533
+  },
+  "notes": "Evaluation uses mask_eval_window==1 only. If context_mixing=True, stable->S1 metrics, transition->S4 metrics."
 }

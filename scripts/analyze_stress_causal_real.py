@@ -155,6 +155,38 @@ def parse_rx(path: Path) -> Tuple[List[Tuple[float, int, int]], int, int]:
             seq_set.add(seq)
     return events, len(events), len(seq_set)
 
+def estimate_rx_truth_time_offset_ms(rx_events: List[Tuple[float, int, int]], interval_ms: Optional[int]) -> Tuple[float, int]:
+    """
+    Estimate a constant time offset (ms) to align RX timestamps to truth time.
+
+    Rationale:
+      - RX `ms` is relative to RX start, while truth timeline is indexed from 0.
+      - For fixed-interval replay, sequence number `seq` is expected to advance once per `interval_ms`.
+        Under ideal alignment, the first observation time of each `seq` should satisfy:
+          first_ms(seq) + offset_ms ≈ seq * interval_ms
+      - We estimate offset_ms as the median of (seq*interval_ms - first_ms(seq)) over observed seq>0.
+
+    Returns:
+      (offset_ms, n_used)
+    """
+    if interval_ms is None or interval_ms <= 0:
+        return 0.0, 0
+
+    first_ms_by_seq: Dict[int, float] = {}
+    for ms, seq, _ in sorted(rx_events, key=lambda x: x[0]):
+        if seq not in first_ms_by_seq:
+            first_ms_by_seq[seq] = ms
+
+    deltas: List[float] = []
+    for seq, first_ms in first_ms_by_seq.items():
+        if seq <= 0:
+            continue
+        deltas.append(seq * float(interval_ms) - float(first_ms))
+
+    if not deltas:
+        return 0.0, 0
+    return statistics.median(deltas), len(deltas)
+
 
 def compute_tl_and_pout(
     truth_labels: List[int], rx_events: List[Tuple[float, int, int]]
@@ -249,9 +281,11 @@ def main() -> None:
                 manifest_map[tid] = {
                     "rx_file": row.get("rx_file", ""),
                     "txsd_file": row.get("txsd_file", ""),
+                    "truth_file": row.get("truth_file", ""),
                     "mode": row.get("mode", ""),
                     "interval_ms": row.get("interval_ms", ""),
                     "subject": row.get("subject", ""),
+                    "session": row.get("session", ""),
                 }
 
     rx_files = sorted(args.rx_dir.glob("rx_trial_*.csv"))
@@ -262,6 +296,7 @@ def main() -> None:
     with args.out.open("w", newline="") as f_out:
         fieldnames = [
             "trial_id",
+            "session",
             "mode",
             "interval_ms",
             "adv_count",
@@ -276,6 +311,8 @@ def main() -> None:
             "pout_3s",
             "tl_clamp_high_count",
             "tl_clamp_high_rate",
+            "tl_time_offset_ms",
+            "tl_time_offset_n",
             "E_total_mJ",
             "E_per_adv_uJ",
             "avg_power_mW",
@@ -320,12 +357,22 @@ def main() -> None:
                 if tfile:
                     truth_path = args.truth_dir / tfile if args.truth_dir else Path(tfile)
                 mode_override = truth_map[trial_id].get("mode") or None
+            if truth_path is None and manifest_entry.get("truth_file") and args.truth_dir:
+                cand = args.truth_dir / manifest_entry["truth_file"]
+                if cand.exists():
+                    truth_path = cand
             if truth_path is None and args.truth_dir:
                 candidate = args.truth_dir / f"{trial_id}.csv"
                 if candidate.exists():
                     truth_path = candidate
 
             truth_labels = read_truth_labels(truth_path) if truth_path and truth_path.exists() else None
+
+            session = manifest_entry.get("session") or ""
+            if not session and truth_path:
+                m_sess = re.search(r"stress_causal_(S\d+)\.csv", truth_path.name)
+                if m_sess:
+                    session = m_sess.group(1)
 
             interval_ms: Optional[int] = None
             if manifest_entry.get("interval_ms"):
@@ -334,7 +381,8 @@ def main() -> None:
                 except Exception:
                     interval_ms = None
             if interval_ms is None:
-                m_itv = re.search(r"FIXED_(\d+)", (mode_override or "") or (args.mode or ""))
+                mode_for_interval = (manifest_entry.get("mode") or "") or (mode_override or "") or (args.mode or "")
+                m_itv = re.search(r"FIXED_(\d+)", mode_for_interval)
                 if m_itv:
                     try:
                         interval_ms = int(m_itv.group(1))
@@ -361,8 +409,12 @@ def main() -> None:
             tl_mean_s = tl_p95_s = 0.0
             pout = {tau: 0.0 for tau in TAU_VALUES}
             clamp_stats = {"clamp_high_count": 0, "clamp_high_rate": 0.0}
+            tl_time_offset_ms = 0.0
+            tl_time_offset_n = 0
             if truth_labels:
-                tl_mean_s, tl_p95_s, pout, clamp_stats = compute_tl_and_pout(truth_labels, rx_events)
+                tl_time_offset_ms, tl_time_offset_n = estimate_rx_truth_time_offset_ms(rx_events, interval_ms)
+                rx_events_aligned = [(ms + tl_time_offset_ms, seq, lbl) for (ms, seq, lbl) in rx_events]
+                tl_mean_s, tl_p95_s, pout, clamp_stats = compute_tl_and_pout(truth_labels, rx_events_aligned)
 
             if duration_ms is None and rx_events:
                 duration_ms = rx_events[-1][0] - rx_events[0][0]
@@ -384,6 +436,7 @@ def main() -> None:
 
             row = {
                 "trial_id": trial_id,
+                "session": session,
                 "mode": mode or "",
                 "interval_ms": interval_ms or "",
                 "adv_count": adv_count,
@@ -398,6 +451,8 @@ def main() -> None:
                 "pout_3s": round(pout[3.0], 6),
                 "tl_clamp_high_count": clamp_stats["clamp_high_count"],
                 "tl_clamp_high_rate": round(clamp_stats["clamp_high_rate"], 6),
+                "tl_time_offset_ms": round(tl_time_offset_ms, 3),
+                "tl_time_offset_n": tl_time_offset_n,
                 "E_total_mJ": e_total_mj,
                 "E_per_adv_uJ": e_per_adv_uj,
                 "avg_power_mW": avg_power_mw,

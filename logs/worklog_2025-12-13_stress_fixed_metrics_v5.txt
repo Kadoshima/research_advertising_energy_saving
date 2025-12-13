@@ -1,0 +1,57 @@
+2025-12-13 22:38 JST
+
+【目的】
+- stress_fixed（scan50/scan90）の TL/Pout 指標定義を「論文で説明できる形」に固定し、v5として再生成・図表化の土台を作る。
+
+【観察（問題）】
+- scan90 v4 の TL/Pout が理論と整合しない（例: FIXED_2000 の Pout(1s) が 0.5未満に見える等）。
+- 原因: RXログの `ms` と truth の開始位相ズレ（開始時刻オフセット）を補正していなかったため、TL/Pout が不自然に小さく算出されるケースがあった。
+
+【対応（実装/再生成）】
+- `scripts/analyze_stress_causal_real.py` を修正:
+  - TL/Pout 計算前に `seq×interval_ms` から定数オフセット `tl_time_offset_ms` を推定し、`ms_aligned = ms + offset` で時間同期。
+  - `session` / `tl_time_offset_ms` / `tl_time_offset_n` を出力に追加。
+  - manifest の `truth_file` を参照して truth を解決できるように修正。
+- 集約スクリプトを追加: `scripts/aggregate_stress_causal_real_summary.py`
+  - per-trial → modes/agg/agg_enriched を再現可能に生成。
+
+【生成物（v5）】
+- scan90:
+  - `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_full_scan90_v5.csv`
+  - `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_modes_scan90_v5.csv`
+  - `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_scan90_v5.csv`
+  - `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_enriched_scan90_v5.csv`
+  - `results/stress_fixed/scan90/index.md` を v5 追記（v4は時間同期なしとして注意喚起）。
+- scan50:
+  - `results/stress_fixed/scan50/stress_causal_real_summary_1211_stress_full_scan50_v5.csv`
+  - `results/stress_fixed/scan50/stress_causal_real_summary_1211_stress_modes_scan50_v5.csv`
+  - `results/stress_fixed/scan50/stress_causal_real_summary_1211_stress_agg_scan50_v5.csv`
+  - `results/stress_fixed/scan50/stress_causal_real_summary_1211_stress_agg_enriched_scan50_v5.csv`
+  - `results/stress_fixed/scan50/index.md` を v5 追記。
+- scan50 vs scan90 比較（v5）:
+  - `scripts/compare_scan50_vs_scan90_stress_fixed.py`
+  - `results/stress_fixed/compare/compare_scan50_vs_scan90_stress_fixed_v5.csv`
+  - `results/stress_fixed/compare/compare_scan50_vs_scan90_pdr_v5.txt`
+  - `results/stress_fixed/compare/index.md` を v5 追記。
+
+【主要な指標変化（例: scan90, v4→v5）】
+- FIXED_2000 の Pout(1s):
+  - S1: 0.0667 → 0.3833（時間同期の影響）
+  - S4: 0.1915 → 0.4965（時間同期の影響）
+- FIXED_100 の TL_mean:
+  - S1: 12.02s → 0.07s
+  - S4: 13.57s → 0.83s
+
+【図表（v5）】
+- `scripts/plot_stress_fixed_figures_v5.py` を追加し、以下を生成:
+  - `results/stress_fixed/figures_v5/fig1_scan90_metrics.png`
+  - `results/stress_fixed/figures_v5/fig3_scan50_vs_scan90_pdr_unique.png`
+  - `results/stress_fixed/figures_v5/README.md`（生成コマンド/入力のメモ）
+
+【ドキュメント更新】
+- `docs/metrics_definition.md` に TL/Pout の時間同期（seq-based offset）を追記し、scan90/scan50 v5 の参照パスを更新。
+- `docs/TODO.md` の P0「TL/Pout 真値定義確定」を v5としてDoneに更新。
+
+【注意】
+- downstream（例: mHealthのオフライン評価）で scan90 v4 を参照している箇所は、v5に差し替えると結果が変わる可能性がある。
+

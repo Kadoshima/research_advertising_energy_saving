@@ -46,7 +46,8 @@
   - 決定ログ: `docs/decision_log_2025-12-13_letter_route.md`
 - 固定intervalの電力テーブル（sleep_eval, n=2）を取得し、オフライン評価の power 軸を置換可能にした。
   - power table: `results/mhealth_policy_eval/power_table_sleep_eval_2025-12-13.csv`
-  - Pareto（power_table反映 + context mixing）: `results/mhealth_policy_eval/pareto_front_v5_power_table/pareto_summary.md`
+  - Pareto（power_table反映 + context mixing, scan90 v5）: `results/mhealth_policy_eval/pareto_front_v6_power_table_scan90_v5/pareto_summary.md`
+  - レター用δ帯（tight, 0.02/0.03/0.04）: `results/mhealth_policy_eval/letter_v2_scan90_v5_delta_tight/fig_delta_band.png`
   - 重要: 電力低下の主効果は 100→500ms。500→2000msは小さい（=「100ms滞在を減らす」設計が効く）。
 
 ### 0.2 いま残っている一番重要な論点
@@ -159,10 +160,10 @@
 
 ### P0: 定義固定 + 図表化（最優先）
 
-- [ ] (AI) **TL/Pout の真値定義を確定**
-  - `analyze_stress_causal_real.py` の truth 遷移抽出が「100ms真値」か「サブサンプル真値」かを確認
-  - `docs/metrics_definition.md` と一致させる（必要なら修正して再解析）
-  - ここが確定するまで、TL/Pout を主張の中心に置かない（図にも注記）
+- [x] (AI) **TL/Pout の真値定義を確定（v5）**
+  - truth 遷移は **100ms真値**（`truth[idx,label]`）から抽出。
+  - RXログの `ms` は開始位相ズレが入り得るため、`seq×interval_ms` から **定数オフセット**を推定して時間同期してから TL/Pout を計算（`tl_time_offset_ms`）。
+  - 出力: `results/stress_fixed/scan90/*_scan90_v5.csv`（v4は時間同期なしのため原則参照しない）。
 
 - [ ] (AI) scan90 固定フルセットの図表（論文用）を確定
   - 図1: intervalごとの `pdr_unique`, `Pout(1s)`, `TL_mean`, `E_per_adv`, `avg_power`
