@@ -14,13 +14,20 @@
 ## コンテキスト混合版（stable→S1, transition→S4）
 - スクリプト: `eval_policy_offline.py` / `sweep_policy_pareto.py` に `--context-mixing` を追加。truth窓内遷移あり or `CCS_ema>=0.30` を transition としてS4メトリクス、その他をS1メトリクスで合成。
 - 出力: `results/mhealth_policy_eval/pareto_front_v4_context/`（CSV/summary/plot/README）。δ=0.1なし。δ=0.2で pout_1s≈0.126–0.129、share100≈0.40–0.46、share2000≈0.52–0.58、avg_power≈200.48–200.50 mW（依然フラット）。
-- 解釈: 「いつ短くしたか」を入れるとQoSは改善するが、電力は固定メトリクスが“寝ていない”ため曲がらず。電力を曲げるには固定計測を sleep ありで撮り直す必要がある。
+- 解釈: 「いつ短くしたか」を入れるとQoSは改善する。電力軸は、固定メトリクスの avg_power をそのまま使うとフラットになりやすいので、必要に応じて外部 power table で上書きする。
+
+## Power table（sleep_evalからの上書き）
+- 目的: `avg_power_mW_mean` を「固定intervalの実測テーブル」で置き換え、share100削減がそのまま省電力に効く形で評価する。
+- テーブル: `results/mhealth_policy_eval/power_table_sleep_eval_2025-12-13.csv`
+  - 生成元: `sleep_eval_scan90/metrics/on_off_test_100~2000/txsd_power_summary.csv`（TXSD mean_p_mW, n=2, 2025-12-13）
+  - 適用: `scripts/eval_policy_offline.py` / `scripts/sweep_policy_pareto.py` / `scripts/build_policy_table.py` の `--power-table` で上書き。
 
 ## 再現コマンド（デフォルト方策）
 ```bash
 .venv_mhealth310/bin/python scripts/eval_policy_offline.py \
   --har-dir data/mhealth_synthetic_sessions_v1/sessions \
   --metrics results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_enriched_scan90_v4.csv \
+  --power-table results/mhealth_policy_eval/power_table_sleep_eval_2025-12-13.csv \
   --out-json results/mhealth_policy_eval/policy_eval_default.json
 ```
 
@@ -43,9 +50,8 @@
 
 ## 現在の結論と次アクション（2025-12-13）
 - 事実: scan90固定メトリクスでは S4 の最良でも pout_1s≈0.177（1s基準）。このため δ=0.1 は行動シェア調整では達成不能。コンテキスト混合で pout_1s≈0.12 まで改善するが、avg_power はほぼフラット。
-- 原因: 固定2000msでもスリープしておらず、ベース電力支配で間隔制御による省電力自由度が無い。
-- 意思決定: 省電力化を主軸にする。ただし「寝られる設計」を評価スコープに含める。併せて adv_rate 削減は副軸として保持。
+- 更新: `sleep_eval_scan90` の固定interval sweep により power table を取得したので、オフライン評価の電力軸は `--power-table` で置換可能。
 - 次にやること:
-  1) 固定100ms/2000msで「sleepなし vs sleepあり」を計測し、avg_power/波形で“寝ている”証拠を取る（scan90同等条件）。  
-  2) sleepあり固定テーブルを新csvとして保存し、eval/sweepのメトリクスを差し替えてパレートを再計算。  
-  3) 実機動的検証は P_event / P_bal / P_stable + Fixed 100/2000 の4条件を最小セットとする。
+  1) `--power-table` 付きで Pareto sweep を再実行し、電力（またはE_total/dur）でのトレードオフを再確認する。  
+  2) δ=0.12〜0.18 を刻んで feasible 境界（制約が効く帯）を1図で出す。  
+  3) 実機の動的検証は「100↔500（2値）」から開始し、Fixed 100/500/2000と最小本数で比較する。

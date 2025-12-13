@@ -1,0 +1,6 @@
+2025-12-13
+- [20:05 JST] レター最速ルートの意思決定: docs/TODO.md の主線（CCS_causal実機→self-UCB）と比較し、新規性優先で「U/CCS→interval（ルールベース）をPhase1主結果」に寄せる方針を確定。決定理由と次アクションを `docs/decision_log_2025-12-13_letter_route.md` に記録。
+- [20:10 JST] power table反映: `sleep_eval_scan90` の固定interval sweep（TXSD mean_p_mW, n=2）を `results/mhealth_policy_eval/power_table_sleep_eval_2025-12-13.csv` に固定し、オフライン評価のavg_powerを `--power-table` で上書き可能にした（scripts/eval_policy_offline.py, scripts/sweep_policy_pareto.py, scripts/build_policy_table.py）。
+- [20:20 JST] Pareto v5生成: power_table反映 + context mixing（stable→S1, transition→S4）でスイープを再実行し、δ境界（0.12不可/0.13から可）と、power-min/event-min/switch-min/QoS-minのTop10を `results/mhealth_policy_eval/pareto_front_v5_power_table/pareto_summary.md` に出力。図: `results/mhealth_policy_eval/pareto_front_v5_power_table/pareto_plots.png`。
+- [20:25 JST] 比較表更新: 固定vsルール（U-only/CCS-only/U+CCS）表を power table 反映で再生成（results/mhealth_policy_eval/policy_table.md, policy_table.png）。
+

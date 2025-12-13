@@ -5,6 +5,8 @@ Build comparison table: Fixed vs U-only vs CCS-only vs U+CCS (default).
 Inputs:
 - Synthetic HAR logs: data/mhealth_synthetic_sessions_v1/sessions/*_har.csv
 - Fixed metrics (scan90 agg v4): results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_enriched_scan90_v4.csv
+Optional:
+- Power table override (interval_ms,avg_power_mW) to replace avg_power_mW_mean.
 
 Outputs:
 - Markdown table at results/mhealth_policy_eval/policy_table.md
@@ -12,6 +14,7 @@ Outputs:
 
 from __future__ import annotations
 
+import argparse
 import pandas as pd
 from pathlib import Path
 from typing import Dict, List
@@ -37,6 +40,24 @@ def load_fixed_metrics(path: Path) -> pd.DataFrame:
         "avg_power_mW_mean",
     ]
     return df.groupby("interval_ms")[cols].mean().reset_index()
+
+
+def apply_power_table(fixed: pd.DataFrame, power_table: Path) -> pd.DataFrame:
+    """
+    Override avg_power_mW_mean using an external table.
+
+    power_table CSV schema:
+      interval_ms,avg_power_mW
+    """
+    pt = pd.read_csv(power_table)
+    if "interval_ms" not in pt.columns or "avg_power_mW" not in pt.columns:
+        raise SystemExit(f"power_table must have columns interval_ms,avg_power_mW: {power_table}")
+    m = pt.set_index("interval_ms")["avg_power_mW"].to_dict()
+    out = fixed.copy()
+    out["avg_power_mW_mean_orig"] = out["avg_power_mW_mean"]
+    override = out["interval_ms"].map(m)
+    out["avg_power_mW_mean"] = override.fillna(out["avg_power_mW_mean_orig"])
+    return out
 
 
 def apply_policy(
@@ -122,12 +143,21 @@ def combine_metrics(shares: Dict[int, float], fixed: pd.DataFrame) -> Dict[str, 
 
 
 def main():
-    har_dir = Path("data/mhealth_synthetic_sessions_v1/sessions")
-    metrics_path = Path("results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_enriched_scan90_v4.csv")
-    out_md = Path("results/mhealth_policy_eval/policy_table.md")
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--har-dir", type=Path, default=Path("data/mhealth_synthetic_sessions_v1/sessions"))
+    ap.add_argument(
+        "--metrics",
+        type=Path,
+        default=Path("results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_enriched_scan90_v4.csv"),
+    )
+    ap.add_argument("--power-table", type=Path, default=None, help="Optional CSV to override avg_power_mW (interval_ms,avg_power_mW)")
+    ap.add_argument("--out-md", type=Path, default=Path("results/mhealth_policy_eval/policy_table.md"))
+    args = ap.parse_args()
 
-    sessions = load_har_sessions(har_dir)
-    fixed = load_fixed_metrics(metrics_path)
+    sessions = load_har_sessions(args.har_dir)
+    fixed = load_fixed_metrics(args.metrics)
+    if args.power_table:
+        fixed = apply_power_table(fixed, args.power_table)
 
     policies = [
         ("Fixed 100", {"shares": {100: 1.0, 500: 0.0, 1000: 0.0, 2000: 0.0}}),
@@ -162,8 +192,8 @@ def main():
         )
 
     df_out = pd.DataFrame(rows)
-    out_md.parent.mkdir(parents=True, exist_ok=True)
-    with open(out_md, "w") as f:
+    args.out_md.parent.mkdir(parents=True, exist_ok=True)
+    with open(args.out_md, "w") as f:
         f.write("| policy | share100 | share500 | share1000 | share2000 | pdr_unique | pout_1s | tl_mean_s | E_per_adv_uJ | avg_power_mW |\n")
         f.write("| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n")
         for _, r in df_out.iterrows():
@@ -171,7 +201,7 @@ def main():
                 f"| {r['policy']} | {r['share_100']:.3f} | {r['share_500']:.3f} | {r['share_1000']:.3f} | {r['share_2000']:.3f} | "
                 f"{r['pdr_unique']:.3f} | {r['pout_1s']:.3f} | {r['tl_mean_s']:.2f} | {r['E_per_adv_uJ']:.1f} | {r['avg_power_mW']:.2f} |\n"
             )
-    print(f"Wrote {out_md}")
+    print(f"Wrote {args.out_md}")
 
 
 if __name__ == "__main__":

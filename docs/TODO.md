@@ -1,6 +1,6 @@
 # エッジHAR TODO（Mode C2′ / ストレス固定 / 因果CCS・self-UCB 実機検証）
 
-- 最終更新: 2025-12-12
+- 最終更新: 2025-12-13
 - 対象スコープ:
   - **Mode C2′（ラベル再生）**を用いた「広告間隔制御」の評価（固定 vs 因果CCS vs self-UCB）。
   - まずは **ストレスラベル S1/S4** を主ケースとして、実測とシミュを整合させて論文化に耐える形にする。
@@ -39,6 +39,15 @@
     - 100ms の `pdr_unique` が **0.80前後まで改善**（scan duty 90% が効いた）
     - 500/1000/2000 は `pdr_unique` がほぼ 1.0（TXSD adv_count 基準でクランプしている前提）
     - ただし **TL/Pout が想定より大きい**（ストレス列の遷移の扱い／真値定義／サブサンプルの有無の確認が必要）
+
+### 0.2 2025-12-13 追記（レター最速ルートの意思決定）
+
+- レター最速ルートは「**U/CCS→interval（ルールベース）を主結果**」に寄せる（Safe-MABはFuture Work）。
+  - 決定ログ: `docs/decision_log_2025-12-13_letter_route.md`
+- 固定intervalの電力テーブル（sleep_eval, n=2）を取得し、オフライン評価の power 軸を置換可能にした。
+  - power table: `results/mhealth_policy_eval/power_table_sleep_eval_2025-12-13.csv`
+  - Pareto（power_table反映 + context mixing）: `results/mhealth_policy_eval/pareto_front_v5_power_table/pareto_summary.md`
+  - 重要: 電力低下の主効果は 100→500ms。500→2000msは小さい（=「100ms滞在を減らす」設計が効く）。
 
 ### 0.2 いま残っている一番重要な論点
 

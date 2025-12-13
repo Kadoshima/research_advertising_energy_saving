@@ -39,6 +39,25 @@ def load_fixed_metrics(path: Path) -> pd.DataFrame:
     return pd.read_csv(path)
 
 
+def apply_power_table(fixed: pd.DataFrame, power_table: Path) -> pd.DataFrame:
+    """
+    Override avg_power_mW_mean in the fixed-metrics table using an external table.
+
+    power_table CSV schema:
+      interval_ms,avg_power_mW
+    """
+    pt = pd.read_csv(power_table)
+    if "interval_ms" not in pt.columns or "avg_power_mW" not in pt.columns:
+        raise SystemExit(f"power_table must have columns interval_ms,avg_power_mW: {power_table}")
+    m = pt.set_index("interval_ms")["avg_power_mW"].to_dict()
+    out = fixed.copy()
+    if "avg_power_mW_mean" in out.columns:
+        out["avg_power_mW_mean_orig"] = out["avg_power_mW_mean"]
+        override = out["interval_ms"].map(m)
+        out["avg_power_mW_mean"] = override.fillna(out["avg_power_mW_mean_orig"])
+    return out
+
+
 def apply_policy(df: pd.DataFrame, params: Dict[str, float], initial_interval: int = 500) -> Dict[str, object]:
     counts = {100: 0, 500: 0, 1000: 0, 2000: 0}
     prev = initial_interval
@@ -184,15 +203,20 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--har-dir", type=Path, default=Path("data/mhealth_synthetic_sessions_v1/sessions"))
     ap.add_argument("--metrics", type=Path, default=Path("results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_enriched_scan90_v4.csv"))
+    ap.add_argument("--power-table", type=Path, default=None, help="Optional CSV to override avg_power_mW (interval_ms,avg_power_mW)")
     ap.add_argument("--out-csv", type=Path, default=Path("results/mhealth_policy_eval/pareto_front/pareto_sweep.csv"))
     ap.add_argument("--out-summary", type=Path, default=Path("results/mhealth_policy_eval/pareto_front/pareto_summary.md"))
     ap.add_argument("--metric", choices=["energy", "power"], default="energy", help="Objective for sorting summaries: energy=E_per_adv_uJ, power=avg_power_mW")
     ap.add_argument("--context-mixing", action="store_true", help="Use stable/transition mixing (S1/S4)")
     ap.add_argument("--transition-ccs-thresh", type=float, default=0.30, help="CCS_ema threshold to mark transition")
+    ap.add_argument("--deltas", type=str, default="0.10,0.20", help="Comma-separated δ values for summary (default: 0.10,0.20)")
+    ap.add_argument("--top-n", type=int, default=10, help="Top-N rows per summary table (default 10)")
     args = ap.parse_args()
 
     sessions = load_har_sessions(args.har_dir, with_truth=args.context_mixing)
     fixed = load_fixed_metrics(args.metrics)
+    if args.power_table:
+        fixed = apply_power_table(fixed, args.power_table)
 
     grid_u_mid = [0.10, 0.15, 0.20]
     grid_u_high = [0.25, 0.30, 0.35]
@@ -283,29 +307,77 @@ def main():
     df.to_csv(args.out_csv, index=False)
     print(f"wrote {args.out_csv} ({len(df)} rows)")
 
-    def summarize(df_filt: pd.DataFrame, delta: float) -> str:
-        if args.metric == "power":
-            filt = df_filt[df_filt["pout_1s"] <= delta].sort_values(["avg_power_mW", "switch_rate", "tl_mean_s"]).head(5)
-            lines = [f"### δ = {delta}", "", "| u_mid | u_high | c_mid | c_high | hyst | share100 | share500 | share2000 | pout_1s | avg_power_mW | switch_rate |", "| --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |"]
-            for _, r in filt.iterrows():
-                lines.append(
+    def _parse_deltas(s: str) -> List[float]:
+        out: List[float] = []
+        for part in s.split(","):
+            part = part.strip()
+            if not part:
+                continue
+            out.append(float(part))
+        return out or [0.10, 0.20]
+
+    deltas = _parse_deltas(args.deltas)
+    top_n = max(1, int(args.top_n))
+
+    cols_common = [
+        "u_mid",
+        "u_high",
+        "c_mid",
+        "c_high",
+        "hyst",
+        "pout_1s",
+        "E_per_adv_uJ",
+        "avg_power_mW",
+        "adv_rate",
+        "switch_rate",
+        "share_100",
+        "share_500",
+        "share_1000",
+        "share_2000",
+    ]
+
+    def summarize_block(df_all: pd.DataFrame, delta: float) -> str:
+        df_f = df_all[df_all["pout_1s"] <= delta].copy()
+        lines = [f"## δ = {delta:.2f}", f"- feasible: {len(df_f)}/{len(df_all)}", ""]
+        if df_f.empty:
+            return "\n".join(lines)
+
+        def render(title: str, df_sub: pd.DataFrame) -> List[str]:
+            out = [f"### {title}", ""]
+            out.append(
+                "| u_mid | u_high | c_mid | c_high | hyst | pout_1s | E_per_adv_uJ | avg_power_mW | adv_rate | switch_rate | share100 | share500 | share1000 | share2000 |"
+            )
+            out.append("| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |")
+            for _, r in df_sub.iterrows():
+                out.append(
                     f"| {r.u_mid:.2f} | {r.u_high:.2f} | {r.c_mid:.2f} | {r.c_high:.2f} | {r.hyst:.2f} | "
-                    f"{r.share_100:.3f} | {r.share_500:.3f} | {r.share_2000:.3f} | {r.pout_1s:.3f} | {r.avg_power_mW:.2f} | {r.switch_rate:.3f} |"
+                    f"{r.pout_1s:.3f} | {r.E_per_adv_uJ:.1f} | {r.avg_power_mW:.2f} | {r.adv_rate:.2f} | {r.switch_rate:.3f} | "
+                    f"{r.share_100:.3f} | {r.share_500:.3f} | {r.share_1000:.3f} | {r.share_2000:.3f} |"
                 )
-        else:
-            filt = df_filt[df_filt["pout_1s"] <= delta].sort_values(["E_per_adv_uJ", "switch_rate", "tl_mean_s"]).head(5)
-            lines = [f"### δ = {delta}", "", "| u_mid | u_high | c_mid | c_high | hyst | share100 | share500 | share2000 | pout_1s | E_per_adv_uJ | switch_rate |", "| --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |"]
-            for _, r in filt.iterrows():
-                lines.append(
-                    f"| {r.u_mid:.2f} | {r.u_high:.2f} | {r.c_mid:.2f} | {r.c_high:.2f} | {r.hyst:.2f} | "
-                    f"{r.share_100:.3f} | {r.share_500:.3f} | {r.share_2000:.3f} | {r.pout_1s:.3f} | {r.E_per_adv_uJ:.1f} | {r.switch_rate:.3f} |"
-                )
+            return out
+
+        by_adv = df_f.sort_values(["adv_rate", "avg_power_mW", "switch_rate", "pout_1s"]).head(top_n)
+        by_switch = df_f.sort_values(["switch_rate", "avg_power_mW", "adv_rate", "pout_1s"]).head(top_n)
+        by_pout = df_f.sort_values(["pout_1s", "avg_power_mW", "adv_rate", "switch_rate"]).head(top_n)
+        by_power = df_f.sort_values(["avg_power_mW", "pout_1s", "switch_rate", "adv_rate"]).head(top_n)
+
+        lines += render("Top by avg_power_mW (power-min)", by_power)
+        lines.append("")
+        lines += render("Top by adv_rate (event-min)", by_adv)
+        lines.append("")
+        lines += render("Top by switch_rate (stable)", by_switch)
+        lines.append("")
+        lines += render("Top by pout_1s (QoS)", by_pout)
         return "\n".join(lines)
 
     summary_lines = ["# Pareto-like sweep (U+CCS)", "", f"Total grid points: {len(df)}", ""]
-    summary_lines.append(summarize(df, 0.10))
+    summary_lines.append(f"- metric: `{args.metric}`")
+    summary_lines.append(f"- context_mixing: `{args.context_mixing}`")
+    summary_lines.append(f"- power_table: `{args.power_table}`")
     summary_lines.append("")
-    summary_lines.append(summarize(df, 0.20))
+    for d in deltas:
+        summary_lines.append(summarize_block(df[cols_common], d))
+        summary_lines.append("")
     args.out_summary.write_text("\n".join(summary_lines))
     print(f"wrote {args.out_summary}")
 

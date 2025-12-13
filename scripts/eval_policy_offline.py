@@ -45,6 +45,25 @@ def load_fixed_metrics(path: Path) -> pd.DataFrame:
     return df
 
 
+def apply_power_table(fixed: pd.DataFrame, power_table: Path) -> pd.DataFrame:
+    """
+    Override avg_power_mW_mean in the fixed-metrics table using an external table.
+
+    power_table CSV schema:
+      interval_ms,avg_power_mW
+    """
+    pt = pd.read_csv(power_table)
+    if "interval_ms" not in pt.columns or "avg_power_mW" not in pt.columns:
+        raise SystemExit(f"power_table must have columns interval_ms,avg_power_mW: {power_table}")
+    m = pt.set_index("interval_ms")["avg_power_mW"].to_dict()
+    out = fixed.copy()
+    if "avg_power_mW_mean" in out.columns:
+        out["avg_power_mW_mean_orig"] = out["avg_power_mW_mean"]
+        override = out["interval_ms"].map(m)
+        out["avg_power_mW_mean"] = override.fillna(out["avg_power_mW_mean_orig"])
+    return out
+
+
 def apply_policy(
     df: pd.DataFrame,
     u_mid: float,
@@ -265,6 +284,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--har-dir", type=Path, default=Path("data/mhealth_synthetic_sessions_v1/sessions"))
     ap.add_argument("--metrics", type=Path, default=Path("results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_enriched_scan90_v4.csv"))
+    ap.add_argument("--power-table", type=Path, default=None, help="Optional CSV to override avg_power_mW (interval_ms,avg_power_mW)")
     ap.add_argument("--u-mid", type=float, default=0.15)
     ap.add_argument("--u-high", type=float, default=0.30)
     ap.add_argument("--c-mid", type=float, default=0.20)
@@ -278,6 +298,8 @@ def main():
 
     sessions = load_har_sessions(args.har_dir, with_truth=args.context_mixing)
     fixed = load_fixed_metrics(args.metrics)
+    if args.power_table:
+        fixed = apply_power_table(fixed, args.power_table)
 
     pol = evaluate_policy(
         sessions,
@@ -309,6 +331,7 @@ def main():
             "initial_interval": args.initial_interval,
             "context_mixing": args.context_mixing,
             "transition_ccs_thresh": args.transition_ccs_thresh,
+            "power_table": str(args.power_table) if args.power_table else None,
         },
         "counts": pol["counts"],
         "shares": pol["shares"],

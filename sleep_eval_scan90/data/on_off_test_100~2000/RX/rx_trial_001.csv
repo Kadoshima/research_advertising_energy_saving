@@ -1,0 +1,4 @@
+ms,event,rssi,seq,label,addr,mfd
+# meta, firmware=RX_MODEC2P_1210, buf_size=512
+# condition_label=I2000_ON
+1292,ADV,-48,0,I2000_ON,e0:5a:1b:15:c4:ca,0000_I2000_ON
