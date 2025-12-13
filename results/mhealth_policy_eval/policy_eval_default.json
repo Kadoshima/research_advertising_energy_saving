@@ -1,0 +1,31 @@
+{
+  "policy": {
+    "u_mid": 0.15,
+    "u_high": 0.3,
+    "c_mid": 0.2,
+    "c_high": 0.35,
+    "hysteresis": 0.05,
+    "initial_interval": 500
+  },
+  "counts": {
+    "100": 2805,
+    "500": 551,
+    "1000": 0,
+    "2000": 2602
+  },
+  "shares": {
+    "100": 0.47079556898288016,
+    "500": 0.0924806982208795,
+    "1000": 0.0,
+    "2000": 0.4367237327962403
+  },
+  "total_windows": 5958,
+  "expected_metrics": {
+    "pdr_unique_mean": 0.9092200213997985,
+    "pout_1s_mean": 0.1658173469284995,
+    "tl_mean_s_mean": 10.487305998321585,
+    "E_per_adv_uJ_mean": 193347.55570661297,
+    "avg_power_mW_mean": 200.483077544144
+  },
+  "notes": "Evaluation uses mask_eval_window==1 only; fixed metrics averaged over S1/S4 scan90 agg v4."
+}

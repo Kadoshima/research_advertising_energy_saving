@@ -9,6 +9,9 @@ __pycache__/
 *$py.class
 *.so
 .Python
+.cache/
+.matplotlib/
+.mpl_cache/
 
 # Virtual environments
 har/001/.venv*/

@@ -30,6 +30,7 @@ from typing import Dict, List, Tuple
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+from numpy.typing import ArrayLike
 
 # ---------------------------------------------------------------------------
 # Constants (aligned with spec v1.0)
@@ -226,10 +227,42 @@ def probs_to_4class(probs12: np.ndarray) -> np.ndarray:
     return out
 
 
+def session_quality_stats(assembled: Dict[str, object], har_rows: List[Dict[str, object]]) -> Dict[str, object]:
+    script = assembled["script"]
+    reuse_counts = [r["reuse_count"] for r in script]
+    truth_labels = assembled["truth_labels"]
+    truth_mask = assembled["truth_mask"]
+    mask_window = np.array([r["mask_eval_window"] for r in har_rows], dtype=np.int8)
+    u_vals = np.array([r["U"] for r in har_rows], dtype=np.float32)
+
+    def safe_median(arr: ArrayLike) -> float | None:
+        arr = np.asarray(arr)
+        if arr.size == 0:
+            return None
+        return float(np.median(arr))
+
+    return {
+        "reuse_max": int(max(reuse_counts) if reuse_counts else 0),
+        "reuse_mean": float(np.mean(reuse_counts)) if reuse_counts else 0.0,
+        "label_counts": {int(k): int(v) for k, v in zip(*np.unique(truth_labels, return_counts=True))},
+        "mask_truth_zero_ratio": float(np.mean(truth_mask == 0)),
+        "mask_window_zero_ratio": float(np.mean(mask_window == 0)),
+        "median_U_eval": safe_median(u_vals[mask_window == 1]),
+        "median_U_boundary": safe_median(u_vals[mask_window == 0]),
+    }
+
+
 def normalized_entropy(probs: np.ndarray) -> float:
-    probs_safe = np.clip(probs, 1e-9, 1.0)
-    ent = -np.sum(probs_safe * np.log(probs_safe))
-    return float(ent / math.log(len(probs)))
+    """Normalized entropy for U. Unknownクラスは含めず3クラスで計算する."""
+    # use first 3 classes (loco, trans, stat); unknown is index 3
+    p = probs[:3].astype(np.float64)
+    total = p.sum()
+    if total <= 1e-9:
+        p = np.ones(3, dtype=np.float64) / 3.0
+    else:
+        p = p / total
+    ent = -np.sum(p * np.log(p + 1e-12))
+    return float(ent / math.log(3))
 
 
 # ---------------------------------------------------------------------------
@@ -246,6 +279,9 @@ def assemble_session(
     exclude = int(EXCLUDE_S * FS_HZ)
     seg_pool = {lbl: list(segs) for lbl, segs in library.items()}
     reuse_counts = {lbl: 0 for lbl in library}
+    # shuffle pool per session for variety
+    for lbl in seg_pool:
+        rng.shuffle(seg_pool[lbl])
 
     data = np.empty((0, 3), dtype=np.float32)
     labels = np.empty((0,), dtype=np.int32)
@@ -466,8 +502,9 @@ def main():
     summaries = []
     for seed in args.seeds:
         for k in range(args.sessions_per_seed):
+            sess_seed = seed * 100 + k  # ensure uniqueness across runs
             sess_id = f"seed{seed}_run{k}"
-            assembled = assemble_session(library, sess_id, seed=seed)
+            assembled = assemble_session(library, sess_id, seed=sess_seed)
             har_rows = run_inference(
                 assembled["data"],
                 assembled["mask"],
@@ -485,11 +522,12 @@ def main():
             save_truth_csv(truth_path, assembled["truth_labels"], assembled["truth_mask"])
             save_script_csv(script_path, assembled["script"], seed=seed)
             save_har_csv(har_path, har_rows)
-
+            qstats = session_quality_stats(assembled, har_rows)
             summaries.append(
                 {
                     "sess_id": sess_id,
                     "seed": seed,
+                    "sess_seed": sess_seed,
                     "segments": len(assembled["script"]),
                     "duration_s": len(assembled["data"]) / FS_HZ,
                     "n_transitions": len(assembled["script"]) - 1,
@@ -501,6 +539,7 @@ def main():
                     },
                     "mean_U": float(np.mean([r["U"] for r in har_rows])),
                     "mean_CCS": float(np.mean([r["CCS"] for r in har_rows])),
+                    "quality": qstats,
                 }
             )
             print(f"[ok] session {sess_id} saved")

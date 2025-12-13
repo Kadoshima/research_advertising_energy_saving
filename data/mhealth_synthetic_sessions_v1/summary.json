@@ -18,7 +18,7 @@
     1,
     2
   ],
-  "sessions_per_seed": 1,
+  "sessions_per_seed": 3,
   "sim_threshold": 0.95,
   "fs_hz": 50,
   "seg_len_s": 15.0,
@@ -33,6 +33,7 @@
     {
       "sess_id": "seed0_run0",
       "seed": 0,
+      "sess_seed": 0,
       "segments": 60,
       "duration_s": 870.5,
       "n_transitions": 59,
@@ -42,12 +43,84 @@
         "script": "data/mhealth_synthetic_sessions_v1/sessions/seed0_run0_script.csv",
         "har": "data/mhealth_synthetic_sessions_v1/sessions/seed0_run0_har.csv"
       },
-      "mean_U": 0.19703864571924085,
-      "mean_CCS": 0.1950425905297683
+      "mean_U": 0.2488415224646312,
+      "mean_CCS": 0.19723181419666125,
+      "quality": {
+        "reuse_max": 10,
+        "reuse_mean": 2.7666666666666666,
+        "label_counts": {
+          "0": 3045,
+          "1": 2760,
+          "2": 2900
+        },
+        "mask_truth_zero_ratio": 0.13555427914991383,
+        "mask_window_zero_ratio": 0.238204833141542,
+        "median_U_eval": 0.0835086926817894,
+        "median_U_boundary": 0.150877445936203
+      }
+    },
+    {
+      "sess_id": "seed0_run1",
+      "seed": 0,
+      "sess_seed": 1,
+      "segments": 60,
+      "duration_s": 870.5,
+      "n_transitions": 59,
+      "paths": {
+        "sensor": "data/mhealth_synthetic_sessions_v1/sessions/seed0_run1_sensor.csv",
+        "truth100ms": "data/mhealth_synthetic_sessions_v1/sessions/seed0_run1_truth100ms.csv",
+        "script": "data/mhealth_synthetic_sessions_v1/sessions/seed0_run1_script.csv",
+        "har": "data/mhealth_synthetic_sessions_v1/sessions/seed0_run1_har.csv"
+      },
+      "mean_U": 0.24660589273533207,
+      "mean_CCS": 0.19172793415656916,
+      "quality": {
+        "reuse_max": 10,
+        "reuse_mean": 2.7666666666666666,
+        "label_counts": {
+          "0": 3050,
+          "1": 2610,
+          "2": 3045
+        },
+        "mask_truth_zero_ratio": 0.13555427914991383,
+        "mask_window_zero_ratio": 0.238204833141542,
+        "median_U_eval": 0.08509478718042374,
+        "median_U_boundary": 0.1362730711698532
+      }
+    },
+    {
+      "sess_id": "seed0_run2",
+      "seed": 0,
+      "sess_seed": 2,
+      "segments": 60,
+      "duration_s": 870.5,
+      "n_transitions": 59,
+      "paths": {
+        "sensor": "data/mhealth_synthetic_sessions_v1/sessions/seed0_run2_sensor.csv",
+        "truth100ms": "data/mhealth_synthetic_sessions_v1/sessions/seed0_run2_truth100ms.csv",
+        "script": "data/mhealth_synthetic_sessions_v1/sessions/seed0_run2_script.csv",
+        "har": "data/mhealth_synthetic_sessions_v1/sessions/seed0_run2_har.csv"
+      },
+      "mean_U": 0.27605328344031715,
+      "mean_CCS": 0.21266811585934753,
+      "quality": {
+        "reuse_max": 6,
+        "reuse_mean": 2.3,
+        "label_counts": {
+          "0": 2035,
+          "1": 3190,
+          "2": 3480
+        },
+        "mask_truth_zero_ratio": 0.13555427914991383,
+        "mask_window_zero_ratio": 0.238204833141542,
+        "median_U_eval": 0.09683085978031158,
+        "median_U_boundary": 0.23992884159088135
+      }
     },
     {
       "sess_id": "seed1_run0",
       "seed": 1,
+      "sess_seed": 100,
       "segments": 60,
       "duration_s": 870.5,
       "n_transitions": 59,
@@ -57,12 +130,84 @@
         "script": "data/mhealth_synthetic_sessions_v1/sessions/seed1_run0_script.csv",
         "har": "data/mhealth_synthetic_sessions_v1/sessions/seed1_run0_har.csv"
       },
-      "mean_U": 0.19817823115041902,
-      "mean_CCS": 0.19806931162428784
+      "mean_U": 0.24690993892018728,
+      "mean_CCS": 0.1984678004901552,
+      "quality": {
+        "reuse_max": 8,
+        "reuse_mean": 2.566666666666667,
+        "label_counts": {
+          "0": 2615,
+          "1": 3335,
+          "2": 2755
+        },
+        "mask_truth_zero_ratio": 0.13555427914991383,
+        "mask_window_zero_ratio": 0.238204833141542,
+        "median_U_eval": 0.07933357357978821,
+        "median_U_boundary": 0.1362730711698532
+      }
+    },
+    {
+      "sess_id": "seed1_run1",
+      "seed": 1,
+      "sess_seed": 101,
+      "segments": 60,
+      "duration_s": 870.5,
+      "n_transitions": 59,
+      "paths": {
+        "sensor": "data/mhealth_synthetic_sessions_v1/sessions/seed1_run1_sensor.csv",
+        "truth100ms": "data/mhealth_synthetic_sessions_v1/sessions/seed1_run1_truth100ms.csv",
+        "script": "data/mhealth_synthetic_sessions_v1/sessions/seed1_run1_script.csv",
+        "har": "data/mhealth_synthetic_sessions_v1/sessions/seed1_run1_har.csv"
+      },
+      "mean_U": 0.248015298768875,
+      "mean_CCS": 0.19368708891133907,
+      "quality": {
+        "reuse_max": 9,
+        "reuse_mean": 2.6666666666666665,
+        "label_counts": {
+          "0": 2905,
+          "1": 2755,
+          "2": 3045
+        },
+        "mask_truth_zero_ratio": 0.13555427914991383,
+        "mask_window_zero_ratio": 0.238204833141542,
+        "median_U_eval": 0.08509478718042374,
+        "median_U_boundary": 0.1362730711698532
+      }
+    },
+    {
+      "sess_id": "seed1_run2",
+      "seed": 1,
+      "sess_seed": 102,
+      "segments": 60,
+      "duration_s": 870.5,
+      "n_transitions": 59,
+      "paths": {
+        "sensor": "data/mhealth_synthetic_sessions_v1/sessions/seed1_run2_sensor.csv",
+        "truth100ms": "data/mhealth_synthetic_sessions_v1/sessions/seed1_run2_truth100ms.csv",
+        "script": "data/mhealth_synthetic_sessions_v1/sessions/seed1_run2_script.csv",
+        "har": "data/mhealth_synthetic_sessions_v1/sessions/seed1_run2_har.csv"
+      },
+      "mean_U": 0.2517122069925218,
+      "mean_CCS": 0.19832707801244304,
+      "quality": {
+        "reuse_max": 10,
+        "reuse_mean": 2.7666666666666666,
+        "label_counts": {
+          "0": 3050,
+          "1": 2610,
+          "2": 3045
+        },
+        "mask_truth_zero_ratio": 0.13555427914991383,
+        "mask_window_zero_ratio": 0.238204833141542,
+        "median_U_eval": 0.08643090724945068,
+        "median_U_boundary": 0.1362730711698532
+      }
     },
     {
       "sess_id": "seed2_run0",
       "seed": 2,
+      "sess_seed": 200,
       "segments": 60,
       "duration_s": 870.5,
       "n_transitions": 59,
@@ -72,8 +217,79 @@
         "script": "data/mhealth_synthetic_sessions_v1/sessions/seed2_run0_script.csv",
         "har": "data/mhealth_synthetic_sessions_v1/sessions/seed2_run0_har.csv"
       },
-      "mean_U": 0.21592210199873652,
-      "mean_CCS": 0.21130067850832834
+      "mean_U": 0.2480855682595569,
+      "mean_CCS": 0.19889443420340983,
+      "quality": {
+        "reuse_max": 9,
+        "reuse_mean": 2.6333333333333333,
+        "label_counts": {
+          "0": 2755,
+          "1": 3190,
+          "2": 2760
+        },
+        "mask_truth_zero_ratio": 0.13555427914991383,
+        "mask_window_zero_ratio": 0.238204833141542,
+        "median_U_eval": 0.0794827938079834,
+        "median_U_boundary": 0.1362730711698532
+      }
+    },
+    {
+      "sess_id": "seed2_run1",
+      "seed": 2,
+      "sess_seed": 201,
+      "segments": 60,
+      "duration_s": 870.5,
+      "n_transitions": 59,
+      "paths": {
+        "sensor": "data/mhealth_synthetic_sessions_v1/sessions/seed2_run1_sensor.csv",
+        "truth100ms": "data/mhealth_synthetic_sessions_v1/sessions/seed2_run1_truth100ms.csv",
+        "script": "data/mhealth_synthetic_sessions_v1/sessions/seed2_run1_script.csv",
+        "har": "data/mhealth_synthetic_sessions_v1/sessions/seed2_run1_har.csv"
+      },
+      "mean_U": 0.2529680548407732,
+      "mean_CCS": 0.2001818678940896,
+      "quality": {
+        "reuse_max": 9,
+        "reuse_mean": 2.5833333333333335,
+        "label_counts": {
+          "0": 2755,
+          "1": 2900,
+          "2": 3050
+        },
+        "mask_truth_zero_ratio": 0.13555427914991383,
+        "mask_window_zero_ratio": 0.238204833141542,
+        "median_U_eval": 0.07487955689430237,
+        "median_U_boundary": 0.13953880965709686
+      }
+    },
+    {
+      "sess_id": "seed2_run2",
+      "seed": 2,
+      "sess_seed": 202,
+      "segments": 60,
+      "duration_s": 870.5,
+      "n_transitions": 59,
+      "paths": {
+        "sensor": "data/mhealth_synthetic_sessions_v1/sessions/seed2_run2_sensor.csv",
+        "truth100ms": "data/mhealth_synthetic_sessions_v1/sessions/seed2_run2_truth100ms.csv",
+        "script": "data/mhealth_synthetic_sessions_v1/sessions/seed2_run2_script.csv",
+        "har": "data/mhealth_synthetic_sessions_v1/sessions/seed2_run2_har.csv"
+      },
+      "mean_U": 0.2575762201611167,
+      "mean_CCS": 0.204413277257804,
+      "quality": {
+        "reuse_max": 8,
+        "reuse_mean": 2.533333333333333,
+        "label_counts": {
+          "0": 2610,
+          "1": 3195,
+          "2": 2900
+        },
+        "mask_truth_zero_ratio": 0.13555427914991383,
+        "mask_window_zero_ratio": 0.238204833141542,
+        "median_U_eval": 0.08643090724945068,
+        "median_U_boundary": 0.1362730711698532
+      }
     }
   ]
 }
