@@ -28,6 +28,7 @@ import pandas as pd
 @dataclass(frozen=True)
 class Trial:
     interval_ms: Optional[int]
+    condition: str
     path: str
     ms_total: Optional[int]
     mean_p_mw: Optional[float]
@@ -42,6 +43,15 @@ def infer_interval_ms(fp: Path) -> Optional[int]:
         if part.isdigit():
             return int(part)
     return None
+
+
+def infer_condition(fp: Path) -> str:
+    parts = set(fp.parts)
+    if "sleep_on" in parts:
+        return "sleep_on"
+    if "sleep_off" in parts:
+        return "sleep_off"
+    return "unknown"
 
 
 def parse_footer(fp: Path) -> Trial:
@@ -77,6 +87,7 @@ def parse_footer(fp: Path) -> Trial:
     ok = bool(summary and diag and ms_total is not None and mean_p is not None)
     return Trial(
         interval_ms=infer_interval_ms(fp),
+        condition=infer_condition(fp),
         path=str(fp),
         ms_total=ms_total,
         mean_p_mw=mean_p,
@@ -94,17 +105,18 @@ def save_plot(summary_csv: Path, out_png: Path) -> None:
     import matplotlib.pyplot as plt
 
     df = pd.read_csv(summary_csv)
-    df = df.sort_values("interval_ms")
-    x = df["interval_ms"].astype(int).to_list()
-    y = df["mean_mean_p_mw"].to_list()
-    yerr = df["std_mean_p_mw"].to_list()
-
     fig, ax = plt.subplots(figsize=(6.4, 3.6), dpi=160)
-    ax.errorbar(x, y, yerr=yerr, fmt="o-", capsize=4)
+    for cond, sub in df.groupby("condition"):
+        sub = sub.sort_values("interval_ms")
+        x = sub["interval_ms"].astype(int).to_list()
+        y = sub["mean_mean_p_mw"].to_list()
+        yerr = sub["std_mean_p_mw"].to_list()
+        ax.errorbar(x, y, yerr=yerr, fmt="o-", capsize=4, label=cond)
     ax.set_xlabel("ADV interval (ms)")
     ax.set_ylabel("TX power mean_p (mW)")
     ax.set_title("sleep_eval_scan90: TXSD mean power (per trial)")
     ax.grid(True, alpha=0.3)
+    ax.legend(loc="best")
     fig.tight_layout()
     out_png.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_png)
@@ -128,6 +140,7 @@ def main() -> None:
         w = csv.writer(f)
         w.writerow(
             [
+                "condition",
                 "interval_ms",
                 "path",
                 "ok",
@@ -141,6 +154,7 @@ def main() -> None:
         for t in trials:
             w.writerow(
                 [
+                    t.condition,
                     t.interval_ms,
                     t.path,
                     int(t.ok),
@@ -158,7 +172,7 @@ def main() -> None:
         raise SystemExit("No complete TXSD trials found (missing '# summary'/'# diag').")
 
     summary = (
-        ok_df.groupby("interval_ms")
+        ok_df.groupby(["condition", "interval_ms"])
         .agg(
             n_trials=("mean_p_mw", "count"),
             mean_ms_total=("ms_total", "mean"),
@@ -181,4 +195,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
