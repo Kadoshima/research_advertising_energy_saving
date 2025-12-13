@@ -1,4 +1,4 @@
-# Sleep効果比較（scan90相当, 100ms vs 2000ms, sleep ON/OFF）
+# Sleep効果比較（scan90相当, fixed interval sweep）
 
 ## 目的
 - 最短で「sleepが効いて平均電力が下がるか」を確定する。
@@ -18,30 +18,31 @@
 - （任意）TICK: TX GPIO27 → TXSD GPIO33（adv_count用。ただしsleep比較ステップ1ではTX側TICK出力を無効化推奨）。
   - もし配線を「同じGPIO番号同士（25→25）」で組んでいる場合は、`src/rx` と `src/txsd` の `SYNC_IN` を 25 に揃える。
 
-## 実験デザイン（ステップ1: ダミー広告で sleep 効果最大を確認）
-- 条件: 2×2 = {interval ∈ {100ms, 2000ms}} × {sleep OFF, sleep ON}（4条件）。
+## 実験デザイン（ステップ1: ダミー広告で基礎テーブルを取る）
+- 条件: interval ∈ {100ms, 500ms, 1000ms, 2000ms}（4条件、`N_CYCLES=2`で計8試行）。
+- sleep設定は固定（`ALLOW_LIGHT_SLEEP=true/false`）。ON/OFF比較をする場合は別runとして取得する。
 - ペイロード: 固定内容でOK（seqカウンタのみ）。HAR推論・U/CCS計算・センサ常時サンプリングは **無効化** する。
 - 禁止: 遷移多いラベル列、頻繁なSerial print、余計な周期タスク。
-- 成功判定: 2000ms+sleep ON で avg_power (または E_total/dur) が明確に低下。下がらなければ sleep 設定/PM lock/周辺周期タスクを疑う。
+- 期待: intervalを長くするほど avg_power (または E_total/dur) が低下する。下がらなければ sleep 設定/PM lock/周辺周期タスクを疑う。
 
 ## 重要な注意（単位と「本当にその間隔か」）
 - BLEのinterval/windowは実装によって **0.625ms単位** で解釈されることがあるため、`src/rx` は ms→0.625ms の変換を入れて設定している（例: 100ms→160, 90ms→144）。
 - `src/tx` は「CPU側で100msごとにpayload更新する」のではなく、`setMinInterval/setMaxInterval` により **広告間隔をcontrollerに設定**している（sleep比較では周期起床を増やす処理が入ると結果が汚れるため）。
 - `src/tx` は trial 開始/終了で `adv->start()` / `adv->stop()` と SYNC を揃える（trial外の余計な広告＝余計な消費を混ぜない）。
 
-## 4条件を「1回の実行で」取る（sleep_eval TX）
-- `src/tx` の sleep_eval 用TXは、以下の4条件を順に回す（`N_CYCLES>=2` を推奨、合計>=5分）。
-  - (A) 100ms × sleep OFF（cond_id=1, label=I100_OFF）
-  - (B) 100ms × sleep ON（cond_id=2, label=I100_ON）
-  - (C) 2000ms × sleep OFF（cond_id=3, label=I2000_OFF）
-  - (D) 2000ms × sleep ON（cond_id=4, label=I2000_ON）
+## interval sweep を「1回の実行で」取る（sleep_eval TX）
+- `src/tx` の sleep_eval 用TXは、以下の4条件を順に回す（`N_CYCLES=2`で計8試行、合計>=5分）。
+  - (1) 100ms（cond_id=1, label=I100）
+  - (2) 500ms（cond_id=2, label=I500）
+  - (3) 1000ms（cond_id=3, label=I1000）
+  - (4) 2000ms（cond_id=4, label=I2000）
 - TXSDは、trial開始直後のTICKパルス数（=cond_id）を `PREAMBLE_WINDOW_MS` 内で数えて、ファイル名とmetaに反映する。
-- RXは、受信したManufacturerDataのlabel（I100_OFF等）を `# condition_label=...` としてファイル先頭に書く。
+- RXは、受信したManufacturerDataのlabel（I100等）を `# condition_label=...` としてファイル先頭に書く。
 
 ## よくあるハマり（SDエラーが出る）
 - `src/tx` の sleep_eval 用TXは **SDを使わない**。起動ログに `"[TX] SD init FAIL"` が出る場合、別の古いTX（SDラベル読み込み版）をフラッシュしている可能性が高い。
   - 正しいTXスケッチ: `sleep_eval_scan90/src/tx/TX_ModeC2prime_1210/TX_ModeC2prime_1210.ino`（または同内容の `sleep_eval_scan90/src/tx/TX_ModeC2prime_1210.ino`）
-  - 正しいTXは BLE名が `TX_SLEEP_EVAL`、ManufacturerDataが `0000_I100_OFF` 等（条件でラベルが変わる）。
+  - 正しいTXは BLE名が `TX_SLEEP_EVAL`、ManufacturerDataが `0000_I100` 等（条件でラベルが変わる）。
 
 ## 実験デザイン（ステップ2: 代表負荷1本で現実確認）
 - 条件: 2000msで sleep ON/OFF だけを最小で撮る（必要なら100msも）。

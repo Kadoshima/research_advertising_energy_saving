@@ -55,11 +55,11 @@ uint32_t firstMs=0, lastMs=0; bool hasSample=false;
 
 static bool condInfo(uint8_t id, uint16_t* interval_ms, const char** sleep_tag){
   // TX側の Condition ID と一致させること
-  // 1: 100ms sleep OFF, 2: 100ms sleep ON, 3: 2000ms sleep OFF, 4: 2000ms sleep ON
+  // 1: 100ms, 2: 500ms, 3: 1000ms, 4: 2000ms（sleepはTX側設定に従うが、ここでは識別用に"on"固定）
   switch(id){
-    case 1: *interval_ms = 100;  *sleep_tag = "off"; return true;
-    case 2: *interval_ms = 100;  *sleep_tag = "on";  return true;
-    case 3: *interval_ms = 2000; *sleep_tag = "off"; return true;
+    case 1: *interval_ms = 100;  *sleep_tag = "on";  return true;
+    case 2: *interval_ms = 500;  *sleep_tag = "on";  return true;
+    case 3: *interval_ms = 1000; *sleep_tag = "on";  return true;
     case 4: *interval_ms = 2000; *sleep_tag = "on";  return true;
     default: break;
   }
