@@ -11,7 +11,7 @@
 #include <math.h>
 
 // ==== 設定 ====
-static const uint16_t ADV_MS = 100;              // 100 or 2000（条件ごとに変更）
+static const uint16_t ADV_MS = 2000;              // 100 or 2000（条件ごとに変更）
 static const uint32_t TRIAL_DURATION_MS = 60000; // 条件間で固定（例: 60s）
 static const bool REPEAT_TRIALS = false;         // 連続実行したい場合のみtrue
 static const uint32_t IDLE_GAP_MS = 5000;        // REPEAT_TRIALS=true のときの休止
