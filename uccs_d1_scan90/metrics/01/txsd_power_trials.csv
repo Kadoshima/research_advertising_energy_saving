@@ -1,0 +1,15 @@
+run,rel_path,cond_id,interval_ms,tag,ms_total,mean_p_mW,mean_v,mean_i,samples,ok
+01,TX/trial_001_c0_unk.csv,0,0,unk,12061,-8.7,3.295,-2.638,1205,0
+01,TX/trial_001_c1_fixed100.csv,1,100,fixed100,35006,-8.6,3.288,-2.621,3500,0
+01,TX/trial_001_c2_fixed500.csv,2,500,fixed500,58980,186.6,3.246,57.54,5897,1
+01,TX/trial_001_c3_policy.csv,3,0,policy,58981,192.8,3.243,59.557,5897,1
+01,TX/trial_002_c1_fixed100.csv,1,100,fixed100,21769,-8.6,3.283,-2.61,2176,0
+01,TX/trial_002_c2_fixed500.csv,2,500,fixed500,58973,185.2,3.246,57.118,5897,1
+01,TX/trial_002_c3_policy.csv,3,0,policy,58970,191.9,3.243,59.28,5896,1
+01,TX/trial_003_c1_fixed100.csv,1,100,fixed100,,,,,,0
+01,TX/trial_003_c2_fixed500.csv,2,500,fixed500,58962,184.7,3.245,56.987,5896,1
+01,TX/trial_003_c3_policy.csv,3,0,policy,58960,191.8,3.242,59.285,5895,1
+01,TX/trial_004_c1_fixed100.csv,1,100,fixed100,7433,197.6,3.19,61.568,743,0
+01,TX/trial_005_c1_fixed100.csv,1,100,fixed100,58956,203.8,3.239,63.175,5895,1
+01,TX/trial_006_c1_fixed100.csv,1,100,fixed100,58948,208.3,3.235,64.643,5894,1
+01,TX/trial_007_c1_fixed100.csv,1,100,fixed100,58937,203.2,3.238,62.993,5893,1

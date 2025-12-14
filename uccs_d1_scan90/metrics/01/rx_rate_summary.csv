@@ -1,0 +1,4 @@
+run,condition_label,n,rate_hz_mean,rate_hz_std
+01,F100,3,7.942,0.21
+01,F500,3,1.626,0.086
+01,P500,3,3.709,0.113

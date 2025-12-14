@@ -62,3 +62,18 @@
     - fixed500 mean_p_mW: 186.6 / 185.2 / 184.7
     - policy mean_p_mW: 192.8 / 191.9 / 191.8（固定100/500の間に入り、成立確認としてOK）
   - 次: SDの `/logs/` を `uccs_d1_scan90/data/<date>_runXX/{RX,TXSD}/` に吸い上げて、policyの `P100/P500` 比率（share100/share500）と Pout(τ) を解析で確定する。
+
+- [14:18 JST] Step D1 実測ログ（`uccs_d1_scan90/data/01`）を集計して、Power/RX rate/Policyの100ms比率を確定。
+  - 集計スクリプト: `uccs_d1_scan90/analysis/summarize_d1_run.py`（出力: `uccs_d1_scan90/metrics/01/`）
+  - 採用ログ: ms_total>=50s のみ（SDに旧ログが残っていたため）。run index: `uccs_d1_scan90/data/01/README.md`
+  - TXSD（mean_p_mW, n=3）:
+    - fixed100: 205.10 ± 2.79 mW
+    - fixed500: 185.50 ± 0.98 mW
+    - policy: 192.17 ± 0.55 mW
+    - 差分: fixed100-fixed500=19.60mW、policy-fixed100=-12.93mW、policy-fixed500=+6.67mW
+  - RX（rate_hz, n=3）:
+    - F100: 7.94 ± 0.21 Hz、F500: 1.63 ± 0.09 Hz、Policy: 3.71 ± 0.11 Hz
+  - Policyの100ms比率（time-weight推定）:
+    - power mix由来: share100≈0.340
+    - RXラベル由来（P100/P500カウント×interval重み）: share100≈0.294 ± 0.010
+  - これで D1 の成立条件（切替/電力/受信率の方向性）が実測ログで確認できた。次は D2（レター図に実測点を重ねる）か、U/CCS入力を実機HARへ置換して同枠組みで再計測する。
