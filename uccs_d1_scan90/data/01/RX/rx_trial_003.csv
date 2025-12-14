@@ -1,0 +1,10 @@
+ms,event,rssi,seq,label,addr,mfd
+# meta, firmware=RX_UCCS_D1_SCAN90, buf_size=512
+# condition_label=F100
+8,ADV,-40,519,F100,e0:5a:1b:15:c4:ca,519_F100
+114,ADV,-42,619,F100,e0:5a:1b:15:c4:ca,619_F100
+318,ADV,-39,819,F100,e0:5a:1b:15:c4:ca,819_F100
+424,ADV,-37,919,F100,e0:5a:1b:15:c4:ca,919_F100
+651,ADV,-40,1119,F100,e0:5a:1b:15:c4:ca,1119_F100
+749,ADV,-36,1219,F100,e0:5a:1b:15:c4:ca,1219_F100
+957,ADV,-41,1419,F100,e0:5a:1b:15:c4:ca,1419_F100

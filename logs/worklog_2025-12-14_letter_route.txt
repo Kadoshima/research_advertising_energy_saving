@@ -51,3 +51,14 @@
   - 配線: TX GPIO25→RX/TXSD GPIO26（SYNC）, TX GPIO27→TXSD GPIO33（TICK）
 
 - [13:31 JST] バグ修正: `TX_UCCS_D1_100_500` で interval が切替わった後も旧intervalで次回更新を待ってしまう可能性があったため、`nextUpdateMs` を切替後の `currentIntervalMs` に基づいて再計算するよう修正（`uccs_d1_scan90/src/tx/TX_UCCS_D1_100_500/TX_UCCS_D1_100_500.ino`）。
+
+- [14:06 JST] Step D1（uccs_d1_scan90）を実機で1回実行して、ログ上の挙動が期待通りであることを確認（ユーザ取得ログの目視チェック）。
+  - RX（`RX_UCCS_D1_SCAN90`）: 9セッション（3条件×3回）が連続で取得でき、buf_overflow=0。
+    - fixed100相当: rate_hz≈7.8–8.1（scan90の受信率として妥当）
+    - fixed500相当: rate_hz≈1.5–1.7（期待2adv/s×受信率）
+    - policy: rate_hz≈3.6–3.8（固定より中間＝切替が動いている兆候）
+  - TXSD（`TXSD_UCCS_D1_SCAN90`）: preamble pulsesで cond_id=1/2/3 を正しく復号し、各trial ms≈589xx, parse_drop=0。
+    - fixed100 mean_p_mW: 203.8 / 208.3 / 203.2
+    - fixed500 mean_p_mW: 186.6 / 185.2 / 184.7
+    - policy mean_p_mW: 192.8 / 191.9 / 191.8（固定100/500の間に入り、成立確認としてOK）
+  - 次: SDの `/logs/` を `uccs_d1_scan90/data/<date>_runXX/{RX,TXSD}/` に吸い上げて、policyの `P100/P500` 比率（share100/share500）と Pout(τ) を解析で確定する。
