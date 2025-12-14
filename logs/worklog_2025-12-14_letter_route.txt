@@ -4,3 +4,50 @@
 - [00:17 JST] TODO更新: レター関連の参照を scan90 v5 / Pareto v6 / letter_v2 に更新（`docs/TODO.md`）。
 - [00:20 JST] δ tight の要点を1枚に固定: 固定点（Fixed100/500/1000/2000）と、各δのpower-min点（share100/adv_rate/switch_rate付き）を `results/mhealth_policy_eval/letter_v2_scan90_v5_delta_tight/summary.md` に整理。
 - [00:22 JST] 地雷チェック（欠損確認）: scan90 v5 固定メトリクス表 `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_enriched_scan90_v5.csv` に S1×{100,500,1000,2000} と S4×{100,500,1000,2000} が揃っていることを確認。δ tight の context mixing（stable→S1 / transition→S4）計算が「欠損で楽観側にズレる」懸念は scan90 v5 では無し。※ scan50 v5 で S1×100 が欠けて見えるのは session名にコメントが混ざっているため（旧/retakeの扱い）で、scan50を本流に使う場合は整理が必要。
+
+- [04:52 JST] power table をrobust版（sleep_on, n=9–10）に差し替えて、Pareto/δ tight/比較表を再生成。
+  - power table（主線）: `results/mhealth_policy_eval/power_table_sleep_eval_2025-12-14_interval_sweep_sleep_on_n9_10.csv`（生成元: `sleep_eval_scan90/metrics/on_off_test_100~2000_02/txsd_power_summary.csv`）
+    - 100/500/1000/2000ms = 198.56/180.80/178.62/177.47 mW
+  - Pareto v7: `results/mhealth_policy_eval/pareto_front_v7_power_table_scan90_v5_sleep_on_n9_10/pareto_sweep.csv`（δ={0.02,0.03,0.04}, context mixing + power最小化）
+  - δ tight 図 v3: `results/mhealth_policy_eval/letter_v3_scan90_v5_delta_tight_sleep_on_n9_10/fig_delta_band.png`
+    - δ=0.03（Fixed500の境界≈0.0322より厳しい帯）で power-min は avg_power≈195.09mW / pout_1s≈0.0297、Fixed100(198.56mW)より −3.47mW（≈−1.75%）
+  - デフォルト方策評価を更新: `results/mhealth_policy_eval/policy_eval_default.json`（avg_power≈187.71mW）
+  - 比較表を更新: `results/mhealth_policy_eval/policy_table.md`（avg_power列が新power table反映）
+
+- [05:15 JST] 決定（主線）: v7（robust power table: sleep_on n=9–10）をレター主線として採用し、この条件で実機の動的切替（100↔500）へ進む方針を確定。
+  - 採用理由: n=2のpower tableだと電力軸の揺れツッコミが入りやすい一方、sleep_on n=9–10で土台が固い（100→500の主効果 −17.76mW が明確、500→2000は −3.33mWと小さい）。
+  - δ tight（v3）: δ=0.03帯（Fixed500が落ちる帯）で「固定100msより低電力でδ達成」が成立（−3.47mW）。
+  - 次ステップ（最短ルート）:
+    - D0: 実機が100↔500だけになる場合、オフライン側も行動空間を{100,500}に限定したスイープ/代表ポリシー選定を追加（比較の整合性を保つ目的）。
+    - D1: 実機は最小セット（Fixed100 / Fixed500 / Policy）で成立確認。動的は同期破綻防止のため TX payload に `tx_elapsed_ms` or `step_idx`（＋`interval_ms_current`）を埋め込み、RX/TXSDと突合できる形にする。
+  - 実機候補（現状のδ=0.03 power-min; v7）:
+    - params=(u_mid=0.10,u_high=0.35,c_mid=0.15,c_high=0.35,hyst=0.08), share100=0.816, share500=0.121, share2000=0.063
+    - 予測: avg_power≈195.09mW / pout_1s≈0.0297（scan90 v5 + context mixing + robust power table）
+
+- [12:46 JST] TODO更新: `docs/TODO.md` を v7（robust power table）主線に合わせて更新。
+  - TL;DRの参照先を v7/v3 に差し替え（旧v6/v2は主線から外す）
+  - 新規TODO（P0-Letter）として D0（{100,500}限定の代表ポリシー再選定）/D1（実機100↔500最小セット）を追記
+
+- [13:02 JST] D0完了: 実機行動空間を **{100,500}** に揃えた2値版の Pareto/δ tight を再生成し、実機用の代表ポリシーを確定。
+  - スクリプト更新: `scripts/sweep_policy_pareto.py` に `--actions` を追加（allowed intervals のクランプ対応）。
+  - Pareto v8（actions={100,500}）: `results/mhealth_policy_eval/pareto_front_v8_power_table_scan90_v5_sleep_on_n9_10_actions_100_500/pareto_sweep.csv`
+  - δ tight v4（actions={100,500}）: `results/mhealth_policy_eval/letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/summary.md`
+  - 代表（δ=0.03 power-min, actions={100,500}）:
+    - params=(u_mid=0.20,u_high=0.35,c_mid=0.20,c_high=0.35,hyst=0.02)
+    - share100=0.369 / share500=0.631, 予測 avg_power≈187.36mW / pout_1s≈0.0226（Fixed100比 −11.20mW ≈ −5.6%）
+
+- [13:05 JST] D0完了を確認し、以降の実機比較は actions={100,500} の代表ポリシー（δ=0.03 power-min）を採用する方針で進行。
+
+- [13:30 JST] Step D1（実機：不確実性駆動/ルールベースの動的切替）用の専用ディレクトリとArduinoスケッチ（TX/RX/TXSD）を追加。
+  - 追加ディレクトリ: `uccs_d1_scan90/`（index: `uccs_d1_scan90/README.md`）
+  - TX: `uccs_d1_scan90/src/tx/TX_UCCS_D1_100_500/TX_UCCS_D1_100_500.ino`
+    - 1回の起動で `Fixed100 → Fixed500 → Policy(100↔500)` を自動実行（`N_CYCLES=3`, `TRIAL_DURATION_MS=60s`, `GAP_MS=5s`）
+    - TXSD向け cond_id を preamble TICK パルス数で通知（1=fixed100, 2=fixed500, 3=policy）
+    - payload: `<tx_elapsed_ms>_<label>`（fixed=F100/F500, policy=P100/P500）
+    - 代表ポリシー（actions={100,500}）: u_mid=0.20,u_high=0.35,c_mid=0.20,c_high=0.35,hyst=0.02（D0確定）
+    - U/CCS入力は暫定で synthetic（実機HARに差し替える前提）
+  - RX: `uccs_d1_scan90/src/rx/RX_UCCS_D1_SCAN90/RX_UCCS_D1_SCAN90.ino`（scan90, SYNC gate, SDへ `/logs/rx_trial_XXX.csv`）
+  - TXSD: `uccs_d1_scan90/src/txsd/TXSD_UCCS_D1_SCAN90/TXSD_UCCS_D1_SCAN90.ino`（INA219, SYNC start/stop, preambleでcond_id判別）
+  - 配線: TX GPIO25→RX/TXSD GPIO26（SYNC）, TX GPIO27→TXSD GPIO33（TICK）
+
+- [13:31 JST] バグ修正: `TX_UCCS_D1_100_500` で interval が切替わった後も旧intervalで次回更新を待ってしまう可能性があったため、`nextUpdateMs` を切替後の `currentIntervalMs` に基づいて再計算するよう修正（`uccs_d1_scan90/src/tx/TX_UCCS_D1_100_500/TX_UCCS_D1_100_500.ino`）。

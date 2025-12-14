@@ -1,0 +1,5 @@
+interval_ms,avg_power_mW,avg_power_mW_std,n_trials,run_id,sleep_tag
+100,198.56,1.2747112962898288,10,on_off_test_100~2000_02,sleep_on
+500,180.80,0.6782329983125261,9,on_off_test_100~2000_02,sleep_on
+1000,178.62,0.774237976622461,9,on_off_test_100~2000_02,sleep_on
+2000,177.47,0.6284902544988256,9,on_off_test_100~2000_02,sleep_on

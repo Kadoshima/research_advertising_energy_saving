@@ -1,0 +1,54 @@
+{
+  "inputs": {
+    "pareto_csv": "results/mhealth_policy_eval/pareto_front_v7_power_table_scan90_v5_sleep_on_n9_10/pareto_sweep.csv",
+    "fixed_metrics": "results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_enriched_scan90_v5.csv",
+    "power_table": "results/mhealth_policy_eval/power_table_sleep_eval_2025-12-14_interval_sweep_sleep_on_n9_10.csv",
+    "har_dir": "data/mhealth_synthetic_sessions_v1/sessions",
+    "transition_ccs_thresh": 0.3
+  },
+  "context_weights": {
+    "stable_ratio": 0.771399798590131,
+    "transition_ratio": 0.22860020140986909
+  },
+  "selected": [
+    {
+      "name": "P_minPower@0.02",
+      "delta": 0.02,
+      "u_mid": 0.15,
+      "u_high": 0.35,
+      "c_mid": 0.1,
+      "c_high": 0.35,
+      "hyst": 0.08,
+      "pout_1s": 0.0111693487747566,
+      "avg_power_mW": 196.11531722054377,
+      "adv_rate": 8.8987915407855,
+      "switch_rate": 0.0258475998657267
+    },
+    {
+      "name": "P_minPower@0.03",
+      "delta": 0.03,
+      "u_mid": 0.1,
+      "u_high": 0.35,
+      "c_mid": 0.15,
+      "c_high": 0.35,
+      "hyst": 0.08,
+      "pout_1s": 0.0296570800604229,
+      "avg_power_mW": 195.08747734138973,
+      "adv_rate": 8.435800604229605,
+      "switch_rate": 0.0287009063444108
+    },
+    {
+      "name": "P_minPower@0.04",
+      "delta": 0.04,
+      "u_mid": 0.1,
+      "u_high": 0.35,
+      "c_mid": 0.2,
+      "c_high": 0.35,
+      "hyst": 0.08,
+      "pout_1s": 0.0399961188318227,
+      "avg_power_mW": 194.9276283987915,
+      "adv_rate": 8.363796576032225,
+      "switch_rate": 0.0278616985565626
+    }
+  ]
+}

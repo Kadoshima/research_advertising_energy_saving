@@ -20,6 +20,35 @@ from typing import Dict, List, Tuple
 import pandas as pd
 
 
+ALL_INTERVALS = (100, 500, 1000, 2000)
+
+
+def parse_actions(actions_str: str) -> List[int]:
+    parts = [p.strip() for p in (actions_str or "").split(",") if p.strip()]
+    if not parts:
+        return list(ALL_INTERVALS)
+    out: List[int] = []
+    for p in parts:
+        try:
+            out.append(int(p))
+        except ValueError as e:
+            raise SystemExit(f"invalid --actions value: {p}") from e
+    invalid = sorted(set(out) - set(ALL_INTERVALS))
+    if invalid:
+        raise SystemExit(f"--actions must be subset of {ALL_INTERVALS}, got invalid: {invalid}")
+    out = sorted(set(out))
+    if len(out) < 2:
+        raise SystemExit("--actions must contain at least two intervals (e.g. 100,500)")
+    return out
+
+
+def clamp_interval(interval_ms: int, allowed: List[int]) -> int:
+    if interval_ms in allowed:
+        return interval_ms
+    # Nearest interval; tie-break towards smaller interval.
+    return min(allowed, key=lambda a: (abs(a - interval_ms), a))
+
+
 def load_har_sessions(har_dir: Path, with_truth: bool = False):
     files = sorted(har_dir.glob("*_har.csv"))
     sessions = []
@@ -58,9 +87,14 @@ def apply_power_table(fixed: pd.DataFrame, power_table: Path) -> pd.DataFrame:
     return out
 
 
-def apply_policy(df: pd.DataFrame, params: Dict[str, float], initial_interval: int = 500) -> Dict[str, object]:
+def apply_policy(
+    df: pd.DataFrame,
+    params: Dict[str, float],
+    allowed_actions: List[int],
+    initial_interval: int = 500,
+) -> Dict[str, object]:
     counts = {100: 0, 500: 0, 1000: 0, 2000: 0}
-    prev = initial_interval
+    prev = clamp_interval(initial_interval, allowed_actions)
     switches = 0
     for _, row in df.iterrows():
         if row["mask_eval_window"] != 1:
@@ -93,6 +127,7 @@ def apply_policy(df: pd.DataFrame, params: Dict[str, float], initial_interval: i
             if (u < u_hi_down) and (c < c_hi_down) and (u < u_mid_down) and (c < c_mid_down):
                 new_interval = 2000
 
+        new_interval = clamp_interval(new_interval, allowed_actions)
         if new_interval != prev:
             switches += 1
         counts[new_interval] += 1
@@ -125,6 +160,7 @@ def apply_policy_with_context(
     truth_df: pd.DataFrame,
     params: Dict[str, float],
     ccs_transition_thresh: float,
+    allowed_actions: List[int],
     initial_interval: int = 500,
 ) -> Dict[str, object]:
     counts_ctx = {
@@ -132,7 +168,7 @@ def apply_policy_with_context(
         "transition": {100: 0, 500: 0, 1000: 0, 2000: 0},
     }
     switches = 0
-    prev = initial_interval
+    prev = clamp_interval(initial_interval, allowed_actions)
     flags = compute_transition_flags(har_df, truth_df, ccs_transition_thresh)
     for row, is_trans in zip(har_df.itertuples(index=False), flags):
         if row.mask_eval_window != 1:
@@ -165,6 +201,7 @@ def apply_policy_with_context(
             if (u < u_hi_down) and (c < c_hi_down) and (u < u_mid_down) and (c < c_mid_down):
                 new_interval = 2000
 
+        new_interval = clamp_interval(new_interval, allowed_actions)
         if new_interval != prev:
             switches += 1
         ctx = "transition" if is_trans else "stable"
@@ -209,6 +246,7 @@ def main():
     ap.add_argument("--metric", choices=["energy", "power"], default="energy", help="Objective for sorting summaries: energy=E_per_adv_uJ, power=avg_power_mW")
     ap.add_argument("--context-mixing", action="store_true", help="Use stable/transition mixing (S1/S4)")
     ap.add_argument("--transition-ccs-thresh", type=float, default=0.30, help="CCS_ema threshold to mark transition")
+    ap.add_argument("--actions", type=str, default="100,500,1000,2000", help="Allowed intervals (subset of 100,500,1000,2000), e.g. 100,500")
     ap.add_argument("--deltas", type=str, default="0.10,0.20", help="Comma-separated δ values for summary (default: 0.10,0.20)")
     ap.add_argument("--top-n", type=int, default=10, help="Top-N rows per summary table (default 10)")
     args = ap.parse_args()
@@ -217,6 +255,7 @@ def main():
     fixed = load_fixed_metrics(args.metrics)
     if args.power_table:
         fixed = apply_power_table(fixed, args.power_table)
+    allowed_actions = parse_actions(args.actions)
 
     grid_u_mid = [0.10, 0.15, 0.20]
     grid_u_high = [0.25, 0.30, 0.35]
@@ -245,7 +284,13 @@ def main():
                                 "transition": {100: 0, 500: 0, 1000: 0, 2000: 0},
                             }
                             for df_har, df_truth in sessions:
-                                res = apply_policy_with_context(df_har, df_truth, params, args.transition_ccs_thresh)
+                                res = apply_policy_with_context(
+                                    df_har,
+                                    df_truth,
+                                    params,
+                                    args.transition_ccs_thresh,
+                                    allowed_actions,
+                                )
                                 for ctx in total_counts_ctx:
                                     for k in total_counts_ctx[ctx]:
                                         total_counts_ctx[ctx][k] += res["counts_ctx"][ctx][k]
@@ -263,7 +308,7 @@ def main():
                             }
                         else:
                             for df in sessions:
-                                res = apply_policy(df, params)
+                                res = apply_policy(df, params, allowed_actions)
                                 for k in total_counts:
                                     total_counts[k] += res["counts"][k]
                                 total_switches += res["switches"]
@@ -373,6 +418,7 @@ def main():
     summary_lines = ["# Pareto-like sweep (U+CCS)", "", f"Total grid points: {len(df)}", ""]
     summary_lines.append(f"- metric: `{args.metric}`")
     summary_lines.append(f"- context_mixing: `{args.context_mixing}`")
+    summary_lines.append(f"- actions: `{allowed_actions}`")
     summary_lines.append(f"- power_table: `{args.power_table}`")
     summary_lines.append("")
     for d in deltas:

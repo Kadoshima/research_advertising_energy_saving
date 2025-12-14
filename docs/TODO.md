@@ -1,6 +1,6 @@
 # エッジHAR TODO（Mode C2′ / ストレス固定 / 因果CCS・self-UCB 実機検証）
 
-- 最終更新: 2025-12-13
+- 最終更新: 2025-12-14
 - 対象スコープ:
   - **Mode C2′（ラベル再生）**を用いた「広告間隔制御」の評価（固定 vs 因果CCS vs self-UCB）。
   - まずは **ストレスラベル S1/S4** を主ケースとして、実測とシミュを整合させて論文化に耐える形にする。
@@ -40,17 +40,19 @@
     - 500/1000/2000 は `pdr_unique` がほぼ 1.0（TXSD adv_count 基準でクランプしている前提）
     - ただし **TL/Pout が想定より大きい**（ストレス列の遷移の扱い／真値定義／サブサンプルの有無の確認が必要）
 
-### 0.2 2025-12-13 追記（レター最速ルートの意思決定）
+### 0.2 2025-12-14 追記（レター主線: v7 / robust power table）
 
 - レター最速ルートは「**U/CCS→interval（ルールベース）を主結果**」に寄せる（Safe-MABはFuture Work）。
   - 決定ログ: `docs/decision_log_2025-12-13_letter_route.md`
-- 固定intervalの電力テーブル（sleep_eval, n=2）を取得し、オフライン評価の power 軸を置換可能にした。
-  - power table: `results/mhealth_policy_eval/power_table_sleep_eval_2025-12-13.csv`
-  - Pareto（power_table反映 + context mixing, scan90 v5）: `results/mhealth_policy_eval/pareto_front_v6_power_table_scan90_v5/pareto_summary.md`
-  - レター用δ帯（tight, 0.02/0.03/0.04）: `results/mhealth_policy_eval/letter_v2_scan90_v5_delta_tight/fig_delta_band.png`
-  - 重要: 電力低下の主効果は 100→500ms。500→2000msは小さい（=「100ms滞在を減らす」設計が効く）。
+- 固定intervalの電力テーブルを robust 版（sleep_on, n=9–10）で凍結し、オフライン評価の power 軸を置換（v7を主線）。
+  - power table（主線）: `results/mhealth_policy_eval/power_table_sleep_eval_2025-12-14_interval_sweep_sleep_on_n9_10.csv`
+  - Pareto（power table反映 + context mixing, scan90 v5）: `results/mhealth_policy_eval/pareto_front_v7_power_table_scan90_v5_sleep_on_n9_10/pareto_summary.md`
+  - レター用δ帯（tight, 0.02/0.03/0.04）: `results/mhealth_policy_eval/letter_v3_scan90_v5_delta_tight_sleep_on_n9_10/fig_delta_band.png`
+  - 候補（δ=0.03 power-min）: params=(0.10,0.35,0.15,0.35,0.08) → avg_power≈195.09mW / pout_1s≈0.0297（Fixed100比 −3.47mW）
+  - 補助（sleep ON/OFF差分）: `sleep_eval_scan90/metrics/on_off_test_01/txsd_power_diff.md`（DoD=-0.25mW, n=2）
+  - 重要: 電力低下の主効果は 100→500ms（≈−17.76mW）。500→2000msは小さい（≈−3.33mW）。
 
-### 0.2 いま残っている一番重要な論点
+### 0.3 いま残っている一番重要な論点
 
 - **TL/Pout の「定義」と「実装」が論文で説明できる形に固定されているか**
   - 例: 2000ms で `Pout(1s)` に理論下限が出るかどうかは、
@@ -59,7 +61,7 @@
     で結論が変わる。
   - ここを曖昧にすると、**scan90 の改善や CCS/self-UCB の優位性を主張できない**。
 
-### 0.3 次のゲート（ここを超えると後半が楽）
+### 0.4 次のゲート（ここを超えると後半が楽）
 
 - Gate-0（図表の土台）: 
   - scan90 固定フルセットを **「定義が固定された指標」**で集約し、
@@ -157,6 +159,21 @@
 ## 3. 優先度付き TODO（最短で論文化できる順）
 
 > 記法: (ME)=実機/配線/取得が必要、(AI)=ローカル処理・解析のみ、(ME+AI)=両方
+
+### P0-Letter: U/CCS→interval（mHealth合成, scan90 v5）
+
+- [x] (AI) v7（robust power table: sleep_on n=9–10）で Pareto/δ tight を再生成して凍結
+  - Pareto v7: `results/mhealth_policy_eval/pareto_front_v7_power_table_scan90_v5_sleep_on_n9_10/pareto_summary.md`
+  - δ tight v3: `results/mhealth_policy_eval/letter_v3_scan90_v5_delta_tight_sleep_on_n9_10/summary.md`
+
+- [x] (AI) D0: 行動空間を **{100,500}** に限定して δ=0.03 の代表ポリシーを再選定（実機比較の整合性）
+  - Pareto v8（actions={100,500}）: `results/mhealth_policy_eval/pareto_front_v8_power_table_scan90_v5_sleep_on_n9_10_actions_100_500/pareto_summary.md`
+  - δ tight v4（actions={100,500}）: `results/mhealth_policy_eval/letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/summary.md`
+
+- [ ] (ME+AI) D1: 実機（100↔500）最小セットで成立確認（Fixed100 / Fixed500 / Policy, 各n=3）
+  - 動的は同期破綻防止のため、TX payload に `tx_elapsed_ms` or `step_idx`（＋`interval_ms_current`）を埋め込み
+
+- [ ] (AI) 実測点を `pout_1s vs avg_power_mW` 図に重ね、予測↔実測の差分を `summary.md` に追記
 
 ### P0: 定義固定 + 図表化（最優先）
 
