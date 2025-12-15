@@ -48,3 +48,7 @@ latexmk main.tex
 
 - 余白：`chubuthesis.sty` の `geometry` を編集
 - 図表キャプション：`chubuthesis.sty` の `caption` 設定を編集
+- 表紙/要旨ページ：`meta.tex`（値）と `chubuthesis.sty`（配置）を編集
+- ページ番号（下右統一）：`chubuthesis.sty` の `fancyhdr` 設定を編集
+- 章見出し（章扉の中央寄せ等）：`chubuthesis.sty` の `titlesec` 設定を編集
+- 参考文献のURL表示：`chubuthesis.sty` の `biblatex` まわりを編集

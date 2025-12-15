@@ -1,0 +1,97 @@
+% chapters/ch8_experiment_design.tex --- 第9章 実験設計
+\section{実験設計}
+\label{sec:experiment_design}
+
+\subsection{実験の目的}
+Phase 1の実験目的は，ルールベース方策（CCS→広告間隔切替）が，固定間隔に対して省電力とQoSのトレードオフ上で優位な運用点になり得ることを示すことである．具体的には，以下を検証する．
+\begin{enumerate}
+  \item 省電力：固定\SI{100}{\milli\second}よりも$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）が低い運用点が存在する．
+  \item QoS維持：代表的な期限$\tau$に対して$P_{\mathrm{out}}(\tau)$が過度に悪化しない．
+  \item トレードオフ：固定点と動的点を同一平面（$P_{\mathrm{out}}(\tau)$--$q_{\mathrm{event}}$）で比較し，Pareto的な位置づけを示す．
+\end{enumerate}
+
+\subsection{実験条件}
+\subsubsection{環境条件}
+実験は，距離，受信端末，スキャン設定等を固定し，端末内比較として実施する．干渉状況の違い（例：E1/E2）は外的要因として扱い，必要に応じて環境を分けて評価する．
+
+\begin{table}[tb]
+  \centering
+  \caption{環境条件（例）}
+  \label{tab:env_conditions}
+  \begin{tabular}{ll}
+    \toprule
+    項目 & 値（例） \\
+    \midrule
+    距離 & \SI{1}{\meter} \\
+    TxPower & \SI{0}{\decibelmilliwatt} \\
+    受信端末 & Android（同一端末で統一） \\
+    スキャンモード & LOW\_LATENCY（前提条件を固定） \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsubsection{制御条件}
+制御条件は，固定間隔（ベースライン）と動的制御（提案）を含む．Phase 1の基本方針は，行動集合を$\{100,500,1000,2000\}\,\si{\milli\second}$とし，短間隔（QoS重視）と長間隔（省電力重視）の間を段階的に探索できる形にすることである．
+
+一方で，実機実験の初期段階では，計測系の同期とログ整合を優先し，行動集合を$\{100,500\}\,\si{\milli\second}$に縮退した2値切替で動作成立を確認する．以降，計測の堅牢性が担保できた段階で，$\{100,500,1000,2000\}\,\si{\milli\second}$へ拡張する．
+
+\begin{table}[tb]
+  \centering
+  \caption{制御条件（例）}
+  \label{tab:control_conditions}
+  \begin{tabular}{lll}
+    \toprule
+    条件ID & 条件名 & 広告間隔 \\
+    \midrule
+    C1 & FIXED-100 & \SI{100}{\milli\second} \\
+    C2 & FIXED-500 & \SI{500}{\milli\second} \\
+    C3 & FIXED-2000 & \SI{2000}{\milli\second} \\
+    C4 & POLICY（2値） & \SI{100}{\milli\second}/\SI{500}{\milli\second} \\
+    C5 & POLICY（3値） & \SI{100}{\milli\second}/\SI{500}{\milli\second}/\SI{2000}{\milli\second} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsubsection{反復設計}
+統計的な揺らぎと端末状態のばらつきを抑えるため，各条件は複数回反復する．最小の成立確認としては各条件$n\ge3$とし，差が小さい場合に反復数を増やす．
+
+また，運用シナリオに近い評価としては，環境（例：E1/E2）を分け，3条件（例：FIXED-100/FIXED-2000/POLICY）$\times$ 2環境 $\times$ 10セッション＝60セッション程度を計画し，端末内比較の前提を維持しながら分散（端末状態の非定常）を平均化する．
+
+\subsection{セッション構成とイベント定義}
+\subsubsection{セッション}
+セッションは一定時間の試行（trial）の集合として構成する．実機の動的切替では，短い試行（例：\SI{60}{\second}）を連続して取り，条件間比較を端末内で完結させる設計が有効である．一方，運用シナリオに近い評価として，\SI{10}{\minute}程度の長いセッションを用い，活動遷移イベントでTL/Poutを評価する設計も重要である．
+
+\subsubsection{イベント}
+イベントは，状態遷移（活動の切替）など「QoS評価の基準点」となる時刻である．固定間隔では広告イベントの列から遅延分布を評価できるが，動的切替では開始位相ずれや切替タイミングが影響するため，truthに基づくイベント定義と時間同期が必要となる（次章）．
+
+\subsection{指標算出}
+\subsubsection{電力指標}
+一次KPIの省電力指標は$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）である．$q_{\mathrm{event}}$は，TXSDログの電流系列を積分して得た総電荷を，イベント数$N_{\mathrm{event}}$で正規化して算出する（定義は\secref{sec:metrics_detail}）．必要に応じて広告OFFの基準を差し引き，広告による増分を評価する．
+
+平均電力$\overline{P}$や総エネルギー$E$，および広告回数で正規化した$\Delta E/N_{\mathrm{adv}}$等は従属指標として併用し，計測健全性の監査（単位・欠損）と原因切り分けに用いる．
+
+\subsubsection{TLと$P_{\mathrm{out}}(\tau)$}
+イベント$j$の遅延を$\mathrm{TL}_j$とすると，
+\begin{equation}
+  P_{\mathrm{out}}(\tau)=\frac{1}{N_{\mathrm{event}}}\sum_{j=1}^{N_{\mathrm{event}}}\mathbb{I}[\mathrm{TL}_j>\tau]
+\end{equation}
+である．実装では，RXログの時刻とtruthの時刻の定数オフセットを補正し，$\mathrm{TL}_j$を計算する（次章）．
+
+\subsubsection{理論モデル（参考）}
+固定間隔における$P_{\mathrm{out}}(\tau)$は，1広告の受信成功確率$p_d$を仮定すると，
+\begin{equation}
+  P_{\mathrm{out}}(\tau\mid a)\approx(1-p_d)^{\lfloor \tau/a \rfloor}
+\end{equation}
+のように近似できる．ただし，非理想スキャンや開始位相の影響を含むため，本研究では理論値は補助的に用い，主張は実測に基づく．
+
+\subsection{リスクと対策}
+実験の主要リスクと対策を以下にまとめる．
+\begin{itemize}
+  \item 同期ずれ：SYNC/TICKの取りこぼしにより試行区間が崩れる．対策として，preambleで条件IDを通知し，ログ末尾のsummaryで監査する．
+  \item 条件混在：LED/SYNCの扱い等が異なるコードを跨いで比較すると定常オフセットが入る．比較は同一コード系列で統一する．
+  \item 欠損・単位不整合：UART/SDボトルネックや単位換算ミスは結論を逆転させ得る．パススルー化と再積分監査を行う．
+  \item 端末状態の変動：受信端末のOS状態は非定常である．端末内比較を徹底し，実験前チェックリスト（\secref{sec:runbook}）を運用する．
+\end{itemize}
+
+\subsection{まとめ}
+本節では，Phase 1における実験目的と条件，セッション構成，指標算出，およびリスク対策を整理した．次章では，TL/Poutの定義を実測に基づいて固定し，時間同期の手順（v5）を示す．

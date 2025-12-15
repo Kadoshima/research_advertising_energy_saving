@@ -270,30 +270,80 @@ def parse_txsd_summary(path: Path) -> Optional[TxsdTrial]:
 
 
 def infer_txsd_kind(t: TxsdTrial) -> None:
-    name = t.path.name
+    name = t.path.name.lower()
+    tag = t.tag.lower()
 
-    if "_s1_" in name or t.tag.startswith("s1_"):
+    # Session hint (may be mis-labeled; policy trials can be corrected later by share-based matching).
+    if "_s1_" in name or tag.startswith("s1_"):
         t.session = 1
-    elif "_s4_" in name or t.tag.startswith("s4_"):
+    elif "_s4_" in name or tag.startswith("s4_"):
         t.session = 4
 
+    # Kind inference from adv_count (tick_count ~= number of payload updates).
     if 300 <= t.adv_count <= 450:
         t.kind = "fixed500"
         return
     if 1750 <= t.adv_count <= 1850:
-        if "_policy" in name:
-            t.kind = "policy"
-        elif "_fixed100" in name:
-            t.kind = "fixed100"
-        elif "_fixed500" in name:
-            # mis-labeled by preamble; decide by adv_count proximity
-            t.kind = "policy" if abs(t.adv_count - 1787) < abs(t.adv_count - 1796) else "fixed100"
-        elif "_unk" in name or t.cond_id == 0:
-            t.kind = "fixed100"
-        else:
-            t.kind = "policy" if abs(t.adv_count - 1787) < abs(t.adv_count - 1796) else "fixed100"
+        # Could be fixed100 or a policy that collapsed to 100ms.
+        t.kind = "policy" if ("policy" in name or "policy" in tag) else "fixed100"
         return
-    t.kind = "unk"
+    # In-between counts are treated as policy (two-valued 100/500 switching).
+    t.kind = "policy"
+
+
+def estimate_rx_tag_share100_time_est(events: List[RxEvent]) -> Optional[float]:
+    # Same definition as per-trial table: time share estimated from RX tags (sanity only; RX has drops).
+    rx_itv_by_step: Dict[int, int] = {}
+    for e in events:
+        step = e.step_idx
+        if step < 0:
+            continue
+        tm = TAG_RE.match(e.tag)
+        if tm and step not in rx_itv_by_step:
+            try:
+                rx_itv_by_step[step] = int(tm.group("itv"))
+            except Exception:
+                pass
+    n100 = sum(1 for v in rx_itv_by_step.values() if v == 100)
+    n500 = sum(1 for v in rx_itv_by_step.values() if v == 500)
+    denom_ms = n100 * 100 + n500 * 500
+    if denom_ms <= 0:
+        return None
+    return (n100 * 100) / denom_ms
+
+
+def maybe_fix_policy_session_by_share(
+    txsd_trials: List[TxsdTrial],
+    *,
+    rx_share_s1: Optional[float],
+    rx_share_s4: Optional[float],
+    adv_count_fixed100: Optional[float],
+    adv_count_fixed500: Optional[float],
+    min_confident_delta: float = 0.15,
+) -> None:
+    # For policy trials, the TXSD filename/session tag can be wrong (preamble decode issues).
+    # We estimate share100_time from adv_count and map to the closest RX-estimated share per session.
+    if (
+        rx_share_s1 is None
+        or rx_share_s4 is None
+        or adv_count_fixed100 is None
+        or adv_count_fixed500 is None
+        or adv_count_fixed100 <= adv_count_fixed500
+    ):
+        return
+
+    denom = adv_count_fixed100 - adv_count_fixed500
+    for t in txsd_trials:
+        if t.kind != "policy":
+            continue
+        share_tx = (t.adv_count - adv_count_fixed500) / denom
+        d1 = abs(share_tx - rx_share_s1)
+        d4 = abs(share_tx - rx_share_s4)
+        best_sess = 1 if d1 <= d4 else 4
+        best_d = min(d1, d4)
+        if best_d > min_confident_delta:
+            continue
+        t.session = best_sess
 
 
 def rx_condition_key(t: RxTrial) -> str:
@@ -357,6 +407,23 @@ def main() -> None:
             continue
     rx_trials = select_balanced_window(rx_trials_all)
 
+    # RX-derived policy share targets (used to correct TXSD session labels for policy trials).
+    s1_policy_shares: List[float] = []
+    s4_policy_shares: List[float] = []
+    for t in rx_trials:
+        if t.mode != "P":
+            continue
+        sh = estimate_rx_tag_share100_time_est(t.events)
+        if sh is None:
+            continue
+        k = rx_condition_key(t)
+        if k == "S1_policy":
+            s1_policy_shares.append(sh)
+        elif k == "S4_policy":
+            s4_policy_shares.append(sh)
+    rx_share_s1 = statistics.mean(s1_policy_shares) if s1_policy_shares else None
+    rx_share_s4 = statistics.mean(s4_policy_shares) if s4_policy_shares else None
+
     # TXSD trials
     txsd_trials: List[TxsdTrial] = []
     for p in sorted(args.txsd_dir.glob("trial_*.csv")):
@@ -366,6 +433,19 @@ def main() -> None:
         infer_txsd_kind(tt)
         if tt.ms_total >= VALID_MIN_DURATION_MS:
             txsd_trials.append(tt)
+
+    # Use fixed trials to estimate the "100ms" and "500ms" adv_count reference points.
+    fixed100_counts = [float(t.adv_count) for t in txsd_trials if t.kind == "fixed100"]
+    fixed500_counts = [float(t.adv_count) for t in txsd_trials if t.kind == "fixed500"]
+    adv_count_fixed100 = statistics.median(fixed100_counts) if fixed100_counts else None
+    adv_count_fixed500 = statistics.median(fixed500_counts) if fixed500_counts else None
+    maybe_fix_policy_session_by_share(
+        txsd_trials,
+        rx_share_s1=rx_share_s1,
+        rx_share_s4=rx_share_s4,
+        adv_count_fixed100=adv_count_fixed100,
+        adv_count_fixed500=adv_count_fixed500,
+    )
 
     # Group RX/TXSD by condition
     rx_by_cond: Dict[str, List[RxTrial]] = {}

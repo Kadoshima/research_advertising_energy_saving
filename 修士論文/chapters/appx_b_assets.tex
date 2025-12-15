@@ -1,17 +1,18 @@
 % chapters/appx_b_assets.tex --- 付録B 実験資産一覧（ファイル・ディレクトリ）
-\chapter{実験資産一覧}
+\section{実験資産一覧}
+\label{sec:assets}
 
-\section{図の管理}
+\subsection{図の管理}
 図は原則として\texttt{\detokenize{修士論文/figures/}}に集約し，本文から拡張子なしで参照する．本リポジトリでは，既存の解析結果図を相対パスで参照している箇所もあるため，提出用に固める際は\texttt{\detokenize{figures/}}へコピーしてパスを固定する．
 
-\section{主要な出力先（例）}
+\subsection{主要な出力先（例）}
 \begin{itemize}
   \item 固定間隔の電力テーブル：\texttt{\detokenize{results/mhealth_policy_eval/power_table_sleep_eval_2025-12-14_interval_sweep_sleep_on_n9_10.csv}}
   \item オフライン評価（δ帯）：\texttt{\detokenize{results/mhealth_policy_eval/letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/}}
   \item ストレス固定（v5図）：\texttt{\detokenize{results/stress_fixed/figures_v5/}}
 \end{itemize}
 
-\section{実機評価（例：D2）}
+\subsection{実機評価（例：D2）}
 実機の動的切替の例として，D2（scan90）では次のディレクトリ構成でログと指標を管理する．
 \begin{itemize}
   \item 実験ルート：\texttt{\detokenize{uccs_d2_scan90/}}
@@ -20,7 +21,7 @@
   \item 出力（指標）：\texttt{\detokenize{uccs_d2_scan90/metrics/01/summary.md}}
 \end{itemize}
 
-\section{解析スクリプト（例）}
+\subsection{解析スクリプト（例）}
 解析は，1回で完結する巨大スクリプトではなく，「trial集計」「集約」「図表化」に分割して再現可能にする．代表例を以下に示す．
 \begin{itemize}
   \item ストレス固定（trial集計）：\texttt{\detokenize{scripts/analyze_stress_causal_real.py}}

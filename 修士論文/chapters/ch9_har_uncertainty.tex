@@ -1,35 +1,97 @@
-% chapters/ch9_har_uncertainty.tex --- 第9章 HAR不確実度推定と特徴量
-\chapter{HAR不確実度推定と特徴量}
+% chapters/ch9_har_uncertainty.tex --- 第5章 HAR推論部（TinyML）と不確実度の構成
+\section{HAR推論部（TinyML）と不確実度の構成}
+\label{sec:har_uncertainty}
 
-\section{目的}
-本研究の制御は，HARの推論結果そのものではなく，「推論がどの程度信頼できるか」を表す不確実度と，「状態がどの程度安定しているか」を表す安定度に基づいて動作する．本章では，端末内推論から不確実度$U$と安定度$S$を得て，複合スコアCCSを構成する流れを整理する．
+\subsection{目的}
+本研究の制御は，HARの推論結果そのものではなく，「推論がどの程度信頼できるか」を表す不確実度と，「状態がどの程度安定しているか」を表す安定度に基づいて動作する．本節では，TinyML環境を想定したHAR推論部の位置づけと現状を整理し，端末内推論から不確実度$U$と安定度$S$を得て複合スコアCCSを構成する流れ，および実装上の制約と未完タスクをまとめる．
 
-\section{HAR推論出力と確率分布}
-HARモデルは，各時刻$t$においてクラス確率分布$\mathbf{p}(t)=(p_1(t),\dots,p_K(t))$を出力するものとする．本研究では，この確率分布をそのまま通信制御に用いるのではなく，不確実度$U(t)$へ写像する．
+\subsection{HARモデルと現状}
+\subsubsection{入力と出力の概要}
+HARは，加速度等の時系列入力を一定窓で切り出し，クラス確率分布を出力する．出力は多クラス（例：12クラス）のまま保持しつつ，通信制御では運用上の粗い状態（例：4クラス）へ集約する場合がある．集約は「制御の行動集合が小さい」「議論を単純化できる」という利点がある一方で，誤認識の影響が集約されるため，評価指標（4クラスBAcc等）を別途監視する必要がある．
 
-\section{不確実度U}
-不確実度$U$は，正規化エントロピーとして定義する（第2章参照）．温度スケーリング等の較正を行うことで，確率値の過信を抑制し，$U$の意味付けを安定させることが望ましい．
+\subsubsection{モデル到達点（A0とA\_tiny）}
+本研究では，参照モデル（A0）と小型モデル（A\_tiny）を区別する．A0はTFLite int8（PTQ）まで整備されており，TinyML実装の土台となる．一方，A\_tinyは4クラス性能が未達であり，TFLite生成・計測が未完である．表\ref{tab:har_models_status}に，到達点をまとめる．
 
-\subsection{較正（Calibration）の位置づけ}
+\begin{table}[tb]
+  \centering
+  \caption{HARモデルの到達点（例）}
+  \label{tab:har_models_status}
+  \begin{tabular}{p{0.18\linewidth}p{0.18\linewidth}p{0.18\linewidth}p{0.18\linewidth}p{0.18\linewidth}}
+    \toprule
+    モデル & 12c BAcc（test） & 4c BAcc（test） & 4c F1（test） & TFLite int8 \\
+    \midrule
+    A0（参照） & 0.828 & 0.960 & 0.735 & 生成済み（\SI{92.8}{\kilo\byte}） \\
+    A\_tiny（現行） & 0.858 & 0.730 & 0.728 & 未生成（未測定） \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+数値の根拠は，A0については\texttt{\detokenize{har/004/runs/phase0-1-acc/fold90/metrics.json}}，A\_tinyについては\texttt{\detokenize{har/004/runs/phase0-1-acc-tiny/fold90/metrics.json}}に基づく．A0のTFLiteは\texttt{\detokenize{har/004/export/acc_v1_keras/phase0-1-acc.v1.int8.tflite}}であり，sha256は\texttt{\detokenize{e1c3ff0042...}}である（\texttt{\detokenize{har/004/export/acc_v1_keras/manifest.json}}）．
+
+\subsubsection{性能要件と未完タスクの位置づけ}
+Phase 1の主張は「評価指標と計測系を確立し，ルールベース方策が固定より良い運用点になり得ることを示す」ことである．したがって，HARモデルの最終性能到達はPhase 2に跨る未完タスクとして扱い，本論文では未完であること自体を明示する．これは失敗談ではなく，再現性のために「何が揃っていて，何が揃っていないか」を固定するためである．
+
+\subsection{不確実度U}
+HARモデルは，各時刻$t$においてクラス確率分布$\mathbf{p}(t)=(p_1(t),\dots,p_K(t))$を出力する．本研究では，この確率分布から不確実度$U(t)$を導出し，通信制御のコンテキストとする．不確実度$U$は，正規化エントロピーとして定義できる\scite{shannon1948}．
+\begin{equation}
+  U(t) = -\frac{\sum_{k=1}^{K} p_k(t)\log p_k(t)}{\log K}
+\end{equation}
+ここで$U=0$は確信度が高い状態，$U=1$は不確実な状態に対応する．$U$は1回の推論出力から計算できるため，多回推論を必要とする不確実度推定（例：MC-Dropout）と比較して計算コストが小さい．
+
+\subsubsection{較正（Calibration）の位置づけ}
 ソフトマックス確率は，ニューラルネットの過信（overconfidence）により，確率値が実際の正解率を過大評価する場合がある．不確実度$U$を通信制御に用いる場合，この過信は「本来短間隔にすべき局面で長間隔を選ぶ」リスクに直結する．そのため，推論結果の確率較正（例：温度スケーリング）により，$U$と実際の誤り確率の対応を改善することが望ましい\scite{guo2017calibration}．
 
-\section{安定度S}
+\subsection{安定度S}
 安定度$S$は，直近窓におけるラベル遷移回数や，状態滞在時間に基づいて構成する．例えば，ラベル遷移が少ないほど安定であるという設計意図のもと，$S$を1に近づける．
 
-\subsection{窓長と応答性}
+\subsubsection{窓長と応答性}
 安定度は窓長$W$に依存する．$W$が短いと遷移への応答が速い一方でノイズに敏感になり，$W$が長いと安定する一方で過渡期に追従しにくい．本研究では，実装の単純性を優先し，スライディング窓に基づく遷移回数の正規化という形で$S$を構成する（第2章）．
 
-\section{複合スコアCCS}
-複合スコアCCSは，確信度$(1-U)$と安定度$S$の線形結合として定義する（第2章参照）．係数$\alpha$は設計パラメータであり，実験ではデフォルト値（例：$\alpha=0.7$）を用いつつ，感度は今後の課題として整理する．
+\subsection{複合スコアCCS}
+複合スコアCCSは，確信度$(1-U)$と安定度$S$の線形結合として定義する．
+\begin{equation}
+  \mathrm{CCS}(t)=\alpha\,(1-U(t))+(1-\alpha)\,S(t)
+\end{equation}
+係数$\alpha$は設計パラメータであり，Phase 1では説明容易性を優先して固定値（例：$\alpha=0.7$）を採用する．ただし，$\alpha$や窓長$W$が変わるとCCS分布が変化し，閾値の意味が変わるため，モデル更新時には閾値再キャリブレーションが必要となる．
 
-\subsection{係数設計と解釈}
+\subsubsection{係数設計と解釈}
 係数$\alpha$を大きくすると，瞬時の確信度（$1-U$）を重視し，「いま確信があるなら長間隔」という単調な解釈に近づく．一方で$\alpha$を小さくすると，時間的一貫性（安定度$S$）を重視し，短時間の確信度の揺らぎで切替が発生しにくくなる．本研究では，Phase 1の主張（説明容易性）を優先し，確信度を主成分として扱う．
 
-\section{時系列生成とログ}
-制御に用いる$U(t)$，$S(t)$，$\mathrm{CCS}(t)$は，スライディング窓で逐次計算し，TXログとして保存する．このログは，オフライン評価（第7章）および実機評価（第4章）で共通に利用するため，ログ形式と時間軸の整合が重要である．
+\subsection{時系列生成とログ}
+制御に用いる$U(t)$，$S(t)$，$\mathrm{CCS}(t)$は，スライディング窓で逐次計算し，TXログとして保存する．このログは，オフライン評価および実機評価で共通に利用するため，ログ形式と時間軸の整合が重要である．
 
-\subsection{計算コストと実装制約}
+\subsubsection{計算コストと実装制約}
 本研究の想定はバッテリ駆動の小型端末であり，推論・制御・ログの計算コストは制約となる．不確実度$U$は，推論で得られる確率分布からエントロピーを計算するだけであり，追加の推論回数を必要としない．したがって，MC-Dropout等の多回推論を伴う不確実度推定と比較して，計算コストと電力コストが小さい．
 
-\section{まとめ}
-本章では，不確実度と安定度からCCSを構成し，通信制御のコンテキストとして利用する設計を整理した．以降の章では，このコンテキストに基づく制御が電力とQoSのトレードオフに与える影響を評価する．
+\subsection{量子化（PTQ int8）とTFLite整合（参照モデル）}
+TinyML環境では，推論コストとメモリを抑えるため，TFLite int8（PTQ）等の量子化が重要となる．A0（参照モデル）では，TFLite int8を生成し，PyTorch出力との整合（argmax一致率，max\_probのMAE）を確認している．これにより，「推論値の揺らぎ」が制御の閾値に与える影響を監査できる．
+
+\begin{table}[tb]
+  \centering
+  \caption{TFLiteアーティファクト（参照モデルA0，例）}
+  \label{tab:tflite_artifact_a0}
+  \begin{tabular}{p{0.28\linewidth}p{0.62\linewidth}}
+    \toprule
+    項目 & 値 \\
+    \midrule
+    TFLite int8 & \texttt{\detokenize{har/004/export/acc_v1_keras/phase0-1-acc.v1.int8.tflite}} \\
+    sha256 & \texttt{\detokenize{e1c3ff0042badac5dd9bb478a17fac79991736c813143b45e5cb981d9db68610}} \\
+    サイズ & \SI{92.8}{\kilo\byte} \\
+    代表データ & \texttt{\detokenize{har/001/export/acc_v1/rep_data.npy}}（rep\_samples=2000） \\
+    PT vs TFLite & argmax一致=0.98，max\_prob MAE=0.0277（200サンプル） \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{未完タスク（A\_tinyの実機導入に向けて）}
+本論文執筆時点で，A\_tinyについては以下が未完である．
+\begin{itemize}
+  \item 4クラス性能の回復（BAcc\,$\ge0.80$等の要件を満たすまでの改善）．
+  \item TFLite生成（PTQ int8）とサイズ・整合の計測（PT↔TFLite誤差，sha256記録）．
+  \item ESP32上での推論時間$t_{\mathrm{inf}}$とArenaサイズの計測．
+  \item CCS閾値（$\theta_{\mathrm{low/high}}$）の再キャリブレーション（TFLite出力ベース）．
+\end{itemize}
+これらは，単に精度改善のためだけではなく，「閾値で制御する際の意味づけを安定させる」ために必要である．本研究は，これらを将来課題として明示し，評価系（電力＋QoSの同時測定）がそのままPhase 2へ接続できる形で整備されている点を主張する．
+
+\subsection{まとめ}
+本節では，TinyML環境を想定したHAR推論部の現状と，不確実度$U$・安定度$S$・CCSの構成を整理した．また，量子化とTFLite整合の重要性，および未完タスクを明示した．以降の章では，このコンテキストに基づく広告間隔制御と，計測・指標に基づく評価を述べる．

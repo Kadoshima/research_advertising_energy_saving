@@ -1,47 +1,50 @@
-% chapters/ch2_proposed.tex --- 第2章 提案技術
-\chapter{提案技術}
+% chapters/ch2_proposed.tex --- 第6章 提案手法（CCS→広告間隔制御）
+\section{提案手法：CCSに基づくBLE広告間隔制御}
+\label{sec:proposed_method}
 
-\section{問題設定}
-本研究では，広告間隔 $a$ を選択して送信を行うとき，エネルギー指標を最小化しつつ，受信遅延に基づくQoS制約を満たすことを目的とする．代表的には，初回受信遅延TLに対して，期限$\tau$を超える確率を$P_{\mathrm{out}}(\tau)=P(\mathrm{TL}>\tau)$として定義し，$P_{\mathrm{out}}(\tau)\le \delta$を制約とする．
+\subsection{問題設定}
+本研究では，広告間隔 $a$ を選択して送信を行うとき，一次KPIである$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）を小さくしつつ，受信遅延に基づくQoS制約を満たすことを目的とする．代表的には，初回受信遅延TLに対して，期限$\tau$を超える確率を$P_{\mathrm{out}}(\tau)=P(\mathrm{TL}>\tau)$として定義し，$P_{\mathrm{out}}(\tau)\le \delta$を制約とする．
 
-\subsection{目的関数（平均電力とイベント当たり指標）}
-電力評価は，試行（trial）期間$T$における総エネルギー$E$に基づき，平均電力$\overline{P}=E/T$で表す．一方で，計測系の定常負荷（ロギング処理，LED等）が比較的大きい場合，無線イベントの寄与が平均電力に埋もれる．このため，本研究では，広告ONとOFFの差分$\Delta E=E_{\mathrm{on}}-E_{\mathrm{off}}$を広告イベント数$N_{\mathrm{adv}}$で正規化した$\Delta E/N_{\mathrm{adv}}$（または電荷$\mu C$）も併用し，無線の寄与を分離して議論する．
+\subsubsection{目的関数（$\si{\micro\coulomb}/\text{event}$）}
+本研究では，セッション中の電荷消費をイベント数で正規化した$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）を一次指標とする．ここでイベントは，TL/Poutの評価起点となる状態遷移（活動の切替）である．電荷消費はTXSDログの電流系列から積分し，必要に応じて広告OFF（同一コード系列・同一sleep条件）の基準を差し引く（詳細は\secref{sec:metrics_detail}）．
 
-\subsection{制約（期限超過率）}
+平均電力$\overline{P}$や総エネルギー$E$，および広告回数で正規化した$\Delta E/N_{\mathrm{adv}}$等は，単位監査や原因切り分けのための従属指標として併用する．
+
+\subsubsection{制約（期限超過率）}
 QoSは「状態遷移（イベント）後に一定時間以内に受信されること」として定義する．$j$番目のイベントの初回受信遅延を$\mathrm{TL}_j$とすると，
 \begin{equation}
   P_{\mathrm{out}}(\tau)=\frac{1}{N_{\mathrm{event}}}\sum_{j=1}^{N_{\mathrm{event}}}\mathbb{I}[\mathrm{TL}_j>\tau]
 \end{equation}
 で表せる．本研究では，$\tau=\SI{1}{\second},\SI{2}{\second},\SI{3}{\second}$等の代表値で評価し，$P_{\mathrm{out}}(\tau)\le \delta$を制約として扱う．
 
-\section{不確実度と安定度}
-HARモデルの出力確率分布から不確実度$U\in[0,1]$を導出し，過去一定窓におけるラベル遷移回数から安定度$S\in[0,1]$を導出する．具体的な算出方法（窓長，正規化，閾値など）は，第3章で評価系と整合する形で述べる．
+\subsection{不確実度と安定度}
+HARモデルの出力確率分布から不確実度$U\in[0,1]$を導出し，過去一定窓におけるラベル遷移回数から安定度$S\in[0,1]$を導出する．具体的な算出方法（窓長，正規化，較正など）は，HAR推論部の\secref{sec:har_uncertainty}で整理する．
 
-\subsection{不確実度U}
+\subsubsection{不確実度U}
 HARのクラス事後確率を$p_k$（$k=1,\dots,K$）とすると，不確実度$U$は正規化エントロピーとして定義できる\scite{shannon1948}．
 \begin{equation}
   U = -\frac{\sum_{k=1}^{K} p_k \log p_k}{\log K}\,,
 \end{equation}
 ここで$U=0$は確信度が高い状態，$U=1$は不確実な状態に対応する．
 
-\subsection{安定度S}
+\subsubsection{安定度S}
 安定度$S$は，直近の時間窓におけるラベル遷移回数に基づき定義する．窓長を$W$，遷移回数を$n_{\mathrm{trans}}$とすると，簡単な定義の一例は以下である．
 \begin{equation}
   S = 1-\min\!\left(1,\frac{n_{\mathrm{trans}}}{W}\right)\,.
 \end{equation}
 安定期では$S$が1に近く，遷移期では$S$が小さくなる．
 
-\section{複合スコアに基づく広告間隔制御}
+\subsection{複合スコアに基づく広告間隔制御}
 不確実度と安定度から複合スコア（Composite Confidence Score：CCS）を構成し，その値に応じて広告間隔を段階的に切り替える．本研究では，実装の単純性と説明容易性のためにルールベース方策を採用し，閾値とヒステリシス，最小滞在時間により切替の振動を抑制する．
 
-\subsection{複合スコアCCS}
+\subsubsection{複合スコアCCS}
 本研究では，不確実度$U$と安定度$S$から，以下の線形結合で複合スコアCCSを構成する．
 \begin{equation}
   \mathrm{CCS} = \alpha\,(1-U) + (1-\alpha)\,S\,.
 \end{equation}
 ここで$\alpha\in[0,1]$は重みである．$\alpha$を大きくすると確信度（$1-U$）を重視し，小さくすると安定度$S$を重視する．
 
-\subsection{閾値写像}
+\subsubsection{閾値写像}
 CCSを3段階に分け，広告間隔$a\in\{100,500,2000\}\,\si{\milli\second}$へ写像する．閾値を$\theta_{\mathrm{low}}$，$\theta_{\mathrm{high}}$（$\theta_{\mathrm{low}}<\theta_{\mathrm{high}}$）とすると，
 \begin{equation}
   a(\mathrm{CCS}) =
@@ -53,25 +56,36 @@ CCSを3段階に分け，広告間隔$a\in\{100,500,2000\}\,\si{\milli\second}$�
 \end{equation}
 と定義する．
 
-\subsection{ヒステリシスと最小滞在時間}
+\subsubsection{ヒステリシスと最小滞在時間}
 CCSは推論誤差やセンサノイズにより揺らぐため，単純な閾値写像では切替が過度に発生しうる．そこで，閾値にヒステリシス（上下で異なる閾値）を持たせる．また，最小滞在時間を設け，滞在時間が一定値未満の間は切替を抑制する．
 
-\subsection{切替規則（実装上の要点）}
+なお，Phase 1で用いる代表的なパラメータ（$\alpha,W,\theta_{\mathrm{low/high}}$，ヒステリシス幅，最小滞在時間）は\secref{sec:ccs_params}に一覧化する．
+
+\subsubsection{切替規則（実装上の要点）}
 実装は，現在の間隔$a_t$とCCSの観測値$\mathrm{CCS}_t$から次の間隔$a_{t+1}$を決定する有限状態機械として表せる．本研究では以下を満たす設計とする．
 \begin{itemize}
   \item \textbf{単調性}：CCSが高いほど長間隔側を選びやすい．
   \item \textbf{安全側への退避}：QoS悪化の兆候がある場合は短間隔へ戻す余地を残す．
   \item \textbf{振動抑制}：ヒステリシスと最小滞在時間で切替頻度を抑える．
 \end{itemize}
-切替規則の例は，第3章の実験条件（閾値，滞在時間）と併せて具体化する．
+切替規則の例は，実験装置・計測方式（\secref{sec:measurement_setup}）および実験設計（\secref{sec:experiment_design}）で示す条件（閾値，滞在時間）と併せて具体化する．
 
-\section{動的切替の最小構成（2値制御）}
+\subsection{ログと説明可能性（Observability）}
+動的制御の評価では，「なぜその間隔を選んだか」を後から説明できることが重要である．特に，本研究は非理想スキャンを前提とするため，受信品質の変動をすべて送信側のせいにできない．したがって，方策の意思決定（$U,S,\mathrm{CCS}$）と，使用したパラメータ（閾値，ヒステリシス，最小滞在時間等）をログとして残し，観測可能性を担保する．
+
+\subsubsection{切替理由（reason）を毎回残す}
+切替のたびに，閾値越え，ヒステリシス判定，最小滞在時間による抑制，フェイルセーフ退避などの理由を\texttt{\detokenize{reason}}として記録する．これにより，結果図表の背後にある「切替の根拠」を監査できる．
+
+\subsubsection{Tx/Rx/Powerのスキーマ}
+TXログは方策の内側（$U,S,\mathrm{CCS}$と選択した$a$），RXログは受信時刻とseq，TXSDログは電流・電圧系列とsummaryを保持する．ログ列の詳細は\secref{sec:log_schema}に示し，\secref{sec:runbook}に従って運用条件（端末，スキャン設定，sleepの有無）を固定する．
+
+\subsection{動的切替の最小構成（2値制御）}
 実機実験の初期段階では，電力低下の主効果が短間隔滞在の削減にあることを踏まえ，広告間隔を\SI{100}{\milli\second}と\SI{500}{\milli\second}の2値に限定した動的切替を用いる．この最小構成により，計測系の同期とログ整合を保ちつつ，動的切替が期待通りに動作することを確認する．
 
-\subsection{2値制御の目的}
+\subsubsection{2値制御の目的}
 2値制御は，行動空間を小さくすることで，実装・解析の複雑性を抑える目的がある．また，\SI{100}{\milli\second}と\SI{500}{\milli\second}の差は平均電力の主効果になりやすく，省電力化の寄与を説明しやすい．
 
-\section{評価システム概要（TX/TXSD/RX）}
+\subsection{評価システム概要（TX/TXSD/RX）}
 評価系は，送信（TX），電力ロガ（TXSD），受信（RX）の三ノードで構成する．TXは広告間隔を制御しつつ，必要なメタ情報をペイロードに埋め込む．TXSDはINA219により電流・電圧を計測して平均電力等を算出する．RXは受信ログを蓄積し，PDR，TL，$P_{\mathrm{out}}(\tau)$を評価する．
 
 \begin{figure}[tb]

@@ -18,9 +18,39 @@
 \setlength{\parindent}{1\zw}
 \setlength{\parskip}{0pt}
 
-% 目次に subsection まで載せる
-\setcounter{tocdepth}{2}
+% 目次は section まで（先輩修論の見え方に寄せる）
+\setcounter{tocdepth}{1}
 \setcounter{secnumdepth}{2}
+
+% --- ページ番号（下右に統一） ---
+\RequirePackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% chapter開始ページなど plain も同じにする
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[R]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+
+% --- 章見出し（中央寄せ・太字にしない） ---
+\RequirePackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\Large\centering}
+  {第\thechapter章}
+  {2em}
+  {\Large}
+\titleformat{name=\chapter,numberless}[display]
+  {\normalfont\Large\centering}
+  {}
+  {0pt}
+  {\Large}
+\titlespacing*{\chapter}{0pt}{0.33\textheight}{0pt}
 
 % --- 図表 ---
 \RequirePackage{graphicx}
@@ -36,13 +66,15 @@
 % --- 単位 ---
 \RequirePackage{siunitx}
 \sisetup{detect-all}
+\DeclareSIUnit{\decibelmilliwatt}{dBm}
 
-% --- キャプション：図 1.1：..., 表 3.1：... ---
+% --- キャプション：図 4-1 タイトル / 表 4-1 タイトル ---
 \RequirePackage{caption}
-\DeclareCaptionLabelSeparator{jcolon}{： } % 全角コロン
-\captionsetup{labelsep=jcolon}
-\captionsetup[figure]{name=図}
-\captionsetup[table]{name=表}
+\renewcommand{\thefigure}{\thechapter-\arabic{figure}}
+\renewcommand{\thetable}{\thechapter-\arabic{table}}
+\captionsetup{labelsep=space}
+\captionsetup[figure]{name=図,justification=centering}
+\captionsetup[table]{name=表,justification=centering}
 
 % --- 参照（図/表/式） ---
 \newcommand{\figref}[1]{図~\ref{#1}}
@@ -54,6 +86,7 @@
 \newcommand{\chapterwithtoc}[1]{%
   \chapter*{#1}%
   \addcontentsline{toc}{chapter}{#1}%
+  \clearpage
 }
 
 % --- 参考文献（biblatex） ---
@@ -66,6 +99,11 @@
   {}
   {}
 
+% URL 表記を簡素化（"url:" / "visited on" を出さない）
+\DeclareFieldFormat{url}{\url{#1}}
+\renewcommand*{\urlprefix}{}
+\renewbibmacro*{url+urldate}{\printfield{url}}
+
 % --- ハイパーリンク（最後の方で読み込み） ---
 \RequirePackage[hidelinks]{hyperref}
 \RequirePackage{bookmark}
@@ -76,49 +114,49 @@
 \newcommand{\makethesistitle}{%
 \begin{titlepage}
   \thispagestyle{empty}
-  \begin{center}
-    \vspace*{8mm}
-    {\Large \ThesisYearLabel\par}
-    \vspace{28mm}
-    {\LARGE\bfseries \ThesisTitle\par}
-    \vfill
-    {\Large \University\par}
-    \vspace{4mm}
-    {\Large \GraduateSchool\par}
-    \vspace{4mm}
-    {\Large \Department\par}
-    \vspace{4mm}
-    {\Large \Course\par}
-    \vspace{16mm}
-    {\Large \AuthorFamily\par}
-    \vspace{4mm}
-    {\Large \AuthorGiven\par}
-    \vspace{16mm}
-    {\Large 指導教授\par}
-    \vspace{4mm}
-    {\Large \AdvisorFamily\par}
-    \vspace{4mm}
-    {\Large \AdvisorGiven\par}
-  \end{center}
+  \centering
+  \vspace*{20mm}
+  {\Large \ThesisYearLabel\par}
+  \vspace{25mm}
+
+  \fbox{%
+    \parbox{0.85\textwidth}{\centering
+      \vspace{6mm}
+      {\Large \ThesisTitle\par}
+      \vspace{6mm}
+    }%
+  }
+
+  \vfill
+  {\Large \University\ \GraduateSchool\par}
+  {\Large \Department\ \Course\par}
+  \vspace{10mm}
+  {\Large 氏名\hspace{2em}\AuthorFamily\ \AuthorGiven\par}
+  \vspace{5mm}
+  {\Large 指導教授\hspace{2em}\AdvisorFamily\ \AdvisorGiven\par}
 \end{titlepage}
 }
 
 \newcommand{\makeabstractpage}{%
 \clearpage
 \thispagestyle{empty}
+\noindent 修士論文題目
+
+\vspace{6mm}
 \begin{center}
-  {\Large 修士論文題目\par}
-  \vspace{8mm}
-  {\Large\bfseries \ThesisTitle\par}
-  \vspace{8mm}
-  {\Large \AbstractDepartment\par}
-  \vspace{6mm}
-  {\Large 氏名 \AuthorFamily\par}
-  \vspace{2mm}
-  {\Large \AuthorGiven\par}
-  \vspace{8mm}
-  {\Large 論\quad 文\quad 要\quad 旨\par}
+  {\Large \ThesisTitle\par}
+  \vspace{-2mm}
+  \rule{0.9\textwidth}{0.4pt}
 \end{center}
+
+\vspace{4mm}
+\noindent \AbstractDepartment\hspace{2em}氏名\hspace{2em}\AuthorFamily\ \AuthorGiven
+
+\vspace{8mm}
+\begin{center}
+  論\quad 文\quad 要\quad 旨
+\end{center}
+
 \vspace{6mm}
 \input{frontmatter/abstract}
 \clearpage

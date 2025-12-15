@@ -1,0 +1,92 @@
+% chapters/ch3_system_design.tex --- 第4章 問題設定とシステム設計
+\section{問題設定とシステム設計}
+
+\subsection{World Model}
+本研究は，アプリケーション層（HAR）と通信層（BLE広告）を跨ぐクロスレイヤー制御である．このため，単に広告間隔を調整するだけでなく，「どの情報がどこで生成され，どこで観測されるか」を明確にする必要がある．本節では，役者（Actors）と能力（Capabilities）を整理し，議論の前提を固定する．
+
+\subsubsection{Actors}
+表\ref{tab:actors}に，本研究で扱う役者を示す．
+
+\begin{table}[tb]
+  \centering
+  \caption{Actors（役者）}
+  \label{tab:actors}
+  \begin{tabular}{p{0.28\linewidth}p{0.62\linewidth}}
+    \toprule
+    Actor & 役割 \\
+    \midrule
+    Edge Node / DUT & IMU等からHARを推論し，不確実度$U$・安定度$S$・CCSを生成して広告間隔を制御する（送信側） \\
+    Gateway（スマートフォン） & BLE広告を受信する主体．スキャン挙動はOS依存で非理想とみなす（受信側） \\
+    Observer（計測系） & 電力（TXSD）と受信（RX）を収集し，一次KPIを算出する（実験時の観測者） \\
+    Safety Oracle（概念） & QoS制約$P_{\mathrm{out}}(\tau)\le\delta$を規定する境界（設計上の規格） \\
+    Policy Engine & コンテキストから広告間隔を決定する意思決定器（Phase 1はルール，Phase 2でSafe Bandit） \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsubsection{Capabilities（5つの柱）}
+本研究の設計で重要となる能力を以下にまとめる．
+\begin{enumerate}
+  \item Perception：HAR推論から確率分布を得て，不確実度$U$と安定度$S$を計算する．
+  \item Decision：$U,S$からCCSを構成し，広告間隔$a$を決定する．
+  \item Communication：BLE広告として送信し，受信側の非理想スキャン下で到達する．
+  \item Safety：QoS制約を守るため，危険兆候では短間隔へ退避できる．
+  \item Observability：意思決定の根拠（$U,S,\mathrm{CCS}$，閾値，切替理由）をログに残す．
+\end{enumerate}
+
+\subsection{一次KPIと不変条件}
+本研究では，議論がぶれないように一次KPIを固定する．表\ref{tab:kpi}に一次・二次KPIを示す．一次KPIは「省電力」と「期限超過」の同時評価を担い，二次KPIは補助指標として扱う．
+
+\begin{table}[tb]
+  \centering
+  \caption{KPIの整理}
+  \label{tab:kpi}
+  \begin{tabular}{p{0.22\linewidth}p{0.68\linewidth}}
+    \toprule
+    区分 & 指標 \\
+    \midrule
+    一次（Primary） & $\si{\micro\coulomb}/\text{event}$，$P_{\mathrm{out}}(\tau)$，TL\_p95 \\
+    二次（Secondary） & 平均電力$\overline{P}$，PDR（unique），RSSI，切替頻度（switch\_rate），平均広告レート（adv\_rate） \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+また，設計上の不変条件として以下を採用する．
+\begin{itemize}
+  \item 後方互換のIF：\texttt{decide\_interval(context) -> interval} の構造を保ち，ルールから学習へ差し替え可能にする．
+  \item 端末内比較：受信端末・設定を固定し，OS依存の影響は端末内で相殺して解釈する．
+  \item ログ優先：KPI算出に必要な列を必ず残し，派生値は後処理で再計算できる形にする．
+\end{itemize}
+
+\subsection{目的関数と制約}
+本研究の問題設定は，広告間隔制御により電力（電荷消費）を下げつつ，期限超過率を制約することである．動的制御の方策$\pi$に対し，
+\begin{equation}
+  \text{minimize}\quad \mathbb{E}[q_{\mathrm{event}}(\pi)]
+  \quad \text{subject to}\quad P_{\mathrm{out}}(\tau;\pi)\le \delta
+\end{equation}
+として表せる．ここで$q_{\mathrm{event}}$（単位：$\si{\micro\coulomb}/\text{event}$）は，セッション中の電荷消費をイベント数で正規化した指標である（定義は\secref{sec:metrics_detail}）．コンテキストとしては$U,S$（またはCCS）を用い，Phase 1ではルール$\pi_{\mathrm{rule}}$，Phase 2では学習$\pi_{\mathrm{safe\_mab}}$を想定する．
+
+\subsection{フェイルセーフと運用設計}
+非理想スキャン環境では，受信品質が瞬間的に悪化する可能性がある．このため，実装では安全側への退避（短間隔）を設けることが望ましい．本研究では，切替規則の設計とログ化により，安全側に寄せた挙動を説明可能にする．
+
+\begin{figure}[tb]
+  \centering
+  \fbox{\begin{minipage}{0.9\linewidth}
+    \vspace{1mm}
+    \begin{center}
+      \textbf{フェイルセーフ（概念）}
+    \end{center}
+    \vspace{1mm}
+    \begin{itemize}
+      \item 通常：CCSに応じて$a\in\{100,500,1000,2000\}\,\si{\milli\second}$を選択
+      \item 兆候：受信品質悪化や不確実度急増などの兆候で短間隔へ退避
+      \item 監査：退避の根拠をログ（reason）として保存
+    \end{itemize}
+    \vspace{1mm}
+  \end{minipage}}
+  \caption{フェイルセーフ設計の概念図}
+  \label{fig:failsafe_concept}
+\end{figure}
+
+\subsection{フェーズ設計（Phase 1 → Phase 2）}
+Phase 1では，ルールベース方策で「計測・指標・実機実装」を成立させることを優先する．特に，TL/Poutの定義と時間同期，電力計測の健全化は，学習以前に必須である．Phase 2では，コンテキスト（$U,S$）と行動（広告間隔）の選択をSafe Contextual Banditとして定式化し，環境差に適応しつつQoS制約を守る枠組みを検証する．

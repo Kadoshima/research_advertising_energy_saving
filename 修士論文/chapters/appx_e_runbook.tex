@@ -1,9 +1,10 @@
 % chapters/appx_e_runbook.tex --- 付録E 実験Runbook（チェックリスト）
-\chapter{実験Runbook（チェックリスト）}
+\section{実験Runbook（チェックリスト）}
+\label{sec:runbook}
 
-本付録では，実験の再現性を担保するための最小チェックリストを示す．運用中に発見された落とし穴（条件混在，欠損，単位不整合など）を避けることを目的とする．
+本節では，実験の再現性を担保するための最小チェックリストを示す．運用中に発見された落とし穴（条件混在，欠損，単位不整合など）を避けることを目的とする．
 
-\section{実験前チェック}
+\subsection{実験前チェック}
 \begin{itemize}
   \item 役割の確認：TX/RX/TXSDでスケッチが正しい（接頭辞，設定値）．
   \item 配線の確認：GND共通，SYNC入力，必要ならTICK入力（GPIO番号）．
@@ -12,7 +13,7 @@
   \item ログ命名：\texttt{\detokenize{trial_XXX.csv}}の連番と，条件IDの対応が追跡できる．
 \end{itemize}
 
-\section{試行（trial）実行}
+\subsection{試行（trial）実行}
 \begin{enumerate}
   \item SYNCで試行開始が一致していることを目視（LED等）で確認する．
   \item 試行中は条件（広告間隔，スキャン設定）を変更しない．
@@ -20,7 +21,7 @@
   \item 明らかな異常（rate低下，欠損，桁ズレ）があれば，その場で再試行し，除外理由を作業ログに残す．
 \end{enumerate}
 
-\section{データ整理}
+\subsection{データ整理}
 \begin{itemize}
   \item 生データの退避：\texttt{\detokenize{data/}}へコピーし，取得条件と紐付ける．
   \item 解析対象の選別：含めるtrialと除外trialを明示し，理由（欠損，条件混在等）を記録する．
@@ -28,17 +29,17 @@
   \item 作業ログ追記：生成物のパスと実行コマンドを\texttt{\detokenize{logs/worklog_YYYY-MM-DD_*.txt}}へ追記する．
 \end{itemize}
 
-\section{解析と図表生成}
+\subsection{解析と図表生成}
 \begin{itemize}
   \item trial集計：ログを読み込み，欠損と単位を監査し，指標（PDR, TL, Pout, 平均電力）を算出する．
   \item 集約：条件ごとに平均と分散を計算し，図表（固定点，δ帯，Pareto等）を生成する．
   \item 再現確認：同一入力・同一コマンドで同じ図表が出ることを確認する（乱数がある場合はseed固定）．
-  \item 図の固定：提出用には\texttt{\detokenize{修士論文/figures/}}へコピーし，相対パス参照を解消する（付録B）．
+  \item 図の固定：提出用には\texttt{\detokenize{修士論文/figures/}}へコピーし，相対パス参照を解消する（\secref{sec:assets}）．
 \end{itemize}
 
-\section{既知の注意点}
+\subsection{既知の注意点}
 \begin{itemize}
-  \item 文字列中の\texttt{\detokenize{_}}（アンダースコア）は，LaTeX本文では\texttt{\detokenize{\texttt{\detokenize{...}}}}等で扱う（付録B）．
-  \item TL/Poutは開始位相ずれで歪むため，定数オフセット補正を適用した定義（v5）を基準にする（第6章）．
-  \item 条件混在（LED/SYNCの扱いの違い等）は定常オフセットとなるため，比較は同一コード系列に限定する（第8章）．
+  \item 文字列中の\texttt{\detokenize{_}}（アンダースコア）は，LaTeX本文では\texttt{\detokenize{\texttt{\detokenize{...}}}}等で扱う（\secref{sec:assets}）．
+  \item TL/Poutは開始位相ずれで歪むため，定数オフセット補正を適用した定義（v5）を基準にする（\secref{sec:stress_fixed_metrics}）．
+  \item 条件混在（LED/SYNCの扱いの違い等）は定常オフセットとなるため，比較は同一コード系列に限定する（\secref{sec:measurement_system}）．
 \end{itemize}

@@ -1,9 +1,10 @@
 % chapters/appx_d_log_schema.tex --- 付録D ログスキーマ（詳細）
-\chapter{ログスキーマ（詳細）}
+\section{ログスキーマ（詳細）}
+\label{sec:log_schema}
 
-本付録では，本研究で扱うログ（TXSD/RX/TX）の列定義をまとめる．解析スクリプトは列追加に対して後方互換で拡張可能であるが，指標計算に必須な列は固定する．
+本節では，本研究で扱うログ（TXSD/RX/TX）の列定義をまとめる．解析スクリプトは列追加に対して後方互換で拡張可能であるが，指標計算に必須な列は固定する．
 
-\section{TXSD（電力）ログ}
+\subsection{TXSD（電力）ログ}
 TXSDログは，電流・電圧系列と，末尾のsummaryから構成される．生系列は後処理で再積分できるように保持し，summaryはquick checkとして利用する．
 
 \begin{longtable}{p{0.22\linewidth}p{0.18\linewidth}p{0.52\linewidth}}
@@ -30,7 +31,7 @@ TXSDログは，電流・電圧系列と，末尾のsummaryから構成される
   \bottomrule
 \end{longtable}
 
-\section{RX（受信）ログ}
+\subsection{RX（受信）ログ}
 RXログは，受信時刻とペイロード識別子（seq等）を保持する．PDR\_unique，TL，$P_{\mathrm{out}}(\tau)$の算出に必須である．
 
 \begin{longtable}{p{0.22\linewidth}p{0.18\linewidth}p{0.52\linewidth}}
@@ -50,7 +51,7 @@ RXログは，受信時刻とペイロード識別子（seq等）を保持する
   \bottomrule
 \end{longtable}
 
-\section{TX（送信）ログ}
+\subsection{TX（送信）ログ}
 TXログは，方策の状態（$U,S,\mathrm{CCS},a$等）を保持する．オフライン評価と実機評価を接続するため，方策の根拠（切替理由）を残すことが望ましい．
 
 \begin{longtable}{p{0.22\linewidth}p{0.18\linewidth}p{0.52\linewidth}}
@@ -72,5 +73,5 @@ TXログは，方策の状態（$U,S,\mathrm{CCS},a$等）を保持する．オ�
   \bottomrule
 \end{longtable}
 
-\section{ファイル命名と配置}
-ログは，試行（trial）単位でファイルを分割し，\texttt{\detokenize{trial_XXX.csv}}等の連番で管理する．このとき，条件IDや実験日付をパスまたはファイル名に含め，作業ログに生成コマンドと出力先を残す（第10章）．
+\subsection{ファイル命名と配置}
+ログは，試行（trial）単位でファイルを分割し，\texttt{\detokenize{trial_XXX.csv}}等の連番で管理する．このとき，条件IDや実験日付をパスまたはファイル名に含め，作業ログに生成コマンドと出力先を残す（\secref{sec:runbook}）．

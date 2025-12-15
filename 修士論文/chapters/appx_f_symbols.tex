@@ -1,0 +1,83 @@
+% chapters/appx_f_symbols.tex --- 付録F 記号表・略語
+\section{記号表・略語}
+\label{sec:symbols}
+
+本節では，本論文で用いる記号と略語をまとめる．
+
+\subsection{記号表}
+\begin{longtable}{p{0.28\linewidth}p{0.16\linewidth}p{0.50\linewidth}}
+  \caption{記号表}\label{tab:symbols}\\
+  \toprule
+  記号 & 単位 & 意味 \\
+  \midrule
+  \endfirsthead
+  \toprule
+  記号 & 単位 & 意味 \\
+  \midrule
+  \endhead
+  $a,\;a(t)$ & ms & 広告間隔（方策が選択する行動） \\
+  $T_{\mathrm{adv}}$ & ms & 広告間隔（説明用の表記） \\
+  $T_{\mathrm{scan}}$ & ms & スキャン周期 \\
+  $d_{\mathrm{scan}}$ & ms & スキャンウィンドウ \\
+  $\delta$ & --- & スキャンデューティ比（$d_{\mathrm{scan}}/T_{\mathrm{scan}}$） \\
+  $\mathbf{p}(t)$ & --- & HAR出力のクラス確率分布 \\
+  $U(t)$ & --- & 不確実度（正規化エントロピー） \\
+  $S(t)$ & --- & 安定度（時間的一貫性） \\
+  $\mathrm{CCS}(t)$ & --- & 複合スコア（$U$と$S$の結合） \\
+  $\alpha$ & --- & CCSの重み係数 \\
+  $W$ & --- & 安定度の窓長（サンプル数等） \\
+  $\theta_{\mathrm{low}},\theta_{\mathrm{high}}$ & --- & CCSの閾値（ヒステリシス） \\
+  $t_{\mathrm{event},j}$ & ms & イベント$j$の真値（truth）時刻 \\
+  $t_{\mathrm{rx},j}$ & ms & イベント$j$に対応する初回受信時刻 \\
+  $\mathrm{TL}_j$ & s & イベント$j$の遅延（Time-to-first-Receive） \\
+  $\mathrm{TL}_{p95}$ & s & TL分布の95パーセンタイル \\
+  $P_{\mathrm{out}}(\tau)$ & --- & 期限$\tau$に対する期限超過率 \\
+  $\tau$ & s & 遅延期限（outage判定の基準） \\
+  $N_{\mathrm{event}}$ & 回 & 評価対象のイベント数 \\
+  $N_{\mathrm{adv}}$ & 回 & 広告イベント数（adv\_count等） \\
+  $\mathrm{PDR}_{\mathrm{raw}}$ & --- & 受信行数に基づくPDR（重複含む） \\
+  $\mathrm{PDR}_{\mathrm{unique}}$ & --- & seqでユニーク化したPDR（重複除外） \\
+  $Q$ & $\si{\micro\coulomb}$ & 試行区間の総電荷（電流積分） \\
+  $\Delta Q$ & $\si{\micro\coulomb}$ & 電荷差分（ON$-$OFF） \\
+  $q_{\mathrm{event}}$ & $\si{\micro\coulomb}/\text{event}$ & イベント当たり電荷（$\Delta Q/N_{\mathrm{event}}$） \\
+  $E$ & mJ & 試行区間の総エネルギー \\
+  $\Delta E$ & mJ & エネルギー差分（ON$-$OFF） \\
+  $\overline{P}$ & mW & 平均電力（$E/T$） \\
+  $p_d$ & --- & 1広告の受信成功確率（近似モデル） \\
+  RSSI & dBm & 受信強度（Received Signal Strength Indicator） \\
+  $t_{\mathrm{inf}}$ & ms & 推論時間（TinyML実機計測） \\
+  \bottomrule
+\end{longtable}
+
+\subsection{略語}
+\begin{longtable}{p{0.26\linewidth}p{0.68\linewidth}}
+  \caption{略語}\label{tab:acronyms}\\
+  \toprule
+  略語 & 意味 \\
+  \midrule
+  \endfirsthead
+  \toprule
+  略語 & 意味 \\
+  \midrule
+  \endhead
+  BLE & Bluetooth Low Energy \\
+  HAR & Human Activity Recognition（人間活動認識） \\
+  MCU & Microcontroller Unit（マイコン） \\
+  QoS & Quality of Service（サービス品質） \\
+  PDR & Packet Delivery Ratio \\
+  RSSI & Received Signal Strength Indicator \\
+  TL & Time-to-first-Receive（発見遅延） \\
+  outage & 期限超過（$P_{\mathrm{out}}(\tau)$） \\
+  PTQ & Post-Training Quantization \\
+  TFLite & TensorFlow Lite \\
+  SD & Secure Digital（SDカード） \\
+  UART & Universal Asynchronous Receiver-Transmitter \\
+  SPI & Serial Peripheral Interface \\
+  I\textsuperscript{2}C & Inter-Integrated Circuit \\
+  DUT & Device Under Test（被測定対象） \\
+  TX & 送信側（DUT） \\
+  RX & 受信側（ロガ） \\
+  TXSD & 電力ロガ（送信側の電力計測） \\
+  SYNC/TICK & 試行境界・広告回数の同期信号 \\
+  \bottomrule
+\end{longtable}

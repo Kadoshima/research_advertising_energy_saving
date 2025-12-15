@@ -1,0 +1,68 @@
+% chapters/appx_g_troubleshooting.tex --- 付録G トラブルシューティング集
+\section{トラブルシューティング集}
+\label{sec:troubleshooting}
+
+本節では，実験運用で経験した代表的なトラブルを整理し，原因の切り分けと対策をまとめる．目的は，欠損や時間軸不整合によって結論が崩壊することを避け，再現性を高めることである．
+
+\subsection{症状からの切り分け}
+\begin{longtable}{p{0.28\linewidth}p{0.32\linewidth}p{0.34\linewidth}}
+  \caption{症状からの切り分け（例）}\label{tab:troubleshooting_by_symptom}\\
+  \toprule
+  症状 & 疑う箇所 & まず確認すること \\
+  \midrule
+  \endfirsthead
+  \toprule
+  症状 & 疑う箇所 & まず確認すること \\
+  \midrule
+  \endhead
+  OFFがONより大きい（$\Delta E<0$） & 欠損，単位換算，条件混在 & 生ログ再積分とsummaryの一致，コード系列の統一 \\
+  TL/Poutが不自然に小さい & RXとtruthの時間軸ずれ & 定数オフセット補正（v5）を適用したか \\
+  PDRが1を超える & 重複受信の混入 & seqユニーク化（PDR\_unique）を優先 \\
+  adv\_countが期待値と乖離 & TICK未接続，推定の誤差 & TICK物理カウントの有無，推定式の前提 \\
+  SDログが途中で途切れる & SD I/O，電源，ファイルopen & 末尾summaryの有無，open/initエラー \\
+  数値列に文字が混入する & UART品質，ボーレート過大 & ボーレート低下，厳密パース，配線見直し \\
+  \bottomrule
+\end{longtable}
+
+\subsection{代表的トラブル}
+\subsubsection{広告OFFの方が消費が大きい（$\Delta E<0$）}
+広告OFFが広告ONより大きい結果は，物理的に矛盾して見えるため，最優先で切り分ける必要がある．本研究では，無線スタックの影響を議論する前に，計測・解析起因の破綻を疑う．
+\begin{itemize}
+  \item 主要因候補：I/Oボトルネックによる欠損，単位換算ミス，条件混在（コード系列の違い）．
+  \item 対策：生ログ（mV/µA）から再積分し，summaryと一致することを監査する．比較は同一コード系列で統一し，sleepの有無も条件として明示する．
+  \item 判断：監査を通過した上で$\Delta E<0$が再現する場合，電源ドメインや無線状態遷移など物理要因を再検討する．
+\end{itemize}
+
+\subsubsection{TL/Poutの過小評価（開始位相ずれ）}
+RXログの開始がtruthより遅れる等の理由で，RXの時間軸とtruthの時間軸が一致しない場合がある．このずれを補正しないと，TLや$P_{\mathrm{out}}(\tau)$が過小評価される．本研究ではv5として，seqから定数オフセットを推定して補正する手順を採用する（\secref{sec:stress_fixed_metrics}）．
+
+\subsubsection{UARTデータ化け（数値列への文字混入）}
+UARTログが壊れると，欠損や桁ズレが連鎖し，積分と分母（試行時間・広告回数）が不整合になる．
+\begin{itemize}
+  \item 兆候：パーサの例外，行数不足，msが単調増加しない，0埋め行の増加．
+  \item 対策：ボーレートを下げる，出力列を最小化する，パース失敗は試行ごと除外し理由を記録する．
+  \item 再発防止：末尾summaryの生成を必須とし，欠損率が閾値を超えた試行は自動で失格にする．
+\end{itemize}
+
+\subsubsection{SYNC検出失敗（短パルス）}
+SYNCが短パルスとして出力されると，受信側で取りこぼす可能性がある．境界が崩れると，TL/Poutの定義（イベント時刻）と電力積分区間が一致しなくなる．
+\begin{itemize}
+  \item 対策：SYNCをHIGH保持する，受信側でラッチする，開始と終了の両方を同期する．
+  \item 監査：TXSD summaryのms\_totalが想定長と一致すること，RXの試行数が一致することを確認する．
+\end{itemize}
+
+\subsubsection{SD I/O失敗（open/init）}
+SDカード初期化やファイルopenに失敗した状態で試行を継続すると，欠損が増え，評価が不能になる．
+\begin{itemize}
+  \item 対策：SPIクロック調整，塊書き込み，open/init失敗時の即時停止と再試行．
+  \item 監査：各trialファイルの末尾summaryの存在と整合を確認する．
+\end{itemize}
+
+\subsection{解析前の最終監査}
+解析を自動化しても，入力が壊れていると結論が壊れる．したがって，解析前に以下を最低限チェックする．
+\begin{itemize}
+  \item 末尾summary（ms\_total, adv\_count, E\_total等）が存在し，桁が妥当である．
+  \item 生ログの再積分がsummaryと整合し，単位換算が一貫している．
+  \item RXの試行数・条件IDがTXSDと一致し，条件混在がない．
+  \item 重要データはSHA256を記録し，同一入力で再現できる．
+\end{itemize}
