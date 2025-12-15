@@ -77,3 +77,15 @@
     - power mix由来: share100≈0.340
     - RXラベル由来（P100/P500カウント×interval重み）: share100≈0.294 ± 0.010
   - これで D1 の成立条件（切替/電力/受信率の方向性）が実測ログで確認できた。次は D2（レター図に実測点を重ねる）か、U/CCS入力を実機HARへ置換して同枠組みで再計測する。
+
+- [15:02 JST] Step D2（動的QoS: TL/Pout）用の専用ディレクトリとArduinoスケッチ（TX/RX/TXSD）を追加し、取得準備を完了。
+  - 追加ディレクトリ: `uccs_d2_scan90/`（index: `uccs_d2_scan90/README.md`）
+  - truth（flash埋め込み, 100msグリッド180s）: `uccs_d2_scan90/src/tx/stress_causal_s1_s4_180s.h`（stress_causal S1/S4 の label/U/CCS を量子化して格納）
+  - TX: `uccs_d2_scan90/src/tx/TX_UCCS_D2_SCAN90/TX_UCCS_D2_SCAN90.ino`
+    - 1回の起動で S1/S4 × {Fixed100, Fixed500, Policy(100↔500)} を自動実行（`REPEAT=3`, `EFFECTIVE_LEN_STEPS=1800(=180s)`, `GAP_MS=5s`）
+    - payload: `<step_idx>_<tag>`（tag例: `P4-09-500`。動的でも time axis を `step_idx*100ms` で復元可能）
+    - TXSD向け cond_id: preamble TICKパルス数（1..6）で通知（READMEの表と一致）
+    - trial中 tick: payload更新ごとに1発（TXSD側で `adv_count=tick_count` の近似を取得）
+  - RX: `uccs_d2_scan90/src/rx/RX_UCCS_D2_SCAN90/RX_UCCS_D2_SCAN90.ino`（scan90, SYNC gate, SDへ `/logs/rx_trial_XXX.csv`）
+  - TXSD: `uccs_d2_scan90/src/txsd/TXSD_UCCS_D2_SCAN90/TXSD_UCCS_D2_SCAN90.ino`（INA219, SYNC start/stop, preambleでcond_id判別, summaryにadv_count出力）
+  - TODO更新: `docs/TODO.md` に D1完了（集計参照先）と D2準備完了/D2取得TODOを反映。

@@ -170,8 +170,23 @@
   - Pareto v8（actions={100,500}）: `results/mhealth_policy_eval/pareto_front_v8_power_table_scan90_v5_sleep_on_n9_10_actions_100_500/pareto_summary.md`
   - δ tight v4（actions={100,500}）: `results/mhealth_policy_eval/letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/summary.md`
 
-- [ ] (ME+AI) D1: 実機（100↔500）最小セットで成立確認（Fixed100 / Fixed500 / Policy, 各n=3）
-  - 動的は同期破綻防止のため、TX payload に `tx_elapsed_ms` or `step_idx`（＋`interval_ms_current`）を埋め込み
+- [x] (ME+AI) D1: 実機（100↔500）最小セットで成立確認（Fixed100 / Fixed500 / Policy, 各n=3）
+  - データ: `uccs_d1_scan90/data/01/`
+  - 集計: `uccs_d1_scan90/metrics/01/summary.md`
+  - 動的payload: `<tx_elapsed_ms>_<label>`（fixed=F100/F500, policy=P100/P500）
+
+- [x] (AI) D2準備（最優先）: 動的QoS（TL/Pout）を評価できる D2 専用ディレクトリ＋スケッチを追加
+  - index: `uccs_d2_scan90/README.md`
+  - truth（flash埋め込み）: `uccs_d2_scan90/src/tx/stress_causal_s1_s4_180s.h`（S1/S4, 100msグリッド）
+  - TX/RX/TXSD（Arduino）:
+    - `uccs_d2_scan90/src/tx/TX_UCCS_D2_SCAN90/TX_UCCS_D2_SCAN90.ino`
+    - `uccs_d2_scan90/src/rx/RX_UCCS_D2_SCAN90/RX_UCCS_D2_SCAN90.ino`
+    - `uccs_d2_scan90/src/txsd/TXSD_UCCS_D2_SCAN90/TXSD_UCCS_D2_SCAN90.ino`
+  - D2 payload: `<step_idx>_<tag>`（動的でも time axis が復元できる形）
+
+- [ ] (ME+AI) D2: 実機で動的QoS（TL/Pout）を `step_idx` 起点で確定（S1/S4 × Fixed100/Fixed500/Policy）
+  - 取得: SD `/logs/` → `uccs_d2_scan90/data/<run>/{RX,TXSD}/` に吸い上げ（run READMEに条件メモ）
+  - 解析: TL/Pout(τ) を D2ログ（step_idx）対応で計算し、レター図に実測点を重ねる
 
 - [ ] (AI) 実測点を `pout_1s vs avg_power_mW` 図に重ね、予測↔実測の差分を `summary.md` に追記
 
