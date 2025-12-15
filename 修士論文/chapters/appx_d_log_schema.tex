@@ -1,0 +1,76 @@
+% chapters/appx_d_log_schema.tex --- 付録D ログスキーマ（詳細）
+\chapter{ログスキーマ（詳細）}
+
+本付録では，本研究で扱うログ（TXSD/RX/TX）の列定義をまとめる．解析スクリプトは列追加に対して後方互換で拡張可能であるが，指標計算に必須な列は固定する．
+
+\section{TXSD（電力）ログ}
+TXSDログは，電流・電圧系列と，末尾のsummaryから構成される．生系列は後処理で再積分できるように保持し，summaryはquick checkとして利用する．
+
+\begin{longtable}{p{0.22\linewidth}p{0.18\linewidth}p{0.52\linewidth}}
+  \caption{TXSDログ（例）の列定義}\label{tab:txsd_schema}\\
+  \toprule
+  列 & 単位 & 意味 \\
+  \midrule
+  \endfirsthead
+  \toprule
+  列 & 単位 & 意味 \\
+  \midrule
+  \endhead
+  ms & ms & 試行開始からの相対時刻 \\
+  mv & mV & 計測電圧（整数） \\
+  uA & $\mu$A & 計測電流（整数） \\
+  p\_mW & mW & 瞬時電力（派生列，後処理で再計算可能） \\
+  \midrule
+  \multicolumn{3}{l}{summary（末尾に出力する集約値の例）} \\
+  \midrule
+  ms\_total & ms & 試行時間 \\
+  adv\_count & 回 & 広告イベント数（TICK物理カウント等） \\
+  E\_total\_mJ & mJ & 総エネルギー（積分値） \\
+  avg\_power\_mW & mW & 平均電力（$E/T$） \\
+  \bottomrule
+\end{longtable}
+
+\section{RX（受信）ログ}
+RXログは，受信時刻とペイロード識別子（seq等）を保持する．PDR\_unique，TL，$P_{\mathrm{out}}(\tau)$の算出に必須である．
+
+\begin{longtable}{p{0.22\linewidth}p{0.18\linewidth}p{0.52\linewidth}}
+  \caption{RXログ（例）の列定義}\label{tab:rx_schema}\\
+  \toprule
+  列 & 単位 & 意味 \\
+  \midrule
+  \endfirsthead
+  \toprule
+  列 & 単位 & 意味 \\
+  \midrule
+  \endhead
+  t\_ms & ms & 受信時刻（試行開始からの相対，または端末時刻） \\
+  seq & --- & ペイロードに埋め込んだ識別子（広告イベント由来） \\
+  rssi & dBm & 受信RSSI \\
+  dedup\_flag & --- & 重複除外のためのフラグ（ある場合） \\
+  \bottomrule
+\end{longtable}
+
+\section{TX（送信）ログ}
+TXログは，方策の状態（$U,S,\mathrm{CCS},a$等）を保持する．オフライン評価と実機評価を接続するため，方策の根拠（切替理由）を残すことが望ましい．
+
+\begin{longtable}{p{0.22\linewidth}p{0.18\linewidth}p{0.52\linewidth}}
+  \caption{TXログ（例）の列定義}\label{tab:tx_schema}\\
+  \toprule
+  列 & 単位 & 意味 \\
+  \midrule
+  \endfirsthead
+  \toprule
+  列 & 単位 & 意味 \\
+  \midrule
+  \endhead
+  t\_ms & ms & 時刻 \\
+  U & --- & 不確実度 \\
+  S & --- & 安定度 \\
+  CCS & --- & 複合スコア \\
+  adv\_interval\_ms & ms & 選択した広告間隔 \\
+  reason & --- & 切替理由（閾値越え等） \\
+  \bottomrule
+\end{longtable}
+
+\section{ファイル命名と配置}
+ログは，試行（trial）単位でファイルを分割し，\texttt{\detokenize{trial_XXX.csv}}等の連番で管理する．このとき，条件IDや実験日付をパスまたはファイル名に含め，作業ログに生成コマンドと出力先を残す（第10章）．

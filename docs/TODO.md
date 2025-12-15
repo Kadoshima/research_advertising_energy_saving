@@ -184,11 +184,23 @@
     - `uccs_d2_scan90/src/txsd/TXSD_UCCS_D2_SCAN90/TXSD_UCCS_D2_SCAN90.ino`
   - D2 payload: `<step_idx>_<tag>`（動的でも time axis が復元できる形）
 
-- [ ] (ME+AI) D2: 実機で動的QoS（TL/Pout）を `step_idx` 起点で確定（S1/S4 × Fixed100/Fixed500/Policy）
-  - 取得: SD `/logs/` → `uccs_d2_scan90/data/<run>/{RX,TXSD}/` に吸い上げ（run READMEに条件メモ）
-  - 解析: TL/Pout(τ) を D2ログ（step_idx）対応で計算し、レター図に実測点を重ねる
+- [x] (ME+AI) D2: 実機で動的QoS（TL/Pout）を `step_idx` 起点で確定（S1/S4 × Fixed100/Fixed500/Policy）
+  - データ（今回の取得分）:
+    - RX: `uccs_d2_scan90/data/RX/`（選定: rx_trial_009..026, n=18）
+    - TXSD: `uccs_d2_scan90/data/TX/`（SD `/logs/` をコピー。混在あり）
+  - 解析:
+    - スクリプト: `uccs_d2_scan90/analysis/summarize_d2_run.py`
+    - 出力: `uccs_d2_scan90/metrics/01/summary.md` / `uccs_d2_scan90/metrics/01/per_trial.csv`
+  - 観測（要注意）:
+    - policy が `share100_time_est≈0.99`（RXタグ由来sanity）かつ `adv_count≈1787` で、実質 **100ms張り付き**（省電力が出ない）。
+    - 原因候補: D2で使っている `stress_causal_*` の `CCS` は「変化」ではなく「安定度（高いほどstable）」なので、実機実装側で **CCSを反転（CCS'=1-CCS）** する等、定義整合が必要。
 
 - [ ] (AI) 実測点を `pout_1s vs avg_power_mW` 図に重ね、予測↔実測の差分を `summary.md` に追記
+
+- [ ] (ME+AI) D2b（最小再取得）: policy の 500ms滞在が出る設定で取り直し（S1/S4 の policy のみ、各 n=3）
+  - 目的: D2の枠組み（step_idx起点TL/Pout）で **省電力（Fixed100より低電力）+ QoS** を同時に示す。
+  - 方針（最短）: `CCS'=1-CCS`（または一旦 U-only）にして “100ms張り付き” を解消。
+  - データ配置: `uccs_d2_scan90/data/02/{RX,TX}/`（runディレクトリ運用に統一）
 
 ### P0: 定義固定 + 図表化（最優先）
 

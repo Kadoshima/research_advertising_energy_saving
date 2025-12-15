@@ -1,0 +1,51 @@
+% chapters/appx_a_metrics.tex --- 付録A 指標定義（詳細）
+\chapter{指標定義（詳細）}
+
+本付録では，本研究で用いる主要指標の定義をまとめる．本文では要点のみ述べ，詳細はここに集約する．
+
+\section{PDR}
+PDRは，広告イベント数に対して受信できた割合である．重複受信がある場合，単純な受信行数に基づくPDRは1を超える可能性があるため，seq等でユニーク化した指標も併記する．
+
+\subsection{定義}
+本研究では，広告イベント数（分母）を$N_{\mathrm{adv}}$，受信ログ行数（重複含む）を$N_{\mathrm{rx}}$，seqでユニーク化した受信数を$N_{\mathrm{rx,uniq}}$とする．
+\begin{equation}
+  \mathrm{PDR}_{\mathrm{raw}} = \frac{N_{\mathrm{rx}}}{N_{\mathrm{adv}}},\qquad
+  \mathrm{PDR}_{\mathrm{unique}} = \frac{N_{\mathrm{rx,uniq}}}{N_{\mathrm{adv}}}
+\end{equation}
+$\mathrm{PDR}_{\mathrm{raw}}$は重複受信により1を超え得るため，到達性の比較（QoS用途）では$\mathrm{PDR}_{\mathrm{unique}}$を優先する．
+
+\subsection{分母（広告イベント数）の扱い}
+広告イベント数$N_{\mathrm{adv}}$は，可能な場合はTICKにより物理カウントした値を正とする．TICKが利用できない場合は，試行時間と広告間隔から期待回数を推定するが，動的切替では誤差が入り得るため，解釈には注意する．
+
+\section{TLとPout(τ)}
+TLは，イベント後に最初に受信されるまでの遅延である．Pout(τ)は，TLが期限$\tau$を超える確率として定義する．TL/Poutの算出では，受信ログの時間軸と真値（truth）の時間軸の一致が必要であり，開始位相ずれがある場合は定数オフセットで補正する（第6章）．
+
+\subsection{イベントと遅延}
+真値（truth）における状態遷移（イベント）時刻を$t_{\mathrm{event},j}$，その後に初めて正しいラベル（または該当イベントに対応する識別子）が受信される時刻を$t_{\mathrm{rx},j}$とすると，
+\begin{equation}
+  \mathrm{TL}_j = t_{\mathrm{rx},j} - t_{\mathrm{event},j}
+\end{equation}
+である．期限$\tau$に対する期限超過率は，
+\begin{equation}
+  P_{\mathrm{out}}(\tau)=\frac{1}{N_{\mathrm{event}}}\sum_{j=1}^{N_{\mathrm{event}}}\mathbb{I}[\mathrm{TL}_j>\tau]
+\end{equation}
+で定義する．
+
+\subsection{時間同期（定数オフセット補正）}
+実機ログでは，RXログの開始が遅れる等の理由で，RXログの時間軸とtruthの時間軸が定数だけずれている場合がある．固定間隔リプレイ（seqが単調増加）を前提に，次の定数オフセットで補正する．広告間隔を$\Delta t$（ms），RXログにおけるseqの初回観測時刻を$\mathrm{first\_ms}(\mathrm{seq})$とすると，
+\begin{equation}
+  \mathrm{offset\_ms} = \mathrm{median}_{\mathrm{seq}>0}\left(\mathrm{seq}\cdot\Delta t - \mathrm{first\_ms}(\mathrm{seq})\right)
+\end{equation}
+として推定し，$\mathrm{ms\_aligned}=\mathrm{ms}+\mathrm{offset\_ms}$で補正した時刻を用いてTL/Poutを計算する（第6章）．
+
+\subsection{末端遷移と有効長}
+試行時間がtruthの全長より短い場合，末端の遷移が試行区間外に出る．この場合，評価対象のイベント数が試行ごとに変化し，Poutの分母が揺れる．本研究では，TX側のクランプ長と同様にtruth側も有効長（EFFECTIVE\_LEN）でクリップし，イベント抽出範囲を揃える．
+
+\section{平均電力とエネルギー}
+平均電力は，試行期間における総エネルギーを時間で割ることで算出する．ログの生データ（mV/µA）から再積分した値と，summaryの整合を監査することで，単位換算や欠損による誤差を抑制する．
+
+\subsection{逐次積分}
+TXSDログで得られる電圧$V(t)$と電流$I(t)$から瞬時電力$P(t)=V(t)I(t)$を算出し，サンプリング間隔$\Delta t$で逐次積分することで総エネルギー$E$を求める．実装では，単位の一貫性（mV，$\mu$A，ms等）を保つため，生ログから後処理で再計算できる形にし，summaryとの差分を監査する．
+
+\subsection{差分指標（ON-OFF）}
+計測系の定常負荷が大きい場合，広告間隔による差分が平均電力に埋もれる．そのため，広告ONとOFFの差分$\Delta E=E_{\mathrm{on}}-E_{\mathrm{off}}$を広告イベント数$N_{\mathrm{adv}}$で正規化した$\Delta E/N_{\mathrm{adv}}$を併用し，「無線1回当たりの増分」として評価する．

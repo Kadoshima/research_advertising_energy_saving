@@ -1,0 +1,125 @@
+% chubuthesis.sty --- 修士論文テンプレート（LuaLaTeX）
+% 例の Word→PDF 修論の体裁を参考に、表紙/要旨/目次/図表キャプション等を整えています。
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{chubuthesis}[2025/12/15 Thesis style]
+
+% --- 日本語（LuaLaTeX） ---
+\RequirePackage{luatexja}
+\RequirePackage[haranoaji]{luatexja-preset}
+
+% --- レイアウト ---
+% Word由来PDFの厳密な余白は推定が難しいため、一般的な学位論文の安全域で設定。
+% 研究室/学科で指定があればここを調整してください。
+\RequirePackage[a4paper,top=25mm,bottom=25mm,left=30mm,right=25mm]{geometry}
+
+% 段落字下げ（1全角）
+% LuaLaTeXでは「zw」単位ではなく \zw を使う（luatexja）
+\setlength{\parindent}{1\zw}
+\setlength{\parskip}{0pt}
+
+% 目次に subsection まで載せる
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{2}
+
+% --- 図表 ---
+\RequirePackage{graphicx}
+\RequirePackage{booktabs}
+\RequirePackage{tabularx}
+\RequirePackage{longtable}
+\RequirePackage{array}
+
+% --- 数式 ---
+\RequirePackage{amsmath,amssymb}
+\numberwithin{equation}{chapter}
+
+% --- 単位 ---
+\RequirePackage{siunitx}
+\sisetup{detect-all}
+
+% --- キャプション：図 1.1：..., 表 3.1：... ---
+\RequirePackage{caption}
+\DeclareCaptionLabelSeparator{jcolon}{： } % 全角コロン
+\captionsetup{labelsep=jcolon}
+\captionsetup[figure]{name=図}
+\captionsetup[table]{name=表}
+
+% --- 参照（図/表/式） ---
+\newcommand{\figref}[1]{図~\ref{#1}}
+\newcommand{\tabref}[1]{表~\ref{#1}}
+\newcommand{\eqrefj}[1]{式~(\ref{#1})}
+\newcommand{\secref}[1]{\ref{#1}節}
+
+% --- 章（番号なし）でも目次に載せる：はじめに / おわりに / 謝辞 ---
+\newcommand{\chapterwithtoc}[1]{%
+  \chapter*{#1}%
+  \addcontentsline{toc}{chapter}{#1}%
+}
+
+% --- 参考文献（biblatex） ---
+\RequirePackage[backend=biber,style=numeric,sorting=none]{biblatex}
+
+% \scite{a,b} で [1][2] 形式を作る（普通の \cite は [1,2]）
+\DeclareCiteCommand{\scite}
+  {}
+  {\mkbibbrackets{\usebibmacro{citeindex}\usebibmacro{cite}}}
+  {}
+  {}
+
+% --- ハイパーリンク（最後の方で読み込み） ---
+\RequirePackage[hidelinks]{hyperref}
+\RequirePackage{bookmark}
+
+% --- 表紙・要旨ページ ---
+% meta.tex で定義するコマンドを使う想定
+
+\newcommand{\makethesistitle}{%
+\begin{titlepage}
+  \thispagestyle{empty}
+  \begin{center}
+    \vspace*{8mm}
+    {\Large \ThesisYearLabel\par}
+    \vspace{28mm}
+    {\LARGE\bfseries \ThesisTitle\par}
+    \vfill
+    {\Large \University\par}
+    \vspace{4mm}
+    {\Large \GraduateSchool\par}
+    \vspace{4mm}
+    {\Large \Department\par}
+    \vspace{4mm}
+    {\Large \Course\par}
+    \vspace{16mm}
+    {\Large \AuthorFamily\par}
+    \vspace{4mm}
+    {\Large \AuthorGiven\par}
+    \vspace{16mm}
+    {\Large 指導教授\par}
+    \vspace{4mm}
+    {\Large \AdvisorFamily\par}
+    \vspace{4mm}
+    {\Large \AdvisorGiven\par}
+  \end{center}
+\end{titlepage}
+}
+
+\newcommand{\makeabstractpage}{%
+\clearpage
+\thispagestyle{empty}
+\begin{center}
+  {\Large 修士論文題目\par}
+  \vspace{8mm}
+  {\Large\bfseries \ThesisTitle\par}
+  \vspace{8mm}
+  {\Large \AbstractDepartment\par}
+  \vspace{6mm}
+  {\Large 氏名 \AuthorFamily\par}
+  \vspace{2mm}
+  {\Large \AuthorGiven\par}
+  \vspace{8mm}
+  {\Large 論\quad 文\quad 要\quad 旨\par}
+\end{center}
+\vspace{6mm}
+\input{frontmatter/abstract}
+\clearpage
+}

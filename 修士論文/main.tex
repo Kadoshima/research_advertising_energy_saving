@@ -1,0 +1,61 @@
+% main.tex --- 修士論文テンプレート（LuaLaTeX）
+\documentclass[a4paper,12pt,oneside]{ltjsreport}
+
+% 体裁（図表キャプション、目次深さ、表紙/要旨ページ等）
+\usepackage{chubuthesis}
+
+% メタ情報（タイトル等）
+\input{meta}
+
+% 参考文献ファイル
+\addbibresource{references.bib}
+
+\begin{document}
+
+% page anchor の重複警告を避ける（表紙・要旨はページ番号なし）
+\hypersetup{pageanchor=false}
+
+% --- 表紙（ページ番号なし） ---
+\makethesistitle
+
+% --- 要旨ページ（ページ番号なし） ---
+\makeabstractpage
+
+% --- 目次（ローマ数字 i） ---
+\pagenumbering{roman}
+\tableofcontents
+\clearpage
+
+% --- 本文（アラビア数字 1 から） ---
+\hypersetup{pageanchor=true}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\input{chapters/introduction}
+
+\input{chapters/ch1_background}
+\input{chapters/ch2_proposed}
+\input{chapters/ch3_oncampus}
+\input{chapters/ch4_rain}
+\input{chapters/ch5_publicroad}
+\input{chapters/ch6_stress_fixed}
+\input{chapters/ch7_offline_eval}
+\input{chapters/ch8_measurement_system}
+\input{chapters/ch9_har_uncertainty}
+\input{chapters/ch10_implementation}
+
+\input{chapters/conclusion}
+\input{chapters/acknowledgements}
+
+% --- 付録 ---
+\appendix
+\input{chapters/appx_a_metrics}
+\input{chapters/appx_b_assets}
+\input{chapters/appx_c_results}
+\input{chapters/appx_d_log_schema}
+\input{chapters/appx_e_runbook}
+
+% --- 参考文献・参考URL ---
+\printbibliography[title={参考文献・参考 URL}]
+
+\end{document}

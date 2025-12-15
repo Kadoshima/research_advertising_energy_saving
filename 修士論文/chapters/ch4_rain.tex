@@ -1,0 +1,94 @@
+% chapters/ch4_rain.tex --- 第4章 評価結果
+\chapter{評価結果}
+
+\section{固定間隔の基準特性}
+固定間隔における平均電力と受信品質を基準として整理する．特に，\SI{100}{\milli\second}から\SI{500}{\milli\second}への変更により平均電力が低下する一方で，受信率や遅延分布が変化するため，制約$\delta$に対する可行性が境界条件として現れる．
+
+\subsection{固定間隔の平均電力（例）}
+本研究では，固定間隔の平均電力を実測し，オフライン評価で用いる電力テーブルとして利用する．表\ref{tab:power_table_example}に，\SI{100}{\milli\second}から\SI{2000}{\milli\second}までの固定間隔における平均電力の一例を示す．
+
+\begin{table}[tb]
+  \centering
+  \caption{固定間隔の平均電力（例）}
+  \label{tab:power_table_example}
+  \begin{tabular}{lll}
+    \toprule
+    広告間隔 [ms] & 平均電力 [mW] & 備考 \\
+    \midrule
+    100  & 198.56 & n=10（sleep\_on） \\
+    500  & 180.80 & n=9（sleep\_on） \\
+    1000 & 178.62 & n=9（sleep\_on） \\
+    2000 & 177.47 & n=9（sleep\_on） \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{主効果の観察}
+表\ref{tab:power_table_example}の例では，\SI{100}{\milli\second}から\SI{500}{\milli\second}への変更で平均電力が大きく低下する．一方で，\SI{500}{\milli\second}以上では改善幅が小さくなる．この傾向は，動的制御において短間隔の滞在時間を抑制する設計が有効であることを示唆する．
+
+\section{動的切替（2値制御）の実機確認}
+動的制御の最小構成として，\SI{100}{\milli\second}と\SI{500}{\milli\second}の切替を実装し，固定\SI{100}{\milli\second}および固定\SI{500}{\milli\second}と比較する．平均電力が両固定条件の中間に位置し，受信率も中間的になることを確認することで，切替が成立していることを検証する．
+
+本研究の実測例として，固定\SI{100}{\milli\second}（n=3），固定\SI{500}{\milli\second}（n=3），動的（n=3）における平均電力と受信率のサマリを表\ref{tab:d1_summary}に示す．数値は実装・環境に依存するため，本文執筆時点のログに基づき更新する．
+
+\begin{table}[tb]
+  \centering
+  \caption{動的切替（2値制御）の実測例（サマリ）}
+  \label{tab:d1_summary}
+  \begin{tabular}{llll}
+    \toprule
+    条件 & 平均電力 [mW] & 受信率の目安 [Hz] & 備考 \\
+    \midrule
+    固定100 & 205.10 $\pm$ 2.79 & 7.94 $\pm$ 0.21 & scan90 \\
+    固定500 & 185.50 $\pm$ 0.98 & 1.63 $\pm$ 0.09 & scan90 \\
+    動的（100/500） & 192.17 $\pm$ 0.55 & 3.71 $\pm$ 0.11 & 切替動作確認 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{実測のQoS指標（TLとPout）}
+本研究では，受信品質をPDRだけでなく，遅延分布と期限超過率$P_{\mathrm{out}}(\tau)$で評価する．特に，非理想スキャン環境では平均受信率が同程度でも，遅延の裾が悪化する場合があるため，$P_{\mathrm{out}}(\tau)$が重要となる（第6章）．
+
+\subsection{実測例（D2，scan90）}
+表\ref{tab:d2_summary}に，D2（scan90）における実測例を示す．本表は，S1/S4の2条件について，固定\SI{100}{\milli\second}，固定\SI{500}{\milli\second}，および方策（2値切替）の比較をまとめたものである（各n=3）．
+
+\begin{table}[tb]
+  \centering
+  \caption{D2（scan90）の実測例（mean$\pm$std, 各n=3）}
+  \label{tab:d2_summary}
+  \begin{tabular}{lrrrr}
+    \toprule
+    条件 & $P_{\mathrm{out}}(1\mathrm{s})$ & TL\_mean [s] & PDR\_unique & 平均電力 [mW] \\
+    \midrule
+    S1\_fixed100 & 0.0833$\pm$0.0289 & 4.200$\pm$1.552 & 0.805$\pm$0.010 & 203.8$\pm$0.1 \\
+    S1\_fixed500 & 0.1000$\pm$0.0000 & 5.276$\pm$0.054 & 0.831$\pm$0.014 & 183.8$\pm$0.2 \\
+    S1\_policy   & 0.0667$\pm$0.0289 & 3.315$\pm$1.538 & 0.803$\pm$0.003 & 203.7$\pm$0.3 \\
+    \midrule
+    S4\_fixed100 & 0.0488$\pm$0.0000 & 1.238$\pm$0.006 & 0.805$\pm$0.012 & 203.7$\pm$0.3 \\
+    S4\_fixed500 & 0.1301$\pm$0.0563 & 1.946$\pm$0.417 & 0.838$\pm$0.006 & 184.3$\pm$0.2 \\
+    S4\_policy   & 0.0569$\pm$0.0141 & 1.316$\pm$0.145 & 0.810$\pm$0.008 & 204.3$\pm$0.5 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{解釈}
+表\ref{tab:d2_summary}より，固定\SI{500}{\milli\second}は平均電力を低下させる一方で，$P_{\mathrm{out}}(1\mathrm{s})$が悪化する条件が存在する．また，方策は固定条件の中間的な特性に位置付くが，滞在比率（短間隔への偏り）により電力・QoSのどちらに寄るかが変化する．したがって，方策評価では，滞在比率と固定点（基準データ）の整合を確認しながら解釈する必要がある．
+
+\section{オフライン評価との整合}
+オフライン評価で予測される運用点と，実機で得られる平均電力・受信品質の差分を比較し，推定モデルの妥当性と限界を整理する．
+
+\subsection{予測と実測の差分}
+オフライン評価は，固定間隔の電力テーブルと受信品質推定を合成するため，実環境の非理想性を完全には表現しない．したがって，予測値は「候補探索と説明のための近似」として用い，実測との差分を評価しながらモデルの限界を記述することが重要である．
+
+\subsection{δ帯プロット（参考）}
+図\ref{fig:delta_band_again}に，オフライン評価の代表例としてδ帯プロットを示す．固定間隔点と候補方策点を同一平面で可視化することで，制約境界付近における省電力運用点の存在を示す．
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.95\linewidth]{../results/mhealth_policy_eval/letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/fig_delta_band.png}
+  \caption{δ帯（例）におけるPout(1s)と平均電力のトレードオフ（オフライン評価）}
+  \label{fig:delta_band_again}
+\end{figure}
+
+\section{まとめ}
+本章の結果を，次章の考察に接続するために要点を整理する．

@@ -1,0 +1,16 @@
+$out_dir = 'build';
+$aux_dir = 'build';
+
+# luaotfload/luatexja のキャッシュを書き込み可能な場所に固定する（sandbox対策）
+$ENV{TEXMFCACHE}  = 'build/texmf-cache';
+$ENV{TEXMFVAR}    = 'build/texmf-var';
+$ENV{TEXMFCONFIG} = 'build/texmf-config';
+$ENV{LUATEXCACHE} = 'build/luatex-cache';
+
+# LuaLaTeX + biber (biblatex)
+$pdf_mode = 4;
+$lualatex = 'lualatex -interaction=nonstopmode -file-line-error %O %S';
+$bibtex_use = 2;
+
+# Keep going for draft builds; errors still surface in exit code.
+$interaction = 'nonstopmode';

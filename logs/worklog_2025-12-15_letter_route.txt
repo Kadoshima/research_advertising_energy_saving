@@ -1,0 +1,21 @@
+2025-12-15
+- [13:45 JST] Step D2（uccs_d2_scan90）実測データを解析してTL/Poutを確定（step_idx起点）。
+  - データ: `uccs_d2_scan90/data/RX/`（選定: rx_trial_009..026, n=18）, `uccs_d2_scan90/data/TX/`
+  - 解析スクリプト追加: `uccs_d2_scan90/analysis/summarize_d2_run.py`
+  - 出力: `uccs_d2_scan90/metrics/01/summary.md` / `uccs_d2_scan90/metrics/01/per_trial.csv` / `uccs_d2_scan90/metrics/01/summary_by_condition.csv`
+  - 主結果（mean±std, n=3）:
+    - S1_fixed100: pout_1s=0.0833±0.0289, tl_mean=4.200±1.552s, avg_power=203.8±0.1mW
+    - S1_fixed500: pout_1s=0.1000±0.0000, tl_mean=5.276±0.054s, avg_power=183.8±0.2mW
+    - S1_policy: pout_1s=0.0667±0.0289, tl_mean=3.315±1.538s, avg_power=203.7±0.3mW（adv_count≈1787で100ms滞在が長い）
+    - S4_fixed100: pout_1s=0.0488±0.0000, tl_mean=1.238±0.006s, avg_power=203.7±0.3mW
+    - S4_fixed500: pout_1s=0.1301±0.0563, tl_mean=1.946±0.417s, avg_power=184.3±0.2mW
+    - S4_policy: pout_1s=0.0569±0.0141, tl_mean=1.316±0.145s, avg_power=204.3±0.5mW（adv_count≈1787でほぼ100ms）
+  - 注意: TXSDログはSD上の既存ログ混在のためファイル名/cond_idが一部不一致（例: c0_unk や fixed500名で adv_count=1787）。解析では adv_count とファイル名パターンで条件を復元してペアリング。
+- [13:50 JST] `uccs_d2_scan90/analysis/summarize_d2_run.py` を再実行し、`uccs_d2_scan90/metrics/01/summary.md` に generated/command 行を追記して再生成（per_trial/summary_by_condition も更新）。
+- [13:52 JST] `uccs_d2_scan90/README.md` と `uccs_d2_scan90/data/README.md` を更新し、D2の解析出力パスとデータ配置ルール（TX=TXSDログ）を明文化。
+- [14:31 JST] `uccs_d2_scan90/analysis/summarize_d2_run.py` を拡張し、RXタグから `share100_time_est`（sanity）を算出して `uccs_d2_scan90/metrics/01/summary.md` に追記。D2 policy は `share100_time_est≈0.99` で実質100ms張り付きであることを確認。
+- [14:40 JST] D2b（policy修正版）用のスケッチを追加（CCS反転＋preamble guard）し、次回取得用のrunディレクトリを作成。
+  - TX: `uccs_d2_scan90/src/tx/TX_UCCS_D2B_SCAN90/TX_UCCS_D2B_SCAN90.ino`
+  - RX: `uccs_d2_scan90/src/rx/RX_UCCS_D2B_SCAN90/RX_UCCS_D2B_SCAN90.ino`
+  - TXSD: `uccs_d2_scan90/src/txsd/TXSD_UCCS_D2B_SCAN90/TXSD_UCCS_D2B_SCAN90.ino`
+  - data: `uccs_d2_scan90/data/02/README.md`

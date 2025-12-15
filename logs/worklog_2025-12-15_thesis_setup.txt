@@ -1,0 +1,8 @@
+2025-12-15
+- [21:35 JST] 修士論文（LaTeX）テンプレを研究テーマ（HAR不確実度に基づくBLE広告間隔制御）向けに整備: `修士論文/` の要旨・章構成を更新し、交通系の雛形文言を置換。`修士論文/meta.tex` に暫定タイトルを設定。
+- [21:35 JST] ビルド設定をsandbox対応: `修士論文/latexmkrc` で `TEXMFCACHE/TEXMFVAR/TEXMFCONFIG/LUATEXCACHE` を `修士論文/build/` 配下に固定し、`luaotfload` のキャッシュ書き込み失敗を回避。
+- [21:35 JST] 体裁の微修正: `修士論文/chubuthesis.sty` の段落字下げを `1zw` → `1\\zw` に変更（LuaLaTeX向け）。`修士論文/main.tex` で `pageanchor` を表紙・要旨の間は無効化してPDF警告を低減。
+- [21:35 JST] コンパイル確認: `cd 修士論文 && latexmk main.tex` が成功し、出力は `修士論文/build/main.pdf`。
+- [21:40 JST] 体裁ルールを文書化: 「守るべき型」（表紙/要旨/目次/番号なし章/図表キャプション/引用形式）とビルド手順を `修士論文/WRITING_RULES.md` に追記。
+- [22:05 JST] 修論本文を追記: 背景（非理想スキャン、QoS/電力指標、貢献）、提案手法（U/S/CCS定義、閾値写像、ヒステリシス、2値制御）、評価方法（同期/TICK、指標定義、オフライン評価手順）、結果（power table例、D1サマリ）、考察（端末内比較、Warm-Start、QoS高精度化）を `修士論文/chapters/` に反映。見出し内の数式を避けてhyperref警告を低減し、`cd 修士論文 && latexmk main.tex` で `修士論文/build/main.pdf` の生成を確認。
+- [14:38 JST] 修士論文本文を増補して60p到達: 第2章（目的関数・制約の定式化、評価系図の整理）、第3章（機材/ログスキーマ/処理要件の追記）、第4章（D2のQoS表、δ帯図の再掲）、第6章（実測vs簡易モデル図、指標定義の補足）、第7章（オフライン評価の定式化、Pareto図の追加）、第8〜10章/付録A〜Cの加筆。付録D（ログスキーマ長表）と付録E（Runbookチェックリスト）を追加。参考文献 `修士論文/references.bib` を最小セットで更新し、`cd 修士論文 && latexmk -lualatex main.tex` で `修士論文/build/main.pdf`（60 pages）を生成確認。

@@ -19,6 +19,18 @@
 * RX: `src/rx/RX_UCCS_D2_SCAN90/RX_UCCS_D2_SCAN90.ino`
 * TXSD: `src/txsd/TXSD_UCCS_D2_SCAN90/TXSD_UCCS_D2_SCAN90.ino`
 
+### D2b（policy修正版）
+
+policy が 100ms 張り付きになった場合の再取得用。
+
+* TX: `uccs_d2_scan90/src/tx/TX_UCCS_D2B_SCAN90/TX_UCCS_D2B_SCAN90.ino`
+* RX: `uccs_d2_scan90/src/rx/RX_UCCS_D2B_SCAN90/RX_UCCS_D2B_SCAN90.ino`
+* TXSD: `uccs_d2_scan90/src/txsd/TXSD_UCCS_D2B_SCAN90/TXSD_UCCS_D2B_SCAN90.ino`
+
+修正点:
+* `stress_causal_*` の `CCS` を `CCS_change = 1-CCS` に変換して判定（CCS定義の整合）。
+* SYNC HIGH の直後に `preamble_guard_ms=100` を入れて cond_id の取りこぼしを低減。
+
 ## 配線（1210系と同じ）
 
 * TX `GPIO25 (SYNC_OUT)` → RX `GPIO26 (SYNC_IN)` / TXSD `GPIO26 (SYNC_IN)`
@@ -60,6 +72,11 @@ trial中は **各広告更新ごとにTICKを1発**出し、TXSD側で `adv_coun
 
 ## データ配置
 
-* SDから吸い上げた `/logs/` を `data/<run>/{RX,TXSD}/` にコピーする。
+* SDから吸い上げた `/logs/` を `uccs_d2_scan90/data/<run>/{RX,TX}/` にコピーする（TXはTXSDのログ）。
 * `data/<run>/README.md` に測定条件（距離/環境/電源/scan duty）をメモ。
 
+## 解析（D2）
+
+* 実測ログ（RX/TXSD）から、`step_idx` 起点で TL/Pout を算出する。
+  * スクリプト: `uccs_d2_scan90/analysis/summarize_d2_run.py`
+  * 出力（今回の run）: `uccs_d2_scan90/metrics/01/summary.md`
