@@ -213,17 +213,28 @@
     - `uccs_d4_scan90/src/tx/TX_UCCS_D4_SCAN90/TX_UCCS_D4_SCAN90.ino`
     - `uccs_d4_scan90/src/rx/RX_UCCS_D4_SCAN90/RX_UCCS_D4_SCAN90.ino`
     - `uccs_d4_scan90/src/txsd/TXSD_UCCS_D4_SCAN90/TXSD_UCCS_D4_SCAN90.ino`
-  - 集計: `uccs_d4_scan90/analysis/summarize_d4_run.py`
+  - 集計: `uccs_d4_scan90/analysis/summarize_d4_run_v2.py`
   - Ablation: U-shuffle（seed=0xD4B40201、CCSは `1-CCS` で変化度化）
 
-- [ ] (ME+AI) D4: U ablation（S4, scan90, 4条件×n=3）を取得して集計
+- [x] (ME+AI) D4: U ablation（S4, scan90, 4条件×n=3）を取得して集計
   - データ: `uccs_d4_scan90/data/01/`
   - 出力: `uccs_d4_scan90/metrics/01/summary.md`
 
-- [ ] (ME+AI) D4: Uあり/なし（U-shuffle）の差を1枚図にする（power vs pout + share100）
+- [x] (ME+AI) D4: Uあり/なし（U-shuffle）の差を1枚図にする（power vs pout + share100）
+  - 図: `uccs_d4_scan90/plots/d4_01_power_vs_pout.png`
 
-- [ ] (ME+AI) D3: scan duty を 90→70/60 に落として適応性を確認（S4, fixed100/fixed500/policy）
-  - 先に D4 を完了してから実施
+- [x] (AI) D3準備: scan70%（interval=100ms, window=70ms）の専用ディレクトリ＋スケッチを追加
+  - index: `uccs_d3_scan70/README.md`
+  - TX/RX/TXSD（Arduino）:
+    - `uccs_d3_scan70/src/tx/TX_UCCS_D3_SCAN70/TX_UCCS_D3_SCAN70.ino`
+    - `uccs_d3_scan70/src/rx/RX_UCCS_D3_SCAN70/RX_UCCS_D3_SCAN70.ino`
+    - `uccs_d3_scan70/src/txsd/TXSD_UCCS_D3_SCAN70/TXSD_UCCS_D3_SCAN70.ino`
+
+- [ ] (ME) D3: scan duty を 90→70% に落として適応性を確認（S4, fixed100/fixed500/policy, 各n=3）
+  - データ: `uccs_d3_scan70/data/01/` に保存
+
+- [ ] (AI) D3: 集計（pout/TL/power/share）と図（power vs pout）を生成
+  - 出力: `uccs_d3_scan70/metrics/01/summary.md` / `uccs_d3_scan70/plots/*`
 
 ### P0: 定義固定 + 図表化（最優先）
 

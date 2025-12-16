@@ -12,3 +12,10 @@
 - [16:11 JST] 実験構成写真は重複のため整理: `修士論文/chapters/ch8_measurement_system.tex` の実験構成図を (b) のみ残すよう修正（`figures/measurement_setup_overview_02`のみ参照）。`cd 修士論文 && latexmk -lualatex main.tex` で `修士論文/build/main.pdf`（76 pages）を再生成確認。
 - [16:15 JST] 写真資産の整理: `修士論文/figures/measurement_setup_overview_01.jpg` を削除（未参照の重複）。`修士論文/figures/README.md` に計測装置写真の一覧と元ファイル（`image/`）を追記。
 - [16:30 JST] テンプレREADME更新: `修士論文/README.md` に「出力先は build/main.pdf」「写真の取り扱い（原本は image/、提出用派生物は figures/）」を追記。
+- [18:02 JST] 修論用アブスト（2ページ二段組）を作成: `修士論文アブスト/` に本文・体裁ルール・ビルド設定を追加し，`build/main.pdf`（2 pages）を生成。
+  - 本文: `修士論文アブスト/main.tex`（見出しは `1. ...` 形式，ページ番号なし，引用は `[1][2]` 形式）
+  - ルール/運用: `修士論文アブスト/README.md`
+  - 図: `修士論文アブスト/figures/fig_d2b_power_vs_pout_n6.pdf`（元: `uccs_d2_scan90/plots/d2b_B_n6_power_vs_pout.pdf`）
+  - ビルド: `cd 修士論文アブスト && latexmk -lualatex main.tex`
+- [18:10 JST] 修論用アブストの本文を増補: 2段組2ページの密度を上げるため，`修士論文アブスト/main.tex` の導入（課題/目的/貢献）・手法（フェイルセーフ/滞在制約）・考察（線形混合の式）を追記。`cd 修士論文アブスト && latexmk -g -lualatex main.tex` で `修士論文アブスト/build/main.pdf`（2 pages）を再生成確認。
+- [18:31 JST] 修論用アブストをさらに増補: `修士論文アブスト/main.tex` に主要指標の表（表\ref{tab:d2b_summary}）を追加し，背景（不確実度=エントロピー，calibration）を補強。文献を `修士論文アブスト/references.bib` に追加（`shannon1948`, `guo2017calibration`）。`cd 修士論文アブスト && latexmk -g -lualatex main.tex` で `修士論文アブスト/build/main.pdf`（2 pages）を再生成確認。

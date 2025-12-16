@@ -1,0 +1,52 @@
+2025-12-16
+- [18:30 JST] Step D4（U ablation / U-shuffle）データ取得 `uccs_d4_scan90/data/01/` の実行ログを確認（貼り付けログベース）。
+  - RX: `rx_trial_001..012.csv` 相当の12本が取得されており、各trialの長さは約180s、`buf_overflow=0`。rate_hzも4水準（≈7.7 / ≈1.6 / ≈5.3 / ≈7.4）に分かれており、固定・動的・ablationの挙動差が出ている。
+  - TXSD: 12本のログが出ているが、preamble（TICK）パルス数が一部 `cond_id=5` になる等、**cond_idのラベルは信用しにくい**（preamble window内に「trial開始直後のTICK」が混入して+1されている可能性が高い）。
+    - 固定100ms相当: adv_count≈1796, mean_p≈207–209mW（3本）
+    - 固定500ms相当: adv_count≈359, mean_p≈187–189mW（3本）
+    - 動的2条件: adv_count≈1227 (share100推定≈0.60, mean_p≈200–201mW) と adv_count≈1715 (share100推定≈0.94, mean_p≈208mW)
+  - 期待: U-shuffle側が100ms張り付き寄り（share100≈0.94）になって電力が上がり、policy側はshare100が下がって省電力になる、という「Uが効く」方向の差が見え始めている。
+  - 次: RXのstep_idxタグを使って TL/Pout を算出し、policy vs U-shuffle の点を `power vs pout` 図で比較して確定する（`uccs_d4_scan90/analysis/summarize_d4_run_v2.py` を使用）。
+  - 備考: 既存worklogへの追記ができない環境制約があったため、継続ファイルとして本ファイルに追記。
+
+- [18:37 JST] D4の実データ `uccs_d4_scan90/data/01/` を集計し、U-shuffle ablation の差を定量化（S4のみ, 4条件×n=3）。
+  - 集計: `uccs_d4_scan90/metrics/01/summary.md`（script: `uccs_d4_scan90/analysis/summarize_d4_run_v2.py`）
+  - 可視化: `uccs_d4_scan90/plots/d4_01_power_vs_pout.png`（script: `uccs_d4_scan90/analysis/plot_power_vs_pout.py`）
+  - 主要結果（mean±std, n=3）:
+    - S4_fixed100: avg_power=208.2±1.3 mW, pout_1s=0.0488±0.0000, share100≈1.000
+    - S4_fixed500: avg_power=187.9±0.8 mW, pout_1s=0.1301±0.0141, share100≈0.000
+    - S4_policy(U+CCS): avg_power=200.5±0.8 mW, pout_1s=0.0976±0.0244, share100≈0.593
+    - S4_ablation(U-shuffle): avg_power=208.1±0.3 mW, pout_1s=0.0488±0.0000, share100≈0.943
+  - 読み:
+    - U-shuffleは share100 が≈0.94まで上がり、電力が fixed100 相当に戻る（＝“必要時だけ100ms”が崩れて100ms張り付き寄り）。
+    - 一方policyは share100≈0.59 に抑えつつ、fixed500よりpoutを改善できており、U（時間相関）が500ms滞在を作るのに効いている可能性が高い。
+  - 実行コマンド:
+    - `python3 uccs_d4_scan90/analysis/summarize_d4_run_v2.py --rx-dir uccs_d4_scan90/data/01/RX --txsd-dir uccs_d4_scan90/data/01/TX --out-dir uccs_d4_scan90/metrics/01`
+    - `.venv_mhealth310/bin/python uccs_d4_scan90/analysis/plot_power_vs_pout.py --summary-csv uccs_d4_scan90/metrics/01/summary_by_condition.csv --out uccs_d4_scan90/plots/d4_01_power_vs_pout.png`
+
+- [18:42 JST] D4取得ログでTXSDのcond_idが+1ずれる（c5_unk混入）事象があったため、TX側で「preamble window(800ms)経過後に1回目のper-update TICKを出す」ガードを追加。
+  - 修正: `uccs_d4_scan90/src/tx/TX_UCCS_D4_SCAN90/TX_UCCS_D4_SCAN90.ino`
+  - 期待: 次回以降、TXSDの `cond_id` が安定し、ファイル名 `c?` の信頼性が上がる（ただし解析は引き続き mtime ペアリングを優先）。
+
+- [19:10 JST] D3（scan dutyを1段下げる）取得準備として `uccs_d3_scan70/` を追加（scan70%: interval=100ms, window=70ms）。
+  - 目的: scan90で強いFixed500が崩れる条件を作り、Policy(100↔500)が必要時だけ100msに寄って耐えることを確認（S4のみ）。
+  - スケッチ:
+    - TX: `uccs_d3_scan70/src/tx/TX_UCCS_D3_SCAN70/TX_UCCS_D3_SCAN70.ino`（S4のみ、Fixed100/Fixed500/Policy×n=3、payload=`<step_idx>_<tag>`、CCSは`1-CCS`で変化度化）
+    - RX: `uccs_d3_scan70/src/rx/RX_UCCS_D3_SCAN70/RX_UCCS_D3_SCAN70.ino`（scan70）
+    - TXSD: `uccs_d3_scan70/src/txsd/TXSD_UCCS_D3_SCAN70/TXSD_UCCS_D3_SCAN70.ino`（cond_id=1..3、preamble window=800ms）
+  - truthヘッダ: `uccs_d3_scan70/src/tx/stress_causal_s1_s4_180s.h`（D2のtruthヘッダを相対includeするラッパ）
+
+- [19:18 JST] D3 TXのTICK/step更新が「100ms固定で回ってadv_countが崩れる」実装になっていたため、D2bと同様に「広告間隔（100/500）ごとにstep_idxを進めてpayload更新→TICK」する方式へ修正。
+  - 修正: `uccs_d3_scan70/src/tx/TX_UCCS_D3_SCAN70/TX_UCCS_D3_SCAN70.ino`
+  - 期待: fixed500のadv_count≈359（180s/0.5s）になり、電力混合（share100）推定が成立する。
+
+- [19:40 JST] D4（U-shuffle ablation）の「知見（主張に変換できる内容）」をドキュメントへ固定。
+  - 追記: `docs/decision_log_2025-12-13_letter_route.md`（D4の主要結果と解釈）
+  - 追記: `uccs_d4_scan90/README.md`（D4で得られた知見セクション）
+
+- [19:48 JST] レター本文用の2〜3文（日本語/英語）ドラフトを作成（D4: U-shuffle ablation）。
+  - 目的: 「Uが効いている」主張を、構造固定・入力のみ破壊（U-shuffle）という因果っぽい切り分けで短文に落とす。
+  - 日本語案:
+    - 「U（不確実度）の分布は保ったまま、時間順序だけをシャッフルするアブレーションを行った。すると制御は100ms張り付き寄りに崩れ、share100が0.593→0.943、adv_countが1227→1715へ増加し、平均電力も200.5→208.1mWとFixed100級に戻った。これは“いつ不確実か”というUの時間的整合が、QoSを維持しつつ100ms滞在を減らす（=省電力化する）鍵であることを示す。」
+  - English draft:
+    - “We perform an ablation that preserves the marginal distribution of uncertainty U while destroying its temporal alignment by shuffling U over time. This collapse drives the controller toward near-100ms behavior (share100: 0.593→0.943, adv_count: 1227→1715), and raises the average power from 200.5 to 208.1 mW (close to Fixed-100). These results indicate that the temporal coherence of U—i.e., when the model is uncertain—is essential to reduce 100ms dwell time while maintaining QoS.”

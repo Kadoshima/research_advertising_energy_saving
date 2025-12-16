@@ -1,22 +1,22 @@
-// TX_UCCS_D4_SCAN90.ino (uccs_d4_scan90)
+// TX_UCCS_D3_SCAN70.ino (uccs_d3_scan70)
 //
-// Step D4（Uが効いている切り分け / Ablation）
-// - S4のみを再生し、4条件×REPEAT回を自動実行する。
+// Step D3: scan dutyを90%→70%に落として適応性（固定500が崩れる条件）を確認する。
+// - S4のみ
+// - 3条件×REPEAT回を自動実行:
 //   1) Fixed100
 //   2) Fixed500
-//   3) Policy(U+CCS, 100↔500)
-//   4) Ablation(U-shuffle: Uの分布は同じ、時間相関だけ破壊)
+//   3) Policy(U+CCS, 100↔500)  ※D2bと同一ロジック
 //
-// D2/D2bと同様に、動的でもTL/Poutが評価できるよう payload に step_idx（100msグリッド）を埋め込む。
-// TXSDへは SYNC(25) + preamble TICK(27) で cond_id を通知し、trial中は更新ごとにTICKを1発出して adv_count近似とする。
+// 動的でもTL/Poutが評価できるよう、payloadに step_idx（100msグリッド）を入れる。
+// TXSDへは SYNC(25) + preamble TICK(27) で cond_id を通知し、trial中は「更新（=現在の広告間隔）ごと」に
+// TICKを1発出して adv_count近似とする（D2bと同じ定義）。
 //
 // Payload (ManufacturerData):
 //   "<step_idx>_<tag>"
-//     tag: "F4-<label>-<itv>" / "P4-<label>-<itv>" / "A4-<label>-<itv>"
+//     tag例: "F4-09-100" / "P4-11-500" 等（labelとintervalを含む）
 //
-// Note:
+// NOTE:
 // - `stress_causal_*` の CCS は「安定度（高いほどstable）」なので、changeとして扱うため `CCS_change = 1-CCS` に変換する。
-// - U-shuffle は quantized U（uint8）列を Fisher-Yates でシャッフルしたものを使用（固定seed）。
 
 #include <Arduino.h>
 #include <BLEDevice.h>
@@ -28,30 +28,30 @@
 
 #include "../stress_causal_s1_s4_180s.h"
 
-// ==== スケジュール ====
+// ==== schedule ====
 static const uint32_t GAP_MS = 5000;
 static const uint8_t REPEAT = 3;
-static const uint16_t EFFECTIVE_LEN_STEPS = 1800; // 100ms grid (<=STRESS_CAUSAL_LEN)
+static const uint16_t EFFECTIVE_LEN_STEPS = 1800; // 180s @ 100ms
 
-// ==== ピン ====
+// ==== pins ====
 static const int SYNC_OUT_PIN = 25;
 static const int TICK_OUT_PIN = 27;
 static const int LED_PIN = 2;
 
-// ==== オプション ====
+// ==== options ====
 static const bool USE_LED = false;
 static const bool ENABLE_TICK_PREAMBLE = true;
 static const bool ENABLE_TICK_PER_UPDATE = true;
 static const bool RESTART_ADV_ON_INTERVAL_CHANGE = true;
 
 static const uint32_t PREAMBLE_WINDOW_MS = 800; // TXSD window
-static const uint32_t PREAMBLE_GUARD_MS = 100;  // wait after SYNC HIGH before preamble
+static const uint32_t PREAMBLE_GUARD_MS = 100;  // after SYNC HIGH before preamble
 
-// ==== actions（実機は100↔500に固定） ====
+// ==== actions ====
 static const uint16_t ACTIONS[] = {100, 500};
 static const uint8_t N_ACTIONS = sizeof(ACTIONS) / sizeof(ACTIONS[0]);
 
-// ==== 代表ポリシー（D2bと同一） ====
+// ==== policy params（D2bと同一） ====
 static const float U_MID = 0.20f;
 static const float U_HIGH = 0.35f;
 static const float C_MID = 0.20f;
@@ -67,12 +67,7 @@ static esp_pm_lock_handle_t noLightSleepLock = nullptr;
 static bool sleepBlocked = false;
 #endif
 
-enum Mode : uint8_t {
-  MODE_FIXED = 0,
-  MODE_POLICY = 1,
-  MODE_ABL_U_SHUF = 2,
-};
-
+enum Mode : uint8_t { MODE_FIXED = 0, MODE_POLICY = 1 };
 struct Condition {
   uint8_t cond_id;   // TXSD preamble pulses
   Mode mode;
@@ -82,13 +77,11 @@ struct Condition {
 // cond_id:
 //  1: S4 fixed100
 //  2: S4 fixed500
-//  3: S4 policy (U+CCS)
-//  4: S4 ablation (U-shuffle)
+//  3: S4 policy (U+CCS, 100↔500)
 static const Condition CONDS[] = {
   {1, MODE_FIXED, 100},
   {2, MODE_FIXED, 500},
   {3, MODE_POLICY, 500},
-  {4, MODE_ABL_U_SHUF, 500},
 };
 static const uint8_t N_CONDS = sizeof(CONDS) / sizeof(CONDS[0]);
 
@@ -102,39 +95,10 @@ static uint32_t gapStartMs = 0;
 static uint8_t condIndex = 0;
 static uint8_t repIndex = 0;
 
-static uint16_t stepIdx = 0;
-static uint16_t currentIntervalMs = 500;
+static uint16_t stepIdx = 0;               // 100ms grid index
+static uint16_t currentIntervalMs = 500;   // 100 or 500
 static float uEma = 0.0f;
 static float cEma = 0.0f;
-
-// U-shuffle（quantized U列をシャッフル）
-static uint8_t S4_U_SHUF_Q[STRESS_CAUSAL_LEN];
-static bool uShufReady = false;
-static uint32_t rngState = 0xD4B40201u;
-
-static inline uint32_t xorshift32() {
-  uint32_t x = rngState;
-  x ^= x << 13;
-  x ^= x >> 17;
-  x ^= x << 5;
-  rngState = x;
-  return x;
-}
-
-static void initUShuffle() {
-  // copy
-  for (uint16_t i = 0; i < STRESS_CAUSAL_LEN; i++) {
-    S4_U_SHUF_Q[i] = pgm_read_byte(&S4_U_Q[i]);
-  }
-  // Fisher-Yates
-  for (int i = (int)STRESS_CAUSAL_LEN - 1; i > 0; i--) {
-    uint32_t j = xorshift32() % (uint32_t)(i + 1);
-    uint8_t tmp = S4_U_SHUF_Q[i];
-    S4_U_SHUF_Q[i] = S4_U_SHUF_Q[j];
-    S4_U_SHUF_Q[j] = tmp;
-  }
-  uShufReady = true;
-}
 
 static inline uint16_t ms_to_0p625(float ms) {
   long v = lroundf(ms / 0.625f);
@@ -160,6 +124,7 @@ static uint16_t clamp_interval(uint16_t interval_ms) {
 static void syncStart() {
   if (USE_LED) digitalWrite(LED_PIN, HIGH);
   digitalWrite(SYNC_OUT_PIN, HIGH);
+  syncRiseMs = millis();
 }
 
 static void syncEnd() {
@@ -215,20 +180,10 @@ static void setSleepAllowed(bool allowLightSleep) {
 #endif
 }
 
-static inline uint8_t getLabel(uint16_t idx) {
-  if (idx >= STRESS_CAUSAL_LEN) return 0;
-  return pgm_read_byte(&S4_LABEL[idx]);
-}
-
 static inline float getU(uint16_t idx) {
   if (idx >= STRESS_CAUSAL_LEN) return 0.0f;
   uint8_t q = pgm_read_byte(&S4_U_Q[idx]);
   return q_to_f(q);
-}
-
-static inline float getUShuf(uint16_t idx) {
-  if (!uShufReady || idx >= STRESS_CAUSAL_LEN) return getU(idx);
-  return q_to_f(S4_U_SHUF_Q[idx]);
 }
 
 static inline float getCCSStable(uint16_t idx) {
@@ -265,8 +220,14 @@ static void applyInterval(uint16_t nextMs) {
   }
 }
 
+static inline uint8_t getLabel(uint16_t idx) {
+  if (idx >= STRESS_CAUSAL_LEN) return 0;
+  return pgm_read_byte(&S4_LABEL[idx]);
+}
+
 static void makeTag(char* out, size_t out_sz, const Condition& c, uint8_t truthLabel, uint16_t intervalMs) {
-  const char mp = (c.mode == MODE_FIXED) ? 'F' : ((c.mode == MODE_POLICY) ? 'P' : 'A');
+  // "F4-09-100" / "P4-11-500"
+  const char mp = (c.mode == MODE_FIXED) ? 'F' : 'P';
   const unsigned lbl = (unsigned)truthLabel;
   const unsigned itv = (unsigned)intervalMs;
   snprintf(out, out_sz, "%c4-%02u-%u", mp, lbl, itv);
@@ -285,7 +246,6 @@ static void beginCondition(const Condition& c) {
   setSleepAllowed(true);
 
   syncStart();
-  syncRiseMs = millis();
   delay(PREAMBLE_GUARD_MS);
   tickPreamble(c.cond_id);
   pendingStart = true;
@@ -296,15 +256,12 @@ static void startTrialNow(const Condition& c) {
   trialRunning = true;
 
   const uint8_t lbl = getLabel(0);
-  char tag[20];
+  char tag[16];
   makeTag(tag, sizeof(tag), c, lbl, currentIntervalMs);
   setPayload(0, tag);
 
   if (adv) adv->start();
   if (ENABLE_TICK_PER_UPDATE) tickPulseOnce(200);
-  // Allow the 800ms preamble window on TXSD to elapse before we start counting per-update ticks.
-  // Without this, the first update tick may be counted as an extra preamble pulse (cond_id becomes +1).
-  if (ENABLE_TICK_PREAMBLE) delay(PREAMBLE_WINDOW_MS);
 
   const uint16_t deltaSteps = (uint16_t)(currentIntervalMs / 100);
   stepIdx = (uint16_t)(stepIdx + deltaSteps);
@@ -327,16 +284,14 @@ void setup() {
   pinMode(TICK_OUT_PIN, OUTPUT);
   digitalWrite(TICK_OUT_PIN, LOW);
 
-  initUShuffle();
-
-  BLEDevice::init("TX_UCCS_D4_SCAN90");
+  BLEDevice::init("TX_UCCS_D3_SCAN70");
   BLEDevice::setPower(ESP_PWR_LVL_N0);
   adv = BLEDevice::getAdvertising();
   adv->setScanResponse(false);
   adv->setMinPreferred(0);
 
 #ifdef ARDUINO_ARCH_ESP32
-  (void)esp_pm_lock_create(ESP_PM_NO_LIGHT_SLEEP, 0, "uccs_d4", &noLightSleepLock);
+  (void)esp_pm_lock_create(ESP_PM_NO_LIGHT_SLEEP, 0, "d3_scan70", &noLightSleepLock);
 #endif
 
   condIndex = 0;
@@ -372,8 +327,8 @@ void loop() {
     if ((int32_t)(nowMs - nextUpdateMs) >= 0) {
       const uint8_t truthLabel = getLabel(stepIdx);
 
-      if (c.mode == MODE_POLICY || c.mode == MODE_ABL_U_SHUF) {
-        const float uRaw = (c.mode == MODE_ABL_U_SHUF) ? getUShuf(stepIdx) : getU(stepIdx);
+      if (c.mode == MODE_POLICY) {
+        const float uRaw = getU(stepIdx);
         const float cStable = getCCSStable(stepIdx);
         const float cChange = 1.0f - cStable;
         uEma = EMA_ALPHA * uRaw + (1.0f - EMA_ALPHA) * uEma;
@@ -383,7 +338,7 @@ void loop() {
         applyInterval(nextI);
       }
 
-      char tag[20];
+      char tag[16];
       makeTag(tag, sizeof(tag), c, truthLabel, currentIntervalMs);
       setPayload(stepIdx, tag);
       if (ENABLE_TICK_PER_UPDATE) tickPulseOnce(200);
@@ -392,11 +347,11 @@ void loop() {
       stepIdx = (uint16_t)(stepIdx + deltaSteps);
       nextUpdateMs = millis() + currentIntervalMs;
     }
-
     vTaskDelay(1);
     return;
   }
 
+  // gap
   if (gapStartMs == 0) gapStartMs = nowMs;
   if ((nowMs - gapStartMs) < GAP_MS) {
     vTaskDelay(pdMS_TO_TICKS(50));
@@ -418,5 +373,4 @@ void loop() {
   }
 
   beginCondition(CONDS[condIndex]);
-  vTaskDelay(pdMS_TO_TICKS(200));
 }

@@ -129,3 +129,18 @@
 - D3（S4のみ）:
   - scan duty を 90% → 70% or 60% に落とし、Fixed500が崩れる帯で Policy が耐えるかを確認する。
   - 条件: Fixed100 / Fixed500 / Policy の3条件×n=3（最小）。
+
+## 追記（2025-12-16, D4の主要結果と解釈を固定）
+
+- 対象: D4（S4のみ、scan90、4条件×n=3）
+- 出力（集計/図）:
+  - 集計: `uccs_d4_scan90/metrics/01/summary.md`
+  - 図: `uccs_d4_scan90/plots/d4_01_power_vs_pout.png`
+- 主要結果（mean±std, n=3）:
+  - Fixed100: `avg_power=208.2±1.3 mW`, `pout_1s=0.0488±0.0000`, `adv_count=1796`, `share100≈1.000`
+  - Fixed500: `avg_power=187.9±0.8 mW`, `pout_1s=0.1301±0.0141`, `adv_count=359`, `share100≈0.000`
+  - Policy(U+CCS): `avg_power=200.5±0.8 mW`, `pout_1s=0.0976±0.0244`, `adv_count=1227`, `share100≈0.593`
+  - Ablation(U-shuffle): `avg_power=208.1±0.3 mW`, `pout_1s=0.0488±0.0000`, `adv_count=1715`, `share100≈0.943`
+- 解釈（主張に変換）:
+  - **Uの時間相関を壊す（U-shuffle）と、制御が100ms張り付き寄りに崩れる**（`share100: 0.593→0.943`, `adv_count: 1227→1715`, `avg_power: 200.5→208.1mW`）。
+  - つまり「QoSを守りつつ100ms滞在を減らす」には、**Uの“いつ不確実か”という時間的整合が効いている**（閾値構造を固定したまま入力だけ壊すアブレーション）。
