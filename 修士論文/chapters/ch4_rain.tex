@@ -30,22 +30,7 @@
 \subsection{動的切替（2値制御）の実機確認}
 動的制御の最小構成として，\SI{100}{\milli\second}と\SI{500}{\milli\second}の切替を実装し，固定\SI{100}{\milli\second}および固定\SI{500}{\milli\second}と比較する．平均電力が両固定条件の中間に位置し，受信率も中間的になることを確認することで，切替が成立していることを検証する．
 
-本研究の実測例として，固定\SI{100}{\milli\second}（n=3），固定\SI{500}{\milli\second}（n=3），動的（n=3）における平均電力と受信率のサマリを表\ref{tab:d1_summary}に示す．数値は実装・環境に依存するため，本文執筆時点のログに基づき更新する．
-
-\begin{table}[tb]
-  \centering
-  \caption{動的切替（2値制御）の実測例（サマリ）}
-  \label{tab:d1_summary}
-  \begin{tabular}{llll}
-    \toprule
-    条件 & 平均電力 [mW] & 受信率の目安 [Hz] & 備考 \\
-    \midrule
-    固定100 & 205.10 $\pm$ 2.79 & 7.94 $\pm$ 0.21 & scan90 \\
-    固定500 & 185.50 $\pm$ 0.98 & 1.63 $\pm$ 0.09 & scan90 \\
-    動的（100/500） & 192.17 $\pm$ 0.55 & 3.71 $\pm$ 0.11 & 切替動作確認 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+切替成立の確認としては，平均電力が両固定条件の中間に位置し，かつログ上でinterval切替が発生することを確認すれば十分である．以降では，TLと$P_{\mathrm{out}}(\tau)$を用いて，QoS制約下での省電力効果を定量評価する．
 
 \subsection{実測のQoS指標（TLとPout）}
 本研究では，受信品質をPDRだけでなく，遅延分布と期限超過率$P_{\mathrm{out}}(\tau)$で評価する．特に，非理想スキャン環境では平均受信率が同程度でも，遅延の裾が悪化する場合があるため，$P_{\mathrm{out}}(\tau)$が重要となる（\secref{sec:metrics_detail}）．
@@ -87,11 +72,35 @@
 
 また，平均電力はFixed100/Fixed500の滞在比率（share100）による線形混合で概ね説明できるため，方策の省電力効果はinterval滞在比率に支配されることが示唆される．これにより，「sleep差分が効いた/効かなかった」といった実装依存の議論から切り離し，制御則（どの状態で短間隔へ戻すか）の議論へ接続しやすくなる．
 
+\subsubsection{条件悪化時の頑健性（D3，scan70）}
+\label{sec:d3_scan70}
+表\ref{tab:d3_summary}および図\ref{fig:d3_d4_power_vs_pout}(a)に，scan dutyを低下させたD3（scan70, S4, 各n=3）の結果を示す．scan70ではFixed500の期限超過率が0.285まで悪化する一方で，方策は0.089まで改善し，かつ平均電力はFixed100（209.9\,mW）より低い（202.1\,mW）．
+
+なお，scan70では受信欠落によりRXタグ由来のshare100が過小評価されやすいため，D3では平均電力の線形混合から推定したshare100\_mixを併記した．また，SDコピーでmtimeが信頼できないため，TXSDログはadv\_count（tick\_count）でクラスタリングしてRXと対応付けた．
+
+\begin{table}[tb]
+  \centering
+  \caption{D3（scan70, S4）の実測例（mean$\pm$std, 各n=3）}
+  \label{tab:d3_summary}
+  {\small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lrrrr}
+    \toprule
+    条件 & Pout(1s) & TL\_mean[s] & P[mW] & share100\_mix \\
+    \midrule
+    S4-100   & 0.065$\pm$0.028 & 1.34$\pm$0.02 & 209.9$\pm$0.5 & 1.000 \\
+    S4-500   & 0.285$\pm$0.061 & 2.93$\pm$1.07 & 189.5$\pm$0.5 & 0.000 \\
+    S4-policy & 0.089$\pm$0.037 & 1.40$\pm$0.07 & 202.1$\pm$0.1 & 0.618 \\
+    \bottomrule
+  \end{tabular}
+  }
+\end{table}
+
 \subsubsection{U-shuffleアブレーション（D4，scan90）}
 \label{sec:d4_ablation}
 D2bの主結果に対して，「不確実度$U$は本当に効いているか（単なる閾値遊びではないか）」という疑問に答えるため，D4としてアブレーション実験を行った．ここでは制御器の構造と閾値は固定し，不確実度系列$U$の時間整合だけを破壊する（shuffleする）ことで，制御がどのように崩れるかを観察する．
 
-表\ref{tab:d4_summary}および図\ref{fig:d4_power_vs_pout}に，S4（遷移が多い条件）における結果（各n=3）を示す．方策（U+CCS）はFixed100より低電力であり，Fixed500より低い期限超過率を示す運用点になり得る．一方で，$U$をshuffleするとshare100が0.593から0.943へ増加し，adv\_countも1227から1715へ増加してFixed100に近い挙動へ崩れる．その結果，平均電力も200.5\,mWから208.1\,mWへ増加し，省電力効果が失われる．
+表\ref{tab:d4_summary}および図\ref{fig:d3_d4_power_vs_pout}(b)に，S4（遷移が多い条件）における結果（各n=3）を示す．方策（U+CCS）はFixed100より低電力であり，Fixed500より低い期限超過率を示す運用点になり得る．一方で，$U$をshuffleするとshare100が0.593から0.943へ増加し，adv\_countも1227から1715へ増加してFixed100に近い挙動へ崩れる．その結果，平均電力も200.5\,mWから208.1\,mWへ増加し，省電力効果が失われる．
 
 \begin{table}[tb]
   \centering
@@ -114,9 +123,18 @@ D2bの主結果に対して，「不確実度$U$は本当に効いているか�
 
 \begin{figure}[tb]
   \centering
-  \includegraphics[width=0.90\linewidth]{../uccs_d4_scan90/plots/d4_01_power_vs_pout}
-  \caption{D4（scan90, S4, n=3）における平均電力と$P_{\mathrm{out}}(1\mathrm{s})$の関係（share100を注釈）}
-  \label{fig:d4_power_vs_pout}
+  \begin{minipage}{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../uccs_d3_scan70/plots/d3_01_power_vs_pout}
+    {\small (a) D3: scan70（S4, n=3）\par}
+  \end{minipage}\hfill
+  \begin{minipage}{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{../uccs_d4_scan90/plots/d4_01_power_vs_pout}
+    {\small (b) D4: U-shuffle（scan90, S4, n=3）\par}
+  \end{minipage}
+  \caption{条件悪化（D3）およびU-shuffleアブレーション（D4）における平均電力と$P_{\mathrm{out}}(1\mathrm{s})$の関係（share100を注釈）}
+  \label{fig:d3_d4_power_vs_pout}
 \end{figure}
 
 \subsubsection{解釈（D4）}
@@ -129,19 +147,13 @@ D4の結果は，制御器の構造と閾値を固定したまま入力$U$の時
 オフライン評価は，固定間隔の電力テーブルと受信品質推定を合成するため，実環境の非理想性を完全には表現しない．したがって，予測値は「候補探索と説明のための近似」として用い，実測との差分を評価しながらモデルの限界を記述することが重要である．
 
 \subsubsection{δ帯プロット（参考）}
-図\ref{fig:delta_band_again}に，オフライン評価の代表例としてδ帯プロットを示す．固定間隔点と候補方策点を同一平面で可視化することで，制約境界付近における省電力運用点の存在を示す．
-
-\begin{figure}[tb]
-  \centering
-  \includegraphics[width=0.95\linewidth]{../results/mhealth_policy_eval/letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/fig_delta_band.png}
-  \caption{δ帯（例）におけるPout(1s)と平均電力のトレードオフ（オフライン評価）}
-  \label{fig:delta_band_again}
-\end{figure}
+δ帯プロットは，\secref{sec:offline_eval}の図\ref{fig:letter_delta_band}に示した通り，固定間隔点と候補方策点の位置関係を俯瞰し，実機評価で探索すべき領域を絞り込むための近似として有効である．
 
 \subsection{まとめ}
 本節の結果を，次章の考察に接続するために要点を整理する．
 \begin{itemize}
   \item D2b（scan90, n=6）では，方策（2値切替）がFixed100より低電力で，Fixed500より低い期限超過率を示す運用点になり得ることを確認した．
+  \item D3（scan70, S4, n=3）では，scan duty低下でFixed500が崩れる条件でも，方策が期限超過率を抑えつつFixed100より低電力を維持できることを確認した．
   \item D4（U-shuffleアブレーション, S4, n=3）では，$U$の時間整合を破壊すると短間隔へ張り付く方向へ崩れ，省電力効果が失われることを確認した．
   \item オフライン評価（δ帯）は，固定間隔点と候補方策点の位置関係を可視化し，実機評価で探索すべき領域を絞り込むための近似として有効である．
 \end{itemize}
