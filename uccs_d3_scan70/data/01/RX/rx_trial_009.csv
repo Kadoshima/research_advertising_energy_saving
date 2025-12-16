@@ -1,0 +1,6 @@
+ms,event,rssi,seq,label,addr,mfd
+# meta, firmware=RX_UCCS_D3_SCAN70, buf_size=512
+# meta, scan_interval_ms=100.0, scan_window_ms=70.0
+# condition_label=F4-01-100
+341,ADV,-30,1,F4-01-100,e0:5a:1b:15:c4:ca,1_F4-01-100
+651,ADV,-42,4,F4-01-100,e0:5a:1b:15:c4:ca,4_F4-01-100

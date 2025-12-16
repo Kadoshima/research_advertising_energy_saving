@@ -33,6 +33,11 @@ TAG_RE = re.compile(r"^(?P<mode>[FP])(?P<sess>[14])-(?P<label>\d+)-(?P<itv>\d+)$
 RX_TRIAL_RE = re.compile(r"rx_trial_(?P<id>\d+)\.csv$")
 TXSD_NAME_RE = re.compile(r"trial_(?P<idx>\d+)_c(?P<cond>\d+)_(?P<tag>.+)\.csv$")
 
+# SDカードからのコピーでmtimeが信頼できないケース（FATが1980固定など）があるため、
+# D3ではTXSDをmtimeで並べてzipするのを避け、adv_count(tick_count)の値でクラスタリングして割り当てる。
+# また、明らかに別条件（古いログ混在）と思われる低電力ログを除外する。
+TXSD_MIN_AVG_POWER_MW = 150.0
+
 
 @dataclass(frozen=True)
 class RxEvent:
@@ -273,6 +278,52 @@ def estimate_rx_tag_share100_time_est(events: List[RxEvent]) -> Optional[float]:
     return (n100 * 100) / denom_ms
 
 
+def classify_txsd_groups_by_adv_count(txsd_trials: List[TxsdTrial]) -> Dict[str, List[TxsdTrial]]:
+    """
+    Group TXSD trials by adv_count (tick_count).
+
+    For D3 we expect three dominant adv_count values:
+      - min  -> fixed500
+      - mid  -> policy
+      - max  -> fixed100
+    """
+    by_adv: Dict[int, List[TxsdTrial]] = {}
+    for t in txsd_trials:
+        by_adv.setdefault(t.adv_count, []).append(t)
+
+    adv_values = sorted(by_adv.keys())
+    if len(adv_values) < 3:
+        raise SystemExit(f"TXSD adv_count has <3 unique values: {adv_values}")
+
+    adv_min = adv_values[0]
+    adv_max = adv_values[-1]
+    if len(adv_values) == 3:
+        adv_mid = adv_values[1]
+    else:
+        # choose the value closest to the midpoint of min/max
+        target = (adv_min + adv_max) / 2.0
+        inner = adv_values[1:-1]
+        adv_mid = min(inner, key=lambda v: abs(v - target))
+
+    return {
+        "S4_fixed500": sorted(by_adv[adv_min], key=lambda t: t.path.name),
+        "S4_policy": sorted(by_adv[adv_mid], key=lambda t: t.path.name),
+        "S4_fixed100": sorted(by_adv[adv_max], key=lambda t: t.path.name),
+    }
+
+
+def pick_n_typical_by_power(group: List[TxsdTrial], n: int) -> List[TxsdTrial]:
+    """
+    Pick n trials whose avg_power is closest to the group's median (drop outliers).
+    """
+    if len(group) < n:
+        raise SystemExit(f"not enough TXSD trials in group: need {n}, got {len(group)}")
+    powers = [t.avg_power_mw for t in group]
+    med = statistics.median(powers)
+    group_sorted = sorted(group, key=lambda t: abs(t.avg_power_mw - med))
+    return group_sorted[:n]
+
+
 def mean_std(xs: List[float]) -> Tuple[float, float]:
     if not xs:
         return 0.0, 0.0
@@ -313,13 +364,24 @@ def main() -> None:
         if not tt:
             continue
         if tt.ms_total >= VALID_MIN_DURATION_MS:
-            txsd_all.append(tt)
-    txsd_all.sort(key=lambda t: t.mtime_s)
-    if len(txsd_all) < len(rx_trials):
-        raise SystemExit(f"not enough valid TXSD trials: {len(txsd_all)} < {len(rx_trials)}")
-    txsd_trials = txsd_all[-len(rx_trials):]
+            if tt.avg_power_mw >= TXSD_MIN_AVG_POWER_MW:
+                txsd_all.append(tt)
 
-    pairs = list(zip(rx_trials, txsd_trials))
+    if not txsd_all:
+        raise SystemExit("no valid TXSD trials found after filtering")
+
+    groups = classify_txsd_groups_by_adv_count(txsd_all)
+    # pick exactly 3 trials per condition (closest to median power)
+    picked: Dict[str, List[TxsdTrial]] = {k: pick_n_typical_by_power(v, 3) for k, v in groups.items()}
+    for k in picked:
+        picked[k].sort(key=lambda t: t.path.name)
+
+    pairs: List[Tuple[RxTrial, TxsdTrial]] = []
+    for rx in rx_trials:
+        cond = condition_name(rx)
+        if cond not in picked or not picked[cond]:
+            raise SystemExit(f"TXSD group missing for {cond}")
+        pairs.append((rx, picked[cond].pop(0)))
 
     rep_counter: Dict[str, int] = {}
     per_rows: List[Dict[str, object]] = []
@@ -429,7 +491,8 @@ def main() -> None:
     lines.append(f"- source TXSD: `{args.txsd_dir}`\n")
     lines.append(f"- truth: `{args.truth_s4}` (n_steps={args.n_steps}, dt=100ms)\n")
     lines.append(f"- selected RX trials: {rx_trials[0].rx_id:03d}..{rx_trials[-1].rx_id:03d} (n={len(rx_trials)})\n")
-    lines.append(f"- selected TXSD trials (by mtime): {Path(txsd_trials[0].path).name} .. {Path(txsd_trials[-1].path).name} (n={len(txsd_trials)})\n")
+    uniq_adv = sorted({tx.adv_count for _, tx in pairs})
+    lines.append(f"- selected TXSD trials: grouped by adv_count={uniq_adv} (n={len(pairs)})\n")
     lines.append(f"- generated: {datetime.now().strftime('%Y-%m-%d %H:%M')} (local)\n")
     lines.append(f"- command: `python3 uccs_d3_scan70/analysis/summarize_d3_run_v2.py --rx-dir {args.rx_dir} --txsd-dir {args.txsd_dir} --out-dir {args.out_dir}`\n")
 
@@ -455,7 +518,8 @@ def main() -> None:
 
     lines.append("\n## Notes\n")
     lines.append("- RX window: latest 9 trials that form 3 conditions × 3 repeats (duration>=160s).\n")
-    lines.append("- TXSD pairing: last 9 TXSD trials by file modification time; zipped in order with RX window.\n")
+    lines.append("- TXSD pairing: mtimeが信頼できないため、adv_count（tick_count）でクラスタリングして各条件3本を割り当て。\n")
+    lines.append(f"  - filter: avg_power_mW >= {TXSD_MIN_AVG_POWER_MW:.1f}（古いログ混在を除外）\n")
     lines.append("- TL/Pout alignment: per-trial constant offset estimated from (step_idx*100ms - first_rx_ms(step_idx)).\n")
     lines.append("- TXSD adv_count is tick_count (1 tick per payload update); used as denominator for pdr_unique.\n")
     lines.append("- share100_time_est: estimated from RX tags (unique step_idx by interval); sanity only (RX has drops).\n")
@@ -466,4 +530,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
