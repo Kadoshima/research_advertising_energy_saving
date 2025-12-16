@@ -26,7 +26,7 @@ HARは，加速度等の時系列入力を一定窓で切り出し，クラス�
   \end{tabular}
 \end{table}
 
-数値の根拠は，A0については\texttt{\detokenize{har/004/runs/phase0-1-acc/fold90/metrics.json}}，A\_tinyについては\texttt{\detokenize{har/004/runs/phase0-1-acc-tiny/fold90/metrics.json}}に基づく．A0のTFLiteは\texttt{\detokenize{har/004/export/acc_v1_keras/phase0-1-acc.v1.int8.tflite}}であり，sha256は\texttt{\detokenize{e1c3ff0042...}}である（\texttt{\detokenize{har/004/export/acc_v1_keras/manifest.json}}）．
+数値の根拠（学習・評価設定，TFLite生成物，ハッシュ等）はリポジトリ内の実験ログとmanifestに記録し，モデル更新時に参照する．
 
 \subsubsection{性能要件と未完タスクの位置づけ}
 Phase 1の主張は「評価指標と計測系を確立し，ルールベース方策が固定より良い運用点になり得ることを示す」ことである．したがって，HARモデルの最終性能到達はPhase 2に跨る未完タスクとして扱い，本論文では未完であること自体を明示する．これは失敗談ではなく，再現性のために「何が揃っていて，何が揃っていないか」を固定するためである．
@@ -63,25 +63,8 @@ HARモデルは，各時刻$t$においてクラス確率分布$\mathbf{p}(t)=(p
 \subsubsection{計算コストと実装制約}
 本研究の想定はバッテリ駆動の小型端末であり，推論・制御・ログの計算コストは制約となる．不確実度$U$は，推論で得られる確率分布からエントロピーを計算するだけであり，追加の推論回数を必要としない．したがって，MC-Dropout等の多回推論を伴う不確実度推定と比較して，計算コストと電力コストが小さい．
 
-\subsection{量子化（PTQ int8）とTFLite整合（参照モデル）}
-TinyML環境では，推論コストとメモリを抑えるため，TFLite int8（PTQ）等の量子化が重要となる．A0（参照モデル）では，TFLite int8を生成し，PyTorch出力との整合（argmax一致率，max\_probのMAE）を確認している．これにより，「推論値の揺らぎ」が制御の閾値に与える影響を監査できる．
-
-\begin{table}[tb]
-  \centering
-  \caption{TFLiteアーティファクト（参照モデルA0，例）}
-  \label{tab:tflite_artifact_a0}
-  \begin{tabular}{p{0.28\linewidth}p{0.62\linewidth}}
-    \toprule
-    項目 & 値 \\
-    \midrule
-    TFLite int8 & \texttt{\detokenize{har/004/export/acc_v1_keras/phase0-1-acc.v1.int8.tflite}} \\
-    sha256 & \texttt{\detokenize{e1c3ff0042badac5dd9bb478a17fac79991736c813143b45e5cb981d9db68610}} \\
-    サイズ & \SI{92.8}{\kilo\byte} \\
-    代表データ & \texttt{\detokenize{har/001/export/acc_v1/rep_data.npy}}（rep\_samples=2000） \\
-    PT vs TFLite & argmax一致=0.98，max\_prob MAE=0.0277（200サンプル） \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+\subsection{量子化と実機導入の位置づけ}
+TinyML実装では，推論コストとメモリを抑えるための量子化（例：PTQ int8）と，推論出力の整合監査が重要となる．本論文では，参照モデルで整合監査の手順を確立した上で，最終的な実機導入はPhase 2に跨る課題として扱う（次節）．
 
 \subsection{未完タスク（A\_tinyの実機導入に向けて）}
 本論文執筆時点で，A\_tinyについては以下が未完である．

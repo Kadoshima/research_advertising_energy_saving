@@ -4,24 +4,6 @@
 
 本節では，Phase 1（ルールベース）で用いるCCS写像と主要パラメータを一覧化し，モデル更新時の再キャリブレーション対象を明確化する．評価の再現性のため，パラメータは実験ログ（TX）に保存し，作業ログに変更履歴を残す．
 
-\subsection{3状態写像（ACTIVE/UNCERTAIN/QUIET）}
-本研究のルールベース方策は，CCSを3状態へ写像し，広告間隔を段階的に切り替える．表\ref{tab:ccs_state_mapping}に概念整理を示す．
-
-\begin{table}[tb]
-  \centering
-  \caption{CCS状態と広告間隔の写像（概念）}
-  \label{tab:ccs_state_mapping}
-  \begin{tabular}{p{0.22\linewidth}p{0.22\linewidth}p{0.46\linewidth}}
-    \toprule
-    状態 & 広告間隔 $a$ & 意図 \\
-    \midrule
-    ACTIVE & \SI{100}{\milli\second} & 不確実または遷移期：QoS優先（短間隔） \\
-    UNCERTAIN & \SI{500}{\milli\second} & 中間：過渡の揺らぎを吸収しつつ省電力化 \\
-    QUIET & \SI{2000}{\milli\second} & 安定期：省電力優先（長間隔） \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
 \subsection{主要パラメータ（Phase 1既定値）}
 表\ref{tab:ccs_params_phase1}に，Phase 1で用いる代表的パラメータを示す．これらはモデルの出力分布や量子化誤差に依存するため，モデル更新時には再キャリブレーションが必要となる．
 
