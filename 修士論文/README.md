@@ -20,6 +20,8 @@ Word→PDF の修論の体裁を参考に、表紙・要旨・目次・本文・
 latexmk main.tex
 ```
 
+生成物は `build/main.pdf` に出力されます（ビルド用の一時ファイル/キャッシュも `build/` 配下）。
+
 ### Overleaf
 - Compiler: **LuaLaTeX**
 - Bibliography: **Biber**（biblatex使用）
@@ -33,6 +35,8 @@ latexmk main.tex
 \includegraphics[width=0.9\linewidth]{figures/fig_system_overview}
 ```
 
+- 写真も提出用には `figures/` に置く（元データはリポジトリ直下の `image/` に保存し、提出用は向き補正・メタデータ除去・リサイズした派生物を `figures/` へ置く）。
+
 ---
 
 ## 4) 引用の書き方
@@ -44,7 +48,22 @@ latexmk main.tex
 
 ---
 
-## 5) 体裁を変えたいとき
+## 5) 大学体裁に寄せる追加ルール（固定）
+
+このテンプレートは「先輩修論（大学方針の体裁）」に寄せるため、以下を**ルールとして固定**する。
+
+- ページ番号：目次はローマ数字（i〜）、本文（第1章）からアラビア数字（1〜）
+- ページ番号の位置：全ページ下右（章扉など `plain` も同じ）
+- 章扉：各章は `\chapter{...}\clearpage` で「章タイトルだけのページ」を挟む（`chapters/*.tex` 側で徹底）
+- 章見出し：中央寄せ・太字にしない（日本語太字のゴシック化を避ける）
+- 目次：`section` まで（`tocdepth=1`）
+- 図表キャプション：`図 4-1 タイトル` / `表 4-1 タイトル`（章-連番、区切りはスペース）
+- 参照：章番号・節番号を手で書かない（`\secref{...}` / `\figref{...}` / `\tabref{...}` を使う）
+- 参考文献：URLは載せるが `url:` / `visited on` は出さない（体裁側で抑制）
+
+---
+
+## 6) 体裁を変えたいとき
 
 - 余白：`chubuthesis.sty` の `geometry` を編集
 - 図表キャプション：`chubuthesis.sty` の `caption` 設定を編集

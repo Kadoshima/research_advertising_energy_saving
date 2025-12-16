@@ -1,0 +1,14 @@
+2025-12-16
+- [12:56 JST] メタ情報更新: `修士論文/meta.tex` で氏名を「萩原 圭島」、指導教授を「木村 秀明」に設定。`cd 修士論文 && latexmk -lualatex main.tex` で `修士論文/build/main.pdf` を再生成。
+- [14:28 JST] D2b主結果（run B）を論文に反映: `修士論文/chapters/ch4_rain.tex` のD2表を `uccs_d2_scan90/metrics/B/summary_by_condition.csv` に合わせて更新し、share100列を追加。主張図 `uccs_d2_scan90/plots/d2b_B_power_vs_pout.pdf` を図として挿入し、解釈を「Fixed100より省電力・Fixed500よりQoS良」「S4でshare100増」「電力は滞在比率の線形混合で説明」に寄せて追記。`修士論文/chapters/appx_b_assets.tex` のD2出力先もBへ更新。`cd 修士論文 && latexmk -lualatex main.tex` で `修士論文/build/main.pdf`（74 pages）を生成確認。
+- [14:30 JST] 表の体裁調整: `修士論文/chapters/ch4_rain.tex` のD2表が横に溢れないよう、条件名を短縮（S1-100等）し、列見出しと桁数を縮めた上で `\\small` + `\\tabcolsep` 調整を適用。`cd 修士論文 && latexmk -lualatex main.tex` で再生成確認。
+- [14:58 JST] D2b主結果を n=6（run B + B/02 統合）へ更新: `uccs_d2_scan90/metrics/B_n6/summary_by_condition.csv` に基づき、`修士論文/chapters/ch4_rain.tex` のD2表と図参照を更新（図: `uccs_d2_scan90/plots/d2b_B_n6_power_vs_pout.pdf`）。資産一覧 `修士論文/chapters/appx_b_assets.tex` も統合n=6の出力先へ更新。`cd 修士論文 && latexmk -g -lualatex main.tex` で `修士論文/build/main.pdf`（74 pages）を再生成確認。
+- [15:00 JST] 資産一覧のパス表記を改行可能に調整: `修士論文/chapters/appx_b_assets.tex` の一部を `\\texttt{\\detokenize{...}}` → `\\path{...}` に置換し、長いパスが本文幅から溢れにくいように修正。`cd 修士論文 && latexmk -lualatex main.tex` で `修士論文/build/main.pdf`（75 pages）を再生成確認。
+- [15:05 JST] D2 run B の入力パスを明確化: `修士論文/chapters/appx_b_assets.tex` の表記を `uccs_d2_scan90/data/B/01/`（run B）+ `uccs_d2_scan90/data/B/02/`（追加）に修正。`cd 修士論文 && latexmk -lualatex main.tex` で `修士論文/build/main.pdf`（75 pages）を再生成確認。
+- [16:08 JST] 計測装置の写真を論文へ追加: `image/` の写真を整形（auto-orient/strip/resize）して `修士論文/figures/` に配置し、`修士論文/chapters/ch8_measurement_system.tex` の「三ノード構成」直後に外観図を挿入。
+  - 追加図: `修士論文/figures/measurement_setup_overview_01.jpg`, `修士論文/figures/measurement_setup_overview_02.jpg`, `修士論文/figures/measurement_rx.jpg`, `修士論文/figures/measurement_tx_txsd.jpg`
+  - 参照箇所: `修士論文/chapters/ch8_measurement_system.tex`（図\ref{fig:measurement_setup_overview}, 図\ref{fig:measurement_nodes}）
+  - ビルド: `cd 修士論文 && latexmk -lualatex main.tex` で `修士論文/build/main.pdf`（76 pages）を生成確認。
+- [16:11 JST] 実験構成写真は重複のため整理: `修士論文/chapters/ch8_measurement_system.tex` の実験構成図を (b) のみ残すよう修正（`figures/measurement_setup_overview_02`のみ参照）。`cd 修士論文 && latexmk -lualatex main.tex` で `修士論文/build/main.pdf`（76 pages）を再生成確認。
+- [16:15 JST] 写真資産の整理: `修士論文/figures/measurement_setup_overview_01.jpg` を削除（未参照の重複）。`修士論文/figures/README.md` に計測装置写真の一覧と元ファイル（`image/`）を追記。
+- [16:30 JST] テンプレREADME更新: `修士論文/README.md` に「出力先は build/main.pdf」「写真の取り扱い（原本は image/、提出用派生物は figures/）」を追記。

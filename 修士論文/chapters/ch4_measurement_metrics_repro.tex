@@ -6,13 +6,25 @@
 
 \input{chapters/ch3_oncampus}
 \input{chapters/ch8_measurement_system}
-\input{chapters/ch8_experiment_design}
-\input{chapters/ch10_implementation}
 
-% 付録だった内容を本文に吸収（章は増やさない）
-\input{chapters/appx_d_log_schema}
-\input{chapters/appx_a_metrics}
-\input{chapters/appx_e_runbook}
-\input{chapters/appx_f_symbols}
-\input{chapters/appx_b_assets}
-\input{chapters/appx_g_troubleshooting}
+\section{評価準備（実験設計と実装）}
+\label{sec:eval_preparation}
+\begingroup
+  \let\section\subsection
+  \let\subsection\subsubsection
+  \input{chapters/ch8_experiment_design}
+  \input{chapters/ch10_implementation}
+\endgroup
+
+\section{再現性のための詳細資料}
+\label{sec:repro_details}
+\begingroup
+  \let\section\subsection
+  \let\subsection\subsubsection
+  \input{chapters/appx_d_log_schema}
+  \input{chapters/appx_a_metrics}
+  \input{chapters/appx_e_runbook}
+  \input{chapters/appx_f_symbols}
+  \input{chapters/appx_b_assets}
+  \input{chapters/appx_g_troubleshooting}
+\endgroup

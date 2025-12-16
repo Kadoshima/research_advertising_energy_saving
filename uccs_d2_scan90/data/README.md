@@ -14,3 +14,4 @@
 ## 現状（暫定）
 
 - 2025-12-14 取得分は `data/RX/` と `data/TX/` に直接配置（run=01相当）。次回から run ディレクトリに揃える。
+- 2025-12-15 D2b（CCS反転でpolicy張り付き解消）: `uccs_d2_scan90/data/B/`（READMEあり、集計は `uccs_d2_scan90/metrics/B/summary.md`）

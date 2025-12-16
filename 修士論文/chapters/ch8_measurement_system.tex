@@ -8,6 +8,35 @@
 \subsection{三ノード構成（TX/TXSD/RX）}
 電力計測はTX（被測定対象）の消費電流・電圧を計測し，受信品質はRXログから算出する．両者を同一試行で取得するために，同期信号で区間を揃える．この三ノード構成により，方策（固定/動的/学習）を差し替えても，同一の評価パイプラインで比較できる．
 
+\subsection{計測装置の外観}
+\figref{fig:measurement_setup_overview}に計測系の全体構成を，\figref{fig:measurement_nodes}に各ノードの外観を示す．以降の評価では，この三ノード構成（TX/TXSD/RX）を前提として，同一試行で電力と受信品質を取得する．
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.85\linewidth]{figures/measurement_setup_overview_02}
+  \caption{計測系の外観（TX/TXSD/RXの三ノード構成，2025-12-16撮影）}
+  \label{fig:measurement_setup_overview}
+\end{figure}
+
+\begin{figure}[tb]
+  \centering
+  \begin{minipage}{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/measurement_rx}
+    \vspace{1mm}
+    {\small (a) RXロガ（受信ログ）}
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/measurement_tx_txsd}
+    \vspace{1mm}
+    {\small (b) TX + TXSD（DUT + 電力ログ）}
+  \end{minipage}
+  \caption{計測ノードの外観（2025-12-16撮影）}
+  \label{fig:measurement_nodes}
+\end{figure}
+
 \subsection{計測系の破綻モードと対策}
 計測系の問題は，「値が揺れる」だけではなく，結論を逆転させる（例：OFFがONより大きい）形で顕在化し得る．表\ref{tab:measurement_failures}に，代表的な破綻モードと対策をまとめる．
 

@@ -785,6 +785,7 @@ SDカード初期化やファイルopenに失敗した状態で試行を継続�
 \end{itemize}
 これにより，結果図表の背後にある意思決定とパラメータを監査できる．</file><file path="修士論文/chapters/ch0_introduction.tex">% chapters/ch0_introduction.tex --- 第1章 序論
 \chapter{序論}
+\clearpage
 
 \section{研究背景と社会的文脈}
 ウェアラブル端末やエッジデバイスにおいて，推論結果を近傍のスマートフォンへ低遅延に通知する仕組みは，見守りや労働安全など多くの応用で重要である．一方で，常時高頻度に通信を行うと電力消費が増大し，小型バッテリでの長時間運用が困難となる．Bluetooth Low Energy（BLE）の広告（Advertising）は接続を前提としない軽量な近傍通信手段として広く利用されているが，受信側（スマートフォン）のスキャン動作はOSや端末状態に依存し，連続スキャンが保証されない．
@@ -943,6 +944,7 @@ TXSDログでは，時刻（ms）と計測値（mV，$\mu$A）が一次情報で
 \subsection{まとめ}
 本節では，ファームウェアと解析パイプラインの要点を整理した．これにより，固定間隔と動的制御を同一基盤で比較できる．</file><file path="修士論文/chapters/ch2_background_related.tex">% chapters/ch2_background_related.tex --- 第2章 背景・関連研究（統合）
 \chapter{背景・関連研究}
+\clearpage
 
 本章では，本研究の前提となるBLE近隣発見の基礎，非理想スキャン，sleepの二面性，不確実度指標の位置づけを整理する．続いて関連研究を概観し，本研究の立脚点と新規性を明確化する．
 
@@ -1222,6 +1224,7 @@ OSの省電力機構によりバックグラウンド制約やスロットリン
 \subsection{まとめ}
 本節では，実験装置の構成，同期設計，ログ設計，および運用上の前提を整理した．以降の節では，計測系の破綻モードと修正履歴を体系化し（\secref{sec:measurement_system}），切り分け手順をトラブルシューティング集として整理する（\secref{sec:troubleshooting}）．</file><file path="修士論文/chapters/ch3_system_and_method.tex">% chapters/ch3_system_and_method.tex --- 第3章 システム設計と提案手法（統合）
 \chapter{システム設計と提案手法}
+\clearpage
 
 本章では，問題設定（World Model，一次KPI，制約）と，HAR推論部から得る不確実度・安定度を用いた広告間隔制御（CCS）を統合して述べる．さらに，CCS写像・パラメータを版管理の観点で整理し，Phase 2（Safe Contextual Bandit）へ接続できる形で前提を固定する．
 
@@ -1321,6 +1324,7 @@ OSの省電力機構によりバックグラウンド制約やスロットリン
 \subsection{フェーズ設計（Phase 1 → Phase 2）}
 Phase 1では，ルールベース方策で「計測・指標・実機実装」を成立させることを優先する．特に，TL/Poutの定義と時間同期，電力計測の健全化は，学習以前に必須である．Phase 2では，コンテキスト（$U,S$）と行動（広告間隔）の選択をSafe Contextual Banditとして定式化し，環境差に適応しつつQoS制約を守る枠組みを検証する．</file><file path="修士論文/chapters/ch4_measurement_metrics_repro.tex">% chapters/ch4_measurement_metrics_repro.tex --- 第4章 計測系・ログ設計・指標定義（再現性）（統合）
 \chapter{計測系・ログ設計・指標定義（再現性）}
+\clearpage
 
 本研究は，非理想スキャン環境と実機ログに依存するため，条件混在や欠損により結論が逆転し得る．そのため，本章では再現性確保（計測系，ログ設計，指標定義，運用手順，破綻モード）を本文に統合して明示し，評価の前提を固定する．
 
@@ -1431,6 +1435,7 @@ Phase 1では，ルールベース方策で「計測・指標・実機実装」�
 \subsection{まとめ}
 本節の結果を，次章の考察に接続するために要点を整理する．</file><file path="修士論文/chapters/ch5_evaluation.tex">% chapters/ch5_evaluation.tex --- 第5章 評価（統合）
 \chapter{評価}
+\clearpage
 
 本章では，ストレス固定実験に基づくTL/Pout指標の確立，オフライン評価による候補探索，および実機評価結果をまとめる．固定間隔と提案方策を同一の評価指標で比較し，省電力とQoSのトレードオフを示す．
 
@@ -1441,6 +1446,7 @@ Phase 1では，ルールベース方策で「計測・指標・実機実装」�
 % 付録だった追加結果は評価章に吸収
 \input{chapters/appx_c_results}</file><file path="修士論文/chapters/ch5_publicroad.tex">% chapters/ch5_publicroad.tex --- 第5章 考察
 \chapter{考察}
+\clearpage
 
 \section{非理想スキャン環境における解釈}
 受信側スキャンの非理想性は，平均的な受信率だけでなく，遅延の裾や期限超過に影響する．端末・OS状態に依存する要素を前提として，評価は端末内のA/B比較として解釈する必要がある．
@@ -1966,9 +1972,39 @@ TinyML環境では，推論コストとメモリを抑えるため，TFLite int8
 \setlength{\parindent}{1\zw}
 \setlength{\parskip}{0pt}
 
-% 目次に subsection まで載せる
-\setcounter{tocdepth}{2}
+% 目次は section まで（先輩修論の見え方に寄せる）
+\setcounter{tocdepth}{1}
 \setcounter{secnumdepth}{2}
+
+% --- ページ番号（下右に統一） ---
+\RequirePackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% chapter開始ページなど plain も同じにする
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[R]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+
+% --- 章見出し（中央寄せ・太字にしない） ---
+\RequirePackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\Large\centering}
+  {第\thechapter\relax 章}
+  {2em}
+  {\Large}
+\titleformat{name=\chapter,numberless}[display]
+  {\normalfont\Large\centering}
+  {}
+  {0pt}
+  {\Large}
+\titlespacing*{\chapter}{0pt}{0.33\textheight}{0pt}
 
 % --- 図表 ---
 \RequirePackage{graphicx}
@@ -1986,12 +2022,13 @@ TinyML環境では，推論コストとメモリを抑えるため，TFLite int8
 \sisetup{detect-all}
 \DeclareSIUnit{\decibelmilliwatt}{dBm}
 
-% --- キャプション：図 1.1：..., 表 3.1：... ---
+% --- キャプション：図 4-1 タイトル / 表 4-1 タイトル ---
 \RequirePackage{caption}
-\DeclareCaptionLabelSeparator{jcolon}{： } % 全角コロン
-\captionsetup{labelsep=jcolon}
-\captionsetup[figure]{name=図}
-\captionsetup[table]{name=表}
+\renewcommand{\thefigure}{\thechapter-\arabic{figure}}
+\renewcommand{\thetable}{\thechapter-\arabic{table}}
+\captionsetup{labelsep=space}
+\captionsetup[figure]{name=図,justification=centering}
+\captionsetup[table]{name=表,justification=centering}
 
 % --- 参照（図/表/式） ---
 \newcommand{\figref}[1]{図~\ref{#1}}
@@ -2003,6 +2040,7 @@ TinyML環境では，推論コストとメモリを抑えるため，TFLite int8
 \newcommand{\chapterwithtoc}[1]{%
   \chapter*{#1}%
   \addcontentsline{toc}{chapter}{#1}%
+  \clearpage
 }
 
 % --- 参考文献（biblatex） ---
@@ -2015,6 +2053,10 @@ TinyML環境では，推論コストとメモリを抑えるため，TFLite int8
   {}
   {}
 
+% URL 表記を簡素化（&quot;url:&quot; / &quot;visited on&quot; を出さない）
+\DeclareFieldFormat{url}{\url{#1}}
+\renewbibmacro*{url+urldate}{\printfield{url}}
+
 % --- ハイパーリンク（最後の方で読み込み） ---
 \RequirePackage[hidelinks]{hyperref}
 \RequirePackage{bookmark}
@@ -2025,49 +2067,49 @@ TinyML環境では，推論コストとメモリを抑えるため，TFLite int8
 \newcommand{\makethesistitle}{%
 \begin{titlepage}
   \thispagestyle{empty}
-  \begin{center}
-    \vspace*{8mm}
-    {\Large \ThesisYearLabel\par}
-    \vspace{28mm}
-    {\LARGE\bfseries \ThesisTitle\par}
-    \vfill
-    {\Large \University\par}
-    \vspace{4mm}
-    {\Large \GraduateSchool\par}
-    \vspace{4mm}
-    {\Large \Department\par}
-    \vspace{4mm}
-    {\Large \Course\par}
-    \vspace{16mm}
-    {\Large \AuthorFamily\par}
-    \vspace{4mm}
-    {\Large \AuthorGiven\par}
-    \vspace{16mm}
-    {\Large 指導教授\par}
-    \vspace{4mm}
-    {\Large \AdvisorFamily\par}
-    \vspace{4mm}
-    {\Large \AdvisorGiven\par}
-  \end{center}
+  \centering
+  \vspace*{20mm}
+  {\Large \ThesisYearLabel\par}
+  \vspace{25mm}
+
+  \fbox{%
+    \parbox{0.85\textwidth}{\centering
+      \vspace{6mm}
+      {\Large \ThesisTitle\par}
+      \vspace{6mm}
+    }%
+  }
+
+  \vfill
+  {\Large \University\ \GraduateSchool\par}
+  {\Large \Department\ \Course\par}
+  \vspace{10mm}
+  {\Large 氏名\hspace{2em}\AuthorFamily\ \AuthorGiven\par}
+  \vspace{5mm}
+  {\Large 指導教授\hspace{2em}\AdvisorFamily\ \AdvisorGiven\par}
 \end{titlepage}
 }
 
 \newcommand{\makeabstractpage}{%
 \clearpage
 \thispagestyle{empty}
+\noindent 修士論文題目
+
+\vspace{6mm}
 \begin{center}
-  {\Large 修士論文題目\par}
-  \vspace{8mm}
-  {\Large\bfseries \ThesisTitle\par}
-  \vspace{8mm}
-  {\Large \AbstractDepartment\par}
-  \vspace{6mm}
-  {\Large 氏名 \AuthorFamily\par}
-  \vspace{2mm}
-  {\Large \AuthorGiven\par}
-  \vspace{8mm}
-  {\Large 論\quad 文\quad 要\quad 旨\par}
+  {\Large \ThesisTitle\par}
+  \vspace{-2mm}
+  \rule{0.9\textwidth}{0.4pt}
 \end{center}
+
+\vspace{4mm}
+\noindent \AbstractDepartment\hspace{2em}氏名\hspace{2em}\AuthorFamily\ \AuthorGiven
+
+\vspace{8mm}
+\begin{center}
+  論\quad 文\quad 要\quad 旨
+\end{center}
+
 \vspace{6mm}
 \input{frontmatter/abstract}
 \clearpage
@@ -2111,6 +2153,7 @@ $interaction = &apos;nonstopmode&apos;;</file><file path="修士論文/main.tex"
 
 % --- 目次（ローマ数字 i） ---
 \pagenumbering{roman}
+\setcounter{tocdepth}{1}
 \tableofcontents
 \clearpage
 
@@ -2130,7 +2173,7 @@ $interaction = &apos;nonstopmode&apos;;</file><file path="修士論文/main.tex"
 \input{chapters/acknowledgements}
 
 % --- 参考文献・参考URL ---
-\printbibliography[title={参考文献・参考 URL}]
+\printbibliography[heading=bibintoc,title={参考文献・参考 URL}]
 
 \end{document}</file><file path="修士論文/meta.tex">% meta.tex --- 論文メタ情報（ここだけ編集すればOK）
 % 全角数字にしたい場合は「２０２５」のように入力してください。
@@ -2200,7 +2243,11 @@ latexmk main.tex
 ## 5) 体裁を変えたいとき
 
 - 余白：`chubuthesis.sty` の `geometry` を編集
-- 図表キャプション：`chubuthesis.sty` の `caption` 設定を編集</file><file path="修士論文/references.bib">% references.bib --- 参考文献・参考URL
+- 図表キャプション：`chubuthesis.sty` の `caption` 設定を編集
+- 表紙/要旨ページ：`meta.tex`（値）と `chubuthesis.sty`（配置）を編集
+- ページ番号（下右統一）：`chubuthesis.sty` の `fancyhdr` 設定を編集
+- 章見出し（章扉の中央寄せ等）：`chubuthesis.sty` の `titlesec` 設定を編集
+- 参考文献のURL表示：`chubuthesis.sty` の `biblatex` まわりを編集</file><file path="修士論文/references.bib">% references.bib --- 参考文献・参考URL
 % biblatex/biber 用。まずは「本文中で引用できる最小セット」を置く。
 
 @online{bluetooth_core_spec,
@@ -2253,15 +2300,15 @@ Word→PDF の修論（例）を踏まえつつ、LaTeX化で破綻しやすい�
 
 ## 0. 体裁ルール（守るべき型）
 
-この修論テンプレートは「修論_完成.pdf」から読み取れる型に合わせてある。以下は**ルールとして固定**し、本文側で勝手に崩さない。
+この修論テンプレートは、先輩修論（大学方針の体裁）に寄せる。以下は**ルールとして固定**し、本文側で勝手に崩さない。
 
-1. **表紙の並び**：年度 → 題目 → 大学院/研究科/専攻/課程 → 氏名（姓と名を別行） → 指導教授（姓と名を別行）
-2. **要旨ページ**：上部に「修士論文題目」，題目，専攻，氏名，「論 文 要 旨」→要旨本文
-3. **ページ番号**：目次はローマ数字（i から），本文はアラビア数字（1 から）
-4. **番号なし章も目次に載せる**：`はじめに`，`おわりに`，`謝辞`，`参考文献・参考 URL`
-5. **章立ての基本**：第1章〜第5章＋おわりに＋謝辞＋参考文献（必要に応じて増減してよいが，体裁ルールは維持）
-6. **図表キャプション**：図は `図 1.1：…`，表は `表 3.1：…`（全角コロン）
-7. **引用の見た目**：本文中は基本 `[1][2]` 形式（`\scite{a,b}`）を優先する
+1. **表紙**：年度ラベル → 題目（枠で囲う） → 所属（2行） → 氏名（1行） → 指導教授（1行）
+2. **要旨ページ**：上部に「修士論文題目」→題目（下線）→「専攻　氏名　〇〇〇〇」（1行）→「論 文 要 旨」→要旨本文
+3. **ページ番号**：目次はローマ数字（i から），本文はアラビア数字（1 から）で開始する
+4. **ページ番号の位置**：全ページを下右に統一する（章開始ページの `plain` も含む）
+5. **章扉**：各章は「章タイトルだけのページ」を挟み、本文は次ページから開始する（`\chapter{...}\clearpage`）
+6. **図表キャプション**：図は `図 4-1 タイトル`，表は `表 4-1 タイトル`（章-連番、区切りはスペース）
+7. **引用の見た目**：本文中は基本 `[1][2]` 形式（`\scite{a,b}`）を優先する（参考文献では `url:` や `visited on` を表示しない）
 
 テンプレ側で設定済みのため、基本は本文の書き方だけ守ればよい。
 
@@ -2279,16 +2326,18 @@ Word→PDF の修論（例）を踏まえつつ、LaTeX化で破綻しやすい�
 ## B. 章立て・見出し
 
 1. **章は `\chapter`、節は `\section`、項は `\subsection`**
-2. **番号なし章（はじめに / おわりに / 謝辞）は `\chapterwithtoc{...}` を使う**
+2. **各章は章扉を入れる**：`\chapter{...}` の直後に `\clearpage` を置き、本文は次ページから書く
+3. **番号なし章（おわりに / 謝辞）は `\chapterwithtoc{...}` を使う**（目次に載せる）
+4. **章番号・節番号は手で書かない**：`第X章で述べた` の代わりに `\secref{sec:...}` を使う
 
 ---
 
 ## C. 図・表
 
 1. **図は `figure`、表は `table` 環境で管理**（手貼り禁止）
-2. **本文中で必ず参照してから出す**（例：`…（図1.1）…`）
+2. **本文中で必ず参照してから出す**（例：`…（\figref{fig:hoge}）…`）
 3. **他資料から転載する場合はキャプションに明記**（例：`（[1]より引用）`）
-4. **`caption` の形式はテンプレート通り**（図：`図 1.1：...`、表：`表 3.1：...`）
+4. **`caption` の形式はテンプレート通り**（図：`図 4-1 タイトル`、表：`表 4-1 タイトル`）
 
 ---
 

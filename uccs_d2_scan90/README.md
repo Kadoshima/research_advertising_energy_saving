@@ -79,4 +79,8 @@ trial中は **各広告更新ごとにTICKを1発**出し、TXSD側で `adv_coun
 
 * 実測ログ（RX/TXSD）から、`step_idx` 起点で TL/Pout を算出する。
   * スクリプト: `uccs_d2_scan90/analysis/summarize_d2_run.py`
-  * 出力（今回の run）: `uccs_d2_scan90/metrics/01/summary.md`
+  * 出力:
+    * D2（policyが100ms張り付きになった取得分）: `uccs_d2_scan90/metrics/01/summary.md`
+    * D2b（CCS反転でpolicyが100↔500で動作した取得分）: `uccs_d2_scan90/metrics/B/summary.md`
+      * データ: `uccs_d2_scan90/data/B/README.md`
+  * 図（D2b run B）: `uccs_d2_scan90/plots/d2b_B_power_vs_pout.png`（power vs pout + share100注釈）

@@ -50,30 +50,42 @@
 \subsection{実測のQoS指標（TLとPout）}
 本研究では，受信品質をPDRだけでなく，遅延分布と期限超過率$P_{\mathrm{out}}(\tau)$で評価する．特に，非理想スキャン環境では平均受信率が同程度でも，遅延の裾が悪化する場合があるため，$P_{\mathrm{out}}(\tau)$が重要となる（\secref{sec:metrics_detail}）．
 
-\subsubsection{実測例（D2，scan90）}
-表\ref{tab:d2_summary}に，D2（scan90）における実測例を示す．本表は，S1/S4の2条件について，固定\SI{100}{\milli\second}，固定\SI{500}{\milli\second}，および方策（2値切替）の比較をまとめたものである（各n=3）．
+\subsubsection{実測例（D2b，scan90）}
+表\ref{tab:d2_summary}に，D2b（scan90）における実測例を示す．本表は，S1/S4の2条件について，固定\SI{100}{\milli\second}，固定\SI{500}{\milli\second}，および方策（2値切替）の比較をまとめたものである．ここでは run B（n=3）と追加取得 B/02（n=3）を統合し，各条件n=6として集計した．
 
 \begin{table}[tb]
   \centering
-  \caption{D2（scan90）の実測例（mean$\pm$std, 各n=3）}
+  \caption{D2b（scan90）の実測例（mean$\pm$std, 各n=6）}
   \label{tab:d2_summary}
-  \begin{tabular}{lrrrr}
+  {\small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lrrrrr}
     \toprule
-    条件 & $P_{\mathrm{out}}(1\mathrm{s})$ & TL\_mean [s] & PDR\_unique & 平均電力 [mW] \\
+    条件 & Pout(1s) & TL\_mean[s] & PDR\_u & P[mW] & share100 \\
     \midrule
-    S1\_fixed100 & 0.0833$\pm$0.0289 & 4.200$\pm$1.552 & 0.805$\pm$0.010 & 203.8$\pm$0.1 \\
-    S1\_fixed500 & 0.1000$\pm$0.0000 & 5.276$\pm$0.054 & 0.831$\pm$0.014 & 183.8$\pm$0.2 \\
-    S1\_policy   & 0.0667$\pm$0.0289 & 3.315$\pm$1.538 & 0.803$\pm$0.003 & 203.7$\pm$0.3 \\
+    S1-100   & 0.075$\pm$0.027 & 3.76$\pm$1.46 & 0.789$\pm$0.016 & 204.1$\pm$1.4 & 1.000$\pm$0.000 \\
+    S1-500   & 0.142$\pm$0.049 & 5.29$\pm$0.02 & 0.816$\pm$0.018 & 184.7$\pm$1.5 & 0.000$\pm$0.000 \\
+    S1-policy & 0.125$\pm$0.027 & 5.24$\pm$0.05 & 0.803$\pm$0.022 & 191.5$\pm$1.9 & 0.331$\pm$0.004 \\
     \midrule
-    S4\_fixed100 & 0.0488$\pm$0.0000 & 1.238$\pm$0.006 & 0.805$\pm$0.012 & 203.7$\pm$0.3 \\
-    S4\_fixed500 & 0.1301$\pm$0.0563 & 1.946$\pm$0.417 & 0.838$\pm$0.006 & 184.3$\pm$0.2 \\
-    S4\_policy   & 0.0569$\pm$0.0141 & 1.316$\pm$0.145 & 0.810$\pm$0.008 & 204.3$\pm$0.5 \\
+    S4-100   & 0.053$\pm$0.010 & 1.25$\pm$0.01 & 0.792$\pm$0.009 & 204.4$\pm$2.1 & 0.998$\pm$0.002 \\
+    S4-500   & 0.146$\pm$0.031 & 2.48$\pm$1.11 & 0.817$\pm$0.020 & 184.5$\pm$1.5 & 0.000$\pm$0.000 \\
+    S4-policy & 0.069$\pm$0.029 & 1.58$\pm$0.50 & 0.793$\pm$0.021 & 196.6$\pm$1.6 & 0.595$\pm$0.008 \\
     \bottomrule
   \end{tabular}
+  }
 \end{table}
 
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.90\linewidth]{../uccs_d2_scan90/plots/d2b_B_n6_power_vs_pout}
+  \caption{D2b（run B + B/02, n=6）における平均電力と$P_{\mathrm{out}}(1\mathrm{s})$の関係（share100を注釈）}
+  \label{fig:d2b_power_vs_pout}
+\end{figure}
+
 \subsubsection{解釈}
-表\ref{tab:d2_summary}より，固定\SI{500}{\milli\second}は平均電力を低下させる一方で，$P_{\mathrm{out}}(1\mathrm{s})$が悪化する条件が存在する．また，方策は固定条件の中間的な特性に位置付くが，滞在比率（短間隔への偏り）により電力・QoSのどちらに寄るかが変化する．したがって，方策評価では，滞在比率と固定点（基準データ）の整合を確認しながら解釈する必要がある．
+表\ref{tab:d2_summary}および図\ref{fig:d2b_power_vs_pout}より，方策（2値切替）はFixed100より低電力であり，Fixed500より低い期限超過率（QoS改善）を示す運用点になり得る．さらに，遷移が多い側（S4）ほどshare100が増加しており，「必要時だけ\SI{100}{\milli\second}に寄せ，それ以外は\SI{500}{\milli\second}に寄せる」挙動が定量で確認できる．
+
+また，平均電力はFixed100/Fixed500の滞在比率（share100）による線形混合で概ね説明できるため，方策の省電力効果はinterval滞在比率に支配されることが示唆される．これにより，「sleep差分が効いた/効かなかった」といった実装依存の議論から切り離し，制御則（どの状態で短間隔へ戻すか）の議論へ接続しやすくなる．
 
 \subsection{オフライン評価との整合}
 オフライン評価で予測される運用点と，実機で得られる平均電力・受信品質の差分を比較し，推定モデルの妥当性と限界を整理する．

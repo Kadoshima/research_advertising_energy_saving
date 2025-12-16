@@ -82,3 +82,50 @@
   - 更新点: δ=0.10 が feasible（例: 90/243）となり、従来の「δ=0.12不可/0.13から可」は v4前提の結論として扱う。
 - 影響:
   - `results/mhealth_policy_eval/letter_v1/` と `pareto_front_v5_power_table/` は v4前提の図表なので、レター本文に使う場合は v6（scan90 v5反映）で再生成が必要。
+
+## 追記（2025-12-16, 実機D2の主結果はD2b(B)を採用）
+
+- 採用方針:
+  - 実機D2は `uccs_d2_scan90/metrics/B/summary.md`（D2b run B）を主結果として採用する。
+  - `uccs_d2_scan90/metrics/01/summary.md`（D2 run 01）は **policyの100ms張り付き（CCS定義不整合）**の例としてログに残し、主張には使わない。
+- 根拠（D2b run B, mean±std, n=3）:
+  - S1:
+    - Fixed100: 202.9±0.5 mW / pout_1s=0.0833±0.0289 / TL_mean=4.210±1.540 s
+    - Fixed500: 183.3±0.2 mW / pout_1s=0.1500±0.0500 / TL_mean=5.296±0.019 s
+    - Policy: 189.8±0.4 mW / pout_1s=0.1167±0.0289 / TL_mean=5.247±0.053 s / share100≈0.332
+  - S4:
+    - Fixed100: 202.5±0.4 mW / pout_1s=0.0569±0.0141 / TL_mean=1.247±0.010 s
+    - Fixed500: 183.2±0.3 mW / pout_1s=0.1545±0.0373 / TL_mean=2.166±0.870 s
+    - Policy: 195.2±0.4 mW / pout_1s=0.0813±0.0373 / TL_mean=1.588±0.582 s / share100≈0.592
+- 言えること（論文主張の形）:
+  - **Fixed100より省電力**かつ **Fixed500よりQoS良**（pout/TL）という「程よい点」が実機で成立した（S1/S4とも）。
+  - 遷移が多い側（S4）ほど share100 が増えるため、**“必要時だけ100msに寄せる”**がデータ上で確認できる。
+  - 電力は fixed100/fixed500 の線形混合で説明できる（支配要因が interval 滞在比率であることの裏付け）。
+- 補足（D2→D2bの修正理由）:
+  - D2の `stress_causal_*` は CCS が「変化量」ではなく「安定度（高いほどstable）」のため、そのまま使うと判定が逆になり100ms張り付きになり得る。
+  - D2bで `CCS_change = 1-CCS` として定義整合を取った。
+
+## 追記（2025-12-16, D2b主結果を統合n=6へ更新）
+
+- run B（n=3）+ 追加取得 B/02（n=3）を統合し，`uccs_d2_scan90/metrics/B_n6/`（各条件n=6）を論文・図表の主結果として採用する。
+- 根拠（D2b, mean±std, n=6）:
+  - S1_policy: 191.5±1.9 mW / pout_1s=0.1250±0.0274 / TL_mean=5.239±0.049 s / share100≈0.331
+  - S4_policy: 196.6±1.6 mW / pout_1s=0.0691±0.0285 / TL_mean=1.575±0.500 s / share100≈0.595
+- 出力:
+  - 集計: `uccs_d2_scan90/metrics/B_n6/summary.md`（CSV: `uccs_d2_scan90/metrics/B_n6/summary_by_condition.csv`）
+  - 図: `uccs_d2_scan90/plots/d2b_B_n6_power_vs_pout.pdf`
+- 備考: n増加後も「Fixed100より省電力・Fixed500よりQoS良（pout/TL）」が成立しているため，主張の形は維持できる。
+
+## 追記（2025-12-16, D4→D3の追加実験を採用）
+
+- 目的: 実機D2bの「程よい点」が **U（不確実度）**に依存しているか（新規性）と、環境変化に対して崩れにくいか（実用性）を最小本数で補強する。
+- 決定: **D4（U ablation）→D3（scan dutyを1段下げる）**の順で実施する。
+  - D4は「Uが効く/効かない」を短時間・低リスクで言い切れるため先行する。
+  - D3は環境要因が絡むため後段（D4で主張の芯を固めてから）に回す。
+- D4（S4のみ、scan90）:
+  - 条件: Fixed100 / Fixed500 / Policy(U+CCS) / Ablation(U-shuffle) の4条件×n=3
+  - Ablationは **U-shuffle**（Uの分布は同じ・時間相関のみ破壊）を採用する。
+  - 実装/取得ディレクトリ: `uccs_d4_scan90/`（TX/RX/TXSD + 集計スクリプト）
+- D3（S4のみ）:
+  - scan duty を 90% → 70% or 60% に落とし、Fixed500が崩れる帯で Policy が耐えるかを確認する。
+  - 条件: Fixed100 / Fixed500 / Policy の3条件×n=3（最小）。

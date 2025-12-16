@@ -1,0 +1,47 @@
+2025-12-16
+- [13:48 JST] 実機D2の主結果として D2b run B を採用し、以降の主張/図表は B を基準に固定する方針を決定。
+  - 採用: `uccs_d2_scan90/metrics/B/summary.md`（データ: `uccs_d2_scan90/data/B/01/`）
+  - 不採用（主結果に不使用）: `uccs_d2_scan90/metrics/01/summary.md`（D2 run 01。CCS定義不整合によりpolicyが100ms張り付き）
+  - 主要所見（D2b run B, mean±std, n=3）:
+    - S1_policy: avg_power=189.8±0.4mW, pout_1s=0.1167±0.0289, TL_mean=5.247±0.053s, share100≈0.332（Fixed100より省電力・Fixed500よりQoS改善）
+    - S4_policy: avg_power=195.2±0.4mW, pout_1s=0.0813±0.0373, TL_mean=1.588±0.582s, share100≈0.592（遷移多め側で100ms滞在が増える挙動が確認できる）
+  - 考察メモ:
+    - 「不確実/遷移っぽい区間は100ms寄り、それ以外は500ms寄り」という期待挙動が share100 の差（S1≈0.33, S4≈0.59）として現れている。
+    - 電力は interval 滞在比率の混合で説明でき、sleep差分に依存しない主張（interval滞在比率が支配）に寄せられる。
+  - decision log更新: `docs/decision_log_2025-12-13_letter_route.md`（D2b(B)採用の意思決定と根拠を追記）
+- [14:22 JST] D2b run B の主張用図（power vs pout + share100注釈）を生成して配置。
+  - スクリプト: `uccs_d2_scan90/analysis/plot_power_vs_pout.py`
+  - 入力: `uccs_d2_scan90/metrics/B/summary_by_condition.csv`
+  - 出力: `uccs_d2_scan90/plots/d2b_B_power_vs_pout.png` / `uccs_d2_scan90/plots/d2b_B_power_vs_pout.pdf`
+  - 実行メモ: matplotlib は `.venv_mhealth310` を使用。fontconfig書き込み制限対策で `XDG_CACHE_HOME` と `MPLCONFIGDIR` を作業ディレクトリ配下に設定して生成。
+- [14:39 JST] D2b追加取得 `uccs_d2_scan90/data/B/02/` を品質確認し、使用可能と判定。
+  - 集計: `uccs_d2_scan90/metrics/B_02/summary.md`（selected RX trials: 084..101, n=18）
+  - 主結果（mean±std, n=3）:
+    - S1_policy: avg_power=193.2±0.2mW, pout_1s=0.1333±0.0289, share100≈0.329
+    - S4_policy: avg_power=198.0±0.8mW, pout_1s=0.0569±0.0141, share100≈0.597
+  - 備考: RX=102本/TXSD=101本（>=160s）あり、追加でnを増やす材料として利用可能。
+- [14:57 JST] D2bの主結果を n=6 に更新（run B + B/02 を統合）。
+  - 集約スクリプト: `uccs_d2_scan90/analysis/merge_metrics_runs.py`
+  - 入力: `uccs_d2_scan90/metrics/B/per_trial.csv` + `uccs_d2_scan90/metrics/B_02/per_trial.csv`
+  - 出力: `uccs_d2_scan90/metrics/B_n6/summary.md`（集計: `uccs_d2_scan90/metrics/B_n6/summary_by_condition.csv`）
+  - 図（主張図）: `uccs_d2_scan90/plots/d2b_B_n6_power_vs_pout.pdf` / `uccs_d2_scan90/plots/d2b_B_n6_power_vs_pout.png`
+  - 主結果（mean±std, n=6）:
+    - S1_policy: avg_power=191.5±1.9mW, pout_1s=0.1250±0.0274, TL_mean=5.239±0.049s, share100≈0.331
+    - S4_policy: avg_power=196.6±1.6mW, pout_1s=0.0691±0.0285, TL_mean=1.575±0.500s, share100≈0.595
+  - 言えること: 方策は Fixed100 より省電力、Fixed500 より低pout（QoS改善）の「程よい点」になり得る（n増加後も成立）。
+- [16:24 JST] Step D4（Uが効いている切り分け / Ablation）用の実機取得ディレクトリとスケッチ一式を追加し、取得を開始できる状態にした。
+  - 目的: D2bの「程よい点」が U（不確実度）に依存しているかを、S4のみでAblation比較して確定する。
+  - ディレクトリ: `uccs_d4_scan90/`
+    - index: `uccs_d4_scan90/README.md`
+    - data雛形: `uccs_d4_scan90/data/01/`（`RX/`, `TX/`, `README.md`）
+  - Arduinoスケッチ:
+    - TX: `uccs_d4_scan90/src/tx/TX_UCCS_D4_SCAN90/TX_UCCS_D4_SCAN90.ino`（S4×4条件×n=3を自動実行）
+    - RX: `uccs_d4_scan90/src/rx/RX_UCCS_D4_SCAN90/RX_UCCS_D4_SCAN90.ino`（scan90, SYNC gate）
+    - TXSD: `uccs_d4_scan90/src/txsd/TXSD_UCCS_D4_SCAN90/TXSD_UCCS_D4_SCAN90.ino`（cond_id/preamble + INA219ログ）
+  - 条件（S4のみ）:
+    - cond_id=1 fixed100 / 2 fixed500 / 3 policy(U+CCS) / 4 ablation(U-shuffle)
+    - Ablationは **U-shuffle**（seed=0xD4B40201、Uの分布は同じで時間相関のみ破壊）。CCSは `1-CCS_stable` に変換して「変化度」として利用。
+  - 集計スクリプト: `uccs_d4_scan90/analysis/summarize_d4_run.py`（4条件×3回のbalanced windowを自動抽出し、TL/Pout/power/share100を出力）
+  - 次の実施順: 先に D4（U ablation）→ 次に D3（scan duty 90→70/60で適応性）で進める。
+- [16:25 JST] `uccs_d4_scan90/analysis/summarize_d4_run.py` の f-string 文字列エスケープ不整合によるSyntaxErrorを修正し、`python3 -m py_compile` で通過を確認。
+- [16:26 JST] D4の結果可視化用に `uccs_d4_scan90/analysis/plot_power_vs_pout.py` を追加（policy vs ablation の power/pout を1枚で比較できる図を生成）。

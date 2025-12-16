@@ -42,7 +42,7 @@
 \RequirePackage{titlesec}
 \titleformat{\chapter}[display]
   {\normalfont\Large\centering}
-  {第\thechapter章}
+  {第\thechapter\relax 章}
   {2em}
   {\Large}
 \titleformat{name=\chapter,numberless}[display]
@@ -51,6 +51,7 @@
   {0pt}
   {\Large}
 \titlespacing*{\chapter}{0pt}{0.33\textheight}{0pt}
+\titlespacing*{name=\chapter,numberless}{0pt}{0.33\textheight}{0pt}
 
 % --- 図表 ---
 \RequirePackage{graphicx}
@@ -101,7 +102,6 @@
 
 % URL 表記を簡素化（"url:" / "visited on" を出さない）
 \DeclareFieldFormat{url}{\url{#1}}
-\renewcommand*{\urlprefix}{}
 \renewbibmacro*{url+urldate}{\printfield{url}}
 
 % --- ハイパーリンク（最後の方で読み込み） ---

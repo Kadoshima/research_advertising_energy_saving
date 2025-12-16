@@ -1,6 +1,6 @@
 # エッジHAR TODO（Mode C2′ / ストレス固定 / 因果CCS・self-UCB 実機検証）
 
-- 最終更新: 2025-12-14
+- 最終更新: 2025-12-16
 - 対象スコープ:
   - **Mode C2′（ラベル再生）**を用いた「広告間隔制御」の評価（固定 vs 因果CCS vs self-UCB）。
   - まずは **ストレスラベル S1/S4** を主ケースとして、実測とシミュを整合させて論文化に耐える形にする。
@@ -197,10 +197,33 @@
 
 - [ ] (AI) 実測点を `pout_1s vs avg_power_mW` 図に重ね、予測↔実測の差分を `summary.md` に追記
 
-- [ ] (ME+AI) D2b（最小再取得）: policy の 500ms滞在が出る設定で取り直し（S1/S4 の policy のみ、各 n=3）
-  - 目的: D2の枠組み（step_idx起点TL/Pout）で **省電力（Fixed100より低電力）+ QoS** を同時に示す。
-  - 方針（最短）: `CCS'=1-CCS`（または一旦 U-only）にして “100ms張り付き” を解消。
-  - データ配置: `uccs_d2_scan90/data/02/{RX,TX}/`（runディレクトリ運用に統一）
+- [x] (ME+AI) D2b: CCS反転でpolicy張り付き解消（S1/S4 × Fixed100/Fixed500/Policy, 各n=3）
+  - データ: `uccs_d2_scan90/data/B/`
+  - 集計: `uccs_d2_scan90/metrics/B/summary.md`
+  - 図: `uccs_d2_scan90/plots/d2b_B_power_vs_pout.png`（power vs pout + share100注釈）
+  - 備考: policyの `avg_power_mW/adv_count/pdr_unique` が空欄になる問題は `uccs_d2_scan90/analysis/summarize_d2_run.py` 側でペアリング復元を修正して解消。
+
+- [x] (ME+AI) D2b 追加取得を統合して n=6 に拡張（run B + B/02）
+  - 集計: `uccs_d2_scan90/metrics/B_n6/summary.md`
+  - 図: `uccs_d2_scan90/plots/d2b_B_n6_power_vs_pout.png`
+
+- [x] (AI) D4準備: U ablation（S4, scan90）の専用ディレクトリ＋スケッチ＋集計スクリプトを追加
+  - index: `uccs_d4_scan90/README.md`
+  - TX/RX/TXSD（Arduino）:
+    - `uccs_d4_scan90/src/tx/TX_UCCS_D4_SCAN90/TX_UCCS_D4_SCAN90.ino`
+    - `uccs_d4_scan90/src/rx/RX_UCCS_D4_SCAN90/RX_UCCS_D4_SCAN90.ino`
+    - `uccs_d4_scan90/src/txsd/TXSD_UCCS_D4_SCAN90/TXSD_UCCS_D4_SCAN90.ino`
+  - 集計: `uccs_d4_scan90/analysis/summarize_d4_run.py`
+  - Ablation: U-shuffle（seed=0xD4B40201、CCSは `1-CCS` で変化度化）
+
+- [ ] (ME+AI) D4: U ablation（S4, scan90, 4条件×n=3）を取得して集計
+  - データ: `uccs_d4_scan90/data/01/`
+  - 出力: `uccs_d4_scan90/metrics/01/summary.md`
+
+- [ ] (ME+AI) D4: Uあり/なし（U-shuffle）の差を1枚図にする（power vs pout + share100）
+
+- [ ] (ME+AI) D3: scan duty を 90→70/60 に落として適応性を確認（S4, fixed100/fixed500/policy）
+  - 先に D4 を完了してから実施
 
 ### P0: 定義固定 + 図表化（最優先）
 

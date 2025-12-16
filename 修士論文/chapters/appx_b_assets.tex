@@ -15,17 +15,24 @@
 \subsection{実機評価（例：D2）}
 実機の動的切替の例として，D2（scan90）では次のディレクトリ構成でログと指標を管理する．
 \begin{itemize}
-  \item 実験ルート：\texttt{\detokenize{uccs_d2_scan90/}}
-  \item 入力（RX）：\texttt{\detokenize{uccs_d2_scan90/data/RX/}}
-  \item 入力（TXSD）：\texttt{\detokenize{uccs_d2_scan90/data/TX/}}
-  \item 出力（指標）：\texttt{\detokenize{uccs_d2_scan90/metrics/01/summary.md}}
+  \item 実験ルート：\path{uccs_d2_scan90/}
+  \item 入力（run B/01, RX）：\path{uccs_d2_scan90/data/B/01/RX/}
+  \item 入力（run B/01, TXSD）：\path{uccs_d2_scan90/data/B/01/TX/}
+  \item 入力（追加 run B/02, RX）：\path{uccs_d2_scan90/data/B/02/RX/}
+  \item 入力（追加 run B/02, TXSD）：\path{uccs_d2_scan90/data/B/02/TX/}
+  \item 出力（指標，主結果・統合n=6）：\path{uccs_d2_scan90/metrics/B_n6/summary.md}
+  \item 出力（集計CSV）：\path{uccs_d2_scan90/metrics/B_n6/summary_by_condition.csv}
+  \item 出力（主張図）：\path{uccs_d2_scan90/plots/d2b_B_n6_power_vs_pout.pdf} / \path{uccs_d2_scan90/plots/d2b_B_n6_power_vs_pout.png}
+  \item 参考（run別n=3）：\path{uccs_d2_scan90/metrics/B/summary.md} / \path{uccs_d2_scan90/metrics/B_02/summary.md}
 \end{itemize}
 
 \subsection{解析スクリプト（例）}
 解析は，1回で完結する巨大スクリプトではなく，「trial集計」「集約」「図表化」に分割して再現可能にする．代表例を以下に示す．
 \begin{itemize}
-  \item ストレス固定（trial集計）：\texttt{\detokenize{scripts/analyze_stress_causal_real.py}}
-  \item ストレス固定（集約）：\texttt{\detokenize{scripts/aggregate_stress_causal_real_summary.py}}
-  \item ストレス固定（v5図生成）：\texttt{\detokenize{scripts/plot_stress_fixed_figures_v5.py}}
-  \item D2集計：\texttt{\detokenize{uccs_d2_scan90/analysis/summarize_d2_run.py}}
+  \item ストレス固定（trial集計）：\path{scripts/analyze_stress_causal_real.py}
+  \item ストレス固定（集約）：\path{scripts/aggregate_stress_causal_real_summary.py}
+  \item ストレス固定（v5図生成）：\path{scripts/plot_stress_fixed_figures_v5.py}
+  \item D2集計（run単体）：\path{uccs_d2_scan90/analysis/summarize_d2_run.py}
+  \item D2集約（run統合）：\path{uccs_d2_scan90/analysis/merge_metrics_runs.py}
+  \item D2図生成：\path{uccs_d2_scan90/analysis/plot_power_vs_pout.py}
 \end{itemize}
