@@ -50,3 +50,27 @@
     - 「U（不確実度）の分布は保ったまま、時間順序だけをシャッフルするアブレーションを行った。すると制御は100ms張り付き寄りに崩れ、share100が0.593→0.943、adv_countが1227→1715へ増加し、平均電力も200.5→208.1mWとFixed100級に戻った。これは“いつ不確実か”というUの時間的整合が、QoSを維持しつつ100ms滞在を減らす（=省電力化する）鍵であることを示す。」
   - English draft:
     - “We perform an ablation that preserves the marginal distribution of uncertainty U while destroying its temporal alignment by shuffling U over time. This collapse drives the controller toward near-100ms behavior (share100: 0.593→0.943, adv_count: 1227→1715), and raises the average power from 200.5 to 208.1 mW (close to Fixed-100). These results indicate that the temporal coherence of U—i.e., when the model is uncertain—is essential to reduce 100ms dwell time while maintaining QoS.”
+
+- [20:40 JST] D3（scan70%, S4のみ, Fixed100/Fixed500/Policy×n=3）取得データ `uccs_d3_scan70/data/01/` を集計。
+  - 集計: `uccs_d3_scan70/metrics/01/summary.md`（script: `python3 uccs_d3_scan70/analysis/summarize_d3_run_v2.py --rx-dir uccs_d3_scan70/data/01/RX --txsd-dir uccs_d3_scan70/data/01/TX --out-dir uccs_d3_scan70/metrics/01`）
+  - 図: `uccs_d3_scan70/plots/d3_01_power_vs_pout.png`（script: `.venv_mhealth310/bin/python uccs_d3_scan70/analysis/plot_power_vs_pout.py --summary-csv uccs_d3_scan70/metrics/01/summary_by_condition.csv --out uccs_d3_scan70/plots/d3_01_power_vs_pout.png`）
+  - 重要: SDコピーでmtimeが1980固定になりTXSDのmtimeペアリングが破綻するため、`summarize_d3_run_v2.py` を「adv_count（tick_count）でクラスタリングして3本ずつ割当」に変更。古いログ混在対策として `avg_power_mW>=150` をフィルタ。
+  - 結果（mean±std, n=3）:
+    - S4_fixed100: `avg_power=209.9±0.5 mW`, `pout_1s=0.0650±0.0282`, `adv_count=1796`, `pdr_unique=0.304±0.017`
+    - S4_fixed500: `avg_power=189.5±0.5 mW`, `pout_1s=0.2846±0.0614`, `adv_count=359`, `pdr_unique=0.652±0.007`
+    - S4_policy: `avg_power=202.1±0.1 mW`, `pout_1s=0.0894±0.0373`, `adv_count=1227`, `pdr_unique=0.343±0.017`
+  - 読み: scan70でFixed500はQoSが大きく崩れ（pout上昇）、PolicyはFixed100に近いQoSへ寄せつつ、Fixed100より平均電力が下がる方向（Fixed500よりは高電力）。
+
+- [20:58 JST] D3のshare100推定を強化（scan70ではRX tagsが過小評価しやすいので、power-mixで推定を追加）。
+  - 変更: `uccs_d3_scan70/analysis/summarize_d3_run_v2.py` に `share100_power_mix_mean` を追加（`(P_policy-P_500)/(P_100-P_500)`）。
+  - D3 run01（S4_policy）: `share100_power_mix≈0.618`（RX tags推定 `≈0.420` より大きい＝scan70の取りこぼし影響を示唆）。
+
+- [21:20 JST] D4B（CCS ablation: U-only）用の専用ディレクトリ `uccs_d4b_scan90/` を追加（S4, scan90, 4条件×n=3）。
+  - 目的: 「CCSは要るか？」を切り分ける（Fixed100/Fixed500/Policy(U+CCS)/Ablation(CCS-off=U-only)）。
+  - スケッチ:
+    - TX: `uccs_d4b_scan90/src/tx/TX_UCCS_D4B_SCAN90/TX_UCCS_D4B_SCAN90.ino`
+    - RX: `uccs_d4b_scan90/src/rx/RX_UCCS_D4B_SCAN90/RX_UCCS_D4B_SCAN90.ino`
+    - TXSD: `uccs_d4b_scan90/src/txsd/TXSD_UCCS_D4B_SCAN90/TXSD_UCCS_D4B_SCAN90.ino`
+  - 解析:
+    - 集計: `uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py`（TXSDはcond_idでグルーピングして割当、mtimeに依存しない）
+    - 図: `uccs_d4b_scan90/analysis/plot_power_vs_pout.py`

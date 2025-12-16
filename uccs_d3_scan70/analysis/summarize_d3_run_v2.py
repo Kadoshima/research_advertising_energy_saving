@@ -332,6 +332,23 @@ def mean_std(xs: List[float]) -> Tuple[float, float]:
     return statistics.mean(xs), statistics.stdev(xs)
 
 
+def compute_share100_power_mix(p_pol: float, p_100: float, p_500: float) -> Optional[float]:
+    """
+    Estimate time share of 100ms from average power assuming linear mixture:
+      P = s*P100 + (1-s)*P500  ->  s = (P - P500)/(P100 - P500)
+    """
+    denom = (p_100 - p_500)
+    if denom == 0:
+        return None
+    s = (p_pol - p_500) / denom
+    # clamp to [0,1] to avoid small numerical drift
+    if s < 0:
+        s = 0.0
+    if s > 1:
+        s = 1.0
+    return s
+
+
 def condition_name(rx: RxTrial) -> str:
     if rx.mode == "F":
         return "S4_fixed100" if rx.fixed_itv == 100 else "S4_fixed500"
@@ -479,6 +496,19 @@ def main() -> None:
             }
         )
 
+    # Add power-mix share100 estimate (use mean powers only).
+    p100 = next((float(r["avg_power_mW_mean"]) for r in summary_rows if r["condition"] == "S4_fixed100"), None)
+    p500 = next((float(r["avg_power_mW_mean"]) for r in summary_rows if r["condition"] == "S4_fixed500"), None)
+    ppol = next((float(r["avg_power_mW_mean"]) for r in summary_rows if r["condition"] == "S4_policy"), None)
+    share_mix = None
+    if p100 is not None and p500 is not None and ppol is not None:
+        share_mix = compute_share100_power_mix(ppol, p100, p500)
+    for r in summary_rows:
+        if r["condition"] == "S4_policy" and share_mix is not None:
+            r["share100_power_mix_mean"] = round(share_mix, 6)
+        else:
+            r["share100_power_mix_mean"] = ""
+
     sum_path = args.out_dir / "summary_by_condition.csv"
     with sum_path.open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(summary_rows[0].keys()))
@@ -497,8 +527,8 @@ def main() -> None:
     lines.append(f"- command: `python3 uccs_d3_scan70/analysis/summarize_d3_run_v2.py --rx-dir {args.rx_dir} --txsd-dir {args.txsd_dir} --out-dir {args.out_dir}`\n")
 
     lines.append("\n## Summary (mean ± std)\n")
-    lines.append("| condition | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | adv_count | share100_time_est (RX tags) |\n")
-    lines.append("|---|---:|---:|---:|---:|---:|---:|\n")
+    lines.append("| condition | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | adv_count | share100_time_est (RX tags) | share100_power_mix |\n")
+    lines.append("|---|---:|---:|---:|---:|---:|---:|---:|\n")
 
     def fmt_pm(m: object, s: object, decimals: int) -> str:
         if m == "" or s == "":
@@ -506,13 +536,15 @@ def main() -> None:
         return f"{float(m):.{decimals}f}±{float(s):.{decimals}f}"
 
     for r in summary_rows:
+        share_mix = r.get("share100_power_mix_mean", "")
         lines.append(
             f"| {r['condition']} | {fmt_pm(r['pout_1s_mean'], r['pout_1s_std'], 4)} | "
             f"{fmt_pm(r['tl_mean_s_mean'], r['tl_mean_s_std'], 3)} | "
             f"{fmt_pm(r['pdr_unique_mean'], r['pdr_unique_std'], 3)} | "
             f"{fmt_pm(r['avg_power_mW_mean'], r['avg_power_mW_std'], 1)} | "
             f"{fmt_pm(r['adv_count_mean'], r['adv_count_std'], 1)} | "
-            f"{fmt_pm(r['rx_tag_share100_time_est_mean'], r['rx_tag_share100_time_est_std'], 3) if r.get('rx_tag_share100_time_est_mean','')!='' else ''} |"
+            f"{fmt_pm(r['rx_tag_share100_time_est_mean'], r['rx_tag_share100_time_est_std'], 3) if r.get('rx_tag_share100_time_est_mean','')!='' else ''} | "
+            f"{(f'{float(share_mix):.3f}' if share_mix != '' else '')} |"
             "\n"
         )
 

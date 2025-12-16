@@ -37,6 +37,7 @@ def read_summary_by_condition(path: Path) -> Dict[str, Dict[str, Optional[float]
                 "avg_power_mW_std": f_or_none(row.get("avg_power_mW_std") or ""),
                 "adv_count_mean": f_or_none(row.get("adv_count_mean") or ""),
                 "rx_share100_mean": f_or_none(row.get("rx_tag_share100_time_est_mean") or ""),
+                "share100_power_mix_mean": f_or_none(row.get("share100_power_mix_mean") or ""),
             }
     return out
 
@@ -101,6 +102,7 @@ def main() -> None:
     x100, y100, x100e, y100e, adv100, _ = get_point(rows, k100)
     x500, y500, x500e, y500e, adv500, _ = get_point(rows, k500)
     xpol, ypol, xpole, ypole, advpol, rx_share_pol = get_point(rows, kpol)
+    share_mix = rows.get(kpol, {}).get("share100_power_mix_mean")
 
     fig, ax = plt.subplots(figsize=(7.0, 4.6))
     ax.errorbar([x100, x500], [y100, y500], xerr=[x100e, x500e], yerr=[y100e, y500e],
@@ -108,8 +110,9 @@ def main() -> None:
     ax.errorbar([xpol], [ypol], xerr=[xpole], yerr=[ypole],
                 fmt="o", ms=8, color="#ff7f0e", capsize=3, linestyle="none", label="policy (U+CCS)")
 
-    share_tx = compute_share100_from_adv(advpol, adv100, adv500)
-    share = share_tx if share_tx is not None else rx_share_pol
+    share = share_mix if share_mix is not None else compute_share100_from_adv(advpol, adv100, adv500)
+    if share is None:
+        share = rx_share_pol
     if share is not None:
         ax.annotate(f"share100≈{share:.2f}", (xpol, ypol), textcoords="offset points", xytext=(8, 8), ha="left", fontsize=10, color="#ff7f0e")
 
@@ -131,4 +134,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

@@ -223,6 +223,19 @@
 - [x] (ME+AI) D4: Uあり/なし（U-shuffle）の差を1枚図にする（power vs pout + share100）
   - 図: `uccs_d4_scan90/plots/d4_01_power_vs_pout.png`
 
+- [x] (AI) D4B準備: CCS ablation（S4, scan90）の専用ディレクトリ＋スケッチ＋集計スクリプトを追加
+  - index: `uccs_d4b_scan90/README.md`
+  - TX/RX/TXSD（Arduino）:
+    - `uccs_d4b_scan90/src/tx/TX_UCCS_D4B_SCAN90/TX_UCCS_D4B_SCAN90.ino`
+    - `uccs_d4b_scan90/src/rx/RX_UCCS_D4B_SCAN90/RX_UCCS_D4B_SCAN90.ino`
+    - `uccs_d4b_scan90/src/txsd/TXSD_UCCS_D4B_SCAN90/TXSD_UCCS_D4B_SCAN90.ino`
+  - 集計: `uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py`
+  - Ablation: CCS-off（U-only, 100↔500）
+
+- [ ] (ME+AI) D4B: CCS-off（U-only）で「CCSが効く」を切り分け（S4, scan90, 4条件×n=3）
+  - データ: `uccs_d4b_scan90/data/01/`
+  - 出力: `uccs_d4b_scan90/metrics/01/summary.md` / `uccs_d4b_scan90/plots/*`
+
 - [x] (AI) D3準備: scan70%（interval=100ms, window=70ms）の専用ディレクトリ＋スケッチを追加
   - index: `uccs_d3_scan70/README.md`
   - TX/RX/TXSD（Arduino）:
@@ -230,11 +243,12 @@
     - `uccs_d3_scan70/src/rx/RX_UCCS_D3_SCAN70/RX_UCCS_D3_SCAN70.ino`
     - `uccs_d3_scan70/src/txsd/TXSD_UCCS_D3_SCAN70/TXSD_UCCS_D3_SCAN70.ino`
 
-- [ ] (ME) D3: scan duty を 90→70% に落として適応性を確認（S4, fixed100/fixed500/policy, 各n=3）
-  - データ: `uccs_d3_scan70/data/01/` に保存
+- [x] (ME) D3: scan duty を 90→70% に落として適応性を確認（S4, fixed100/fixed500/policy, 各n=3）
+  - データ: `uccs_d3_scan70/data/01/`
 
-- [ ] (AI) D3: 集計（pout/TL/power/share）と図（power vs pout）を生成
-  - 出力: `uccs_d3_scan70/metrics/01/summary.md` / `uccs_d3_scan70/plots/*`
+- [x] (AI) D3: 集計（pout/TL/power/share）と図（power vs pout）を生成
+  - 集計: `uccs_d3_scan70/metrics/01/summary.md`
+  - 図: `uccs_d3_scan70/plots/d3_01_power_vs_pout.png`
 
 ### P0: 定義固定 + 図表化（最優先）
 
