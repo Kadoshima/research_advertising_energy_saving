@@ -186,12 +186,17 @@ void setup() {
 
   NimBLEDevice::init("");
   scan = NimBLEDevice::getScan();
-  scan->setAdvertisedDeviceCallbacks(&cb);
+  // NimBLE-Arduino API compatibility:
+  // Prefer setScanCallbacks (available on older/newer). If your NimBLE build only has
+  // setAdvertisedDeviceCallbacks, replace this line with:
+  //   scan->setAdvertisedDeviceCallbacks(&cb);
+  scan->setScanCallbacks(&cb, false);
   scan->setActiveScan(false);
   scan->setInterval(ms_to_0p625(SCAN_INTERVAL_MS));
   scan->setWindow(ms_to_0p625(SCAN_WINDOW_MS));
   scan->setMaxResults(0);
-  scan->start(0, nullptr, false);
+  // start(duration_s, isContinue, restart)
+  scan->start(0, false, false);
 
   Serial.printf("[RX] ready (buf=%u, flush=%lums, wait SYNC pin=%d)\n",
                 (unsigned)RX_BUF_SIZE, (unsigned long)FLUSH_INTERVAL_MS, SYNC_IN);
@@ -237,4 +242,3 @@ void loop() {
 
   vTaskDelay(pdMS_TO_TICKS(10));
 }
-

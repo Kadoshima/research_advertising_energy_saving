@@ -38,6 +38,20 @@
   \renewcommand{\footrulewidth}{0pt}%
 }
 
+% ltjsreport は章開始などで plainhead/plainfoot を使うため、こちらも同じにする
+\fancypagestyle{plainhead}{%
+  \fancyhf{}%
+  \fancyfoot[R]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+\fancypagestyle{plainfoot}{%
+  \fancyhf{}%
+  \fancyfoot[R]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+
 % --- 章見出し（中央寄せ・太字にしない） ---
 \RequirePackage{titlesec}
 \titleformat{\chapter}[display]
@@ -107,6 +121,22 @@
 % --- ハイパーリンク（最後の方で読み込み） ---
 \RequirePackage[hidelinks]{hyperref}
 \RequirePackage{bookmark}
+
+% --- 目次 ---
+% numberless \chapter の「章扉（縦中央）」体裁を避け、目次の先頭余白を詰めて表示する
+\makeatletter
+\newcommand{\thesistableofcontents}{%
+  \clearpage
+  \thispagestyle{plain}%
+  \pdfbookmark[0]{\contentsname}{toc}%
+  \begin{center}
+    {\Large \contentsname\par}
+  \end{center}
+  \vspace{1em}
+  \@starttoc{toc}%
+  \clearpage
+}
+\makeatother
 
 % --- 表紙・要旨ページ ---
 % meta.tex で定義するコマンドを使う想定

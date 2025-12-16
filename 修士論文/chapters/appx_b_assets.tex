@@ -26,6 +26,17 @@
   \item 参考（run別n=3）：\path{uccs_d2_scan90/metrics/B/summary.md} / \path{uccs_d2_scan90/metrics/B_02/summary.md}
 \end{itemize}
 
+\subsection{実機評価（例：D4）}
+U-shuffleアブレーション（D4, scan90）では，次のディレクトリ構成でログと指標を管理する．
+\begin{itemize}
+  \item 実験ルート：\path{uccs_d4_scan90/}
+  \item 入力（01, RX）：\path{uccs_d4_scan90/data/01/RX/}
+  \item 入力（01, TXSD）：\path{uccs_d4_scan90/data/01/TX/}
+  \item 出力（指標, n=3×4条件）：\path{uccs_d4_scan90/metrics/01/summary.md}
+  \item 出力（集計CSV）：\path{uccs_d4_scan90/metrics/01/summary_by_condition.csv}
+  \item 出力（主張図）：\path{uccs_d4_scan90/plots/d4_01_power_vs_pout.pdf} / \path{uccs_d4_scan90/plots/d4_01_power_vs_pout.png}
+\end{itemize}
+
 \subsection{解析スクリプト（例）}
 解析は，1回で完結する巨大スクリプトではなく，「trial集計」「集約」「図表化」に分割して再現可能にする．代表例を以下に示す．
 \begin{itemize}
@@ -35,4 +46,6 @@
   \item D2集計（run単体）：\path{uccs_d2_scan90/analysis/summarize_d2_run.py}
   \item D2集約（run統合）：\path{uccs_d2_scan90/analysis/merge_metrics_runs.py}
   \item D2図生成：\path{uccs_d2_scan90/analysis/plot_power_vs_pout.py}
+  \item D4集計（アブレーション）：\path{uccs_d4_scan90/analysis/summarize_d4_run_v2.py}
+  \item D4図生成：\path{uccs_d4_scan90/analysis/plot_power_vs_pout.py}
 \end{itemize}

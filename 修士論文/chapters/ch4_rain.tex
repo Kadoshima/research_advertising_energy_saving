@@ -87,6 +87,41 @@
 
 また，平均電力はFixed100/Fixed500の滞在比率（share100）による線形混合で概ね説明できるため，方策の省電力効果はinterval滞在比率に支配されることが示唆される．これにより，「sleep差分が効いた/効かなかった」といった実装依存の議論から切り離し，制御則（どの状態で短間隔へ戻すか）の議論へ接続しやすくなる．
 
+\subsubsection{U-shuffleアブレーション（D4，scan90）}
+\label{sec:d4_ablation}
+D2bの主結果に対して，「不確実度$U$は本当に効いているか（単なる閾値遊びではないか）」という疑問に答えるため，D4としてアブレーション実験を行った．ここでは制御器の構造と閾値は固定し，不確実度系列$U$の時間整合だけを破壊する（shuffleする）ことで，制御がどのように崩れるかを観察する．
+
+表\ref{tab:d4_summary}および図\ref{fig:d4_power_vs_pout}に，S4（遷移が多い条件）における結果（各n=3）を示す．方策（U+CCS）はFixed100より低電力であり，Fixed500より低い期限超過率を示す運用点になり得る．一方で，$U$をshuffleするとshare100が0.593から0.943へ増加し，adv\_countも1227から1715へ増加してFixed100に近い挙動へ崩れる．その結果，平均電力も200.5\,mWから208.1\,mWへ増加し，省電力効果が失われる．
+
+\begin{table}[tb]
+  \centering
+  \caption{D4（scan90, S4）のアブレーション結果（mean$\pm$std, 各n=3）}
+  \label{tab:d4_summary}
+  {\small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lrrrrr}
+    \toprule
+    条件 & Pout(1s) & TL\_mean[s] & P[mW] & adv\_count & share100 \\
+    \midrule
+    Fixed100 & 0.049$\pm$0.000 & 1.24$\pm$0.01 & 208.2$\pm$1.3 & 1796$\pm$0 & 1.000$\pm$0.000 \\
+    Fixed500 & 0.130$\pm$0.014 & 1.59$\pm$0.06 & 187.9$\pm$0.8 & 359$\pm$0 & 0.000$\pm$0.000 \\
+    Policy（U+CCS） & 0.098$\pm$0.024 & 1.28$\pm$0.01 & 200.5$\pm$0.8 & 1227$\pm$0 & 0.593$\pm$0.009 \\
+    Ablation（U-shuf） & 0.049$\pm$0.000 & 1.23$\pm$0.01 & 208.1$\pm$0.3 & 1715$\pm$0 & 0.943$\pm$0.000 \\
+    \bottomrule
+  \end{tabular}
+  }
+\end{table}
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.90\linewidth]{../uccs_d4_scan90/plots/d4_01_power_vs_pout}
+  \caption{D4（scan90, S4, n=3）における平均電力と$P_{\mathrm{out}}(1\mathrm{s})$の関係（share100を注釈）}
+  \label{fig:d4_power_vs_pout}
+\end{figure}
+
+\subsubsection{解釈（D4）}
+D4の結果は，制御器の構造と閾値を固定したまま入力$U$の時間整合だけを破壊すると，制御が短間隔（\SI{100}{\milli\second}）に張り付く方向へ崩れることを示している．したがって，$U$（およびCCS）の時間的な整合は「必要時だけ短間隔へ寄せる」ための鍵であり，省電力とQoSの両立に寄与することが示唆される．
+
 \subsection{オフライン評価との整合}
 オフライン評価で予測される運用点と，実機で得られる平均電力・受信品質の差分を比較し，推定モデルの妥当性と限界を整理する．
 
@@ -105,3 +140,8 @@
 
 \subsection{まとめ}
 本節の結果を，次章の考察に接続するために要点を整理する．
+\begin{itemize}
+  \item D2b（scan90, n=6）では，方策（2値切替）がFixed100より低電力で，Fixed500より低い期限超過率を示す運用点になり得ることを確認した．
+  \item D4（U-shuffleアブレーション, S4, n=3）では，$U$の時間整合を破壊すると短間隔へ張り付く方向へ崩れ，省電力効果が失われることを確認した．
+  \item オフライン評価（δ帯）は，固定間隔点と候補方策点の位置関係を可視化し，実機評価で探索すべき領域を絞り込むための近似として有効である．
+\end{itemize}
