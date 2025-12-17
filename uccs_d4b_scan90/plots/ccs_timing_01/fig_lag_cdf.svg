@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="560" viewBox="0 0 920 560">
+<rect x="0" y="0" width="920" height="560" fill="#ffffff"/>
+<text x="460.0" y="34" font-size="20" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">D4B timing (S4, scan90): CDF of lag-to-100ms after transition</text>
+<rect x="80" y="60" width="810" height="430" fill="none" stroke="#111827" stroke-width="1.2"/>
+<line x1="80.00" y1="60" x2="80.00" y2="490" stroke="#e5e7eb" stroke-width="1"/>
+<text x="80.00" y="514" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.0</text>
+<line x1="242.00" y1="60" x2="242.00" y2="490" stroke="#e5e7eb" stroke-width="1"/>
+<text x="242.00" y="514" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.4</text>
+<line x1="404.00" y1="60" x2="404.00" y2="490" stroke="#e5e7eb" stroke-width="1"/>
+<text x="404.00" y="514" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.8</text>
+<line x1="566.00" y1="60" x2="566.00" y2="490" stroke="#e5e7eb" stroke-width="1"/>
+<text x="566.00" y="514" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">1.2</text>
+<line x1="728.00" y1="60" x2="728.00" y2="490" stroke="#e5e7eb" stroke-width="1"/>
+<text x="728.00" y="514" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">1.6</text>
+<line x1="890.00" y1="60" x2="890.00" y2="490" stroke="#e5e7eb" stroke-width="1"/>
+<text x="890.00" y="514" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">2.0</text>
+<line x1="80" y1="490.00" x2="890" y2="490.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="70" y="494.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.00</text>
+<line x1="80" y1="404.00" x2="890" y2="404.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="70" y="408.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.20</text>
+<line x1="80" y1="318.00" x2="890" y2="318.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="70" y="322.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.40</text>
+<line x1="80" y1="232.00" x2="890" y2="232.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="70" y="236.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.60</text>
+<line x1="80" y1="146.00" x2="890" y2="146.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="70" y="150.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.80</text>
+<line x1="80" y1="60.00" x2="890" y2="60.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="70" y="64.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">1.00</text>
+<text x="485.0" y="536" font-size="14" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">time since transition [s]</text>
+<text x="22" y="275.0" font-size="14" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system" transform="rotate(-90 22 275.0)">CDF</text>
+<polyline fill="none" stroke="#10b981" stroke-width="3" points="80.00,262.76 120.50,255.77 161.00,238.29 201.50,234.80 242.00,220.81 282.50,192.85 323.00,150.89 363.50,129.92 404.00,108.94 444.50,94.96 485.00,91.46 525.50,91.46 566.00,91.46 606.50,80.98 647.00,60.00 687.50,60.00 728.00,60.00 768.50,60.00 809.00,60.00 849.50,60.00 890.00,60.00"/>
+<circle cx="80.00" cy="262.76" r="4.5" fill="#10b981"/>
+<polyline fill="none" stroke="#f59e0b" stroke-width="3" points="80.00,262.76 120.50,255.77 161.00,238.29 201.50,231.30 242.00,220.81 282.50,206.83 323.00,168.37 363.50,147.40 404.00,115.93 444.50,101.95 485.00,101.95 525.50,101.95 566.00,101.95 606.50,91.46 647.00,60.00 687.50,60.00 728.00,60.00 768.50,60.00 809.00,60.00 849.50,60.00 890.00,60.00"/>
+<circle cx="80.00" cy="262.76" r="4.5" fill="#f59e0b"/>
+<rect x="84" y="64" width="260" height="64" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+<line x1="90" y1="88" x2="118" y2="88" stroke="#10b981" stroke-width="4"/>
+<text x="126" y="93" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">policy (U+CCS)</text>
+<line x1="90" y1="114" x2="118" y2="114" stroke="#f59e0b" stroke-width="4"/>
+<text x="126" y="119" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">u-only (CCS-off)</text>
+</svg>

@@ -1,0 +1,3 @@
+metric,cond_a,cond_b,label,n_a,n_b,mean_a,mean_b,delta_mean,ci_low,ci_high,p_two_sided,n_boot,alpha,seed,generated_local,source_csv
+pout_1s,S4_policy,S4_fixed500,Δpout (policy − fixed500),3,3,0.08943066666666666,0.2845526666666667,-0.19512200000000002,-0.2601626666666667,-0.13008133333333335,0.0,20000,0.05,20251217,2025-12-17 10:56,uccs_d3_scan70/metrics/01/per_trial.csv
+avg_power_mW,S4_policy,S4_fixed100,Δpower_mW (policy − fixed100),3,3,202.11704727801632,209.87827976275707,-7.761232484740759,-8.244096320546646,-7.224741775455584,0.0,20000,0.05,20251217,2025-12-17 10:56,uccs_d3_scan70/metrics/01/per_trial.csv

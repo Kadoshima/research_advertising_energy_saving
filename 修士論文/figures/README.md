@@ -12,3 +12,7 @@
 - `measurement_tx_txsd.jpg`: TX + TXSD外観（元: `image/TX&TXSD.JPG`）
 
 注: 上記は向き補正・メタデータ除去・リサイズを行った派生物（提出用）であり，原本は `image/` に保存する。
+
+## 図（システム構成）
+
+- `measurement_architecture_esp32_three_node.jpg`: ESP32三ノード実験装置（TX/TXSD/RX + 外部電源 + INA219）の配線・信号構成図（元: `image/ESP32三ノード実験装置.jpg`）

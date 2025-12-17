@@ -3,46 +3,16 @@
 \label{sec:proposed_method}
 
 \subsection{問題設定}
-本研究では，広告間隔 $a$ を選択して送信を行うとき，一次KPIである$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）を小さくしつつ，受信遅延に基づくQoS制約を満たすことを目的とする．代表的には，初回受信遅延TLに対して，期限$\tau$を超える確率を$P_{\mathrm{out}}(\tau)=P(\mathrm{TL}>\tau)$として定義し，$P_{\mathrm{out}}(\tau)\le \delta$を制約とする．
-
-\subsubsection{目的関数（$\si{\micro\coulomb}/\text{event}$）}
-本研究では，セッション中の電荷消費をイベント数で正規化した$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）を一次指標とする．ここでイベントは，TL/Poutの評価起点となる状態遷移（活動の切替）である．電荷消費はTXSDログの電流系列から積分し，必要に応じて広告OFF（同一コード系列・同一sleep条件）の基準を差し引く（詳細は\secref{sec:metrics_detail}）．
-
-平均電力$\overline{P}$や総エネルギー$E$，および広告回数で正規化した$\Delta E/N_{\mathrm{adv}}$等は，単位監査や原因切り分けのための従属指標として併用する．
-
-\subsubsection{制約（期限超過率）}
-QoSは「状態遷移（イベント）後に一定時間以内に受信されること」として定義する．$j$番目のイベントの初回受信遅延を$\mathrm{TL}_j$とすると，
-\begin{equation}
-  P_{\mathrm{out}}(\tau)=\frac{1}{N_{\mathrm{event}}}\sum_{j=1}^{N_{\mathrm{event}}}\mathbb{I}[\mathrm{TL}_j>\tau]
-\end{equation}
-で表せる．本研究では，$\tau=\SI{1}{\second},\SI{2}{\second},\SI{3}{\second}$等の代表値で評価し，$P_{\mathrm{out}}(\tau)\le \delta$を制約として扱う．
+本研究は，広告間隔$a$を選択する方策$\pi$に対して，電荷指標$q_{\mathrm{event}}$を小さくしつつ，受信遅延に基づく期限超過率$P_{\mathrm{out}}(\tau)$を制約する問題として整理する（問題設定は\secref{sec:measurement_setup}と\secref{sec:metrics_detail}に従う）．
 
 \subsection{不確実度と安定度}
-HARモデルの出力確率分布から不確実度$U\in[0,1]$を導出し，過去一定窓におけるラベル遷移回数から安定度$S\in[0,1]$を導出する．具体的な算出方法（窓長，正規化，較正など）は，HAR推論部の\secref{sec:har_uncertainty}で整理する．
-
-\subsubsection{不確実度U}
-HARのクラス事後確率を$p_k$（$k=1,\dots,K$）とすると，不確実度$U$は正規化エントロピーとして定義できる\scite{shannon1948}．
-\begin{equation}
-  U = -\frac{\sum_{k=1}^{K} p_k \log p_k}{\log K}\,,
-\end{equation}
-ここで$U=0$は確信度が高い状態，$U=1$は不確実な状態に対応する．
-
-\subsubsection{安定度S}
-安定度$S$は，直近の時間窓におけるラベル遷移回数に基づき定義する．窓長を$W$，遷移回数を$n_{\mathrm{trans}}$とすると，簡単な定義の一例は以下である．
-\begin{equation}
-  S = 1-\min\!\left(1,\frac{n_{\mathrm{trans}}}{W}\right)\,.
-\end{equation}
-安定期では$S$が1に近く，遷移期では$S$が小さくなる．
+HARモデルの出力確率分布から不確実度$U\in[0,1]$を導出し，過去一定窓におけるラベル遷移回数から安定度$S\in[0,1]$を導出する（算出方法と前提は\secref{sec:har_uncertainty}）．
 
 \subsection{複合スコアに基づく広告間隔制御}
 不確実度と安定度から複合スコア（Composite Confidence Score：CCS）を構成し，その値に応じて広告間隔を段階的に切り替える．本研究では，実装の単純性と説明容易性のためにルールベース方策を採用し，閾値とヒステリシス，最小滞在時間により切替の振動を抑制する．
 
 \subsubsection{複合スコアCCS}
-本研究では，不確実度$U$と安定度$S$から，以下の線形結合で複合スコアCCSを構成する．
-\begin{equation}
-  \mathrm{CCS} = \alpha\,(1-U) + (1-\alpha)\,S\,.
-\end{equation}
-ここで$\alpha\in[0,1]$は重みである．$\alpha$を大きくすると確信度（$1-U$）を重視し，小さくすると安定度$S$を重視する．
+CCSは，不確実度$U$と安定度$S$の線形結合として定義し（\secref{sec:har_uncertainty}），閾値写像により広告間隔へ変換する．
 
 \subsubsection{閾値写像}
 CCSを3段階に分け，広告間隔$a\in\{100,500,2000\}\,\si{\milli\second}$へ写像する．閾値を$\theta_{\mathrm{low}}$，$\theta_{\mathrm{high}}$（$\theta_{\mathrm{low}}<\theta_{\mathrm{high}}$）とすると，
@@ -84,27 +54,3 @@ TXログは方策の内側（$U,S,\mathrm{CCS}$と選択した$a$），RXログ�
 
 \subsubsection{2値制御の目的}
 2値制御は，行動空間を小さくすることで，実装・解析の複雑性を抑える目的がある．また，\SI{100}{\milli\second}と\SI{500}{\milli\second}の差は平均電力の主効果になりやすく，省電力化の寄与を説明しやすい．
-
-\subsection{評価システム概要（TX/TXSD/RX）}
-評価系は，送信（TX），電力ロガ（TXSD），受信（RX）の三ノードで構成する．TXは広告間隔を制御しつつ，必要なメタ情報をペイロードに埋め込む．TXSDはINA219により電流・電圧を計測して平均電力等を算出する．RXは受信ログを蓄積し，PDR，TL，$P_{\mathrm{out}}(\tau)$を評価する．
-
-\begin{figure}[tb]
-  \centering
-  \fbox{\begin{minipage}{0.9\linewidth}
-    \vspace{1mm}
-    \begin{center}
-      \textbf{TX（DUT）}\hspace{6mm}$\rightarrow$\hspace{6mm}\textbf{RX（スマートフォン）}
-    \end{center}
-    \vspace{1mm}
-    \begin{itemize}
-      \item TX：HARの出力から$U,S,\mathrm{CCS}$を計算し，広告間隔$a$を切替．ペイロードにseqや状態を埋め込む．
-      \item RX：受信時刻・RSSI・seqを記録し，PDR/TL/$P_{\mathrm{out}}(\tau)$を算出．
-      \item TXSD：TXの電流・電圧を計測し，$E$と$\overline{P}$を算出（必要に応じてTICKで$N_{\mathrm{adv}}$をカウント）．
-    \end{itemize}
-    \vspace{1mm}
-  \end{minipage}}
-  \caption{評価システム概要（TX/TXSD/RX）}
-  \label{fig:system_overview}
-\end{figure}
-
-本文中では \figref{fig:system_overview} のように参照する．

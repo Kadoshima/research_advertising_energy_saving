@@ -1,0 +1,28 @@
+2025-12-17
+- [03:59 JST] D4B（CCS-offアブレーション）を修論へ反映: `uccs_d4b_scan90/metrics/01/summary.md` / `uccs_d4b_scan90/metrics/01/summary_by_condition.csv` に基づき，`修士論文/chapters/ch4_rain.tex` にD4B節（表\ref{tab:d4b_summary}）を追加。「U-only（CCS-off）とPolicy（U+CCS）は平均電力・adv_count・share100_mixがほぼ同等だが，CCS有効化で Pout(1s)/TL が改善」=「Uが電力（短間隔滞在量）を決め，CCSが同電力でQoSを改善」を本文の解釈（\ref{sec:d4b_ccs_off} / \ref{tab:d4b_summary} / \ref{fig:d4_d4b_power_vs_pout}）に反映。
+  - 図: `uccs_d4b_scan90/plots/d4b_01_power_vs_pout.svg` をPDF化して `uccs_d4b_scan90/plots/d4b_01_power_vs_pout.pdf` を作成し，修論図（図\ref{fig:d4_d4b_power_vs_pout}）に組み込み。
+  - 付随: `修士論文/chapters/appx_b_assets.tex` にD4Bの資産パスと解析スクリプト（`uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py`, `uccs_d4b_scan90/analysis/plot_power_vs_pout.py`）を追記。
+  - ページ調整: 70p維持のため `修士論文/chapters/appx_c_results.tex` から重複図（ストレス固定の再掲）を削除。
+  - ビルド: `cd 修士論文 && latexmk -g -lualatex main.tex` で `修士論文/build/main.pdf`（70 pages）を生成確認。
+- [11:18 JST] 追加検証（役割分離の統合図＋ブートストラップCI）を修論へ反映: `scripts/bootstrap_effects.py` の出力（`uccs_d3_scan70/metrics/01/effects_ci.*`, `uccs_d4_scan90/metrics/01/effects_ci.*`, `uccs_d4b_scan90/metrics/01/effects_ci.*`）を根拠に，`修士論文/chapters/ch4_rain.tex` に効果量CIの段落を追記。D3/D4/D4Bを1枚で示す統合図 `uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.svg` をPDF化して `uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.pdf` を作成し，修論図（図\ref{fig:role_separation_overview}）へ差し替え。`修士論文/chapters/appx_b_assets.tex` に統合図・CI出力・生成スクリプト（`uccs_d4b_scan90/analysis/plot_role_separation_overview.py`）を追記。ページ数維持のため `修士論文/chapters/appx_c_results.tex` のPareto再掲を削除。`cd 修士論文 && latexmk -g -lualatex main.tex` で `修士論文/build/main.pdf`（70 pages）を生成確認。
+- [11:49 JST] 章3/4の圧縮と、考察/結論/要旨の反映を実施:
+  - 考察: `修士論文/chapters/ch5_publicroad.tex` に「UとCCSの役割分離（実機アブレーション）」節を追記し、D4（U-shuffle）/D4B（CCS-off）/統合図（図\ref{fig:role_separation_overview}）への解釈を明文化。Threats to Validity に「n=3→CI補助」も追記。
+  - 結論/要旨: `修士論文/chapters/conclusion.tex` と `修士論文/frontmatter/abstract.tex` に、D2b/D3とD4/D4Bの位置づけ（Uが電力、CCSが同電力でQoS改善）を追記。
+  - 章3短縮: `修士論文/chapters/ch3_system_design.tex` からフェイルセーフ概念図を削除、`修士論文/chapters/ch9_har_uncertainty.tex` の冗長な表/未完タスク列挙を圧縮、`修士論文/chapters/ch2_proposed.tex` から重複定義と評価系概念図を削除（計測章/指標章へ参照統一）。
+  - 章4短縮: `修士論文/chapters/appx_a_metrics.tex` と `修士論文/chapters/ch8_measurement_system.tex` の重複説明を削減し、本文内は要点（監査観点）に圧縮。
+  - ビルド: `cd 修士論文 && latexmk -g -lualatex main.tex` → `修士論文/build/main.pdf`（65 pages）を生成確認。目次先頭の余白も確認。
+- [12:07 JST] 追加図（α–Pout俯瞰＋D4B outageストーリー）を修論へ反映:
+  - 図追加: `修士論文/chapters/ch4_rain.tex` に `fig:alpha_vs_pout_overview`（`uccs_d4b_scan90/plots/alpha_vs_pout_overview.*`）と `fig:outage_story_timeline`（`uccs_d4b_scan90/plots/outage_story_01/fig_outage_timeline.*`）を追記。D3/D4/D4Bを「α（mix）–Pout」で俯瞰し、D4B(run01)のpout差を生んだ代表イベント（transition_step=1128）のタイムラインを掲載。
+  - 変換: SVG→PDF（ImageMagick）で `uccs_d4b_scan90/plots/alpha_vs_pout_overview.pdf` と `uccs_d4b_scan90/plots/outage_story_01/fig_outage_timeline.pdf` を生成。
+  - 体裁: floatが次章へ流れないよう `修士論文/chapters/ch4_rain.tex` に `\clearpage` を追加してフラッシュ。
+  - 資産一覧: `修士論文/chapters/appx_b_assets.tex` に上記出力・スクリプト（`uccs_d4b_scan90/analysis/plot_alpha_vs_pout.py`, `uccs_d4b_scan90/analysis/outage_story_trace.py`）を追記。
+  - ビルド: `cd 修士論文 && latexmk -g -lualatex main.tex` → `修士論文/build/main.pdf`（67 pages）を生成確認。
+- [12:23 JST] D4B（run01）の追加解析（尾寄与分解＋条件付きタイミング）を修論へ反映:
+  - 変換: SVG→PDF（ImageMagick）で `uccs_d4b_scan90/plots/pout_tail_01/fig_outage_count_hist.pdf`, `uccs_d4b_scan90/plots/pout_tail_01/fig_delta_pout_cum.pdf`, `uccs_d4b_scan90/plots/ccs_timing_conditional_01/fig_event_triggered_p100_conditional.pdf` を生成。
+  - 本文追記: `修士論文/chapters/ch4_rain.tex` に尾寄与分解（少数遷移にΔPoutが集中）と条件付きタイミング（失敗遷移近傍の短間隔割当て差）を追記し，図\ref{fig:d4b_pout_tail_decomposition}・図\ref{fig:d4b_ccs_timing_conditional}として掲載。
+  - 資産一覧: `修士論文/chapters/appx_b_assets.tex` に上記出力・再現メモ（`uccs_d4b_scan90/metrics/01/extra_analysis.md`）・追試用 `uccs_d4b_scan70/` のスケッチパスを追記。
+  - ビルド: `cd 修士論文 && latexmk -g -lualatex main.tex` → `修士論文/build/main.pdf`（70 pages）を生成確認。
+- [12:35 JST] 計測系のシステムアーキテクチャ図（ESP32三ノード実験装置）を修論へ追加:
+  - 図追加: `image/ESP32三ノード実験装置.jpg` を `修士論文/figures/measurement_architecture_esp32_three_node.jpg` にコピーし，`修士論文/chapters/ch3_oncampus.tex` に図\ref{fig:measurement_architecture_esp32_three_node}として追加（配線例の直後）。
+  - 図一覧: `修士論文/figures/README.md` に当該図の派生物・原本パスを追記。
+  - ビルド: `cd 修士論文 && latexmk -g -lualatex main.tex` → `修士論文/build/main.pdf`（71 pages）を生成確認。

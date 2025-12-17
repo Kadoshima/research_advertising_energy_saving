@@ -1,0 +1,3 @@
+metric,cond_a,cond_b,label,n_a,n_b,mean_a,mean_b,delta_mean,ci_low,ci_high,p_two_sided,n_boot,alpha,seed,generated_local,source_csv
+avg_power_mW,S4_policy,S4_ablation_u_shuf,Δpower_mW (policy − U-shuf),3,3,200.53050596988783,208.1082346520751,-7.577728682187285,-8.387487258529745,-6.926056002554532,0.0,20000,0.05,20251217,2025-12-17 10:56,uccs_d4_scan90/metrics/01/per_trial.csv
+pout_1s,S4_policy,S4_ablation_u_shuf,Δpout (policy − U-shuf),3,3,0.09756100000000001,0.04878,0.04878100000000001,0.024391000000000003,0.07317099999999999,0.0,20000,0.05,20251217,2025-12-17 10:56,uccs_d4_scan90/metrics/01/per_trial.csv

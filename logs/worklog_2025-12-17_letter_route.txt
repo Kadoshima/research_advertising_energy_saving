@@ -1,0 +1,94 @@
+2025-12-17 00:20 JST
+- D4B（CCS-off=U-only ablation, S4/scan90, 4条件×n=3）を集計・図化して結果を固定
+  - データ: `uccs_d4b_scan90/data/01/`
+  - 集計: `uccs_d4b_scan90/metrics/01/summary.md`（TXSDはcond_id不整合/古いログ混入のため adv_count でクラスタリングして割当、avg_power>=150mW & E_total>0 でフィルタ）
+  - 図: `uccs_d4b_scan90/plots/d4b_01_power_vs_pout.svg`（power vs pout + share100注釈）
+- 主要結果（mean±std, n=3）
+  - S4_fixed100: avg_power=208.3±0.5mW, pout_1s=0.0813±0.0141, adv_count=1796
+  - S4_fixed500: avg_power=188.1±0.3mW, pout_1s=0.1301±0.0282, adv_count=359
+  - S4_policy(U+CCS): avg_power=200.6±0.1mW, pout_1s=0.0488±0.0000, adv_count=1215, share100_power_mix≈0.620
+  - S4_ablation_ccs_off(U-only): avg_power=200.6±0.2mW, pout_1s=0.0650±0.0141, adv_count=1227, share100_power_mix≈0.621
+- 解釈
+  - 電力（share100）をほぼ同等に保ったまま、CCSを有効化するとpout_1sが改善（U-only→U+CCSで 0.065→0.049）。
+  - よって「Uは省電力（100ms滞在低減）」「CCSはQoSを守る（遷移検出/ブースト）」の2本立て設計が実機で正当化できる。
+
+2025-12-17 02:55 JST
+- D4Bのレター向け結論を文章化してREADME/worklogへ固定（“同電力でQoS改善”としてCCS寄与を明示）
+  - Policy(U+CCS) vs Ablation(CCS-off=U-only)（mean±std, n=3）
+    - avg_power_mW: 200.626 vs 200.649（差 -0.023 mW; ほぼ同一）
+    - adv_count: 1215 vs 1227（mix比率もほぼ同等）
+    - pout_1s: 0.0650 → 0.0488（絶対 -0.0163, 相対 -25%）
+    - tl_mean_s: 1.407 → 1.317（約 -0.089 s, 相対 -6.3%）
+    - pdr_unique: 0.434 → 0.448（小さいが改善）
+  - 主張: Uが“100ms滞在量（電力）”を決め、CCSが“同じ100ms予算のタイミング最適化”でQoS（Pout/TL）を改善する。
+
+2025-12-17 04:45 JST
+- D4B（run01）の「CCSが効く＝タイミングが良い」を可視化する追加解析（追加データ不要）を作成・実行
+  - スクリプト: `uccs_d4b_scan90/analysis/ccs_timing_analysis.py`（依存なし・SVG出力）
+  - 出力: `uccs_d4b_scan90/plots/ccs_timing_01/`
+    - `fig_event_triggered_p100.svg`（truth遷移中心のP(100ms)）
+    - `fig_lag_cdf.svg`（遷移→100msへのlag CDF）
+    - `fig_hit_cover.svg`（Hit/PreHit/Cover）
+    - `alloc_efficiency_summary.csv`（100ms割当の効率指標）
+  - 注意: run01では「truth遷移中心」の配置差が大きく出ない指標もあり、本文主軸はD4Bの主結果（同電力でpout/TL改善）に置くのが安全。
+
+2025-12-17 10:55 JST
+- 「U/CCSの役割分離＋頑健性」を1枚図に統合（追加データ不要）
+  - 図: `uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.svg`
+  - 含む点:
+    - scan90: fixed100/fixed500, policy(U+CCS), ablation(U-shuffle), ablation(CCS-off=U-only)
+    - scan70: fixed100/fixed500, policy(U+CCS)
+  - 矢印:
+    - U effect: U-shuffle → policy（100ms張り付き崩壊→省電力側へ）
+    - CCS effect: U-only → policy（同電力付近でQoS改善）
+    - robustness: scan90→scan70でfixed500が崩れる一方、policyは相対的に維持
+
+2025-12-17 11:05 JST
+- ブートストラップCI（差分＋不確かさ）をper-trialから算出し、レター向けに固定
+  - script: `scripts/bootstrap_effects.py`（percentile bootstrap, n_boot=20000）
+  - 出力:
+    - D4B: `uccs_d4b_scan90/metrics/01/effects_ci.md`
+    - D4: `uccs_d4_scan90/metrics/01/effects_ci.md`
+    - D3: `uccs_d3_scan70/metrics/01/effects_ci.md`
+  - 例（D4B, U+CCS − U-only）:
+    - Δpout_1s = -0.0163, 95%CI [-0.0244, 0.0000]
+    - Δpower_mW = -0.0235, 95%CI [-0.2332, 0.1886]（同電力の裏付け）
+
+2025-12-17 11:30 JST
+- “正規化電力（α）×QoS” の散布図を作成し、CCSの効きを1枚で説明できる形に整理
+  - α = (P − P500) / (P100 − P500)（runごとの fixed100/fixed500 で正規化）
+  - 図: `uccs_d4b_scan90/plots/alpha_vs_pout_overview.svg`
+  - 含む点: D4B(scan90: U-only vs U+CCS), D4(scan90: U-shuf), D3(scan70: fixed/policy)
+  - 狙い: “同じα（同エネルギー配分）でも、U+CCSの方がpoutが低い”を直感的に示す（ドリフトの影響を低減）。
+
+2025-12-17 11:41 JST
+- D4B（run01）の「Pout差は少数のアウトエイジ（TL>1s）イベント差」という内訳を、失敗イベント中心で可視化（追加データ不要）
+  - スクリプト: `uccs_d4b_scan90/analysis/outage_story_trace.py`
+    - TL/Pout定義は `uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py` と同一（100ms truth遷移、per-trial定数オフセット整列、遷移後の新ラベル初回受信でTL算出）
+  - 出力: `uccs_d4b_scan90/plots/outage_story_01/`
+    - `outage_ranking.csv`（U-onlyとPolicyのoutage率差で遷移をランキング）
+    - `per_transition.csv`（trial×遷移ごとのTLとoutage判定）
+    - `fig_outage_timeline.svg`（失敗イベント中心のタイムライン図）
+  - 一例（選択イベント）:
+    - transition_step=1128（label 2→9）で、U-onlyは TL≈9.889s（outage）だが Policy(U+CCS)は TL≈0.212s（正常）
+  - 検証: `per_transition.csv` から復元した `pout_est` は summaryと一致（Policy=0.04878, U-only=0.06504）。
+
+2025-12-17 12:10 JST
+- D4B（run01）の “尾（outage）” を追加解析（追加データ不要）
+  - Poutの寄与分解（上位少数遷移が支配することを可視化）
+    - script: `uccs_d4b_scan90/analysis/pout_tail_decomposition.py`
+    - 出力: `uccs_d4b_scan90/plots/pout_tail_01/`
+      - `fig_outage_count_hist.svg`（trialごとのoutage数分布）
+      - `fig_delta_pout_cum.svg`（上位K遷移がΔPoutをどれだけ説明するか）
+      - `pout_tail_decomposition.md`
+  - 条件付きタイミング（U-onlyで悪化している遷移 topK に条件付け）
+    - script: `uccs_d4b_scan90/analysis/ccs_timing_analysis_conditional.py`
+    - 出力: `uccs_d4b_scan90/plots/ccs_timing_conditional_01/fig_event_triggered_p100_conditional.svg`
+
+2025-12-17 12:20 JST
+- D4B-scan70（受信条件悪化下でCCS寄与を確認）用の専用ディレクトリを追加
+  - index: `uccs_d4b_scan70/README.md`
+  - TX/RX/TXSD（Arduino）:
+    - `uccs_d4b_scan70/src/tx/TX_UCCS_D4B_SCAN70/TX_UCCS_D4B_SCAN70.ino`
+    - `uccs_d4b_scan70/src/rx/RX_UCCS_D4B_SCAN70/RX_UCCS_D4B_SCAN70.ino`
+    - `uccs_d4b_scan70/src/txsd/TXSD_UCCS_D4B_SCAN70/TXSD_UCCS_D4B_SCAN70.ino`

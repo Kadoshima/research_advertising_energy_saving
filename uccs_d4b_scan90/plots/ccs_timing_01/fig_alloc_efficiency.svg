@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="520" viewBox="0 0 920 520">
+<rect x="0" y="0" width="920" height="520" fill="#ffffff"/>
+<text x="460.0" y="34" font-size="20" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">D4B timing (S4, scan90): allocation efficiency of 100ms (higher=better)</text>
+<rect x="80" y="60" width="810" height="390" fill="none" stroke="#111827" stroke-width="1.2"/>
+<line x1="80" y1="450.00" x2="890" y2="450.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="70" y="454.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.00</text>
+<line x1="80" y1="372.00" x2="890" y2="372.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="70" y="376.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.20</text>
+<line x1="80" y1="294.00" x2="890" y2="294.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="70" y="298.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.40</text>
+<line x1="80" y1="216.00" x2="890" y2="216.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="70" y="220.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.60</text>
+<line x1="80" y1="138.00" x2="890" y2="138.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="70" y="142.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.80</text>
+<line x1="80" y1="60.00" x2="890" y2="60.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="70" y="64.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">1.00</text>
+<text x="22" y="255.0" font-size="14" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system" transform="rotate(-90 22 255.0)">ratio / score</text>
+<rect x="117.97" y="234.06" width="126.56" height="215.94" fill="#10b981" opacity="0.9"/>
+<text x="181.25" y="474" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">top10 (1-CCS) P</text>
+<text x="181.25" y="228.06" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.554</text>
+<rect x="320.47" y="234.06" width="126.56" height="215.94" fill="#f59e0b" opacity="0.9"/>
+<text x="383.75" y="474" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">top10 (1-CCS) U</text>
+<text x="383.75" y="228.06" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.554</text>
+<rect x="522.97" y="232.26" width="126.56" height="217.74" fill="#10b981" opacity="0.9"/>
+<text x="586.25" y="474" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">mean (1-CCS)|100 P</text>
+<text x="586.25" y="226.26" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.558</text>
+<rect x="725.47" y="230.63" width="126.56" height="219.37" fill="#f59e0b" opacity="0.9"/>
+<text x="788.75" y="474" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">mean (1-CCS)|100 U</text>
+<text x="788.75" y="224.63" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.562</text>
+</svg>

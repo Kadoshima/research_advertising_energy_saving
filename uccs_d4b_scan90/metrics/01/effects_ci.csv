@@ -1,0 +1,5 @@
+metric,cond_a,cond_b,label,n_a,n_b,mean_a,mean_b,delta_mean,ci_low,ci_high,p_two_sided,n_boot,alpha,seed,generated_local,source_csv
+pout_1s,S4_policy,S4_ablation_ccs_off,Δpout (U+CCS − U-only),3,3,0.04878,0.06504066666666666,-0.016260666666666666,-0.024391000000000003,0.0,0.0758,20000,0.05,20251217,2025-12-17 10:56,uccs_d4b_scan90/metrics/01/per_trial.csv
+avg_power_mW,S4_policy,S4_ablation_ccs_off,Δpower_mW (U+CCS − U-only),3,3,200.62558239671534,200.6491276940079,-0.023545297292542955,-0.23315122934343435,0.18857135899770583,0.8283,20000,0.05,20251217,2025-12-17 10:56,uccs_d4b_scan90/metrics/01/per_trial.csv
+tl_mean_s,S4_policy,S4_ablation_ccs_off,Δtl_mean_s (U+CCS − U-only),3,3,1.3173253333333335,1.4065450000000002,-0.0892196666666667,-0.25917100000000004,0.014316999999999913,0.2274,20000,0.05,20251217,2025-12-17 10:56,uccs_d4b_scan90/metrics/01/per_trial.csv
+pdr_unique,S4_policy,S4_ablation_ccs_off,Δpdr_unique (U+CCS − U-only),3,3,0.44773666666666667,0.43357799999999996,0.014158666666666708,-0.0013263333333333183,0.02963566666666667,0.0624,20000,0.05,20251217,2025-12-17 10:56,uccs_d4b_scan90/metrics/01/per_trial.csv

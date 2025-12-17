@@ -65,6 +65,17 @@
   - 変更: `uccs_d3_scan70/analysis/summarize_d3_run_v2.py` に `share100_power_mix_mean` を追加（`(P_policy-P_500)/(P_100-P_500)`）。
   - D3 run01（S4_policy）: `share100_power_mix≈0.618`（RX tags推定 `≈0.420` より大きい＝scan70の取りこぼし影響を示唆）。
 
+- [23:50 JST] D3（scan70 / S4）の結論を「レターで言い切れる形」に固定（追加実験より成果物固定を優先）。
+  - Fixed500 がQoSで崩れる: `pout_1s = 0.2846 ± 0.0614`
+  - Policy は Fixed500 より改善: `pout_1s = 0.0894 ± 0.0373`
+  - Policy は Fixed100 より省電力（ただし Fixed500 より高電力）:
+    - power: Fixed100 `209.9±0.5` → Policy `202.1±0.1`（`-7.8 mW`, 約 `-3.7%`）
+    - Fixed500 `189.5±0.5` → Policy（Fixed500比 `+12.6 mW`）
+  - 制約付き最小電力の読み（例: `δ=0.1` = `Pout(1s) ≤ 0.1`）:
+    - scan70では Fixed500 は `pout_1s>0.1` で **不適**、Fixed100 は **適**だが高電力、Policy は **適**かつ Fixed100 より低電力。
+  - share100は scan70で RX tags が過小評価しやすいので、`share100_power_mix`（power-mix推定, run01で≈0.618）を主に参照する。
+  - 反映: `uccs_d3_scan70/README.md` に結論・δ読み・share100注意を追記。
+
 - [21:20 JST] D4B（CCS ablation: U-only）用の専用ディレクトリ `uccs_d4b_scan90/` を追加（S4, scan90, 4条件×n=3）。
   - 目的: 「CCSは要るか？」を切り分ける（Fixed100/Fixed500/Policy(U+CCS)/Ablation(CCS-off=U-only)）。
   - スケッチ:
@@ -72,5 +83,16 @@
     - RX: `uccs_d4b_scan90/src/rx/RX_UCCS_D4B_SCAN90/RX_UCCS_D4B_SCAN90.ino`
     - TXSD: `uccs_d4b_scan90/src/txsd/TXSD_UCCS_D4B_SCAN90/TXSD_UCCS_D4B_SCAN90.ino`
   - 解析:
-    - 集計: `uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py`（TXSDはcond_idでグルーピングして割当、mtimeに依存しない）
+    - 集計: `uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py`（TXSDはadv_countクラスタリングで割当、mtime/cond_idに依存しない）
     - 図: `uccs_d4b_scan90/analysis/plot_power_vs_pout.py`
+
+- [00:20 JST] D4B（CCS-off=U-only ablation, S4/scan90, 4条件×n=3）を集計して「CCSが効く」を定量化（run01）。
+  - データ: `uccs_d4b_scan90/data/01/`
+  - 集計: `uccs_d4b_scan90/metrics/01/summary.md`
+  - 図: `uccs_d4b_scan90/plots/d4b_01_power_vs_pout.svg`
+  - 主要結果（mean±std, n=3）:
+    - S4_policy(U+CCS): avg_power=200.6±0.1 mW, pout_1s=0.0488±0.0000, share100_power_mix≈0.620
+    - S4_ablation_ccs_off(U-only): avg_power=200.6±0.2 mW, pout_1s=0.0650±0.0141, share100_power_mix≈0.621
+  - 読み:
+    - 電力（share100）をほぼ同等に保ったまま、CCSを有効化するとpout_1sが改善（U-only→U+CCSで 0.065→0.049）。
+    - よって「Uは省電力（100ms滞在低減）」「CCSはQoSを守る（遷移検出/ブースト）」の2本立て設計が実機で正当化できる。

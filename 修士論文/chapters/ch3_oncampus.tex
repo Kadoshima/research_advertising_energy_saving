@@ -67,6 +67,15 @@
   \end{tabular}
 \end{table}
 
+\figref{fig:measurement_architecture_esp32_three_node}に，外部電源およびINA219を含む三ノード計測系（TX/TXSD/RX）の配線・信号構成を示す．
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.98\linewidth]{figures/measurement_architecture_esp32_three_node}
+  \caption{三ノード計測系のシステムアーキテクチャ（外部電源・INA219・TX/TXSD/RXの配線と信号）}
+  \label{fig:measurement_architecture_esp32_three_node}
+\end{figure}
+
 \subsection{ログ設計とスキーマ}
 解析の再現性を担保するため，ログの列（カラム）を固定する．本研究では，TXSDログ末尾のsummary（例：$N_{\mathrm{adv}}$，$E$，$\overline{P}$）を一次情報として扱い，RXログはPDR/TL評価の基礎とする．ログスキーマの詳細は\secref{sec:log_schema}に示す．
 

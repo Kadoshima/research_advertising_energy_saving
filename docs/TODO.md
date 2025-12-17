@@ -232,9 +232,35 @@
   - 集計: `uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py`
   - Ablation: CCS-off（U-only, 100↔500）
 
-- [ ] (ME+AI) D4B: CCS-off（U-only）で「CCSが効く」を切り分け（S4, scan90, 4条件×n=3）
+- [x] (ME+AI) D4B: CCS-off（U-only）で「CCSが効く」を切り分け（S4, scan90, 4条件×n=3）
   - データ: `uccs_d4b_scan90/data/01/`
-  - 出力: `uccs_d4b_scan90/metrics/01/summary.md` / `uccs_d4b_scan90/plots/*`
+  - 出力: `uccs_d4b_scan90/metrics/01/summary.md`
+  - 図: `uccs_d4b_scan90/plots/d4b_01_power_vs_pout.svg`
+  - 追加解析: `uccs_d4b_scan90/plots/ccs_timing_01/`（遷移近傍への100ms割当て可視化）
+  - 差分CI: `uccs_d4b_scan90/metrics/01/effects_ci.md`（bootstrap, per-trial）
+
+- [x] (AI) 役割分離の統合図（D3/D4/D4Bを1枚に統合）
+  - 図: `uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.svg`
+
+- [x] (AI) 効果量の差分+不確かさ（bootstrap CI）を算出（D3/D4/D4B）
+  - script: `scripts/bootstrap_effects.py`
+  - D4B: `uccs_d4b_scan90/metrics/01/effects_ci.md`
+  - D4: `uccs_d4_scan90/metrics/01/effects_ci.md`
+  - D3: `uccs_d3_scan70/metrics/01/effects_ci.md`
+
+- [x] (AI) α正規化（fixed100/500で正規化した電力配分）×QoS の図を作成（CCS寄与を刺す）
+  - 図: `uccs_d4b_scan90/plots/alpha_vs_pout_overview.svg`
+
+- [x] (AI) D4B: Poutを生んだ少数イベント（TL>1s）を特定し、失敗イベント中心のストーリー図を作成
+  - script: `uccs_d4b_scan90/analysis/outage_story_trace.py`
+  - 出力: `uccs_d4b_scan90/plots/outage_story_01/fig_outage_timeline.svg`
+  - 付随: `uccs_d4b_scan90/plots/outage_story_01/outage_ranking.csv`, `uccs_d4b_scan90/plots/outage_story_01/per_transition.csv`
+
+- [x] (AI) D4B: Poutの寄与分解（尾の集中度）と条件付きタイミング（失敗遷移に条件付け）を追加
+  - script: `uccs_d4b_scan90/analysis/pout_tail_decomposition.py`
+  - 出力: `uccs_d4b_scan90/plots/pout_tail_01/`
+  - script: `uccs_d4b_scan90/analysis/ccs_timing_analysis_conditional.py`
+  - 出力: `uccs_d4b_scan90/plots/ccs_timing_conditional_01/fig_event_triggered_p100_conditional.svg`
 
 - [x] (AI) D3準備: scan70%（interval=100ms, window=70ms）の専用ディレクトリ＋スケッチを追加
   - index: `uccs_d3_scan70/README.md`
@@ -249,6 +275,7 @@
 - [x] (AI) D3: 集計（pout/TL/power/share）と図（power vs pout）を生成
   - 集計: `uccs_d3_scan70/metrics/01/summary.md`
   - 図: `uccs_d3_scan70/plots/d3_01_power_vs_pout.png`
+  - 備考: scan70では `share100_time_est (RX tags)` が過小評価しやすいため、`share100_power_mix`（power-mix推定）を主に参照する。
 
 ### P0: 定義固定 + 図表化（最優先）
 

@@ -21,6 +21,7 @@ latexmk main.tex
 ```
 
 生成物は `build/main.pdf` に出力されます（ビルド用の一時ファイル/キャッシュも `build/` 配下）。
+ページ数は `build/main.log` の `Output written on main.pdf (XX pages, ...)` で確認できます。
 
 ### Overleaf
 - Compiler: **LuaLaTeX**

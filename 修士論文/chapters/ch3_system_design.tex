@@ -68,25 +68,7 @@
 
 \subsection{フェイルセーフと運用設計}
 非理想スキャン環境では，受信品質が瞬間的に悪化する可能性がある．このため，実装では安全側への退避（短間隔）を設けることが望ましい．本研究では，切替規則の設計とログ化により，安全側に寄せた挙動を説明可能にする．
-
-\begin{figure}[tb]
-  \centering
-  \fbox{\begin{minipage}{0.9\linewidth}
-    \vspace{1mm}
-    \begin{center}
-      \textbf{フェイルセーフ（概念）}
-    \end{center}
-    \vspace{1mm}
-    \begin{itemize}
-      \item 通常：CCSに応じて$a\in\{100,500,1000,2000\}\,\si{\milli\second}$を選択
-      \item 兆候：受信品質悪化や不確実度急増などの兆候で短間隔へ退避
-      \item 監査：退避の根拠をログ（reason）として保存
-    \end{itemize}
-    \vspace{1mm}
-  \end{minipage}}
-  \caption{フェイルセーフ設計の概念図}
-  \label{fig:failsafe_concept}
-\end{figure}
+具体的には，通常はCCSに応じて広告間隔を選択し，QoS悪化の兆候がある場合は短間隔へ退避できる余地を残す．また，退避の根拠（切替理由）をログに残し，監査可能にする．
 
 \subsection{フェーズ設計（Phase 1 → Phase 2）}
 Phase 1では，ルールベース方策で「計測・指標・実機実装」を成立させることを優先する．特に，TL/Poutの定義と時間同期，電力計測の健全化は，学習以前に必須である．Phase 2では，コンテキスト（$U,S$）と行動（広告間隔）の選択をSafe Contextual Banditとして定式化し，環境差に適応しつつQoS制約を守る枠組みを検証する．

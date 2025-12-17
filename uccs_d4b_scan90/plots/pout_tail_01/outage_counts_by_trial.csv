@@ -1,0 +1,7 @@
+rx_file,mode,n_transitions,n_outages,pout_est
+rx_trial_004.csv,P,41,2,0.04878048780487805
+rx_trial_005.csv,U,41,2,0.04878048780487805
+rx_trial_008.csv,P,41,2,0.04878048780487805
+rx_trial_009.csv,U,41,3,0.07317073170731707
+rx_trial_012.csv,P,41,2,0.04878048780487805
+rx_trial_013.csv,U,41,3,0.07317073170731707

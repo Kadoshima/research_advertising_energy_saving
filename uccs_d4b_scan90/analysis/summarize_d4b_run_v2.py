@@ -7,15 +7,16 @@ Step D4B (CCS ablation):
   - 4 conditions × 3 repeats = 12 trials
     - S4_fixed100 (F4-..-100)
     - S4_fixed500 (F4-..-500)
-    - S4_policy (P4-..-itv)
-    - S4_ablation_ccs_off (U4-..-itv)
+    - S4_policy (P4-..-itv)          # U+CCS
+    - S4_ablation_ccs_off (U4-..-itv) # U-only (CCS-off)
 
 RX ManufacturerData: "<step_idx>_<tag>"
   tag: "F4-<label>-<itv>" / "P4-<label>-<itv>" / "U4-<label>-<itv>"
 
 Notes:
-  - SDコピーでmtimeが壊れることがあるため、TXSDはcond_idでグルーピングして各条件3本を割り当てる。
-  - TL/PoutはRXログの(100ms真値)遷移に対して、受信時刻をper-trial定数オフセットで整列して算出する（D2/D4と同じ）。
+  - TXSD側は preamble（TICK）誤検出やSDコピーでmtimeが壊れるケースがあるため、
+    cond_id/mtime に依存せず、adv_count（tick_count）を用いてクラスタリングして割り当てる。
+  - TL/Poutは(100ms真値)遷移に対して、受信時刻をper-trial定数オフセットで整列して算出する（D2/D4と同じ）。
 """
 
 from __future__ import annotations
@@ -37,7 +38,7 @@ TAG_RE = re.compile(r"^(?P<mode>[FPU])(?P<sess>[14])-(?P<label>\d+)-(?P<itv>\d+)
 RX_TRIAL_RE = re.compile(r"rx_trial_(?P<id>\d+)\.csv$")
 TXSD_NAME_RE = re.compile(r"trial_(?P<idx>\d+)_c(?P<cond>\d+)_(?P<tag>.+)\.csv$")
 
-# Drop stale/mixed low-power files (typically old logs).
+# Drop stale/mixed low-power files (typically old logs) and wrong-signed logs.
 TXSD_MIN_AVG_POWER_MW = 150.0
 
 
@@ -71,6 +72,19 @@ class TxsdTrial:
     adv_count: int
     e_total_mj: float
     avg_power_mw: float
+
+
+def estimate_rx_tag_share100_time_est(events: List[RxEvent]) -> Optional[float]:
+    itv_by_step: Dict[int, int] = {}
+    for e in events:
+        if e.step_idx not in itv_by_step:
+            itv_by_step[e.step_idx] = e.itv_ms
+    n100 = sum(1 for v in itv_by_step.values() if v == 100)
+    n500 = sum(1 for v in itv_by_step.values() if v == 500)
+    denom_ms = n100 * 100 + n500 * 500
+    if denom_ms <= 0:
+        return None
+    return (n100 * 100) / denom_ms
 
 
 def read_truth_labels(path: Path, n_steps: int) -> List[int]:
@@ -279,19 +293,6 @@ def parse_txsd_summary(path: Path) -> Optional[TxsdTrial]:
     )
 
 
-def estimate_rx_tag_share100_time_est(events: List[RxEvent]) -> Optional[float]:
-    itv_by_step: Dict[int, int] = {}
-    for e in events:
-        if e.step_idx not in itv_by_step:
-            itv_by_step[e.step_idx] = e.itv_ms
-    n100 = sum(1 for v in itv_by_step.values() if v == 100)
-    n500 = sum(1 for v in itv_by_step.values() if v == 500)
-    denom_ms = n100 * 100 + n500 * 500
-    if denom_ms <= 0:
-        return None
-    return (n100 * 100) / denom_ms
-
-
 def mean_std(xs: List[float]) -> Tuple[float, float]:
     if not xs:
         return 0.0, 0.0
@@ -315,6 +316,79 @@ def pick_n_typical_by_power(group: List[TxsdTrial], n: int) -> List[TxsdTrial]:
     med = statistics.median(powers)
     group_sorted = sorted(group, key=lambda t: abs(t.avg_power_mw - med))
     return group_sorted[:n]
+
+
+def compute_share100_power_mix(p_dyn: float, p_100: float, p_500: float) -> Optional[float]:
+    denom = (p_100 - p_500)
+    if denom == 0:
+        return None
+    s = (p_dyn - p_500) / denom
+    if s < 0:
+        s = 0.0
+    if s > 1:
+        s = 1.0
+    return float(s)
+
+
+def classify_txsd_by_adv_count(
+    txsd_trials: List[TxsdTrial],
+    rx_share_policy: Optional[float],
+    rx_share_uonly: Optional[float],
+) -> Dict[str, List[TxsdTrial]]:
+    """
+    Classify TXSD trials into 4 conditions using adv_count clustering.
+      - max adv_count -> fixed100
+      - min adv_count -> fixed500
+      - remaining 2 adv_count values -> policy vs u-only (matched by RX tag share100 if available)
+    """
+    by_adv: Dict[int, List[TxsdTrial]] = {}
+    for t in txsd_trials:
+        by_adv.setdefault(t.adv_count, []).append(t)
+    adv_values = sorted(by_adv.keys())
+    if len(adv_values) < 4:
+        raise SystemExit(f"TXSD adv_count has <4 unique values: {adv_values}")
+
+    adv_min = adv_values[0]
+    adv_max = adv_values[-1]
+    dyn = [v for v in adv_values if v not in (adv_min, adv_max)]
+    if len(dyn) != 2:
+        dyn = sorted(dyn, key=lambda v: len(by_adv[v]), reverse=True)[:2]
+        dyn = sorted(dyn)
+    if len(dyn) != 2:
+        raise SystemExit(f"could not identify 2 dynamic adv_count values: {adv_values}")
+
+    adv_dyn1, adv_dyn2 = dyn[0], dyn[1]
+
+    def adv_to_share(a: int) -> float:
+        denom = (adv_max - adv_min)
+        if denom <= 0:
+            return 0.0
+        s = (a - adv_min) / denom
+        if s < 0:
+            s = 0.0
+        if s > 1:
+            s = 1.0
+        return float(s)
+
+    s1 = adv_to_share(adv_dyn1)
+    s2 = adv_to_share(adv_dyn2)
+
+    if rx_share_policy is not None and rx_share_uonly is not None:
+        d11 = abs(s1 - rx_share_policy) + abs(s2 - rx_share_uonly)
+        d12 = abs(s1 - rx_share_uonly) + abs(s2 - rx_share_policy)
+        if d12 < d11:
+            adv_dyn1, adv_dyn2 = adv_dyn2, adv_dyn1
+            s1, s2 = s2, s1
+
+    groups = {
+        "S4_fixed500": by_adv[adv_min],
+        "S4_fixed100": by_adv[adv_max],
+        "S4_policy": by_adv[adv_dyn1],
+        "S4_ablation_ccs_off": by_adv[adv_dyn2],
+    }
+    for k in groups:
+        groups[k] = sorted(groups[k], key=lambda t: t.path.name)
+    return groups
 
 
 def main() -> None:
@@ -342,27 +416,23 @@ def main() -> None:
         tt = parse_txsd_summary(p)
         if not tt:
             continue
-        if tt.ms_total >= VALID_MIN_DURATION_MS and tt.avg_power_mw >= TXSD_MIN_AVG_POWER_MW:
+        if tt.ms_total >= VALID_MIN_DURATION_MS and tt.avg_power_mw >= TXSD_MIN_AVG_POWER_MW and tt.e_total_mj > 0:
             txsd_all.append(tt)
     if not txsd_all:
         raise SystemExit("no valid TXSD trials found after filtering")
 
-    by_cond: Dict[int, List[TxsdTrial]] = {}
-    for t in txsd_all:
-        by_cond.setdefault(t.cond_id, []).append(t)
-    # require 3 per each expected cond_id
-    cond_map = {
-        1: "S4_fixed100",
-        2: "S4_fixed500",
-        3: "S4_policy",
-        4: "S4_ablation_ccs_off",
-    }
-    picked: Dict[str, List[TxsdTrial]] = {}
-    for cid, cname in cond_map.items():
-        group = by_cond.get(cid) or []
-        group = sorted(group, key=lambda t: t.path.name)
-        picked[cname] = pick_n_typical_by_power(group, 3)
-        picked[cname].sort(key=lambda t: t.path.name)
+    # RX share100 estimates for matching policy vs u-only TXSD clusters (optional).
+    pol_shares = [estimate_rx_tag_share100_time_est(t.events) for t in rx_trials if t.mode == "P"]
+    u_shares = [estimate_rx_tag_share100_time_est(t.events) for t in rx_trials if t.mode == "U"]
+    pol_shares = [x for x in pol_shares if x is not None]
+    u_shares = [x for x in u_shares if x is not None]
+    rx_share_pol = statistics.mean(pol_shares) if pol_shares else None
+    rx_share_u = statistics.mean(u_shares) if u_shares else None
+
+    groups = classify_txsd_by_adv_count(txsd_all, rx_share_pol, rx_share_u)
+    picked: Dict[str, List[TxsdTrial]] = {k: pick_n_typical_by_power(v, 3) for k, v in groups.items()}
+    for k in picked:
+        picked[k].sort(key=lambda t: t.path.name)
 
     pairs: List[Tuple[RxTrial, TxsdTrial]] = []
     for rx in rx_trials:
@@ -465,6 +535,18 @@ def main() -> None:
             }
         )
 
+    # Add share100_power_mix_mean for dynamic conditions (mean powers only).
+    p100 = next((float(r["avg_power_mW_mean"]) for r in summary_rows if r["condition"] == "S4_fixed100"), None)
+    p500 = next((float(r["avg_power_mW_mean"]) for r in summary_rows if r["condition"] == "S4_fixed500"), None)
+    for r in summary_rows:
+        r["share100_power_mix_mean"] = ""
+        if p100 is None or p500 is None:
+            continue
+        if r["condition"] in ("S4_policy", "S4_ablation_ccs_off"):
+            s = compute_share100_power_mix(float(r["avg_power_mW_mean"]), p100, p500)
+            if s is not None:
+                r["share100_power_mix_mean"] = round(s, 6)
+
     sum_path = args.out_dir / "summary_by_condition.csv"
     with sum_path.open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(summary_rows[0].keys()))
@@ -477,13 +559,14 @@ def main() -> None:
     lines.append(f"- source TXSD: `{args.txsd_dir}`\n")
     lines.append(f"- truth: `{args.truth_s4}` (n_steps={args.n_steps}, dt=100ms)\n")
     lines.append(f"- selected RX trials: {rx_trials[0].rx_id:03d}..{rx_trials[-1].rx_id:03d} (n={len(rx_trials)})\n")
-    lines.append("- selected TXSD trials: grouped by cond_id=1..4 (3 trials each)\n")
+    uniq_adv = sorted({tx.adv_count for _, tx in pairs})
+    lines.append(f"- selected TXSD trials: grouped by adv_count={uniq_adv} (3 trials each)\n")
     lines.append(f"- generated: {datetime.now().strftime('%Y-%m-%d %H:%M')} (local)\n")
     lines.append(f"- command: `python3 uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py --rx-dir {args.rx_dir} --txsd-dir {args.txsd_dir} --out-dir {args.out_dir}`\n")
 
     lines.append("\n## Summary (mean ± std)\n")
-    lines.append("| condition | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | adv_count | share100_time_est (RX tags) |\n")
-    lines.append("|---|---:|---:|---:|---:|---:|---:|\n")
+    lines.append("| condition | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | adv_count | share100_time_est (RX tags) | share100_power_mix |\n")
+    lines.append("|---|---:|---:|---:|---:|---:|---:|---:|\n")
 
     def fmt_pm(m: object, s: object, decimals: int) -> str:
         if m == "" or s == "":
@@ -491,20 +574,22 @@ def main() -> None:
         return f"{float(m):.{decimals}f}±{float(s):.{decimals}f}"
 
     for r in summary_rows:
+        share_mix = r.get("share100_power_mix_mean", "")
         lines.append(
             f"| {r['condition']} | {fmt_pm(r['pout_1s_mean'], r['pout_1s_std'], 4)} | "
             f"{fmt_pm(r['tl_mean_s_mean'], r['tl_mean_s_std'], 3)} | "
             f"{fmt_pm(r['pdr_unique_mean'], r['pdr_unique_std'], 3)} | "
             f"{fmt_pm(r['avg_power_mW_mean'], r['avg_power_mW_std'], 1)} | "
             f"{fmt_pm(r['adv_count_mean'], r['adv_count_std'], 1)} | "
-            f"{fmt_pm(r['rx_tag_share100_time_est_mean'], r['rx_tag_share100_time_est_std'], 3) if r.get('rx_tag_share100_time_est_mean','')!='' else ''} |"
+            f"{fmt_pm(r['rx_tag_share100_time_est_mean'], r['rx_tag_share100_time_est_std'], 3) if r.get('rx_tag_share100_time_est_mean','')!='' else ''} | "
+            f"{(f'{float(share_mix):.3f}' if share_mix != '' else '')} |"
             "\n"
         )
 
     lines.append("\n## Notes\n")
     lines.append("- RX window: latest 12 trials that form 4 conditions × 3 repeats (duration>=160s).\n")
-    lines.append("- TXSD pairing: SDコピーでmtimeが壊れることがあるため、cond_idでグルーピングして各条件3本を割り当て。\n")
-    lines.append(f"  - filter: avg_power_mW >= {TXSD_MIN_AVG_POWER_MW:.1f}（古いログ混在を除外）\n")
+    lines.append("- TXSD pairing: cond_idがズレる/mtimeが壊れる可能性があるため、adv_count（tick_count）でクラスタリングして割り当て。\n")
+    lines.append(f"  - filter: avg_power_mW >= {TXSD_MIN_AVG_POWER_MW:.1f} かつ E_total_mJ>0（古いログ混在/逆符号を除外）\n")
     lines.append("- TL/Pout alignment: per-trial constant offset estimated from (step_idx*100ms - first_rx_ms(step_idx)).\n")
     lines.append("- TXSD adv_count is tick_count (1 tick per payload update); used as denominator for pdr_unique.\n")
     lines.append("- share100_time_est: estimated from RX tags (unique step_idx by interval); sanity only (RX has drops).\n")
@@ -515,4 +600,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
