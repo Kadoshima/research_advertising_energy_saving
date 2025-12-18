@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import math
 import os
 from pathlib import Path
 from typing import Dict, Optional, Tuple
@@ -120,6 +121,10 @@ def main() -> None:
     )
 
     fig, ax = plt.subplots(figsize=(7.0, 4.8))
+    xs: list[float] = []
+    ys: list[float] = []
+    xerrs: list[float] = []
+    yerrs: list[float] = []
 
     def plot_group(session: str, color: str) -> None:
         fx100 = f"{session}_fixed100"
@@ -129,6 +134,11 @@ def main() -> None:
         x1, y1, x1e, y1e, _, _ = get_point(rows, fx100)
         x5, y5, x5e, y5e, _, _ = get_point(rows, fx500)
         xp, yp, xpe, ype, advp, rx_share = get_point(rows, pol)
+
+        xs.extend([x1, x5, xp])
+        ys.extend([y1, y5, yp])
+        xerrs.extend([x1e, x5e, xpe])
+        yerrs.extend([y1e, y5e, ype])
 
         ax.errorbar(
             [x1, x5],
@@ -176,8 +186,25 @@ def main() -> None:
     plot_group("S1", color="#1f77b4")
     plot_group("S4", color="#ff7f0e")
 
+    # Fix axis bounds/ticks so plot edges align with ticks (A4-friendly).
+    if xs and ys:
+        x_min = min(x - xe for x, xe in zip(xs, xerrs))
+        x_max = max(x + xe for x, xe in zip(xs, xerrs))
+        y_max = max(y + ye for y, ye in zip(ys, yerrs))
+        x_step = 5.0
+        y_step = 0.05
+        xmin = math.floor((x_min - 0.5) / x_step) * x_step
+        xmax = math.ceil((x_max + 0.5) / x_step) * x_step
+        ymax = math.ceil((y_max + 0.005) / y_step) * y_step
+        ax.set_xlim(xmin, xmax)
+        ax.set_ylim(0.0, ymax)
+        ax.set_xticks([xmin + i * x_step for i in range(int(round((xmax - xmin) / x_step)) + 1)])
+        ax.set_yticks([i * y_step for i in range(int(round(ymax / y_step)) + 1)])
+        ax.margins(x=0.0, y=0.0)
+
     ax.set_xlabel("avg_power_mW (TXSD)")
     ax.set_ylabel("pout_1s")
+    ax.set_axisbelow(True)
     ax.grid(True, alpha=0.3)
 
     title = args.title.strip()
@@ -196,7 +223,7 @@ def main() -> None:
         seen.add(l)
         h2.append(h)
         l2.append(l)
-    ax.legend(h2, l2, loc="best", frameon=True, fontsize=9)
+    ax.legend(h2, l2, loc="upper right", frameon=True, fontsize=9)
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     fig.tight_layout()

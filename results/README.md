@@ -17,3 +17,9 @@
 ## phase0-0 / phase0-1
 - phase0-0 の 1m/E2/100ms 系サマリ（baseline_analysis_1130, ΔE系MD）は `results/phase0-0/` に集約済み。
 - phase0-1 は `results/phase0-1/` を参照。
+
+## final（最終成果物の集約）
+- 論文化/スライド化のために「最終的に参照される図表・表」を集約: `results/final/`
+  - 図: `results/final/fig/`
+  - 表: `results/final/tab/`
+  - 一括生成: `results/final/build.sh`

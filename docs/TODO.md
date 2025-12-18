@@ -242,6 +242,10 @@
 - [x] (AI) 役割分離の統合図（D3/D4/D4Bを1枚に統合）
   - 図: `uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.svg`
 
+- [x] (AI) 主図を1枚に固定（scan70/scan90を同一座標に重ねる：x=avg_power, y=pout_1s, bootstrap CI）
+  - 図: `uccs_d4b_scan90/plots/mainfig_scan70_scan90.svg`
+  - script: `uccs_d4b_scan90/analysis/plot_mainfig_scan70_scan90.py`
+
 - [x] (AI) 効果量の差分+不確かさ（bootstrap CI）を算出（D3/D4/D4B）
   - script: `scripts/bootstrap_effects.py`
   - D4B: `uccs_d4b_scan90/metrics/01/effects_ci.md`

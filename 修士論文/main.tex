@@ -42,6 +42,25 @@
 \input{chapters/acknowledgements}
 
 % --- 参考文献・参考URL ---
-\printbibliography[heading=bibintoc,title={参考文献・参考 URL}]
+% 本文中で未引用でも，提出版では重要文献を一覧に含める
+\nocite{
+  Fujisawa2024BLEBeaconing,
+  Luo2021BLENeighborDiscoverySurvey,
+  BluetoothSIGCore52,
+  Schrader2016BLEPower,
+  Luo2019BLEParamConfig,
+  Chen2020BLEPowerMgmt,
+  Gentner2022BLEAdvertisingChannel,
+  Tsai2025BLEDelaySensitive,
+  Auer2002Bandit,
+  SuttonBarto2018RL,
+  Njor2024TinyMLPdM,
+  Abadade2023TinyMLSurvey,
+  Tsoukas2024TinyMLReview,
+  Zhou2025DeepConvLSTM,
+  Contoli2024EnergyAwareHARReview,
+  Rashid2022AHAR%
+}
+\thesisbibliography{参考文献・参考 URL}
 
 \end{document}

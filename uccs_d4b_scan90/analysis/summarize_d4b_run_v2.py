@@ -345,8 +345,12 @@ def classify_txsd_by_adv_count(
     for t in txsd_trials:
         by_adv.setdefault(t.adv_count, []).append(t)
     adv_values = sorted(by_adv.keys())
-    if len(adv_values) < 4:
-        raise SystemExit(f"TXSD adv_count has <4 unique values: {adv_values}")
+    # D4Bの設計上、policy(U+CCS) と ablation_ccs_off(U-only) が「ほぼ同じmix」になり、
+    # adv_countが同一（=ユニーク値が3つだけ: min=500, max=100, mid=policy/u-only共有）になることがある。
+    # その場合は adv_count クラスタリングだけでは 4条件を完全に分離できないため、
+    # cond_id（ファイル名に含まれる）での分離を優先する（main側で実施）。
+    if len(adv_values) < 3:
+        raise SystemExit(f"TXSD adv_count has <3 unique values: {adv_values}")
 
     adv_min = adv_values[0]
     adv_max = adv_values[-1]
@@ -391,6 +395,38 @@ def classify_txsd_by_adv_count(
     return groups
 
 
+def classify_txsd_trials(
+    txsd_trials: List[TxsdTrial],
+    rx_share_policy: Optional[float],
+    rx_share_uonly: Optional[float],
+    n_per_group: int = 3,
+) -> Dict[str, List[TxsdTrial]]:
+    """
+    Prefer cond_id-based classification when available (1..4 with enough trials),
+    otherwise fall back to adv_count clustering.
+    """
+    by_cond: Dict[int, List[TxsdTrial]] = {}
+    for t in txsd_trials:
+        if 1 <= t.cond_id <= 4:
+            by_cond.setdefault(t.cond_id, []).append(t)
+
+    if all(len(by_cond.get(i, [])) >= n_per_group for i in (1, 2, 3, 4)):
+        groups = {
+            "S4_fixed100": sorted(by_cond[1], key=lambda t: t.path.name),
+            "S4_fixed500": sorted(by_cond[2], key=lambda t: t.path.name),
+            "S4_policy": sorted(by_cond[3], key=lambda t: t.path.name),
+            "S4_ablation_ccs_off": sorted(by_cond[4], key=lambda t: t.path.name),
+        }
+        return groups
+
+    # Fallback: adv_count clustering (robust to broken cond_id / mixed logs)
+    return classify_txsd_by_adv_count(
+        txsd_trials=txsd_trials,
+        rx_share_policy=rx_share_policy,
+        rx_share_uonly=rx_share_uonly,
+    )
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--rx-dir", type=Path, required=True)
@@ -429,7 +465,7 @@ def main() -> None:
     rx_share_pol = statistics.mean(pol_shares) if pol_shares else None
     rx_share_u = statistics.mean(u_shares) if u_shares else None
 
-    groups = classify_txsd_by_adv_count(txsd_all, rx_share_pol, rx_share_u)
+    groups = classify_txsd_trials(txsd_all, rx_share_pol, rx_share_u, n_per_group=3)
     picked: Dict[str, List[TxsdTrial]] = {k: pick_n_typical_by_power(v, 3) for k, v in groups.items()}
     for k in picked:
         picked[k].sort(key=lambda t: t.path.name)

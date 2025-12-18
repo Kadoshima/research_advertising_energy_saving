@@ -41,6 +41,22 @@
     - `uccs_d4b_scan70/src/tx/TX_UCCS_D4B_SCAN70/TX_UCCS_D4B_SCAN70.ino`
   - TXSD: TICK入力に2msデバウンス（ノイズ/リンギングでpreambleパルスが+1されるのを抑制）
     - `uccs_d4b_scan70/src/txsd/TXSD_UCCS_D4B_SCAN70/TXSD_UCCS_D4B_SCAN70.ino`
+
+2025-12-18 20:50 JST
+- D4B-scan70の再取得ログ（cond_id=1..4 + adv_countが期待どおりに分離）を確認し、解析が通る状態になったのを確認
+  - データ: `uccs_d4b_scan70/data/01/`（RX: rx_trial_014..025 を採用、TXSD: 4条件×3本を採用）
+  - 解析: `python3 uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py --rx-dir uccs_d4b_scan70/data/01/RX --txsd-dir uccs_d4b_scan70/data/01/TX --out-dir uccs_d4b_scan70/metrics/01_fixed`
+    - 出力: `uccs_d4b_scan70/metrics/01_fixed/summary.md`
+  - 解析スクリプト修正: policy と U-only の adv_count が同一になるケース（ユニーク値3つ）でも動くよう、TXSDの条件割当を cond_id 優先に変更
+    - `uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py`
+
+2025-12-18 21:15 JST
+- （追加データ無し）U-onlyの閾値を動かしてαを揃える必要があるかを確認
+  - 現状のD4B-scan70 runでは、policy と U-only の `adv_count` が同一（=1323）で、イベント密度の正規化（alpha_adv）も同一になるため「同mix条件での比較」は既に成立していると判断
+  - 閾値探索のための簡易スクリプトを追加（frozen U-seriesの再生によりU-only切替列を再現）
+    - `uccs_d4b_scan70/analysis/tune_u_only_alpha.py`
+  - まとめ（追加データ無しの結論）をメモ化
+    - `uccs_d4b_scan70/metrics/01_fixed/u_only_alpha_tuning_summary.md`
 2025-12-18 16:36 JST
 - 図（$\hat{\\rho}_{100}$ vs $P_{\\mathrm{out}}$）が見づらい問題に対応。生成スクリプト `uccs_d4b_scan90/analysis/plot_alpha_vs_pout.py` を改修して、軸の目盛りを固定（x: 0,0.25,0.5,0.75,1 / y: 0〜上限を0.05刻み）、凡例を簡略化、ラベルを重要点のみに限定しオフセットで衝突回避（白縁取り付き）に変更。
 - 再生成: `uccs_d4b_scan90/plots/alpha_vs_pout_overview.svg` / `uccs_d4b_scan90/plots/alpha_vs_pout_overview.pdf`
@@ -65,3 +81,168 @@
 
 2025-12-18 18:38 JST
 - アブスト図2（role separation）のキャプションが長すぎる問題に対応し、内容を保ったまま短文化。2ページ制約に影響しないことを確認（PDF: `修士論文アブスト/build/main.pdf`）。
+
+2025-12-18 19:00 JST
+- アブスト図2キャプションをさらに短文化（1行で要点のみ）。`修士論文アブスト/main.tex` を再ビルドし、2ページ維持とキャプション表示を確認（PDF: `修士論文アブスト/build/main.pdf`）。
+
+2025-12-18 19:58 JST
+- アブスト図2（role separation）のキャプションを最小化（説明は本文で実施）:
+  - 修正: `修士論文アブスト/main.tex`（`\caption{U/CCSの役割分離（S4）}`）
+  - 再ビルド: `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+- 修論第4章を8ページ程度に圧縮:
+  - 受信端末運用/データ処理の詳細を第4章から削除し、Runbook/補足資料参照へ集約
+    - 修正: `修士論文/chapters/ch3_oncampus.tex`
+  - 再ビルド: `latexmk -lualatex main.tex`（PDF: `修士論文/build/main.pdf`、70 pages）
+
+2025-12-18 20:25 JST
+- 図表キャプションを「端的（名詞句）＋説明は本文」に統一（修論/アブスト）:
+  - 修論: 長い説明文をキャプションから撤去して短文化（役割分離図/追加解析図/オフライン評価など）
+    - `修士論文/chapters/ch4_rain.tex`
+    - `修士論文/chapters/ch7_offline_eval.tex`
+    - `修士論文/chapters/ch6_stress_fixed.tex`
+    - `修士論文/chapters/ch8_measurement_system.tex`
+    - `修士論文/chapters/ch3_oncampus.tex`
+    - `修士論文/chapters/ch8_experiment_design.tex`
+    - `修士論文/chapters/appx_d_log_schema.tex`
+    - `修士論文/chapters/appx_g_troubleshooting.tex`
+    - `修士論文/chapters/appx_h_ccs_params.tex`
+  - アブスト: 図2キャプションは最小表現を維持
+    - `修士論文アブスト/main.tex`
+- 参考文献の扉ページを追加（ページ数目標70p維持のため、謝辞と同形式に統一）:
+  - 修正: `修士論文/main.tex`（`\chapterwithtoc{参考文献・参考 URL}` + `\printbibliography[heading=none]`）
+- ビルド確認:
+  - `修士論文/build/main.pdf`（70 pages）
+  - `修士論文アブスト/build/main.pdf`（2 pages）
+
+2025-12-18 21:04 JST
+- アブスト先頭ブロックの氏名表記を「学生名 + 指導教員名（スペース区切り）」に変更（括弧および「指導教員：」を削除）:
+  - 修正: `修士論文アブスト/main.tex`
+- 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 21:11 JST
+- アブストの \section 見出しを「改行しない（run-in）」形式に変更し、見出し後はスペース相当（`1\zw`）を挿入:
+  - 修正: `修士論文アブスト/main.tex`（`\titleformat{\section}[runin]` / `\titlespacing*{\section}{...}{...}{1\zw}`）
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 21:18 JST
+- \section 見出し後の空きを「全角2つ相当」に調整:
+  - 修正: `修士論文アブスト/main.tex`（`\titlespacing*{\section}{...}{...}{2\zw}`）
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 21:20 JST
+- アブストの表示数式に式番号が付くよう、`\[ ... \]` を `equation` 環境へ変更（式番号を右側に表示）:
+  - 修正: `修士論文アブスト/main.tex`（`\label{eq:rho_from_power}` 追加）
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 21:35 JST
+- アブスト2ページ目下部の不自然な余白（列バランス調整による空き）を解消するため、末尾の `\balance` を削除:
+  - 修正: `修士論文アブスト/main.tex`
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 21:36 JST
+- アブストの章見出し（\section）フォントサイズを約+2pt相当として `\large` に変更（run-in 形式は維持）:
+  - 修正: `修士論文アブスト/main.tex`（`\titleformat{\section}[runin]{\normalfont\large}{...}`）
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 21:44 JST
+- 図2の上部に埋め込まれているタイトル（図内テキスト）を消すため、LaTeX側で上端をトリミングしてキャプションのみ残す:
+  - 修正: `修士論文アブスト/main.tex`（`\includegraphics[...,trim=0 0 0 12mm,clip]{...}`）
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 21:58 JST
+- ユーザーのロールバック後に修論を再ビルドしてPDF生成を確認:
+  - `修士論文/` で `latexmk -lualatex -interaction=nonstopmode main.tex`
+  - 出力: `修士論文/build/main.pdf`（71 pages）
+- アブストもビルド成果物を確認:
+  - `修士論文アブスト/build/main.pdf`（2 pages）
+
+2025-12-18 22:05 JST
+- 目次の章番号/インデントが崩れる問題を修正:
+  - 原因: `chubuthesis.sty` の独自 `\thesistableofcontents` が ltjsreport の目次幅計算（`\jsc@tocl@width`）を実行していなかった
+  - 修正: `修士論文/chubuthesis.sty`（`\thesistableofcontents` 内で幅計算を追加）
+  - 再ビルド: `修士論文/` で `latexmk -lualatex -interaction=nonstopmode main.tex`（PDF: `修士論文/build/main.pdf`、71 pages）
+
+2025-12-18 22:44 JST
+- 参考文献の上部余白（章扉の縦中央体裁が乗る）と、図だけのページの縦中央寄りを改善:
+  - 修正: `修士論文/chubuthesis.sty`
+    - float page を上寄せ: `\@fptop=0pt`, `\@fpbot=0pt`（図だけのページでの縦中央化を抑制）
+    - 参考文献は独自 `\thesisbibliography{...}` で上寄せ（`bibintoc` の `\chapter*` を避ける）
+  - 修正: `修士論文/main.tex`（`\thesisbibliography{参考文献・参考 URL}` に切替）
+  - 再ビルド: `修士論文/` で `latexmk -lualatex -interaction=nonstopmode main.tex`（PDF: `修士論文/build/main.pdf`、71 pages）
+
+2025-12-18 22:01 JST
+- アブスト図1を簡易TikZ図から配線図（ESP32三ノード）へ差し替え、写真3枚（RX / TX+TXSD / 測定環境）を小さく並べて追加し、はじめにを短文化して文献数を5件に拡張:
+  - 画像追加（派生ファイル）:
+    - `修士論文アブスト/figures/fig_signal_relationship.jpg`（元: `image/ESP32三ノード実験装置.jpg`）
+    - `修士論文アブスト/figures/fig_rx.jpg`（元: `image/RX.JPG`）
+    - `修士論文アブスト/figures/fig_txtxsd.png`（元: `image/TX&TXSD.png`）
+    - `修士論文アブスト/figures/fig_experiment_setup.jpg`（元: `image/実験構成01.JPG`）
+  - LaTeX修正: `修士論文アブスト/main.tex`（TikZ削除、図挿入・写真図追加、導入短文化、Shannon/Calibration引用追加）
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 22:03 JST
+- 図3（実験装置写真3枚）の表示サイズを微増（28mm→30mm）:
+  - 修正: `修士論文アブスト/main.tex`
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 22:04 JST
+- 図3（実験装置写真3枚）の表示サイズを 34mm へ拡大:
+  - 修正: `修士論文アブスト/main.tex`（`height=34mm`）
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 22:06 JST
+- 参考文献見出しを「文 献」→「参考文献」に変更:
+  - 修正: `修士論文アブスト/main.tex`
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 22:10 JST
+- 図番号調整: 実験装置写真（旧 図3）を1ページ目へ移動し図2に、役割分離図（旧 図2）を図3へ繰り下げ（LaTeX上の配置順を変更）:
+  - 修正: `修士論文アブスト/main.tex`
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 22:13 JST
+- 2.1 等の小節（\subsection）見出しサイズを約+2pt相当として `\large` に変更:
+  - 修正: `修士論文アブスト/main.tex`（`\titleformat{\subsection}{\normalfont\large}{...}`）
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 22:34 JST
+- 参考文献（ユーザ提示のBibTeX）を修論 `修士論文/references.bib` に追記。
+- アブストは重要8件に差し替え、本文側でも8件を引用するよう更新し、参考文献表示は2ページに収まるよう簡略化（URL/DOI省略・scriptsize）。
+  - 修正: `修士論文アブスト/references.bib`, `修士論文アブスト/main.tex`
+- ビルド確認:
+  - `修士論文/build/main.pdf`（71 pages）
+  - `修士論文アブスト/build/main.pdf`（2 pages）
+
+2025-12-18 22:43 JST
+- アブストの紙面が短い（空白が目立つ）問題に対し、結果節にアブレーションの定量記述（U-shuffle/CCS-offの数値）を追加して本文量を増やした。
+  - 修正: `修士論文アブスト/main.tex`
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 23:05 JST
+- 主図（scan70/scan90を同一座標で比較、bootstrap CI付き）を確定:
+  - 図: `uccs_d4b_scan90/plots/mainfig_scan70_scan90.svg`
+  - 生成スクリプト: `uccs_d4b_scan90/analysis/plot_mainfig_scan70_scan90.py`
+- TODO更新（主図の追加）: `docs/TODO.md`
+
+2025-12-18 23:06 JST
+- ユーザーへ「主図は完了」「logも追記済み」を確認。
+
+2025-12-18 23:15 JST
+- 実験全体の「最終成果物」置き場と再現手順を整備（散らばり対策）:
+  - 追加: `results/final/README.md`, `results/final/manifest.md`
+  - 一括生成: `results/final/build.sh`（dependency-freeの図表生成 + 表統合）
+  - 表統合: `results/final/scripts/build_tables.py` → `results/final/tab/tab_summary_by_condition.csv`
+  - 更新: `results/README.md`（finalの参照を追加）
+  - ルール化: `docs/成果物管理ルール.md`
+2025-12-18 23:09 JST
+- 修士論文の参考文献が6件しか出ない件を対応。biblatexは「引用されたものだけ出力」なので、`修士論文/main.tex` に \nocite{...}（ユーザ指定16件）を入れて強制的に一覧へ含めるようにした。
+- `修士論文/references.bib` にユーザ指定16件が登録済みであることを確認。
+- ビルドが古い状態だとPDFに反映されないため、`修士論文/` で `latexmk -C && latexmk main.tex` を実施してbiberまで回る状態に整理。
+- `修士論文/build/main.pdf` の「参考文献・参考URL」に [1]〜[22] を確認（既存6件 + 追加16件）。
+
+2025-12-18 23:13 JST
+- `修士論文/` で `latexmk -lualatex -interaction=nonstopmode main.tex` を再実行し、`修士論文/build/main.pdf` が up-to-date であることを確認。
+- `修士論文アブスト/` も同様に `latexmk -lualatex -interaction=nonstopmode main.tex` を再実行し、`修士論文アブスト/build/main.pdf` が up-to-date であることを確認。
+2025-12-18 23:14 JST
+- 参考文献16件のうち Rashid(AHAR) の詳細を反映：`修士論文/references.bib` の `Rashid2022AHAR` を Early Access (Aug. 2022) として整形し、タイトル表記をIEEE表記に合わせた。
+- `修士論文/` で `latexmk -g main.tex` を実行して `修士論文/build/main.pdf` へ反映、参考文献欄で AHAR の項目に Early Access と doi 表記を確認。

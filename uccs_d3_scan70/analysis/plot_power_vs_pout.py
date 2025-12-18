@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import math
 import os
 from pathlib import Path
 from typing import Dict, Optional, Tuple
@@ -119,11 +120,31 @@ def main() -> None:
     ax.annotate("100", (x100, y100), textcoords="offset points", xytext=(6, -12), fontsize=9, color="#1f77b4")
     ax.annotate("500", (x500, y500), textcoords="offset points", xytext=(6, -12), fontsize=9, color="#1f77b4")
 
+    # Fix axis bounds/ticks so plot edges align with ticks (A4-friendly).
+    xs = [x100, x500, xpol]
+    ys = [y100, y500, ypol]
+    xerrs = [x100e, x500e, xpole]
+    yerrs = [y100e, y500e, ypole]
+    x_min = min(x - xe for x, xe in zip(xs, xerrs))
+    x_max = max(x + xe for x, xe in zip(xs, xerrs))
+    y_max = max(y + ye for y, ye in zip(ys, yerrs))
+    x_step = 5.0
+    y_step = 0.05
+    xmin = math.floor((x_min - 0.5) / x_step) * x_step
+    xmax = math.ceil((x_max + 0.5) / x_step) * x_step
+    ymax = math.ceil((y_max + 0.005) / y_step) * y_step
+    ax.set_xlim(xmin, xmax)
+    ax.set_ylim(0.0, ymax)
+    ax.set_xticks([xmin + i * x_step for i in range(int(round((xmax - xmin) / x_step)) + 1)])
+    ax.set_yticks([i * y_step for i in range(int(round(ymax / y_step)) + 1)])
+    ax.margins(x=0.0, y=0.0)
+
     ax.set_xlabel("avg_power_mW (TXSD)")
     ax.set_ylabel("pout_1s")
+    ax.set_axisbelow(True)
     ax.grid(True, alpha=0.3)
     ax.set_title(args.title.strip() or f"{args.summary_csv.parent.name}: avg_power vs pout_1s (D3 scan70, S4)")
-    ax.legend(loc="best", frameon=True, fontsize=9)
+    ax.legend(loc="upper right", frameon=True, fontsize=9)
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     fig.tight_layout()

@@ -152,7 +152,8 @@ def write_svg(out_svg: Path, title: str, pts: List[Pt]) -> None:
     xmin, xmax = 0.0, 1.0
     ymin = 0.0
     ymax_raw = max((y + ye) for y, ye in zip(ys, yerrs)) if ys else 0.2
-    ymax = math.ceil((ymax_raw + 0.02) / 0.05) * 0.05
+    # Keep the top tick on the frame while avoiding excessive headroom.
+    ymax = math.ceil((ymax_raw) / 0.05) * 0.05
     ymax = max(0.15, min(0.45, ymax))
     x_ticks = [0.0, 0.25, 0.50, 0.75, 1.0]
     y_ticks = [i * 0.05 for i in range(int(round(ymax / 0.05)) + 1)]
@@ -191,15 +192,13 @@ def write_svg(out_svg: Path, title: str, pts: List[Pt]) -> None:
     label_cfg = {
         # keys: f"{group}_{cond}" (see main())
         # dx, dy, anchor
+        # Avoid label crowding near the bottom-right cluster by labeling only key points.
         "d4b_S4_fixed500": (10, -10, "start"),
         "d3_S4_fixed500": (10, -10, "start"),
-        "d4b_S4_policy": (12, 22, "start"),
-        "d4b_S4_ablation_ccs_off": (12, 4, "start"),
-        "d3_S4_policy": (12, -18, "start"),
-        "d4_S4_ablation_u_shuf": (-12, -10, "end"),
-        "d4b_S4_fixed100": (-12, -18, "end"),
-        "d3_S4_fixed100": (-12, 20, "end"),
-        "d3_S4_fixed500": (12, -10, "start"),
+        "d4b_S4_policy": (12, 18, "start"),
+        "d4b_S4_ablation_ccs_off": (12, -12, "start"),
+        "d3_S4_policy": (12, -10, "start"),
+        "d4_S4_ablation_u_shuf": (-12, 18, "end"),
     }
     label_style = 'style="paint-order: stroke; stroke: #ffffff; stroke-width: 4px; stroke-linejoin: round;"'
 
@@ -255,10 +254,10 @@ def main() -> None:
     p100, p100s = d4b["S4_fixed100"].p_mean, d4b["S4_fixed100"].p_std
     p500, p500s = d4b["S4_fixed500"].p_mean, d4b["S4_fixed500"].p_std
     for cond, label, color, shape in [
-        ("S4_fixed100", "scan90 fixed100", "#3b82f6", "square"),
-        ("S4_fixed500", "scan90 fixed500", "#3b82f6", "square"),
-        ("S4_policy", "scan90 policy (U+CCS)", "#10b981", "circle"),
-        ("S4_ablation_ccs_off", "scan90 CCS-off (U-only)", "#f59e0b", "triangle"),
+        ("S4_fixed100", "fixed100 (90)", "#3b82f6", "square"),
+        ("S4_fixed500", "fixed500 (90)", "#3b82f6", "square"),
+        ("S4_policy", "policy (90)", "#10b981", "circle"),
+        ("S4_ablation_ccs_off", "CCS-off", "#f59e0b", "triangle"),
     ]:
         r = d4b[cond]
         a, astd = compute_rho_hat100(r.p_mean, r.p_std, p100, p100s, p500, p500s)
@@ -272,8 +271,7 @@ def main() -> None:
     p100_d4, p100s_d4 = d4["S4_fixed100"].p_mean, d4["S4_fixed100"].p_std
     p500_d4, p500s_d4 = d4["S4_fixed500"].p_mean, d4["S4_fixed500"].p_std
     for cond, label, color in [
-        ("S4_policy", "scan90 policy (D4)", "#10b981"),
-        ("S4_ablation_u_shuf", "scan90 U-shuf", "#f59e0b"),
+        ("S4_ablation_u_shuf", "U-shuf", "#f59e0b"),
     ]:
         r = d4[cond]
         a, astd = compute_rho_hat100(r.p_mean, r.p_std, p100_d4, p100s_d4, p500_d4, p500s_d4)
@@ -283,14 +281,11 @@ def main() -> None:
     p100_d3, p100s_d3 = d3["S4_fixed100"].p_mean, d3["S4_fixed100"].p_std
     p500_d3, p500s_d3 = d3["S4_fixed500"].p_mean, d3["S4_fixed500"].p_std
     for cond, label in [
-        ("S4_fixed100", "scan70 fixed100",),
-        ("S4_fixed500", "scan70 fixed500",),
-        ("S4_policy", "scan70 policy",),
+        ("S4_fixed500", "fixed500 (70)",),
+        ("S4_policy", "policy (70)",),
     ]:
         r = d3[cond]
         a, astd = compute_rho_hat100(r.p_mean, r.p_std, p100_d3, p100s_d3, p500_d3, p500s_d3)
-        if cond == "S4_fixed100":
-            a, astd = 1.0, 0.0
         if cond == "S4_fixed500":
             a, astd = 0.0, 0.0
         pts.append(Pt(f"d3_{cond}", label, a, astd, r.pout_mean, r.pout_std, "#111827", "diamond"))

@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="560" viewBox="0 0 1000 560">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#111827"/></marker></defs>
+<rect x="0" y="0" width="1000" height="560" fill="#ffffff"/>
+<text x="500.0" y="38" font-size="20" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">D4B outage story (S4, scan90): failure-centered view (TL&gt;1.0s)</text>
+<rect x="80" y="70" width="890" height="400" fill="none" stroke="#111827" stroke-width="1.2"/>
+<line x1="80.00" y1="70" x2="80.00" y2="470" stroke="#e5e7eb" stroke-width="1"/>
+<text x="80.00" y="498" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">-3.0</text>
+<line x1="227.39" y1="70" x2="227.39" y2="470" stroke="#e5e7eb" stroke-width="1"/>
+<text x="227.39" y="498" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">-0.4</text>
+<line x1="374.78" y1="70" x2="374.78" y2="470" stroke="#e5e7eb" stroke-width="1"/>
+<text x="374.78" y="498" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">2.2</text>
+<line x1="522.17" y1="70" x2="522.17" y2="470" stroke="#e5e7eb" stroke-width="1"/>
+<text x="522.17" y="498" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">4.8</text>
+<line x1="675.22" y1="70" x2="675.22" y2="470" stroke="#e5e7eb" stroke-width="1"/>
+<text x="675.22" y="498" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">7.5</text>
+<line x1="822.61" y1="70" x2="822.61" y2="470" stroke="#e5e7eb" stroke-width="1"/>
+<text x="822.61" y="498" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">10.1</text>
+<line x1="970.00" y1="70" x2="970.00" y2="470" stroke="#e5e7eb" stroke-width="1"/>
+<text x="970.00" y="498" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">12.7</text>
+<text x="525.0" y="538" font-size="14" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">time relative to selected transition [s]</text>
+<line x1="250.06" y1="70" x2="250.06" y2="470" stroke="#6b7280" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="256.06" y="60" font-size="12" fill="#6b7280" font-family="ui-sans-serif, system-ui, -apple-system">truth transition (label=9)</text>
+<text x="80" y="88" font-size="13" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">U-only (CCS-off) (TL=9.89s)</text>
+<rect x="80.00" y="98.00" width="459.17" height="26" fill="#ef4444" opacity="0.22"/>
+<rect x="544.84" y="98.00" width="277.77" height="26" fill="#3b82f6" opacity="0.22"/>
+<rect x="828.28" y="98.00" width="141.72" height="26" fill="#ef4444" opacity="0.22"/>
+<text x="86" y="116" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">interval</text>
+<line x1="80.00" y1="154.00" x2="80.00" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="97.01" y1="154.00" x2="97.01" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="108.34" y1="154.00" x2="108.34" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="119.68" y1="154.00" x2="119.68" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="131.02" y1="154.00" x2="131.02" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="142.36" y1="154.00" x2="142.36" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="153.69" y1="154.00" x2="153.69" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="170.70" y1="154.00" x2="170.70" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="187.71" y1="154.00" x2="187.71" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="199.04" y1="154.00" x2="199.04" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="221.72" y1="154.00" x2="221.72" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="244.39" y1="154.00" x2="244.39" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="261.40" y1="154.00" x2="261.40" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="278.41" y1="154.00" x2="278.41" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="295.41" y1="154.00" x2="295.41" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="306.75" y1="154.00" x2="306.75" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="318.09" y1="154.00" x2="318.09" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="335.10" y1="154.00" x2="335.10" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="352.10" y1="154.00" x2="352.10" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="363.44" y1="154.00" x2="363.44" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="380.45" y1="154.00" x2="380.45" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="397.45" y1="154.00" x2="397.45" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="414.46" y1="154.00" x2="414.46" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="431.46" y1="154.00" x2="431.46" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="448.47" y1="154.00" x2="448.47" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="476.82" y1="154.00" x2="476.82" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="488.15" y1="154.00" x2="488.15" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="499.49" y1="154.00" x2="499.49" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="510.83" y1="154.00" x2="510.83" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="544.84" y1="154.00" x2="544.84" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="601.53" y1="154.00" x2="601.53" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="629.87" y1="154.00" x2="629.87" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="658.22" y1="154.00" x2="658.22" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="686.56" y1="154.00" x2="686.56" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="714.90" y1="154.00" x2="714.90" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="771.59" y1="154.00" x2="771.59" y2="172.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="799.94" y1="154.00" x2="799.94" y2="172.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="828.28" y1="154.00" x2="828.28" y2="172.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="839.62" y1="154.00" x2="839.62" y2="172.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="850.96" y1="154.00" x2="850.96" y2="172.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="867.96" y1="154.00" x2="867.96" y2="172.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="884.97" y1="154.00" x2="884.97" y2="172.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="901.97" y1="154.00" x2="901.97" y2="172.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="913.31" y1="154.00" x2="913.31" y2="172.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="924.65" y1="154.00" x2="924.65" y2="172.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="941.66" y1="154.00" x2="941.66" y2="172.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="952.99" y1="154.00" x2="952.99" y2="172.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="964.33" y1="154.00" x2="964.33" y2="172.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<text x="86" y="168" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">RX (green=new label)</text>
+<line x1="250.06" y1="210.00" x2="799.94" y2="210.00" stroke="#111827" stroke-width="2" marker-end="url(#arr)"/>
+<text x="525.00" y="202.00" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">TL</text>
+<text x="80" y="288" font-size="13" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">Policy (U+CCS) (TL=0.21s)</text>
+<rect x="80.00" y="298.00" width="459.17" height="26" fill="#ef4444" opacity="0.22"/>
+<rect x="544.84" y="298.00" width="277.77" height="26" fill="#3b82f6" opacity="0.22"/>
+<rect x="828.28" y="298.00" width="141.72" height="26" fill="#ef4444" opacity="0.22"/>
+<text x="86" y="316" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">interval</text>
+<line x1="80.00" y1="354.00" x2="80.00" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="91.34" y1="354.00" x2="91.34" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="108.34" y1="354.00" x2="108.34" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="125.35" y1="354.00" x2="125.35" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="142.36" y1="354.00" x2="142.36" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="153.69" y1="354.00" x2="153.69" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="170.70" y1="354.00" x2="170.70" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="193.38" y1="354.00" x2="193.38" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="204.71" y1="354.00" x2="204.71" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="216.05" y1="354.00" x2="216.05" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="227.39" y1="354.00" x2="227.39" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="255.73" y1="354.00" x2="255.73" y2="372.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="267.07" y1="354.00" x2="267.07" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="284.08" y1="354.00" x2="284.08" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="295.41" y1="354.00" x2="295.41" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="306.75" y1="354.00" x2="306.75" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="318.09" y1="354.00" x2="318.09" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="329.43" y1="354.00" x2="329.43" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="340.76" y1="354.00" x2="340.76" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="352.10" y1="354.00" x2="352.10" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="369.11" y1="354.00" x2="369.11" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="386.11" y1="354.00" x2="386.11" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="408.79" y1="354.00" x2="408.79" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="425.80" y1="354.00" x2="425.80" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="442.80" y1="354.00" x2="442.80" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="459.81" y1="354.00" x2="459.81" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="471.15" y1="354.00" x2="471.15" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="482.48" y1="354.00" x2="482.48" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="493.82" y1="354.00" x2="493.82" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="505.16" y1="354.00" x2="505.16" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="544.84" y1="354.00" x2="544.84" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="601.53" y1="354.00" x2="601.53" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="629.87" y1="354.00" x2="629.87" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="658.22" y1="354.00" x2="658.22" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="686.56" y1="354.00" x2="686.56" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="714.90" y1="354.00" x2="714.90" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="743.25" y1="354.00" x2="743.25" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="771.59" y1="354.00" x2="771.59" y2="372.00" stroke="#111827" stroke-width="1.4" opacity="0.9"/>
+<line x1="799.94" y1="354.00" x2="799.94" y2="372.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="828.28" y1="354.00" x2="828.28" y2="372.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="839.62" y1="354.00" x2="839.62" y2="372.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="850.96" y1="354.00" x2="850.96" y2="372.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="862.29" y1="354.00" x2="862.29" y2="372.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="873.63" y1="354.00" x2="873.63" y2="372.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="884.97" y1="354.00" x2="884.97" y2="372.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="896.31" y1="354.00" x2="896.31" y2="372.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="907.64" y1="354.00" x2="907.64" y2="372.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="918.98" y1="354.00" x2="918.98" y2="372.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="935.99" y1="354.00" x2="935.99" y2="372.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<line x1="958.66" y1="354.00" x2="958.66" y2="372.00" stroke="#10b981" stroke-width="1.4" opacity="0.9"/>
+<text x="86" y="368" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">RX (green=new label)</text>
+<line x1="250.06" y1="410.00" x2="255.73" y2="410.00" stroke="#111827" stroke-width="2" marker-end="url(#arr)"/>
+<text x="252.90" y="402.00" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">TL</text>
+<rect x="710" y="80" width="240" height="66" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+<line x1="724" y1="102" x2="724" y2="120" stroke="#10b981" stroke-width="2"/>
+<text x="736" y="116" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">RX new-label packet</text>
+<line x1="724" y1="126" x2="724" y2="144" stroke="#111827" stroke-width="2"/>
+<text x="736" y="140" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">RX other packet</text>
+</svg>

@@ -82,6 +82,8 @@ def _fmt(v: float, digits: int = 3) -> str:
 def _fmt_tick(v: float, digits: int = 2) -> str:
     if math.isnan(v) or math.isinf(v):
         return "NA"
+    if digits <= 0:
+        return f"{v:.0f}"
     s = f"{v:.{digits}f}"
     return s.rstrip("0").rstrip(".")
 
@@ -109,9 +111,11 @@ def write_svg(out_svg: Path, title: str, points: List[Point], arrows: List[Tuple
     ys = [p.y for p in points]
     xerrs = [p.xerr for p in points]
     yerrs = [p.yerr for p in points]
-    xmin, xmax = 186.0, 211.0
+    # Use round axis bounds so tick marks align with plot edges.
+    # NOTE: x error bars are omitted in this overview to keep the frame clean.
+    xmin, xmax = 185.0, 210.0
     ymin, ymax = 0.0, 0.35
-    x_ticks = [186, 191, 196, 201, 206, 211]
+    x_ticks = [185, 190, 195, 200, 205, 210]
     y_ticks = [i * 0.05 for i in range(int(round(ymax / 0.05)) + 1)]
 
     def xpx(x: float) -> float:
@@ -171,17 +175,14 @@ def write_svg(out_svg: Path, title: str, points: List[Point], arrows: List[Tuple
         "scan90_ccs_off": (12, -8, "start"),
         "scan90_fixed100": (-12, -10, "end"),
         "scan70_fixed100": (-12, 18, "end"),
-        "scan90_u_shuf": (12, 18, "start"),
+        "scan90_u_shuf": (-12, 18, "end"),
     }
     label_style = 'style="paint-order: stroke; stroke: #ffffff; stroke-width: 4px; stroke-linejoin: round;"'
 
     # Points + error bars
     for p in points:
         px, py = xpx(p.x), ypx(p.y)
-        # error bars
-        x1 = max(xmin, p.x - p.xerr)
-        x2 = min(xmax, p.x + p.xerr)
-        svg.append(f'<line x1="{xpx(x1):.2f}" y1="{py:.2f}" x2="{xpx(x2):.2f}" y2="{py:.2f}" stroke="{p.color}" stroke-width="2" opacity="0.9"/>')
+        # error bars (vertical only; omit horizontal to keep the overview uncluttered)
         svg.append(f'<line x1="{px:.2f}" y1="{ypx(p.y-p.yerr):.2f}" x2="{px:.2f}" y2="{ypx(p.y+p.yerr):.2f}" stroke="{p.color}" stroke-width="2" opacity="0.9"/>')
         svg.append(_draw_marker(p.shape, px, py, p.color))
         if p.key in label_cfg:

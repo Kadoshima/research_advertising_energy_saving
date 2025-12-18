@@ -7,13 +7,21 @@
 \usepackage{booktabs}
 \usepackage{siunitx}
 \usepackage{caption}
-\usepackage{tikz}
 \usepackage{titlesec}
-\usepackage{balance}
 \usepackage[hidelinks]{hyperref}
-\usepackage[backend=biber,style=numeric,sorting=none]{biblatex}
-
-\usetikzlibrary{positioning,arrows.meta}
+% 2ページ制約のため，参考文献は簡潔表示（URL/DOIは省略）
+\usepackage[
+  backend=biber,
+  style=numeric,
+  sorting=none,
+  maxnames=3,
+  minnames=1,
+  giveninits=true,
+  doi=false,
+  url=false,
+  isbn=false,
+  eprint=false
+]{biblatex}
 
 \input{meta}
 \addbibresource{references.bib}
@@ -29,9 +37,9 @@
 \setlength{\parskip}{0pt}
 
 % 見出し: "1. はじめに" 形式（太字は避け、サイズで区別）
-\titleformat{\section}{\normalfont\normalsize}{\thesection.}{0.6em}{}
-\titlespacing*{\section}{0pt}{0.7\baselineskip}{0.4\baselineskip}
-\titleformat{\subsection}{\normalfont\normalsize}{\thesubsection}{0.6em}{}
+\titleformat{\section}[runin]{\normalfont\large}{\thesection.}{0.6em}{}
+\titlespacing*{\section}{0pt}{0.7\baselineskip}{2\zw}
+\titleformat{\subsection}{\normalfont\large}{\thesubsection}{0.6em}{}
 \titlespacing*{\subsection}{0pt}{0.4\baselineskip}{0.2\baselineskip}
 
 % 図表キャプション: "図 1 タイトル" / "表 1 タイトル"（コロン無し）
@@ -56,10 +64,6 @@
   {}
   {}
 
-% URL 表記を簡素化（"url:" / "visited on" を出さない）
-\DeclareFieldFormat{url}{\url{#1}}
-\renewbibmacro*{url+urldate}{\printfield{url}}
-
 % 浮動体の間隔を詰めて2ページに収めやすくする
 \setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
 \setlength{\intextsep}{6pt plus 2pt minus 2pt}
@@ -68,7 +72,7 @@
 \setlength{\dblfloatsep}{6pt plus 2pt minus 2pt}
 
 % 文献（2ページ制約のためコンパクトに）
-\renewcommand*{\bibfont}{\footnotesize}
+\renewcommand*{\bibfont}{\scriptsize}
 \setlength{\bibitemsep}{0pt}
 
 \begin{document}
@@ -77,23 +81,20 @@
 \begin{center}
   {\Large \AbstTitle\par}
   \vspace{1mm}
-  {\normalsize \AbstAuthor\quad（指導教員：\AbstAdvisor）\par}
+  {\normalsize \AbstAuthor\quad \AbstAdvisor\par}
   {\normalsize \AbstAffiliation\par}
   \vspace{3mm}
 \end{center}
 ]
 
 \section{はじめに}
-ウェアラブル等のエッジ端末における行動認識（Human Activity Recognition; HAR）では，推論と通信が電力消費を支配しやすい．Bluetooth Low Energy（BLE）広告は簡便なブロードキャスト手段である一方，スマートフォン受信（スキャン）が非理想であるため，固定広告間隔では遅延分布の裾が悪化し得る\scite{bluetooth_core_spec,android_ble_scanner}．本研究は，HARの不確実度に応じてBLE広告間隔を適応させ，期限超過率$P_{\mathrm{out}}(\tau)$を満たしつつ送信側消費を抑えることを目的とする．
+ウェアラブル等のエッジ端末における行動認識（Human Activity Recognition; HAR）では，推論と通信が電力消費を支配しやすい．Bluetooth Low Energy（BLE）広告\scite{BluetoothSIGCore52}は簡便なブロードキャスト手段だが，スマートフォン受信（スキャン）が非理想であるため，固定広告間隔では遅延分布の裾が悪化し得る\scite{Luo2021BLENeighborDiscoverySurvey}．本研究は，HARの不確実度に応じてBLE広告間隔を適応させ，QoS制約$\Pout(\tau)\le\epsout$（$\tau=\SI{1}{\second}$，$\epsout=0.1$）の下で送信側消費を抑えることを目的とする\scite{Schrader2016BLEPower,Chen2020BLEPowerMgmt}．
 
 \par
-固定間隔を短くすると平均消費が増え，長くすると発見遅延が増えるため，単純な固定設定では省電力とQoSの両立が難しい．そこで本研究では，QoS制約を$\Pout(\tau)\le\epsout$（本稿では$\tau=\SI{1}{\second}$，$\epsout=0.1$）で表し，これを満たしつつ送信イベント当たり電荷$q_{\mathrm{event}}$（\si{\micro\coulomb}/event）を小さくする設計問題として扱う．
-
-\par
-本研究の貢献は，(i) HAR不確実度から広告間隔を切り替えるルールベース制御（最小構成として2値切替）を実装し，(ii) TX/TXSD/RXの三ノード計測により電力とQoSを同一試行で比較できる評価系を整備し，(iii) 実機において固定間隔より良い運用点が存在することを確認した点である．
+本稿では，意思決定に基づく省電力ビーコニング\scite{Fujisawa2024BLEBeaconing}に着想を得つつ，広告間隔$\SI{100}{\milli\second}$／$\SI{500}{\milli\second}$の2値切替を実装し，TX/TXSD/RXの三ノード計測により電力とQoSを同一試行で評価した．
 
 \section{提案手法}
-不確実度の指標にはエントロピー等が知られるが，実装上は計算量や確率の校正（calibration）の影響が重要である．本研究ではHARモデルの出力確信度と時系列安定度から通信信頼度指標CCS（Communication Confidence Score）を構成する．CCSに基づいて広告間隔を切り替え，本アブストでは実装の最小構成として$\SI{100}{\milli\second}$と$\SI{500}{\milli\second}$の2値切替方策を扱う．CCSが低い（遷移・不確実）区間では短間隔へ寄せてQoSを守り，それ以外は長間隔へ寄せて平均消費を下げる．評価指標は，送信イベント当たり電荷$q_{\mathrm{event}}$（\si{\micro\coulomb}/event）と遅延指標TLおよび期限超過率$P_{\mathrm{out}}(\tau)$とし，平均電力は補助的に用いる．
+不確実度の指標にはエントロピー\scite{shannon1948}等が知られるが，実装上は計算量や確率の校正（calibration）\scite{guo2017calibration}の影響が重要である．本研究ではHARモデルの出力確信度と時系列安定度から通信信頼度指標CCS（Communication Confidence Score）を構成する．CCSに基づいて広告間隔を切り替え，本アブストでは実装の最小構成として$\SI{100}{\milli\second}$と$\SI{500}{\milli\second}$の2値切替方策を扱う．CCSが低い（遷移・不確実）区間では短間隔へ寄せてQoSを守り，それ以外は長間隔へ寄せて平均消費を下げる．評価指標は，送信イベント当たり電荷$q_{\mathrm{event}}$（\si{\micro\coulomb}/event）と遅延指標TLおよび期限超過率$P_{\mathrm{out}}(\tau)$とし，平均電力は補助的に用いる．
 
 \subsection{CCSと2値切替}
 CCSは，モデル出力の確信度と，推定ラベルの時間的一貫性（安定度）を合成して定義する．具体例として，確信度と安定度の加重和を用い，閾値とヒステリシスにより状態（ACTIVE/QUIET等）を切り替える．これにより，遷移が多い区間ほど短間隔に滞在し，定常区間は長間隔に滞在する設計とする．
@@ -104,38 +105,34 @@ CCSは，モデル出力の確信度と，推定ラベルの時間的一貫性�
 \section{実験}
 計測はTX（DUT），TXSD（電力ロガ），RX（受信ロガ）の三ノード構成とし，同期信号で試行区間を揃える．TXSDは電流・電圧をログ化し，試行ごとに総エネルギーと平均電力を算出する．RXは受信時刻とタグを記録し，truth（\SI{100}{\milli\second}格子）と定数オフセットで時間同期した上で，遷移に対するTLと$\Pout(\tau)$を算出する．
 
-\par
-scan90（scan duty 90\%）でS1/S4の2条件について固定$\SI{100}{\milli\second}$，固定$\SI{500}{\milli\second}$，方策を比較した（各条件$n=6$）．さらに，受信条件悪化としてscan70（scan duty 70\%）を設定し，S4で同様の比較を行った（各条件$n=3$）．加えて，制御入力の寄与を切り分けるため，U-shuffle（不確実度$U$の時間整合を破壊）およびCCS-off（$U$のみ）のアブレーションをscan90/S4で実施した（各条件$n=3$）．
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/fig_signal_relationship}
+  \caption{計測系の信号関係}
+  \label{fig:signal_relationship}
+\end{figure}
 
 \begin{figure}[t]
   \centering
-  \begin{tikzpicture}[font=\scriptsize,>=Latex,block/.style={draw,rounded corners,align=center,minimum width=16mm,minimum height=7mm}]
-    \node[block] (tx) {TX\\(DUT)};
-    \node[block,left=4mm of tx] (rx) {RX\\(受信ログ)};
-    \node[block,right=4mm of tx] (txsd) {TXSD\\(電力ログ)};
-    \node[block,above=5mm of tx,minimum width=22mm] (ina) {INA219\\(電流/電圧)};
-    \node[block,above=3mm of ina,minimum width=22mm] (ps) {外部電源\\(3.3V)};
-
-    \draw[->] (ps) -- node[right]{電源} (ina);
-    \draw[->] (ina) -- node[right]{電源} (tx);
-    \draw[->,thick] (tx) -- node[above]{BLE広告} (rx);
-    \draw[->] (tx) -- node[above]{UART} (txsd);
-    \draw[->] (txsd) -- node[right]{I\textsuperscript{2}C} (ina);
-    \draw[->,dashed] (tx) to[bend left=18] node[below]{SYNC} (rx);
-    \draw[->,dashed] (tx) to[bend left=18] node[below]{SYNC/TICK} (txsd);
-  \end{tikzpicture}
-  \caption{計測系の信号関係（簡易）}
-  \label{fig:block_diagram}
+  \includegraphics[height=34mm]{figures/fig_rx}\hfill
+  \includegraphics[height=34mm]{figures/fig_txtxsd}\hfill
+  \includegraphics[height=34mm]{figures/fig_experiment_setup}
+  \caption{実験装置（左：RX，中央：TX＋TXSD，右：測定環境）}
+  \label{fig:experiment_photos}
 \end{figure}
 
+\par
+scan90（scan duty 90\%）でS1/S4の2条件について固定$\SI{100}{\milli\second}$，固定$\SI{500}{\milli\second}$，方策を比較した（各条件$n=6$）．さらに，受信条件悪化としてscan70（scan duty 70\%）を設定し，S4で同様の比較を行った（各条件$n=3$）．加えて，制御入力の寄与を切り分けるため，U-shuffle（不確実度$U$の時間整合を破壊）およびCCS-off（$U$のみ）のアブレーションをscan90/S4で実施した（各条件$n=3$）．
+
+\section{結果}
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=\textwidth]{figures/fig_role_separation_overview}
-  \caption{固定・方策・アブレーション（S4, scan90/70）のpower--$\Pout(\SI{1}{\second})$俯瞰．scan70では固定$\SI{500}{\milli\second}$が制約（$\Pout(\SI{1}{\second})\le 0.1$）を満たさない一方，方策は制約を満たし固定$\SI{100}{\milli\second}$より低電力となる．矢印はU/CCSの寄与を示す．}
+  % 図そのものにタイトルが埋め込まれているため，上端をトリミングしてキャプションのみ残す
+  \includegraphics[width=\textwidth,trim=0 0 0 12mm,clip]{figures/fig_role_separation_overview}
+  \caption{U/CCSの役割分離（S4）}
   \label{fig:role_separation}
 \end{figure*}
 
-\section{結果}
 図\ref{fig:role_separation}に，固定$\SI{100}{\milli\second}$／固定$\SI{500}{\milli\second}$と方策の関係を，scan90/scan70およびアブレーションを含めて示す（横軸：平均電力，縦軸：$\Pout(\SI{1}{\second})$）．
 
 \par
@@ -144,22 +141,25 @@ scan90のD2b（S1/S4，各条件$n=6$）では，方策は固定$\SI{100}{\milli
 \par
 受信条件を悪化させたscan70のD3（S4，各条件$n=3$）では，固定$\SI{500}{\milli\second}$が$\Pout(\SI{1}{\second})=0.285\pm0.061$と大きく悪化した一方，方策は$0.089\pm0.037$に抑え，固定$\SI{100}{\milli\second}$（$209.9\pm0.5\,\si{\milli\watt}$）より低い平均電力（$202.1\pm0.1\,\si{\milli\watt}$）で$\epsout=0.1$を満たした．
 
+\par
+さらにscan90/S4のアブレーション（各条件$n=3$）では，U-shuffleは平均電力が$208.1\pm0.3\,\si{\milli\watt}$と固定$\SI{100}{\milli\second}$近傍まで増加し，短間隔への張り付きが増える挙動が確認された．一方でCCS-offは平均電力が方策とほぼ同一（約$200.6\,\si{\milli\watt}$）にもかかわらず，$\Pout(\SI{1}{\second})$が方策の0.0488に対して$0.065\pm0.014$へ悪化した．
+
 \section{考察}
 U-shuffle（D4，scan90/S4）では短間隔への張り付きが増加し，平均電力が固定$\SI{100}{\milli\second}$近傍まで戻ったことから，不確実度$U$の時間整合が短間隔滞在量（電力）を規定することが示唆される．一方でCCS-off（D4B，scan90/S4）では，平均電力がほぼ同一のまま$\Pout(\SI{1}{\second})$が悪化したことから，CCSは短間隔滞在量ではなく「短間隔を使うタイミング」によりQoSを改善すると解釈できる．
 
 \par
 固定条件の平均電力を$P_{100},P_{500}$とすると，方策の短間隔滞在比率$\rhohundred$は平均電力$P$から
-\[
+\begin{equation}
   \rhohundred=\frac{P-P_{500}}{P_{100}-P_{500}}
-\]
+\label{eq:rho_from_power}
+\end{equation}
 と推定できる．この推定により，省電力効果の支配要因を「sleep設定」ではなく「短間隔滞在量」に帰着でき，制御則設計や学習（Bandit）への拡張時の目的関数設計にも接続できる．
 
 \section{まとめ}
-HAR不確実度に基づく2値広告間隔制御が，固定間隔の中間的電力でQoS制約$\Pout(\tau)\le\epsout$を満たす運用点になり得ることを実機で示した．さらに，UとCCSのアブレーションにより，Uは短間隔滞在量（電力），CCSは同電力でのQoS改善を担うことを示唆した．今後は，広告間隔候補の多段化と，制約下で広告間隔を選択するSafe Contextual Banditへ展開する\scite{lattimore2020bandit}．
+HAR不確実度に基づく2値広告間隔制御が，固定間隔の中間的電力でQoS制約$\Pout(\tau)\le\epsout$を満たす運用点になり得ることを実機で示した．さらに，UとCCSのアブレーションにより，Uは短間隔滞在量（電力），CCSは同電力でのQoS改善を担うことを示唆した．今後は，広告間隔候補の多段化と，制約下で広告間隔を選択する多腕バンディットへ展開する\scite{Auer2002Bandit}．
 
 \vspace{-1mm}
-\balance
-\section*{文 献}
+\section*{参考文献}
 \printbibliography[heading=none]
 
 \end{document}

@@ -74,6 +74,14 @@
 \RequirePackage{longtable}
 \RequirePackage{array}
 
+% --- 図だけのページ（float page）の縦方向センタリングをやめる ---
+% デフォルトは \@fptop/\@fpbot が伸縮するため、図がページ中央に寄りやすい。
+\makeatletter
+\setlength{\@fptop}{0pt}
+\setlength{\@fpsep}{8pt}
+\setlength{\@fpbot}{0pt}
+\makeatother
+
 % --- 数式 ---
 \RequirePackage{amsmath,amssymb}
 \numberwithin{equation}{chapter}
@@ -129,6 +137,17 @@
   \clearpage
   \thispagestyle{plain}%
   \pdfbookmark[0]{\contentsname}{toc}%
+  % ltjsreport の \tableofcontents が行う幅計算をここでも実施
+  % （これを省くと、章番号と見出しの間隔・インデントが崩れる）
+  \settowidth\jsc@tocl@width{\headfont\prechaptername\postchaptername}%
+  \settowidth\@tempdima{\headfont\appendixname}%
+  \ifdim\jsc@tocl@width<\@tempdima
+    \setlength\jsc@tocl@width{\@tempdima}%
+  \fi
+  \ifdim\jsc@tocl@width<2\zw
+    \divide\jsc@tocl@width by 2
+    \advance\jsc@tocl@width 1\zw
+  \fi
   \begin{center}
     {\Large \contentsname\par}
   \end{center}
@@ -137,6 +156,21 @@
   \clearpage
 }
 \makeatother
+
+% --- 参考文献 ---
+% biblatex の heading=bibintoc は \chapter* を使うため、章扉の縦中央体裁が乗ってしまう。
+% 参考文献は「本文ページ」として上寄せにする。
+\newcommand{\thesisbibliography}[1]{%
+  \clearpage
+  \thispagestyle{plain}%
+  \phantomsection
+  \addcontentsline{toc}{chapter}{#1}%
+  \pdfbookmark[0]{#1}{bibliography}%
+  {\centering\Large #1\par}
+  \vspace{0.75em}
+  \printbibliography[heading=none]%
+  \clearpage
+}
 
 % --- 表紙・要旨ページ ---
 % meta.tex で定義するコマンドを使う想定

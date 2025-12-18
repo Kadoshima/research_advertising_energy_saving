@@ -82,6 +82,7 @@ trial中は「広告更新」ごとにTICKを1発出し、TXSD側で `adv_count=
     - `fig_lag_cdf.svg`（遷移→100msへのlag CDF）
     - `fig_hit_cover.svg`（Hit/PreHit/Coverの棒グラフ）
     - `alloc_efficiency_summary.csv`（100ms割当の“効率”指標）
+  - 主図（scan70/scan90を同一座標に統合）: `uccs_d4b_scan90/plots/mainfig_scan70_scan90.svg`
 
 ### 主要な結論（S4のみ, mean±std, n=3）
 
