@@ -1,0 +1,16 @@
+2025-12-19 02:00 JST
+- 修論アブストにD4B-scan70追試の数値（scan70/S4, n=3: Fixed500/Policy/U-onlyのPout(1s)とP[mW]）を追記（`修士論文アブスト/main.tex`）。
+- 2ページ制約を維持するため、追記部は `\\footnotesize` でコンパクトに挿入。
+- ビルド更新：`修士論文アブスト/build/main.pdf`（`latexmk main.tex`、2 pages）。
+
+2025-12-19 02:10 JST
+- 修論アブストの考察を約2文だけ追記（scan70では$\hat{\\rho}_{100}$差でCCS寄与が見えにくい場合がある旨）し、ページ溢れを避けるため周辺文を圧縮して2ページ維持（`修士論文アブスト/main.tex`）。
+- ビルド更新：`修士論文アブスト/build/main.pdf`（`latexmk main.tex`、2 pages）。
+
+2025-12-19 02:16 JST
+- 修論アブストの「結果」節を1段落に統合し、短い段落終端（例：「…悪化した．」で行末が大きく空く）を減らして組版を安定化（`修士論文アブスト/main.tex`）。
+- ビルド更新：`修士論文アブスト/build/main.pdf`（`latexmk main.tex`、2 pages）。
+
+2025-12-19 02:34 JST
+- 参考文献にTsai+Liu (IEEE Access 2025, doi:10.1109/ACCESS.2025.3601116) を追加（`修士論文アブスト/references.bib`）。アブスト側では本文に影響を出さず参照一覧へ含めるため `\\nocite{Tsai2025BLEDelaySensitive}` を追加（`修士論文アブスト/main.tex`）。
+- ビルド更新：`修士論文アブスト/build/main.pdf`（`latexmk main.tex`、2 pages）。

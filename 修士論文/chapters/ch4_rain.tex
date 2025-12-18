@@ -152,6 +152,31 @@ CCSの寄与を切り分けるため，制御則の構造は固定したままCC
   \label{fig:role_separation_overview}
 \end{figure}
 
+\subsubsection{補足：CCS-off追試（D4B，scan70）}
+\label{sec:d4b_scan70_followup}
+受信条件を悪化させたscan70でもCCS-offアブレーション（D4B）の追試を行い，S4（各n=3）で集計した（出力：\texttt{\detokenize{uccs_d4b_scan70/metrics/01_fixed/}}）．表\ref{tab:d4b_scan70_summary}に示すように，Fixed500は$P_{\mathrm{out}}(1\mathrm{s})=0.228\pm0.037$まで悪化する一方で，Policy（U+CCS）およびU-only（CCS-off）は0.02以下に改善し，平均電力もFixed100より\SI{4}{\milli\watt}程度低い．したがって，受信条件悪化時でも方策群が中間解として成立し得ることが確認できる．
+
+一方で，本追試ではU-onlyの$\hat{\rho}_{100}$が0.780でPolicy（0.735）よりわずかに大きく，$P_{\mathrm{out}}(1\mathrm{s})$もU-onlyの方が小さい．このため，本条件単体から「同電力でCCSがQoSを改善する」とは言い切れず，同mixでQoS差が出たscan90の結果（表\ref{tab:d4b_summary}）を主張の根拠とする．
+
+\begin{table}[tb]
+  \centering
+  \caption{D4B（scan70, S4）の追試結果（mean$\pm$std, 各n=3）}
+  \label{tab:d4b_scan70_summary}
+  {\small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lrrrrr}
+    \toprule
+    条件 & Pout(1s) & TL\_mean[s] & P[mW] & adv\_count & $\hat{\rho}_{100}$ \\
+    \midrule
+    Fixed100 & 0.024$\pm$0.024 & 0.43$\pm$0.32 & 206.4$\pm$0.5 & 1800$\pm$0 & 1.000 \\
+    Fixed500 & 0.228$\pm$0.037 & 1.44$\pm$0.51 & 187.6$\pm$0.4 & 360$\pm$0 & 0.000 \\
+    U-only（CCS-off） & 0.008$\pm$0.014 & 0.24$\pm$0.13 & 202.2$\pm$1.2 & 1323$\pm$0 & 0.780 \\
+    Policy（U+CCS） & 0.016$\pm$0.014 & 0.30$\pm$0.14 & 201.4$\pm$1.0 & 1323$\pm$0 & 0.735 \\
+    \bottomrule
+  \end{tabular}
+  }
+\end{table}
+
 \subsubsection{解釈（D4/D4B）}
 D4の結果は，制御器の構造と閾値を固定したまま入力$U$の時間整合だけを破壊すると，制御が短間隔（\SI{100}{\milli\second}）に張り付く方向へ崩れることを示している．一方でD4Bの結果は，平均電力（=短間隔滞在量）をほぼ同一に保ったまま，CCSの有効化によって$P_{\mathrm{out}}(1\mathrm{s})$とTL\_meanが改善することを示している．したがって，本研究の2値制御では，$U$が「どれだけ短間隔を使うか（電力）」を決め，CCSが「いつ短間隔を使うか（QoS）」を改善する，という役割分担が示唆される．
 

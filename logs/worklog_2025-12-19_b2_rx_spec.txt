@@ -1,0 +1,4 @@
+2025-12-19 02:20 JST
+- B2（受信機差）向けに、既存解析互換のRXログ仕様を固定（別リポジトリ実装のための仕様書）。
+  - 追加: `results/final/meta/rx_log_schema.md`
+  - 参照追記: `results/final/README.md`, `results/final/manifest.md`

@@ -1,0 +1,4 @@
+metric,cond_a,cond_b,label,n_a,n_b,mean_a,mean_b,delta_mean,ci_low,ci_high,p_two_sided,n_boot,alpha,seed,generated_local,source_csv
+pout_1s,S4_policy,S4_ablation_ccs_off,Δpout (U+CCS − U-only),3,3,0.01626,0.00813,0.00813,-0.00813,0.02439,0.6325,20000,0.05,20251218,2025-12-18 23:24,uccs_d4b_scan70/metrics/01_fixed/per_trial.csv
+avg_power_mW,S4_policy,S4_ablation_ccs_off,Δpower_mW (U+CCS − U-only),3,3,201.38086369255313,202.22223769911048,-0.841374006557345,-2.2284244404777382,0.5456764273629631,0.2601,20000,0.05,20251218,2025-12-18 23:24,uccs_d4b_scan70/metrics/01_fixed/per_trial.csv
+adv_count,S4_policy,S4_ablation_ccs_off,Δadv_count (U+CCS − U-only),3,3,1323.0,1323.0,0.0,0.0,0.0,1.0,20000,0.05,20251218,2025-12-18 23:24,uccs_d4b_scan70/metrics/01_fixed/per_trial.csv

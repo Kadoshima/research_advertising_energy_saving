@@ -14,6 +14,7 @@
 - `results/final/fig/` : 最終図（SVG/PDF推奨）
 - `results/final/tab/` : 最終表（CSV/Markdown/TeX）
 - `results/final/meta/` : 生成メタ（入力run、バージョン、メモ）
+- `results/final/meta/rx_log_schema.md` : 受信ログ（アプリ）CSV仕様（既存解析互換）
 - `results/final/build.sh` : 図表を一括生成（入力runを環境変数で指定）
 - `results/final/manifest.md` : 何がどこから生成されたかの台帳
 
@@ -24,4 +25,3 @@ bash results/final/build.sh
 ```
 
 入力runの切替は `build.sh` 冒頭の環境変数を参照。
-

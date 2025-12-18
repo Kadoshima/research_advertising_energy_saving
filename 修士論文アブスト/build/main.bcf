@@ -2380,7 +2380,7 @@
     <bcf:citekey order="4" intorder="1">Fujisawa2024BLEBeaconing</bcf:citekey>
     <bcf:citekey order="5" intorder="1">shannon1948</bcf:citekey>
     <bcf:citekey order="6" intorder="1">guo2017calibration</bcf:citekey>
-    <bcf:citekey order="7" intorder="1">Auer2002Bandit</bcf:citekey>
+    <bcf:citekey order="7" intorder="1" nocite="1">Tsai2025BLEDelaySensitive</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="none">

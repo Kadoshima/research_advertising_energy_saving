@@ -1,0 +1,10 @@
+{
+  "transition_step": 13,
+  "new_label": 0,
+  "tau_s": 1.0,
+  "window_s": 3.0,
+  "u_only_rx_file": "rx_trial_017.csv",
+  "u_only_tl_s": 0.248,
+  "policy_rx_file": "rx_trial_024.csv",
+  "policy_tl_s": 0.02
+}

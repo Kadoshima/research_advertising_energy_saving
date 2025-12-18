@@ -47,3 +47,8 @@
 - 生成:
   - `python3 results/final/scripts/build_tables.py --out results/final/tab/tab_summary_by_condition.csv`
 
+## メタ（meta）
+
+### RXログ仕様（アプリ向け）
+
+- `results/final/meta/rx_log_schema.md`

@@ -373,6 +373,13 @@ def main() -> None:
     ap.add_argument("--rx-dir", type=Path, required=True)
     ap.add_argument("--truth", type=Path, required=True)
     ap.add_argument("--out-dir", type=Path, required=True)
+    ap.add_argument("--title", type=str, default="D4B outage story (S4): failure-centered view")
+    ap.add_argument(
+        "--per-trial-csv",
+        type=Path,
+        default=None,
+        help="Optional: restrict RX files to those listed in per_trial.csv (recommended to avoid mixed logs)",
+    )
     ap.add_argument("--n-steps", type=int, default=1800)
     ap.add_argument("--tau-s", type=float, default=1.0)
     ap.add_argument("--window-s", type=float, default=3.0)
@@ -388,7 +395,26 @@ def main() -> None:
         raise SystemExit("no transitions found in truth")
 
     trials: List[Trial] = []
-    for p in sorted(args.rx_dir.glob("rx_trial_*.csv")):
+    rx_files: List[Path] = []
+    if args.per_trial_csv is not None:
+        # Use only policy + U-only RX files from per_trial.csv to avoid contamination from other conditions.
+        with args.per_trial_csv.open(newline="") as f:
+            r = csv.DictReader(f)
+            for row in r:
+                cond = (row.get("condition") or "").strip()
+                if cond not in ("S4_policy", "S4_ablation_ccs_off"):
+                    continue
+                p = (row.get("rx_path") or "").strip()
+                if not p:
+                    continue
+                rx_files.append(Path(p))
+        # de-dup while preserving order
+        seen = set()
+        rx_files = [p for p in rx_files if not (str(p) in seen or seen.add(str(p)))]
+    else:
+        rx_files = sorted(args.rx_dir.glob("rx_trial_*.csv"))
+
+    for p in rx_files:
         t = _build_trial(p, n_steps=args.n_steps)
         if t is not None:
             trials.append(t)
@@ -493,7 +519,7 @@ def main() -> None:
 
     _plot_story_svg(
         args.out_dir / "fig_outage_timeline.svg",
-        title=f"D4B outage story (S4, scan90): failure-centered view (TL>{tau:.1f}s)",
+        title=f"{args.title} (TL>{tau:.1f}s)",
         truth_step=selected_step,
         truth_new_label=truth_labels[selected_step],
         window_steps=window_steps,
@@ -509,4 +535,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

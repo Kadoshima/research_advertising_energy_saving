@@ -234,6 +234,20 @@
   - 表統合: `results/final/scripts/build_tables.py` → `results/final/tab/tab_summary_by_condition.csv`
   - 更新: `results/README.md`（finalの参照を追加）
   - ルール化: `docs/成果物管理ルール.md`
+
+2025-12-18 23:30 JST
+- 追加データ無しP0（5以外）を前進: 主張（主図）を守るための「同mix証拠」と「機構（outage TOP-k）」を整備
+  - 同mix証拠（adv_count/alpha_adv表）:
+    - script: `uccs_d4b_scan90/analysis/adv_count_alpha_table.py`
+    - 出力: `uccs_d4b_scan90/plots/adv_count_alpha_table.md`, `uccs_d4b_scan90/plots/adv_count_alpha_table.csv`
+  - Outage TOP-k（scan90/scan70, selected trials）:
+    - scan90: `uccs_d4b_scan90/plots/outage_story_01_selected/`
+    - scan70: `uccs_d4b_scan70/plots/outage_story_01_selected/`
+    - 比較表: `uccs_d4b_scan90/plots/outage_topk_scan90_scan70_selected.md`
+  - scan70側の統計（D4B, policy vs U-only差分CI）:
+    - `uccs_d4b_scan70/metrics/01_fixed/effects_ci.md`（bootstrap, per-trial）
+  - READMEリンク更新:
+    - `uccs_d4b_scan90/README.md`, `uccs_d4b_scan70/analysis/README.md`
 2025-12-18 23:09 JST
 - 修士論文の参考文献が6件しか出ない件を対応。biblatexは「引用されたものだけ出力」なので、`修士論文/main.tex` に \nocite{...}（ユーザ指定16件）を入れて強制的に一覧へ含めるようにした。
 - `修士論文/references.bib` にユーザ指定16件が登録済みであることを確認。
@@ -243,6 +257,37 @@
 2025-12-18 23:13 JST
 - `修士論文/` で `latexmk -lualatex -interaction=nonstopmode main.tex` を再実行し、`修士論文/build/main.pdf` が up-to-date であることを確認。
 - `修士論文アブスト/` も同様に `latexmk -lualatex -interaction=nonstopmode main.tex` を再実行し、`修士論文アブスト/build/main.pdf` が up-to-date であることを確認。
+
+2025-12-18 23:41 JST
+- D4B-scan70（取り直し分, data/01）の結果を修論へ追記（Fixed500崩壊→policy/u-onlyが救う、ただし同mixでのCCS差は明確でない）:
+  - 追記先: `修士論文/chapters/ch4_rain.tex`（表: `tab:d4b_scan70_summary`, 節: `sec:d4b_scan70_followup`）
+  - 参照データ: `uccs_d4b_scan70/metrics/01_fixed/summary_by_condition.csv`
+- ビルド: `修士論文/` で `latexmk -lualatex main.tex` 実行時に biber の bcf malformed が一度発生したため、`biber build/main.bcf` → `latexmk -g -lualatex main.tex` で復旧し `修士論文/build/main.pdf` を更新（72 pages）。
+
+2025-12-18 23:59 JST
+- 修論更新分（D4B-scan70追試の存在）をアブストにも反映し、2ページ制約内で記述を調整:
+  - 修正: `修士論文アブスト/main.tex`（結果節のscan70説明に「CCS-off追試」を追記、数値羅列を削って短文化）
+  - ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（`修士論文アブスト/build/main.pdf`、2 pages）
 2025-12-18 23:14 JST
 - 参考文献16件のうち Rashid(AHAR) の詳細を反映：`修士論文/references.bib` の `Rashid2022AHAR` を Early Access (Aug. 2022) として整形し、タイトル表記をIEEE表記に合わせた。
 - `修士論文/` で `latexmk -g main.tex` を実行して `修士論文/build/main.pdf` へ反映、参考文献欄で AHAR の項目に Early Access と doi 表記を確認。
+2025-12-18 23:18 JST
+- Fujisawa(2024) の参考文献詳細を反映：`修士論文/references.bib` と `修士論文アブスト/references.bib` の `Fujisawa2024BLEBeaconing` を {Bluetooth Low Energy} の大文字保持、`eid=26`（article no.相当）、`month=apr` に更新。
+- `修士論文/latexmk -g main.tex` と `修士論文アブスト/latexmk -g main.tex` で再ビルドし、PDFの参考文献欄に `Discover Artificial Intelligence 4, 26 (Apr. 2024)` の表記で反映を確認。
+2025-12-18 23:51 JST
+- 修士論文の参考文献[22]（Rashid et al., AHAR）のdoiが `10.1109/JIOT.2022.xxxxxxx` のプレースホルダだったため、根拠のないDOIは削除し、与えられた情報に基づき `date={2022-08-01}` を設定して (Aug. 1, 2022) 表記に修正（`修士論文/references.bib`）。
+- `修士論文/latexmk -g main.tex` で再ビルドし、`修士論文/build/main.pdf` の[22]にプレースホルダが出ないことを確認。
+2025-12-19 01:20 JST
+- 修士論文の参考文献[22]（Rashid et al., AHAR）のDOIをCrossrefで照会し、正式な書誌情報（vol.9, no.15, pp.13041-13051, doi:10.1109/JIOT.2022.3140465）を `修士論文/references.bib` に反映。
+- `修士論文/latexmk -g main.tex` で再ビルドし、`修士論文/build/main.pdf` の[22]が `IEEE Internet of Things Journal 9.15 (Aug. 1, 2022), pp. 13041–13051. doi: 10.1109/JIOT.2022.3140465.` として出ることを確認。
+2025-12-19 02:30 JST
+- 謝辞を修正：`修士論文/chapters/acknowledgements.tex` を、冒頭に指導教授 木村 秀明教授、次に副査（鈴木 裕利教授・板井 陽俊講師）、次に木村研究室の皆様、最後に家族の順で謝辞文として整形。
+- `修士論文/latexmk -g main.tex` で再ビルドし、`修士論文/build/main.pdf` へ反映。
+2025-12-19 02:39 JST
+- 謝辞に生成AI（ChatGPT）への謝意を追記：`修士論文/chapters/acknowledgements.tex` 末尾に「文章表現の推敲でChatGPTの助言を参考にした」旨と、内容の最終責任が著者にある旨を明記。
+- `修士論文/latexmk -g main.tex` で再ビルドし、`修士論文/build/main.pdf` へ反映。
+2025-12-19 02:41 JST
+- 謝辞の家族への感謝文を削除：`修士論文/chapters/acknowledgements.tex` から家族段落を除去し、末尾は生成AI（ChatGPT）に関する付記で締める構成に調整。
+- `修士論文/latexmk -g main.tex` で再ビルドし、`修士論文/build/main.pdf` へ反映。
+2025-12-19 02:48 JST
+- ユーザ編集後の再ビルドを実施：`修士論文/latexmk main.tex` を実行し、`修士論文/build/main.pdf` を更新。

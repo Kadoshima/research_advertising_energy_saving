@@ -133,19 +133,12 @@ scan90（scan duty 90\%）でS1/S4の2条件について固定$\SI{100}{\milli\s
   \label{fig:role_separation}
 \end{figure*}
 
-図\ref{fig:role_separation}に，固定$\SI{100}{\milli\second}$／固定$\SI{500}{\milli\second}$と方策の関係を，scan90/scan70およびアブレーションを含めて示す（横軸：平均電力，縦軸：$\Pout(\SI{1}{\second})$）．
-
-\par
-scan90のD2b（S1/S4，各条件$n=6$）では，方策は固定$\SI{100}{\milli\second}$より\SIrange{7.9}{12.6}{\milli\watt}低電力であり，固定$\SI{500}{\milli\second}$より低い$\Pout(\SI{1}{\second})$を示す運用点になり得た（例：S4で固定500が0.146に対し方策は0.069）．
-
-\par
-受信条件を悪化させたscan70のD3（S4，各条件$n=3$）では，固定$\SI{500}{\milli\second}$が$\Pout(\SI{1}{\second})=0.285\pm0.061$と大きく悪化した一方，方策は$0.089\pm0.037$に抑え，固定$\SI{100}{\milli\second}$（$209.9\pm0.5\,\si{\milli\watt}$）より低い平均電力（$202.1\pm0.1\,\si{\milli\watt}$）で$\epsout=0.1$を満たした．
-
-\par
-さらにscan90/S4のアブレーション（各条件$n=3$）では，U-shuffleは平均電力が$208.1\pm0.3\,\si{\milli\watt}$と固定$\SI{100}{\milli\second}$近傍まで増加し，短間隔への張り付きが増える挙動が確認された．一方でCCS-offは平均電力が方策とほぼ同一（約$200.6\,\si{\milli\watt}$）にもかかわらず，$\Pout(\SI{1}{\second})$が方策の0.0488に対して$0.065\pm0.014$へ悪化した．
+図\ref{fig:role_separation}に，固定$\SI{100}{\milli\second}$／固定$\SI{500}{\milli\second}$と方策の関係を，scan90/scan70およびアブレーションを含めて示す（横軸：平均電力，縦軸：$\Pout(\SI{1}{\second})$）．scan90のD2b（S1/S4，各条件$n=6$）では，方策は固定$\SI{100}{\milli\second}$より低電力であり，固定$\SI{500}{\milli\second}$より低い$\Pout(\SI{1}{\second})$を示す運用点になり得た．受信条件を悪化させたscan70では，固定$\SI{500}{\milli\second}$が$\Pout(\SI{1}{\second})$で崩れる一方，方策（およびD4BのCCS-off追試）は$\epsout=0.1$を満たしつつ固定$\SI{100}{\milli\second}$より低電力の運用点になり得た{\footnotesize（D4B追試，scan70/S4, $n=3$：Fixed500 $\Pout(\SI{1}{\second})=0.228\pm0.037$, $P=\SI{187.6}{\milli\watt}$；Policy $0.016\pm0.014$, $P=\SI{201.4}{\milli\watt}$；U-only $0.008\pm0.014$, $P=\SI{202.2}{\milli\watt}$）}．さらにscan90/S4のアブレーション（各条件$n=3$）では，U-shuffleにより短間隔張り付き（高電力）へ崩れ，CCS-offでは同程度の平均電力のまま$\Pout(\SI{1}{\second})$が悪化した．
 
 \section{考察}
 U-shuffle（D4，scan90/S4）では短間隔への張り付きが増加し，平均電力が固定$\SI{100}{\milli\second}$近傍まで戻ったことから，不確実度$U$の時間整合が短間隔滞在量（電力）を規定することが示唆される．一方でCCS-off（D4B，scan90/S4）では，平均電力がほぼ同一のまま$\Pout(\SI{1}{\second})$が悪化したことから，CCSは短間隔滞在量ではなく「短間隔を使うタイミング」によりQoSを改善すると解釈できる．
+\par
+ただし受信条件が悪化すると，PolicyとU-onlyで$\rhohundred$が僅かにずれ，CCSの寄与が見えにくい場合がある．本稿では「同電力でQoS改善」はscan90/S4の同滞在比率条件で示し，scan70は頑健性の補強として扱う．
 
 \par
 固定条件の平均電力を$P_{100},P_{500}$とすると，方策の短間隔滞在比率$\rhohundred$は平均電力$P$から
@@ -153,13 +146,14 @@ U-shuffle（D4，scan90/S4）では短間隔への張り付きが増加し，平
   \rhohundred=\frac{P-P_{500}}{P_{100}-P_{500}}
 \label{eq:rho_from_power}
 \end{equation}
-と推定できる．この推定により，省電力効果の支配要因を「sleep設定」ではなく「短間隔滞在量」に帰着でき，制御則設計や学習（Bandit）への拡張時の目的関数設計にも接続できる．
+と推定できる．この推定により，省電力効果の支配要因を「sleep設定」ではなく「短間隔滞在量」に帰着できる．
 
 \section{まとめ}
-HAR不確実度に基づく2値広告間隔制御が，固定間隔の中間的電力でQoS制約$\Pout(\tau)\le\epsout$を満たす運用点になり得ることを実機で示した．さらに，UとCCSのアブレーションにより，Uは短間隔滞在量（電力），CCSは同電力でのQoS改善を担うことを示唆した．今後は，広告間隔候補の多段化と，制約下で広告間隔を選択する多腕バンディットへ展開する\scite{Auer2002Bandit}．
+HAR不確実度に基づく2値広告間隔制御が，固定間隔の中間的電力でQoS制約$\Pout(\tau)\le\epsout$を満たす運用点になり得ることを実機で示した．さらに，UとCCSのアブレーションにより，Uは短間隔滞在量（電力），CCSは同電力でのQoS改善を担うことを示唆した．今後は，制約下で広告間隔を選択する多腕バンディットへ展開する．
 
 \vspace{-1mm}
 \section*{参考文献}
+\nocite{Tsai2025BLEDelaySensitive}
 \printbibliography[heading=none]
 
 \end{document}

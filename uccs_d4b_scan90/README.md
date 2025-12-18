@@ -73,8 +73,11 @@ trial中は「広告更新」ごとにTICKを1発出し、TXSD側で `adv_count=
 - 集計: `uccs_d4b_scan90/metrics/01/summary.md`
 - 図: `uccs_d4b_scan90/plots/d4b_01_power_vs_pout.svg`
   - 統合図（D3/D4/D4B）: `uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.svg`
+  - 同mixの証拠（adv_count/α_adv表）: `uccs_d4b_scan90/plots/adv_count_alpha_table.md`
+  - Outage TOP-k（scan90 vs scan70, selected trials）: `uccs_d4b_scan90/plots/outage_topk_scan90_scan70_selected.md`
   - α正規化図（runごとのfixed100/500で正規化）: `uccs_d4b_scan90/plots/alpha_vs_pout_overview.svg`
   - 失敗イベント中心のストーリー図（TL>1sを生んだ少数イベントの追跡）: `uccs_d4b_scan90/plots/outage_story_01/fig_outage_timeline.svg`
+    - selected trials版: `uccs_d4b_scan90/plots/outage_story_01_selected/fig_outage_timeline.svg`
   - Poutの寄与分解（上位少数遷移が支配することの可視化）: `uccs_d4b_scan90/plots/pout_tail_01/`
   - 条件付きタイミング（失敗しやすい遷移だけに条件付け）: `uccs_d4b_scan90/plots/ccs_timing_conditional_01/fig_event_triggered_p100_conditional.svg`
   - 追加解析（CCSタイミング可視化）: `uccs_d4b_scan90/plots/ccs_timing_01/`

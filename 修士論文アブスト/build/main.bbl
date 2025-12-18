@@ -236,12 +236,12 @@
       \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
+      \field{eid}{26}
       \field{journaltitle}{Discover Artificial Intelligence}
-      \field{title}{An efficient beaconing of bluetooth low energy by decision making algorithm}
+      \field{month}{4}
+      \field{title}{An efficient beaconing of {Bluetooth Low Energy} by decision making algorithm}
       \field{volume}{4}
       \field{year}{2024}
-      \field{pages}{26}
-      \range{pages}{1}
       \verb{doi}
       \verb 10.1007/s44163-024-00122-7
       \endverb
@@ -312,44 +312,40 @@
       \field{title}{On Calibration of Modern Neural Networks}
       \field{year}{2017}
     \endentry
-    \entry{Auer2002Bandit}{article}{}{}
-      \name{author}{3}{}{%
-        {{hash=ddd0874eb1b72a0368813d06b5984683}{%
-           family={Auer},
-           familyi={A\bibinitperiod},
-           given={P.},
-           giveni={P\bibinitperiod}}}%
-        {{hash=9bc86e7523b9aaf7183c5f7e7634048f}{%
-           family={Cesa-Bianchi},
-           familyi={C\bibinithyphendelim B\bibinitperiod},
-           given={N.},
-           giveni={N\bibinitperiod}}}%
-        {{hash=0a7919e797ea52c2fcb95ad305247fc1}{%
-           family={Fischer},
-           familyi={F\bibinitperiod},
-           given={P.},
-           giveni={P\bibinitperiod}}}%
+    \entry{Tsai2025BLEDelaySensitive}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=d0b3ec04fccc5b8278d5ca6f54c47f27}{%
+           family={Tsai},
+           familyi={T\bibinitperiod},
+           given={Y.-R.},
+           giveni={Y\bibinithyphendelim R\bibinitperiod}}}%
+        {{hash=ba8e14c95e8decc5924d426b1b244e12}{%
+           family={Liu},
+           familyi={L\bibinitperiod},
+           given={H.-Y.},
+           giveni={H\bibinithyphendelim Y\bibinitperiod}}}%
       }
-      \strng{namehash}{e858aff823b657cca64ce523fc39dedb}
-      \strng{fullhash}{e858aff823b657cca64ce523fc39dedb}
-      \strng{fullhashraw}{e858aff823b657cca64ce523fc39dedb}
-      \strng{bibnamehash}{e858aff823b657cca64ce523fc39dedb}
-      \strng{authorbibnamehash}{e858aff823b657cca64ce523fc39dedb}
-      \strng{authornamehash}{e858aff823b657cca64ce523fc39dedb}
-      \strng{authorfullhash}{e858aff823b657cca64ce523fc39dedb}
-      \strng{authorfullhashraw}{e858aff823b657cca64ce523fc39dedb}
+      \strng{namehash}{ff24c1fc1d714d79488b3f289afa3e32}
+      \strng{fullhash}{ff24c1fc1d714d79488b3f289afa3e32}
+      \strng{fullhashraw}{ff24c1fc1d714d79488b3f289afa3e32}
+      \strng{bibnamehash}{ff24c1fc1d714d79488b3f289afa3e32}
+      \strng{authorbibnamehash}{ff24c1fc1d714d79488b3f289afa3e32}
+      \strng{authornamehash}{ff24c1fc1d714d79488b3f289afa3e32}
+      \strng{authorfullhash}{ff24c1fc1d714d79488b3f289afa3e32}
+      \strng{authorfullhashraw}{ff24c1fc1d714d79488b3f289afa3e32}
       \field{sortinit}{7}
       \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{journaltitle}{Machine Learning}
-      \field{title}{Finite-time analysis of the multiarmed bandit problem}
-      \field{volume}{47}
-      \field{year}{2002}
-      \field{pages}{235\bibrangedash 256}
-      \range{pages}{22}
+      \field{journaltitle}{IEEE Access}
+      \field{title}{On the Feasibility and Optimization of Providing Delay Sensitive Services Based on Bluetooth Low Energy Advertising Technology}
+      \field{volume}{13}
+      \field{year}{2025}
+      \true{nocite}
+      \field{pages}{149010\bibrangedash 149018}
+      \range{pages}{9}
       \verb{doi}
-      \verb 10.1023/A:1013689704352
+      \verb 10.1109/ACCESS.2025.3601116
       \endverb
     \endentry
   \enddatalist
