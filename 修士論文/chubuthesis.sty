@@ -115,6 +115,15 @@
 % --- 参考文献（biblatex） ---
 \RequirePackage[backend=biber,style=numeric,sorting=none]{biblatex}
 
+% 参考文献の体裁：本文と同じ文字サイズ・行間に揃える
+% （bbx/lbx 側で \bibfont 等が調整される場合があるため、開始フックで確実に上書きする）
+\AtBeginBibliography{%
+  \normalfont\normalsize\normalbaselines
+  \setlength{\bibitemsep}{0pt}%
+  \setlength{\bibparsep}{0pt}%
+}
+\renewcommand*{\bibfont}{\normalfont\normalsize\normalbaselines}
+
 % \scite{a,b} で [1][2] 形式を作る（普通の \cite は [1,2]）
 \DeclareCiteCommand{\scite}
   {}

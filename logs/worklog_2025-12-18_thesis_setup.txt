@@ -291,3 +291,6 @@
 - `修士論文/latexmk -g main.tex` で再ビルドし、`修士論文/build/main.pdf` へ反映。
 2025-12-19 02:48 JST
 - ユーザ編集後の再ビルドを実施：`修士論文/latexmk main.tex` を実行し、`修士論文/build/main.pdf` を更新。
+2025-12-19 03:15 JST
+- 修士論文の参考文献が小さく詰まって見える件を調整：`修士論文/chubuthesis.sty` の biblatex 設定に `\renewcommand*{\bibfont}{\normalfont\normalsize}` を追加し、本文と同じ文字サイズ・行間（ベースライン）に揃えた。併せて `\bibitemsep`/`\bibparsep` を 0pt に固定。
+- `修士論文/latexmk -g main.tex` で再ビルドし、`修士論文/build/main.pdf` を更新。
