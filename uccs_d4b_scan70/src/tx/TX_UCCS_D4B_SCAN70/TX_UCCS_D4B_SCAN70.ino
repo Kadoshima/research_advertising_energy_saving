@@ -38,11 +38,12 @@ static const int LED_PIN = 2;
 // ==== options ====
 static const bool USE_LED = false;
 static const bool ENABLE_TICK_PREAMBLE = true;
-static const bool ENABLE_TICK_PER_UPDATE = true;
+static const bool ENABLE_TICK_PER_ADV_EVENT = true;
 static const bool RESTART_ADV_ON_INTERVAL_CHANGE = true;
 
 static const uint32_t PREAMBLE_WINDOW_MS = 800; // TXSD window
 static const uint32_t PREAMBLE_GUARD_MS = 100;  // after SYNC HIGH before preamble
+static const uint32_t PREAMBLE_POST_MS = 50;    // after preamble before starting ADV/trial
 
 // ==== actions（実機は100↔500に固定） ====
 static const uint16_t ACTIONS[] = {100, 500};
@@ -103,6 +104,7 @@ static uint16_t stepIdx = 0;               // 100ms grid index
 static uint16_t currentIntervalMs = 500;   // 100 or 500
 static float uEma = 0.0f;
 static float cEma = 0.0f;                  // change-CCS EMA (policy only)
+static uint32_t trialT0Ms = 0;             // when step_idx==0 is emitted
 
 static inline uint16_t ms_to_0p625(float ms) {
   long v = lroundf(ms / 0.625f);
@@ -240,8 +242,8 @@ static void startTrial(const Condition& c) {
   trialRunning = true;
   pendingStart = false;
   trialStartMs = millis();
-  nextUpdateMs = trialStartMs;
-  stepIdx = 0;
+  nextUpdateMs = trialStartMs; // will be reset after preamble
+  stepIdx = 0;                 // will be reset after preamble
   currentIntervalMs = clamp_interval(c.fixed_ms ? c.fixed_ms : 500);
   uEma = 0.0f;
   cEma = 0.0f;
@@ -250,10 +252,26 @@ static void startTrial(const Condition& c) {
   setSleepAllowed(true);
 
   syncStart();
-  adv->start();
-
+  // IMPORTANT:
+  // - Do NOT start advertising nor emit periodic ticks before TXSD finishes decoding preamble.
+  // - Otherwise TXSD's preamble window (e.g., 800ms) will count background ticks and cond_id will collapse to 10..13.
   delay(PREAMBLE_GUARD_MS);
-  tickPreamble(c.cond_id);
+  tickPreamble(c.cond_id); // encode cond_id as N pulses (1..4)
+  delay(PREAMBLE_POST_MS);
+
+  // Start the trial AFTER preamble (step_idx=0 is aligned to this t0)
+  trialT0Ms = millis();
+  trialStartMs = trialT0Ms;
+  nextUpdateMs = trialT0Ms;
+  stepIdx = 0;
+
+  // Set initial ADV params/payload for step_idx=0 before starting.
+  setAdvIntervalMs(currentIntervalMs);
+  const uint8_t lbl0 = getLabel(0);
+  char tag0[24];
+  makeTag(tag0, sizeof(tag0), c, lbl0, currentIntervalMs);
+  setPayload(0, tag0);
+  adv->start();
 }
 
 static void endTrial() {
@@ -362,7 +380,14 @@ void loop() {
     setAdvIntervalMs(currentIntervalMs);
   }
 
-  if (ENABLE_TICK_PER_UPDATE) tickPulseOnce(200);
+  // Tick for TXSD adv_count:
+  // Emit 1 pulse per "effective ADV event" time, not per 100ms step.
+  // This makes fixed500 ≈ 360 ticks/180s and fixed100 ≈ 1800 ticks/180s,
+  // and policy/u-only become intermediate (mix).
+  if (ENABLE_TICK_PER_ADV_EVENT) {
+    const uint32_t t_ms = (uint32_t)stepIdx * 100;
+    const bool isEvent = (t_ms % currentIntervalMs) == 0;
+    if (isEvent) tickPulseOnce(200);
+  }
   stepIdx++;
 }
-

@@ -2,26 +2,7 @@
 \chapter{計測系と再現性}
 \clearpage
 
-本研究は，非理想スキャン環境と実機ログに依存するため，条件混在や欠損により結論が逆転し得る．そのため，本章では再現性確保（計測系，ログ設計，指標定義，運用手順，破綻モード）を本文に統合して明示し，評価の前提を固定する．
+本研究は，非理想スキャン環境と実機ログに依存するため，条件混在や欠損により結論が逆転し得る．そのため，本章では計測系と，結論を支える最小限の再現性要件（同期・監査・端末内比較の前提）を要点として整理し，評価の前提を固定する．詳細な実験設計・実装・ログスキーマ・指標定義・Runbookは，補足資料（\secref{sec:eval_preparation}，\secref{sec:repro_details}）として別節にまとめる．
 
 \input{chapters/ch3_oncampus}
 \input{chapters/ch8_measurement_system}
-
-\section{評価準備（実験設計と実装）}
-\label{sec:eval_preparation}
-\begingroup
-  \let\section\subsection
-  \let\subsection\subsubsection
-  \input{chapters/ch8_experiment_design}
-  \input{chapters/ch10_implementation}
-\endgroup
-
-\section{再現性のための詳細資料}
-\label{sec:repro_details}
-\begingroup
-  \let\section\subsection
-  \let\subsection\subsubsection
-  \input{chapters/appx_d_log_schema}
-  \input{chapters/appx_a_metrics}
-  \input{chapters/appx_e_runbook}
-\endgroup

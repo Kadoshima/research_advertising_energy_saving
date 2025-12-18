@@ -2375,9 +2375,7 @@
   <bcf:section number="0">
     <bcf:citekey order="1" intorder="1">bluetooth_core_spec</bcf:citekey>
     <bcf:citekey order="1" intorder="2">android_ble_scanner</bcf:citekey>
-    <bcf:citekey order="2" intorder="1">shannon1948</bcf:citekey>
-    <bcf:citekey order="3" intorder="1">guo2017calibration</bcf:citekey>
-    <bcf:citekey order="4" intorder="1">lattimore2020bandit</bcf:citekey>
+    <bcf:citekey order="2" intorder="1">lattimore2020bandit</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="none">

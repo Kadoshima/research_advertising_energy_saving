@@ -3,14 +3,31 @@
 \label{sec:extra_results}
 
 \subsection{オフライン評価の比較表}
-図\ref{fig:policy_table}に，固定とルールベース方策の比較表（例）を示す．
+表\ref{tab:policy_table}に，固定とルールベース方策の比較表（例）を示す．
 
-\begin{figure}[tb]
+\begin{table}[tb]
   \centering
-  \includegraphics[width=0.95\linewidth]{../results/mhealth_policy_eval/policy_table.png}
-  \caption{方策の比較表（例）}
-  \label{fig:policy_table}
-\end{figure}
+  \caption{方策の比較表（オフライン評価, mHealth合成）}
+  \label{tab:policy_table}
+  {\small
+  \setlength{\tabcolsep}{3pt}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{lrrrrrrrrr}
+    \toprule
+    方策 & share100 & share500 & share1000 & share2000 & PDR\_u & Pout(1s) & TL\_mean[s] & E/adv[μJ] & P[mW] \\
+    \midrule
+    Fixed 100 & 1.000 & 0.000 & 0.000 & 0.000 & 0.807 & 0.004 & 0.45 & 20054.1 & 198.56 \\
+    Fixed 500 & 0.000 & 1.000 & 0.000 & 0.000 & 1.000 & 0.031 & 3.40 & 100668.1 & 180.80 \\
+    Fixed 1000 & 0.000 & 0.000 & 1.000 & 0.000 & 1.000 & 0.057 & 4.48 & 200711.8 & 178.62 \\
+    Fixed 2000 & 0.000 & 0.000 & 0.000 & 1.000 & 1.000 & 0.440 & 8.88 & 399786.7 & 177.47 \\
+    U-only & 0.470 & 0.089 & 0.000 & 0.441 & 0.909 & 0.199 & 4.43 & 194784.3 & 187.67 \\
+    CCS-only & 0.281 & 0.112 & 0.000 & 0.607 & 0.946 & 0.271 & 5.90 & 259443.9 & 183.77 \\
+    U+CCS & 0.471 & 0.092 & 0.000 & 0.437 & 0.909 & 0.197 & 4.41 & 193347.6 & 187.71 \\
+    \bottomrule
+  \end{tabular}
+  }
+  }
+\end{table}
 
 \subsection{備考}
 本節の図表は，本文の主張に直接必要でないが，読者が条件や比較対象を追跡できるように掲載する．

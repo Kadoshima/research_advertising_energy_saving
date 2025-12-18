@@ -72,3 +72,19 @@ latexmk main.tex
 - ページ番号（下右統一）：`chubuthesis.sty` の `fancyhdr` 設定を編集
 - 章見出し（章扉の中央寄せ等）：`chubuthesis.sty` の `titlesec` 設定を編集
 - 参考文献のURL表示：`chubuthesis.sty` の `biblatex` まわりを編集
+
+---
+
+## 7) Repomix（共有用パック）
+
+他のAIに共有して状況を再現しやすくするため、修論（LaTeX）＋主要ログ＋実機評価の集計結果を `repomix_thesis_bundle_light.xml` にまとめる（軽量版）。
+
+注:
+- `repomix` はテキストファイルのみをパックする（PDF/PNG/JPGなどのバイナリは含まれない）ため、必要に応じて `build/main.pdf` や `uccs_*/plots/*.pdf` を別送する。
+
+```bash
+repomix --output repomix_thesis_bundle_light.xml --style xml --parsable-style \
+  --compress --remove-comments --remove-empty-lines \
+  --include "修士論文/**,logs/worklog_2025-12-17_thesis_setup.txt,logs/worklog_2025-12-17_letter_route.txt,logs/worklog_2025-12-16_letter_route.txt,logs/worklog_2025-12-16_letter_route_continued.txt,logs/worklog_2025-12-15_thesis_setup.txt,uccs_d2_scan90/README.md,uccs_d2_scan90/metrics/**,uccs_d3_scan70/README.md,uccs_d3_scan70/metrics/**,uccs_d4_scan90/README.md,uccs_d4_scan90/metrics/**,uccs_d4b_scan90/README.md,uccs_d4b_scan90/metrics/**" \
+  --ignore "docs/**,**/src/**,**/analysis/**,**/plots/**,**/data/**"
+```

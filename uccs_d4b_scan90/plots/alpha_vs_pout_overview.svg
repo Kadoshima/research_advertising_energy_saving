@@ -1,78 +1,81 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="980" height="620" viewBox="0 0 980 620">
 <rect x="0" y="0" width="980" height="620" fill="#ffffff"/>
-<text x="490.0" y="38" font-size="20" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">α-normalized power vs pout_1s (S4): CCS improves QoS at same α</text>
-<rect x="90" y="70" width="860" height="470" fill="none" stroke="#111827" stroke-width="1.2"/>
-<line x1="90.00" y1="70" x2="90.00" y2="540" stroke="#e5e7eb" stroke-width="1"/>
-<text x="90.00" y="568" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">-0.05</text>
-<line x1="262.00" y1="70" x2="262.00" y2="540" stroke="#e5e7eb" stroke-width="1"/>
-<text x="262.00" y="568" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.18</text>
-<line x1="434.00" y1="70" x2="434.00" y2="540" stroke="#e5e7eb" stroke-width="1"/>
-<text x="434.00" y="568" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.41</text>
-<line x1="606.00" y1="70" x2="606.00" y2="540" stroke="#e5e7eb" stroke-width="1"/>
-<text x="606.00" y="568" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.65</text>
-<line x1="778.00" y1="70" x2="778.00" y2="540" stroke="#e5e7eb" stroke-width="1"/>
-<text x="778.00" y="568" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.88</text>
-<line x1="950.00" y1="70" x2="950.00" y2="540" stroke="#e5e7eb" stroke-width="1"/>
-<text x="950.00" y="568" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">1.11</text>
-<line x1="90" y1="540.00" x2="950" y2="540.00" stroke="#e5e7eb" stroke-width="1"/>
-<text x="80" y="544.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.007</text>
-<line x1="90" y1="446.00" x2="950" y2="446.00" stroke="#e5e7eb" stroke-width="1"/>
-<text x="80" y="450.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.081</text>
-<line x1="90" y1="352.00" x2="950" y2="352.00" stroke="#e5e7eb" stroke-width="1"/>
-<text x="80" y="356.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.154</text>
-<line x1="90" y1="258.00" x2="950" y2="258.00" stroke="#e5e7eb" stroke-width="1"/>
-<text x="80" y="262.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.228</text>
-<line x1="90" y1="164.00" x2="950" y2="164.00" stroke="#e5e7eb" stroke-width="1"/>
-<text x="80" y="168.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.302</text>
-<line x1="90" y1="70.00" x2="950" y2="70.00" stroke="#e5e7eb" stroke-width="1"/>
-<text x="80" y="74.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.376</text>
-<text x="520.0" y="594" font-size="14" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">α=(P−P500)/(P100−P500)  (normalized power allocation)</text>
-<text x="22" y="305.0" font-size="14" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system" transform="rotate(-90 22 305.0)">pout_1s (lower=better)</text>
-<line x1="90" y1="421.41" x2="950" y2="421.41" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6 4"/>
-<text x="940" y="413.41" font-size="12" text-anchor="end" fill="#6b7280" font-family="ui-sans-serif, system-ui, -apple-system">δ=0.1</text>
-<line x1="868.97" y1="445.22" x2="868.97" y2="445.22" stroke="#3b82f6" stroke-width="2" opacity="0.9"/>
-<line x1="868.97" y1="463.15" x2="868.97" y2="427.29" stroke="#3b82f6" stroke-width="2" opacity="0.9"/>
-<rect x="862.97" y="439.22" width="12" height="12" fill="#3b82f6" opacity="0.95"/>
-<text x="878.97" y="435.22" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">scan90 fixed100</text>
-<line x1="127.09" y1="383.10" x2="127.09" y2="383.10" stroke="#3b82f6" stroke-width="2" opacity="0.9"/>
-<line x1="127.09" y1="418.96" x2="127.09" y2="347.23" stroke="#3b82f6" stroke-width="2" opacity="0.9"/>
-<rect x="121.09" y="377.10" width="12" height="12" fill="#3b82f6" opacity="0.95"/>
-<text x="137.09" y="373.10" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">scan90 fixed500</text>
-<line x1="573.82" y1="486.63" x2="600.08" y2="486.63" stroke="#10b981" stroke-width="2" opacity="0.9"/>
-<line x1="586.95" y1="486.63" x2="586.95" y2="486.63" stroke="#10b981" stroke-width="2" opacity="0.9"/>
-<circle cx="586.95" cy="486.63" r="6" fill="#10b981" opacity="0.95"/>
-<text x="596.95" y="476.63" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">scan90 policy (U+CCS)</text>
-<line x1="574.23" y1="465.93" x2="601.36" y2="465.93" stroke="#f59e0b" stroke-width="2" opacity="0.9"/>
-<line x1="587.80" y1="483.86" x2="587.80" y2="447.99" stroke="#f59e0b" stroke-width="2" opacity="0.9"/>
-<polygon points="587.80,458.93 581.30,471.93 594.30,471.93" fill="#f59e0b" opacity="0.95"/>
-<text x="597.80" y="455.93" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">scan90 CCS-off (U-only)</text>
-<line x1="547.08" y1="424.51" x2="630.18" y2="424.51" stroke="#10b981" stroke-width="2" opacity="0.9"/>
-<line x1="588.63" y1="455.57" x2="588.63" y2="393.45" stroke="#10b981" stroke-width="2" opacity="0.9"/>
-<polygon points="588.63,417.51 582.13,430.51 595.13,430.51" fill="#10b981" opacity="0.95"/>
-<text x="598.63" y="414.51" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">scan90 policy (D4)</text>
-<line x1="819.40" y1="486.63" x2="912.91" y2="486.63" stroke="#f59e0b" stroke-width="2" opacity="0.9"/>
-<line x1="866.15" y1="486.63" x2="866.15" y2="486.63" stroke="#f59e0b" stroke-width="2" opacity="0.9"/>
-<polygon points="866.15,479.63 859.65,492.63 872.65,492.63" fill="#f59e0b" opacity="0.95"/>
-<text x="876.15" y="476.63" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">scan90 U-shuf</text>
-<line x1="868.97" y1="465.93" x2="868.97" y2="465.93" stroke="#111827" stroke-width="2" opacity="0.9"/>
-<line x1="868.97" y1="501.79" x2="868.97" y2="430.06" stroke="#111827" stroke-width="2" opacity="0.9"/>
-<polygon points="868.97,458.93 861.97,465.93 868.97,472.93 875.97,465.93" fill="#111827" opacity="0.95"/>
-<text x="878.97" y="455.93" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">scan70 fixed100</text>
-<line x1="127.09" y1="186.37" x2="127.09" y2="186.37" stroke="#111827" stroke-width="2" opacity="0.9"/>
-<line x1="127.09" y1="264.54" x2="127.09" y2="108.21" stroke="#111827" stroke-width="2" opacity="0.9"/>
-<polygon points="127.09,179.37 120.09,186.37 127.09,193.37 134.09,186.37" fill="#111827" opacity="0.95"/>
-<text x="137.09" y="176.37" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">scan70 fixed500</text>
-<line x1="571.53" y1="434.87" x2="600.21" y2="434.87" stroke="#111827" stroke-width="2" opacity="0.9"/>
-<line x1="585.87" y1="482.31" x2="585.87" y2="387.42" stroke="#111827" stroke-width="2" opacity="0.9"/>
-<polygon points="585.87,427.87 578.87,434.87 585.87,441.87 592.87,434.87" fill="#111827" opacity="0.95"/>
-<text x="595.87" y="424.87" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">scan70 policy</text>
-<rect x="94" y="74" width="360" height="138" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
-<rect x="106.00" y="92.00" width="12" height="12" fill="#3b82f6" opacity="0.95"/>
-<text x="128" y="103" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">fixed100/fixed500 (each run)</text>
-<circle cx="112.00" cy="128.00" r="6" fill="#10b981" opacity="0.95"/>
-<text x="128" y="133" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">policy (U+CCS)</text>
-<polygon points="112.00,151.00 105.50,164.00 118.50,164.00" fill="#f59e0b" opacity="0.95"/>
-<text x="128" y="163" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">ablation (U-shuf / CCS-off)</text>
-<polygon points="112.00,181.00 105.00,188.00 112.00,195.00 119.00,188.00" fill="#111827" opacity="0.95"/>
-<text x="128" y="193" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">scan70 points</text>
+<text x="490.0" y="38" font-size="20" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">Estimated 100ms share ρ̂100 vs QoS (S4)</text>
+<rect x="80" y="60" width="880" height="495" fill="none" stroke="#111827" stroke-width="1.2"/>
+<line x1="80.00" y1="60" x2="80.00" y2="555" stroke="#e5e7eb" stroke-width="1"/>
+<text x="80.00" y="581" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0</text>
+<line x1="300.00" y1="60" x2="300.00" y2="555" stroke="#e5e7eb" stroke-width="1"/>
+<text x="300.00" y="581" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.25</text>
+<line x1="520.00" y1="60" x2="520.00" y2="555" stroke="#e5e7eb" stroke-width="1"/>
+<text x="520.00" y="581" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.5</text>
+<line x1="740.00" y1="60" x2="740.00" y2="555" stroke="#e5e7eb" stroke-width="1"/>
+<text x="740.00" y="581" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.75</text>
+<line x1="960.00" y1="60" x2="960.00" y2="555" stroke="#e5e7eb" stroke-width="1"/>
+<text x="960.00" y="581" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">1</text>
+<line x1="80" y1="555.00" x2="960" y2="555.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="70" y="559.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0</text>
+<line x1="80" y1="493.13" x2="960" y2="493.13" stroke="#e5e7eb" stroke-width="1"/>
+<text x="70" y="497.13" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.05</text>
+<line x1="80" y1="431.25" x2="960" y2="431.25" stroke="#e5e7eb" stroke-width="1"/>
+<text x="70" y="435.25" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.1</text>
+<line x1="80" y1="369.38" x2="960" y2="369.38" stroke="#e5e7eb" stroke-width="1"/>
+<text x="70" y="373.38" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.15</text>
+<line x1="80" y1="307.50" x2="960" y2="307.50" stroke="#e5e7eb" stroke-width="1"/>
+<text x="70" y="311.50" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.2</text>
+<line x1="80" y1="245.63" x2="960" y2="245.63" stroke="#e5e7eb" stroke-width="1"/>
+<text x="70" y="249.63" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.25</text>
+<line x1="80" y1="183.75" x2="960" y2="183.75" stroke="#e5e7eb" stroke-width="1"/>
+<text x="70" y="187.75" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.3</text>
+<line x1="80" y1="121.87" x2="960" y2="121.87" stroke="#e5e7eb" stroke-width="1"/>
+<text x="70" y="125.87" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.35</text>
+<line x1="80" y1="60.00" x2="960" y2="60.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="70" y="64.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.4</text>
+<text x="520.0" y="596" font-size="14" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">Estimated 100ms share ρ̂100 (power-mix)</text>
+<text x="22" y="307.5" font-size="14" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system" transform="rotate(-90 22 307.5)">pout_1s (lower=better)</text>
+<line x1="80" y1="431.25" x2="960" y2="431.25" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="950" y="423.25" font-size="12" text-anchor="end" fill="#6b7280" font-family="ui-sans-serif, system-ui, -apple-system">ε=0.1</text>
+<line x1="960.00" y1="454.39" x2="960.00" y2="454.39" stroke="#3b82f6" stroke-width="2" opacity="0.9"/>
+<line x1="960.00" y1="471.82" x2="960.00" y2="436.96" stroke="#3b82f6" stroke-width="2" opacity="0.9"/>
+<rect x="954.00" y="448.39" width="12" height="12" fill="#3b82f6" opacity="0.95"/>
+<text x="948.00" y="436.39" font-size="12" text-anchor="end" fill="#111827" style="paint-order: stroke; stroke: #ffffff; stroke-width: 4px; stroke-linejoin: round;" font-family="ui-sans-serif, system-ui, -apple-system">scan90 fixed100</text>
+<line x1="80.00" y1="394.02" x2="80.00" y2="394.02" stroke="#3b82f6" stroke-width="2" opacity="0.9"/>
+<line x1="80.00" y1="428.88" x2="80.00" y2="359.17" stroke="#3b82f6" stroke-width="2" opacity="0.9"/>
+<rect x="74.00" y="388.02" width="12" height="12" fill="#3b82f6" opacity="0.95"/>
+<text x="90.00" y="384.02" font-size="12" text-anchor="start" fill="#111827" style="paint-order: stroke; stroke: #ffffff; stroke-width: 4px; stroke-linejoin: round;" font-family="ui-sans-serif, system-ui, -apple-system">scan90 fixed500</text>
+<line x1="609.90" y1="494.63" x2="641.04" y2="494.63" stroke="#10b981" stroke-width="2" opacity="0.9"/>
+<line x1="625.47" y1="494.63" x2="625.47" y2="494.63" stroke="#10b981" stroke-width="2" opacity="0.9"/>
+<circle cx="625.47" cy="494.63" r="6" fill="#10b981" opacity="0.95"/>
+<text x="637.47" y="516.63" font-size="12" text-anchor="start" fill="#111827" style="paint-order: stroke; stroke: #ffffff; stroke-width: 4px; stroke-linejoin: round;" font-family="ui-sans-serif, system-ui, -apple-system">scan90 policy (U+CCS)</text>
+<line x1="610.38" y1="474.51" x2="642.57" y2="474.51" stroke="#f59e0b" stroke-width="2" opacity="0.9"/>
+<line x1="626.48" y1="491.94" x2="626.48" y2="457.09" stroke="#f59e0b" stroke-width="2" opacity="0.9"/>
+<polygon points="626.48,467.51 619.98,480.51 632.98,480.51" fill="#f59e0b" opacity="0.95"/>
+<text x="638.48" y="478.51" font-size="12" text-anchor="start" fill="#111827" style="paint-order: stroke; stroke: #ffffff; stroke-width: 4px; stroke-linejoin: round;" font-family="ui-sans-serif, system-ui, -apple-system">scan90 CCS-off (U-only)</text>
+<line x1="578.18" y1="434.27" x2="676.75" y2="434.27" stroke="#10b981" stroke-width="2" opacity="0.9"/>
+<line x1="627.46" y1="464.45" x2="627.46" y2="404.09" stroke="#10b981" stroke-width="2" opacity="0.9"/>
+<polygon points="627.46,427.27 620.96,440.27 633.96,440.27" fill="#10b981" opacity="0.95"/>
+<line x1="901.20" y1="494.63" x2="960.00" y2="494.63" stroke="#f59e0b" stroke-width="2" opacity="0.9"/>
+<line x1="956.65" y1="494.63" x2="956.65" y2="494.63" stroke="#f59e0b" stroke-width="2" opacity="0.9"/>
+<polygon points="956.65,487.63 950.15,500.63 963.15,500.63" fill="#f59e0b" opacity="0.95"/>
+<text x="944.65" y="484.63" font-size="12" text-anchor="end" fill="#111827" style="paint-order: stroke; stroke: #ffffff; stroke-width: 4px; stroke-linejoin: round;" font-family="ui-sans-serif, system-ui, -apple-system">scan90 U-shuf</text>
+<line x1="960.00" y1="474.51" x2="960.00" y2="474.51" stroke="#111827" stroke-width="2" opacity="0.9"/>
+<line x1="960.00" y1="509.37" x2="960.00" y2="439.66" stroke="#111827" stroke-width="2" opacity="0.9"/>
+<polygon points="960.00,467.51 953.00,474.51 960.00,481.51 967.00,474.51" fill="#111827" opacity="0.95"/>
+<text x="948.00" y="494.51" font-size="12" text-anchor="end" fill="#111827" style="paint-order: stroke; stroke: #ffffff; stroke-width: 4px; stroke-linejoin: round;" font-family="ui-sans-serif, system-ui, -apple-system">scan70 fixed100</text>
+<line x1="80.00" y1="202.87" x2="80.00" y2="202.87" stroke="#111827" stroke-width="2" opacity="0.9"/>
+<line x1="80.00" y1="278.82" x2="80.00" y2="126.91" stroke="#111827" stroke-width="2" opacity="0.9"/>
+<polygon points="80.00,195.87 73.00,202.87 80.00,209.87 87.00,202.87" fill="#111827" opacity="0.95"/>
+<text x="92.00" y="192.87" font-size="12" text-anchor="start" fill="#111827" style="paint-order: stroke; stroke: #ffffff; stroke-width: 4px; stroke-linejoin: round;" font-family="ui-sans-serif, system-ui, -apple-system">scan70 fixed500</text>
+<line x1="607.18" y1="444.33" x2="641.20" y2="444.33" stroke="#111827" stroke-width="2" opacity="0.9"/>
+<line x1="624.19" y1="490.43" x2="624.19" y2="398.22" stroke="#111827" stroke-width="2" opacity="0.9"/>
+<polygon points="624.19,437.33 617.19,444.33 624.19,451.33 631.19,444.33" fill="#111827" opacity="0.95"/>
+<text x="636.19" y="426.33" font-size="12" text-anchor="start" fill="#111827" style="paint-order: stroke; stroke: #ffffff; stroke-width: 4px; stroke-linejoin: round;" font-family="ui-sans-serif, system-ui, -apple-system">scan70 policy</text>
+<rect x="684" y="64" width="260" height="128" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+<rect x="696.00" y="82.00" width="12" height="12" fill="#3b82f6" opacity="0.95"/>
+<text x="718" y="93" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">scan90 fixed (100/500)</text>
+<circle cx="702.00" cy="118.00" r="6" fill="#10b981" opacity="0.95"/>
+<text x="718" y="123" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">scan90 policy</text>
+<polygon points="702.00,141.00 695.50,154.00 708.50,154.00" fill="#f59e0b" opacity="0.95"/>
+<text x="718" y="153" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">scan90 ablation</text>
+<polygon points="702.00,171.00 695.00,178.00 702.00,185.00 709.00,178.00" fill="#111827" opacity="0.95"/>
+<text x="718" y="183" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">scan70 (worse RX)</text>
 </svg>

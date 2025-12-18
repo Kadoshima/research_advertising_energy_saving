@@ -1,0 +1,26 @@
+% chapters/ch5_repro_appendix.tex --- 評価の補足資料（実験設計・実装・再現性資料）
+% 第4章の肥大化を避けるため，詳細資料は評価章の末尾へ移動して参照可能にする．
+
+\section{評価準備（実験設計と実装）}
+\label{sec:eval_preparation}
+第4章では要点のみを述べ，本節に詳細をまとめる．
+
+\begingroup
+  \let\section\subsection
+  \let\subsection\subsubsection
+  \input{chapters/ch8_experiment_design}
+  \input{chapters/ch10_implementation}
+\endgroup
+
+\section{再現性のための詳細資料}
+\label{sec:repro_details}
+ログスキーマ，指標定義，運用手順（Runbook）を整理する．本文中の参照先として機能させることを目的とする．
+
+\begingroup
+  \let\section\subsection
+  \let\subsection\subsubsection
+  \input{chapters/appx_d_log_schema}
+  \input{chapters/appx_a_metrics}
+  \input{chapters/appx_e_runbook}
+\endgroup
+

@@ -32,9 +32,11 @@
   $\mathrm{TL}_j$ & s & イベント$j$の遅延（Time-to-first-Receive） \\
   $\mathrm{TL}_{p95}$ & s & TL分布の95パーセンタイル \\
   $P_{\mathrm{out}}(\tau)$ & --- & 期限$\tau$に対する期限超過率 \\
+  $\epsilon$ & --- & QoS制約の許容値（例：$P_{\mathrm{out}}(\tau)\le\epsilon$） \\
   $\tau$ & s & 遅延期限（outage判定の基準） \\
   $N_{\mathrm{event}}$ & 回 & 評価対象のイベント数 \\
   $N_{\mathrm{adv}}$ & 回 & 広告イベント数（adv\_count等） \\
+  $\hat{\rho}_{100}$ & --- & 短間隔（\SI{100}{\milli\second}）滞在比率の推定値（例：$(P-P_{500})/(P_{100}-P_{500})$） \\
   $\mathrm{PDR}_{\mathrm{raw}}$ & --- & 受信行数に基づくPDR（重複含む） \\
   $\mathrm{PDR}_{\mathrm{unique}}$ & --- & seqでユニーク化したPDR（重複除外） \\
   $Q$ & $\si{\micro\coulomb}$ & 試行区間の総電荷（電流積分） \\

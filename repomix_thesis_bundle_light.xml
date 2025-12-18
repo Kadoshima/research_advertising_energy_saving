@@ -1,0 +1,3057 @@
+<repomix>This file is a merged representation of a subset of the codebase, containing specifically included files and files not matching ignore patterns, combined into a single document by Repomix.
+The content has been processed where comments have been removed, empty lines have been removed, content has been formatted for parsing in xml style, content has been compressed (code blocks are separated by ⋮---- delimiter).<file_summary>This section contains a summary of this file.<purpose>This file contains a packed representation of the entire repository&apos;s contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.</purpose><file_format>The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+4. Repository files, each consisting of:
+  - File path as an attribute
+  - Full contents of the file</file_format><usage_guidelines>- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.</usage_guidelines><notes>- Some files may have been excluded based on .gitignore rules and Repomix&apos;s configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: 修士論文/**, logs/worklog_2025-12-17_thesis_setup.txt, logs/worklog_2025-12-17_letter_route.txt, logs/worklog_2025-12-16_letter_route.txt, logs/worklog_2025-12-16_letter_route_continued.txt, logs/worklog_2025-12-15_thesis_setup.txt, uccs_d2_scan90/README.md, uccs_d2_scan90/metrics/**, uccs_d3_scan70/README.md, uccs_d3_scan70/metrics/**, uccs_d4_scan90/README.md, uccs_d4_scan90/metrics/**, uccs_d4b_scan90/README.md, uccs_d4b_scan90/metrics/**
+- Files matching these patterns are excluded: docs/**, **/src/**, **/analysis/**, **/plots/**, **/data/**
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Code comments have been removed from supported file types
+- Empty lines have been removed from all files
+- Content has been formatted for parsing in xml style
+- Content has been compressed - code blocks are separated by ⋮---- delimiter
+- Files are sorted by Git change count (files with more changes are at the bottom)</notes><additional_info></additional_info></file_summary><directory_structure>uccs_d2_scan90/
+  metrics/
+    01/
+      per_trial.csv
+      summary_by_condition.csv
+      summary.md
+    B/
+      per_trial.csv
+      summary_by_condition.csv
+      summary.md
+    B_02/
+      per_trial.csv
+      summary_by_condition.csv
+      summary.md
+    B_n6/
+      per_trial.csv
+      summary_by_condition.csv
+      summary.md
+  README.md
+uccs_d3_scan70/
+  metrics/
+    01/
+      effects_ci.csv
+      effects_ci.md
+      per_trial.csv
+      summary_by_condition.csv
+      summary.md
+  README.md
+uccs_d4_scan90/
+  metrics/
+    01/
+      effects_ci.csv
+      effects_ci.md
+      per_trial.csv
+      summary_by_condition.csv
+      summary.md
+  README.md
+uccs_d4b_scan90/
+  metrics/
+    01/
+      effects_ci.csv
+      effects_ci.md
+      extra_analysis.md
+      per_trial.csv
+      summary_by_condition.csv
+      summary.md
+  README.md
+修士論文/
+  chapters/
+    acknowledgements.tex
+    appx_a_metrics.tex
+    appx_b_assets.tex
+    appx_c_results.tex
+    appx_d_log_schema.tex
+    appx_e_runbook.tex
+    appx_f_symbols.tex
+    appx_g_troubleshooting.tex
+    appx_h_ccs_params.tex
+    ch0_introduction.tex
+    ch1_background.tex
+    ch10_implementation.tex
+    ch2_background_related.tex
+    ch2_proposed.tex
+    ch2_related_work.tex
+    ch3_oncampus.tex
+    ch3_system_and_method.tex
+    ch3_system_design.tex
+    ch4_measurement_metrics_repro.tex
+    ch4_rain.tex
+    ch5_evaluation.tex
+    ch5_publicroad.tex
+    ch6_stress_fixed.tex
+    ch7_offline_eval.tex
+    ch8_experiment_design.tex
+    ch8_measurement_system.tex
+    ch9_har_uncertainty.tex
+    conclusion.tex
+  figures/
+    README.md
+  frontmatter/
+    abstract.tex
+  .gitignore
+  chubuthesis.sty
+  latexmkrc
+  main.tex
+  meta.tex
+  README.md
+  references.bib
+  WRITING_RULES.md</directory_structure><files>This section contains the contents of the repository&apos;s files.<file path="修士論文/chapters/acknowledgements.tex">% chapters/acknowledgements.tex --- 謝辞（番号なし、目次には載せる）
+\chapterwithtoc{謝辞}
+
+本研究を進めるにあたり，ご指導・ご助言を賜った指導教員の先生方に深く感謝申し上げる．また，実験環境の整備や議論にご協力いただいた研究室の皆様に感謝する．最後に，研究活動を支えてくれた家族に感謝する．</file><file path="修士論文/chapters/appx_a_metrics.tex">% chapters/appx_a_metrics.tex --- 付録A 指標定義（詳細）
+\section{指標定義（詳細）}
+\label{sec:metrics_detail}
+
+本節では，本研究で用いる主要指標を，実装と集計の観点で最小限に定義する．本文の図表は本節の定義に従い，同一の処理パイプラインで端末内比較を行う．
+
+\subsection{PDR（到達率）}
+PDRは，広告イベント数に対して受信できた割合である．重複受信がある場合，受信行数に基づくPDRは1を超え得るため，seq等でユニーク化した指標も併記する．
+
+本研究では，広告イベント数（分母）を$N_{\mathrm{adv}}$，受信ログ行数（重複含む）を$N_{\mathrm{rx}}$，seqでユニーク化した受信数を$N_{\mathrm{rx,uniq}}$とする．
+\begin{equation}
+  \mathrm{PDR}_{\mathrm{raw}} = \frac{N_{\mathrm{rx}}}{N_{\mathrm{adv}}},\qquad
+  \mathrm{PDR}_{\mathrm{unique}} = \frac{N_{\mathrm{rx,uniq}}}{N_{\mathrm{adv}}}
+\end{equation}
+$\mathrm{PDR}_{\mathrm{raw}}$は重複受信により1を超え得るため，到達性の比較（QoS用途）では$\mathrm{PDR}_{\mathrm{unique}}$を優先する．分母$N_{\mathrm{adv}}$は，可能な場合はTICKにより物理カウントした値を正とし，利用できない場合は試行時間と広告間隔から推定する（動的切替では誤差が入り得る）．
+
+\subsection{TLとPout(τ)}
+TLは，イベント後に最初に受信されるまでの遅延である．Pout(τ)は，TLが期限$\tau$を超える確率として定義する．TL/Poutの算出では，受信ログの時間軸と真値（truth）の時間軸の一致が必要であり，開始位相ずれがある場合は定数オフセットで補正する（\secref{sec:stress_fixed_metrics}）．
+
+真値（truth）における状態遷移（イベント）時刻を$t_{\mathrm{event},j}$，その後に初めて正しいラベル（または該当イベントに対応する識別子）が受信される時刻を$t_{\mathrm{rx},j}$とすると，
+\begin{equation}
+  \mathrm{TL}_j = t_{\mathrm{rx},j} - t_{\mathrm{event},j}
+\end{equation}
+である．期限$\tau$に対する期限超過率は，
+\begin{equation}
+  P_{\mathrm{out}}(\tau)=\frac{1}{N_{\mathrm{event}}}\sum_{j=1}^{N_{\mathrm{event}}}\mathbb{I}[\mathrm{TL}_j&gt;\tau]
+\end{equation}
+で定義する．
+\noindent
+また，試行時間がtruthの全長より短い場合は末端遷移が試行区間外に出るため，truth側も有効長（EFFECTIVE\_LEN）でクリップし，$N_{\mathrm{event}}$の分母を揃える．
+
+\subsection{電荷と$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）}
+本研究の一次KPIである$q_{\mathrm{event}}$は，セッション中の電荷消費をイベント数で正規化した指標である．電力やエネルギーは電圧に依存するため，バッテリ消費の観点では電荷（Coulomb count）で整理すると解釈が容易である．
+
+電流を$I(t)$とすると，総電荷$Q$は
+\begin{equation}
+  Q=\int I(t)\,dt
+\end{equation}
+で定義できる．TXSDログでは電流が$\mu$A，時刻がmsで記録されるため，離散近似として
+\begin{equation}
+  Q_{\si{\micro\coulomb}} \approx \sum_{i} I_{\si{\micro\ampere},i}\cdot \frac{\Delta t_{\si{\milli\second},i}}{1000}
+\end{equation}
+により$\si{\micro\coulomb}$単位の電荷を算出できる．
+
+計測系の定常負荷（ロギング，LED等）が大きい場合，広告間隔による差分が総電荷に埋もれる．このため，広告ONとOFFの差分
+\begin{equation}
+  \Delta Q = Q_{\mathrm{on}}-Q_{\mathrm{off}}
+\end{equation}
+を用いて，広告による増分を評価する．OFF計測では，sleep状態や無線スタック状態がONと一致するよう，同一コード系列で条件を固定する必要がある（\secref{sec:runbook}）．
+
+TL/Poutの評価起点となるイベント数を$N_{\mathrm{event}}$とすると，
+\begin{equation}
+  q_{\mathrm{event}}=\frac{\Delta Q}{N_{\mathrm{event}}}
+\end{equation}
+で定義する．$\Delta Q$の代わりに$Q_{\mathrm{on}}$を用いる場合は，基準補正が入らないため，条件間比較の解釈に注意する．
+\noindent
+なお，平均電力$\overline{P}$や$\Delta E/N_{\mathrm{adv}}$等は従属指標として併用し，単位監査や原因切り分けに用いる．</file><file path="修士論文/chapters/appx_b_assets.tex">% chapters/appx_b_assets.tex --- 付録B 実験資産一覧（ファイル・ディレクトリ）
+\section{実験資産一覧}
+\label{sec:assets}
+
+\subsection{図の管理}
+図は原則として\texttt{\detokenize{修士論文/figures/}}に集約し，本文から拡張子なしで参照する．本リポジトリでは，既存の解析結果図を相対パスで参照している箇所もあるため，提出用に固める際は\texttt{\detokenize{figures/}}へコピーしてパスを固定する．
+
+\subsection{主要な出力先（例）}
+\begin{itemize}
+  \item 固定間隔の電力テーブル：\texttt{\detokenize{results/mhealth_policy_eval/power_table_sleep_eval_2025-12-14_interval_sweep_sleep_on_n9_10.csv}}
+  \item オフライン評価（δ帯）：\texttt{\detokenize{results/mhealth_policy_eval/letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/}}
+  \item ストレス固定（v5図）：\texttt{\detokenize{results/stress_fixed/figures_v5/}}
+  \item 追加検証（ブートストラップCI）：\path{scripts/bootstrap_effects.py}
+\end{itemize}
+
+\subsection{実機評価（例：D2）}
+実機の動的切替の例として，D2（scan90）では次のディレクトリ構成でログと指標を管理する．
+\begin{itemize}
+  \item 実験ルート：\path{uccs_d2_scan90/}
+  \item 入力（run B/01, RX）：\path{uccs_d2_scan90/data/B/01/RX/}
+  \item 入力（run B/01, TXSD）：\path{uccs_d2_scan90/data/B/01/TX/}
+  \item 入力（追加 run B/02, RX）：\path{uccs_d2_scan90/data/B/02/RX/}
+  \item 入力（追加 run B/02, TXSD）：\path{uccs_d2_scan90/data/B/02/TX/}
+  \item 出力（指標，主結果・統合n=6）：\path{uccs_d2_scan90/metrics/B_n6/summary.md}
+  \item 出力（集計CSV）：\path{uccs_d2_scan90/metrics/B_n6/summary_by_condition.csv}
+  \item 出力（主張図）：\path{uccs_d2_scan90/plots/d2b_B_n6_power_vs_pout.pdf} / \path{uccs_d2_scan90/plots/d2b_B_n6_power_vs_pout.png}
+  \item 参考（run別n=3）：\path{uccs_d2_scan90/metrics/B/summary.md} / \path{uccs_d2_scan90/metrics/B_02/summary.md}
+\end{itemize}
+
+\subsection{実機評価（例：D4）}
+U-shuffleアブレーション（D4, scan90）では，次のディレクトリ構成でログと指標を管理する．
+\begin{itemize}
+  \item 実験ルート：\path{uccs_d4_scan90/}
+  \item 入力（01, RX）：\path{uccs_d4_scan90/data/01/RX/}
+  \item 入力（01, TXSD）：\path{uccs_d4_scan90/data/01/TX/}
+  \item 出力（指標, n=3×4条件）：\path{uccs_d4_scan90/metrics/01/summary.md}
+  \item 出力（集計CSV）：\path{uccs_d4_scan90/metrics/01/summary_by_condition.csv}
+  \item 出力（主張図）：\path{uccs_d4_scan90/plots/d4_01_power_vs_pout.pdf} / \path{uccs_d4_scan90/plots/d4_01_power_vs_pout.png}
+\end{itemize}
+
+\subsection{実機評価（例：D4B）}
+CCS-offアブレーション（D4B, scan90）では，次のディレクトリ構成でログと指標を管理する．
+\begin{itemize}
+  \item 実験ルート：\path{uccs_d4b_scan90/}
+  \item 入力（01, RX）：\path{uccs_d4b_scan90/data/01/RX/}
+  \item 入力（01, TXSD）：\path{uccs_d4b_scan90/data/01/TX/}
+  \item 出力（指標, n=3×4条件）：\path{uccs_d4b_scan90/metrics/01/summary.md}
+  \item 出力（集計CSV）：\path{uccs_d4b_scan90/metrics/01/summary_by_condition.csv}
+  \item 出力（効果量CI）：\path{uccs_d4b_scan90/metrics/01/effects_ci.md} / \path{uccs_d4b_scan90/metrics/01/effects_ci.csv}
+  \item 出力（主張図）：\path{uccs_d4b_scan90/plots/d4b_01_power_vs_pout.pdf} / \path{uccs_d4b_scan90/plots/d4b_01_power_vs_pout.svg}
+  \item 出力（統合図）：\path{uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.pdf} / \path{uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.svg}
+  \item 出力（$\alpha$--$P_{\mathrm{out}}$俯瞰図）：\path{uccs_d4b_scan90/plots/alpha_vs_pout_overview.pdf} / \path{uccs_d4b_scan90/plots/alpha_vs_pout_overview.svg}
+  \item 出力（outage事例の追跡）：\path{uccs_d4b_scan90/plots/outage_story_01/fig_outage_timeline.pdf} / \path{uccs_d4b_scan90/plots/outage_story_01/fig_outage_timeline.svg}
+  \item 出力（outage内訳CSV）：\path{uccs_d4b_scan90/plots/outage_story_01/outage_ranking.csv} / \path{uccs_d4b_scan90/plots/outage_story_01/per_transition.csv}
+  \item 出力（尾の寄与分解）：\path{uccs_d4b_scan90/plots/pout_tail_01/fig_outage_count_hist.pdf} / \path{uccs_d4b_scan90/plots/pout_tail_01/fig_delta_pout_cum.pdf} / \path{uccs_d4b_scan90/plots/pout_tail_01/pout_tail_decomposition.md}
+  \item 出力（条件付きタイミング）：\path{uccs_d4b_scan90/plots/ccs_timing_conditional_01/fig_event_triggered_p100_conditional.pdf}
+  \item 再現メモ（追加解析）：\path{uccs_d4b_scan90/metrics/01/extra_analysis.md}
+\end{itemize}
+
+\subsection{実機評価（準備：D4B scan70）}
+scan70条件でCCS-offアブレーション（D4B）の追試を行うための実験ディレクトリを用意した．
+\begin{itemize}
+  \item 実験ルート：\path{uccs_d4b_scan70/}
+  \item TX：\path{uccs_d4b_scan70/src/tx/TX_UCCS_D4B_SCAN70/TX_UCCS_D4B_SCAN70.ino}
+  \item RX：\path{uccs_d4b_scan70/src/rx/RX_UCCS_D4B_SCAN70/RX_UCCS_D4B_SCAN70.ino}
+  \item TXSD：\path{uccs_d4b_scan70/src/txsd/TXSD_UCCS_D4B_SCAN70/TXSD_UCCS_D4B_SCAN70.ino}
+  \item truthヘッダ：\path{uccs_d4b_scan70/src/tx/stress_causal_s1_s4_180s.h}
+\end{itemize}
+
+\subsection{解析スクリプト（例）}
+解析は，1回で完結する巨大スクリプトではなく，「trial集計」「集約」「図表化」に分割して再現可能にする．代表例を以下に示す．
+\begin{itemize}
+  \item ストレス固定（trial集計）：\path{scripts/analyze_stress_causal_real.py}
+  \item ストレス固定（集約）：\path{scripts/aggregate_stress_causal_real_summary.py}
+  \item ストレス固定（v5図生成）：\path{scripts/plot_stress_fixed_figures_v5.py}
+  \item D2集計（run単体）：\path{uccs_d2_scan90/analysis/summarize_d2_run.py}
+  \item D2集約（run統合）：\path{uccs_d2_scan90/analysis/merge_metrics_runs.py}
+  \item D2図生成：\path{uccs_d2_scan90/analysis/plot_power_vs_pout.py}
+  \item D4集計（アブレーション）：\path{uccs_d4_scan90/analysis/summarize_d4_run_v2.py}
+  \item D4図生成：\path{uccs_d4_scan90/analysis/plot_power_vs_pout.py}
+  \item D4B集計（CCS-offアブレーション）：\path{uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py}
+  \item D4B図生成：\path{uccs_d4b_scan90/analysis/plot_power_vs_pout.py}
+  \item 統合図生成：\path{uccs_d4b_scan90/analysis/plot_role_separation_overview.py}
+  \item $\alpha$--$P_{\mathrm{out}}$俯瞰図生成：\path{uccs_d4b_scan90/analysis/plot_alpha_vs_pout.py}
+  \item outage事例追跡（D4B run01）：\path{uccs_d4b_scan90/analysis/outage_story_trace.py}
+  \item 尾の寄与分解（D4B run01）：\path{uccs_d4b_scan90/analysis/pout_tail_decomposition.py}
+  \item 条件付きタイミング（D4B run01）：\path{uccs_d4b_scan90/analysis/ccs_timing_analysis_conditional.py}
+  \item ブートストラップCI：\path{scripts/bootstrap_effects.py}
+\end{itemize}</file><file path="修士論文/chapters/appx_c_results.tex">% chapters/appx_c_results.tex --- 付録C 追加結果（図表）
+\section{追加結果}
+\label{sec:extra_results}
+
+\subsection{オフライン評価の比較表}
+図\ref{fig:policy_table}に，固定とルールベース方策の比較表（例）を示す．
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.95\linewidth]{../results/mhealth_policy_eval/policy_table.png}
+  \caption{方策の比較表（例）}
+  \label{fig:policy_table}
+\end{figure}
+
+\subsection{備考}
+本節の図表は，本文の主張に直接必要でないが，読者が条件や比較対象を追跡できるように掲載する．</file><file path="修士論文/chapters/appx_d_log_schema.tex">% chapters/appx_d_log_schema.tex --- 付録D ログスキーマ（詳細）
+\section{ログスキーマ（詳細）}
+\label{sec:log_schema}
+
+本節では，本研究で扱うログ（TXSD/RX/TX）の列定義をまとめる．解析スクリプトは列追加に対して後方互換で拡張可能であるが，指標計算に必須な列は固定する．
+
+\subsection{TXSD（電力）ログ}
+TXSDログは，電流・電圧系列と，末尾のsummaryから構成される．生系列は後処理で再積分できるように保持し，summaryはquick checkとして利用する．
+
+\begin{longtable}{p{0.22\linewidth}p{0.18\linewidth}p{0.52\linewidth}}
+  \caption{TXSDログ（例）の列定義}\label{tab:txsd_schema}\\
+  \toprule
+  列 &amp; 単位 &amp; 意味 \\
+  \midrule
+  \endfirsthead
+  \toprule
+  列 &amp; 単位 &amp; 意味 \\
+  \midrule
+  \endhead
+  ms &amp; ms &amp; 試行開始からの相対時刻 \\
+  mv &amp; mV &amp; 計測電圧（整数） \\
+  uA &amp; $\mu$A &amp; 計測電流（整数） \\
+  p\_mW &amp; mW &amp; 瞬時電力（派生列，後処理で再計算可能） \\
+  \midrule
+  \multicolumn{3}{l}{summary（末尾に出力する集約値の例）} \\
+  \midrule
+  ms\_total &amp; ms &amp; 試行時間 \\
+  adv\_count &amp; 回 &amp; 広告イベント数（TICK物理カウント等） \\
+  E\_total\_mJ &amp; mJ &amp; 総エネルギー（積分値） \\
+  avg\_power\_mW &amp; mW &amp; 平均電力（$E/T$） \\
+  \bottomrule
+\end{longtable}
+
+\subsection{RX（受信）ログ}
+RXログは，受信時刻とペイロード識別子（seq等）を保持する．PDR\_unique，TL，$P_{\mathrm{out}}(\tau)$の算出に必須である．
+
+\begin{longtable}{p{0.22\linewidth}p{0.18\linewidth}p{0.52\linewidth}}
+  \caption{RXログ（例）の列定義}\label{tab:rx_schema}\\
+  \toprule
+  列 &amp; 単位 &amp; 意味 \\
+  \midrule
+  \endfirsthead
+  \toprule
+  列 &amp; 単位 &amp; 意味 \\
+  \midrule
+  \endhead
+  t\_ms &amp; ms &amp; 受信時刻（試行開始からの相対，または端末時刻） \\
+  seq &amp; --- &amp; ペイロードに埋め込んだ識別子（広告イベント由来） \\
+  rssi &amp; dBm &amp; 受信RSSI \\
+  dedup\_flag &amp; --- &amp; 重複除外のためのフラグ（ある場合） \\
+  \bottomrule
+\end{longtable}
+
+\subsection{TX（送信）ログ}
+TXログは，方策の状態（$U,S,\mathrm{CCS},a$等）を保持する．オフライン評価と実機評価を接続するため，方策の根拠（切替理由）を残すことが望ましい．
+
+\begin{longtable}{p{0.22\linewidth}p{0.18\linewidth}p{0.52\linewidth}}
+  \caption{TXログ（例）の列定義}\label{tab:tx_schema}\\
+  \toprule
+  列 &amp; 単位 &amp; 意味 \\
+  \midrule
+  \endfirsthead
+  \toprule
+  列 &amp; 単位 &amp; 意味 \\
+  \midrule
+  \endhead
+  t\_ms &amp; ms &amp; 時刻 \\
+  U &amp; --- &amp; 不確実度 \\
+  S &amp; --- &amp; 安定度 \\
+  CCS &amp; --- &amp; 複合スコア \\
+  adv\_interval\_ms &amp; ms &amp; 選択した広告間隔 \\
+  reason &amp; --- &amp; 切替理由（閾値越え等） \\
+  \bottomrule
+\end{longtable}
+
+\subsection{ファイル命名と配置}
+ログは，試行（trial）単位でファイルを分割し，\texttt{\detokenize{trial_XXX.csv}}等の連番で管理する．このとき，条件IDや実験日付をパスまたはファイル名に含め，作業ログに生成コマンドと出力先を残す（\secref{sec:runbook}）．</file><file path="修士論文/chapters/appx_e_runbook.tex">% chapters/appx_e_runbook.tex --- 付録E 実験Runbook（チェックリスト）
+\section{実験Runbook（チェックリスト）}
+\label{sec:runbook}
+
+本節では，実験の再現性を担保するための最小チェックリストを示す．運用中に発見された落とし穴（条件混在，欠損，単位不整合など）を避けることを目的とする．
+
+\subsection{実験前チェック}
+\begin{itemize}
+  \item 役割の確認：TX/RX/TXSDでスケッチが正しい（接頭辞，設定値）．
+  \item 配線の確認：GND共通，SYNC入力，必要ならTICK入力（GPIO番号）．
+  \item 受信端末の状態：スキャンモード，画面状態，省電力設定を固定し，端末内比較の前提を守る．
+  \item SD空き容量：試行本数に対して十分な空きがある．
+  \item ログ命名：\texttt{\detokenize{trial_XXX.csv}}の連番と，条件IDの対応が追跡できる．
+\end{itemize}
+
+\subsection{試行（trial）実行}
+\begin{enumerate}
+  \item SYNCで試行開始が一致していることを目視（LED等）で確認する．
+  \item 試行中は条件（広告間隔，スキャン設定）を変更しない．
+  \item 試行終了後，TXSDログ末尾のsummary（ms\_total, adv\_count, E\_total等）を確認する．
+  \item 明らかな異常（rate低下，欠損，桁ズレ）があれば，その場で再試行し，除外理由を作業ログに残す．
+\end{enumerate}
+
+\subsection{データ整理}
+\begin{itemize}
+  \item 生データの退避：\texttt{\detokenize{data/}}へコピーし，取得条件と紐付ける．
+  \item 解析対象の選別：含めるtrialと除外trialを明示し，理由（欠損，条件混在等）を記録する．
+  \item ハッシュ記録：重要データセットはSHA256を記録し，後から同一入力で再現できるようにする．
+  \item 作業ログ追記：生成物のパスと実行コマンドを\texttt{\detokenize{logs/worklog_YYYY-MM-DD_*.txt}}へ追記する．
+\end{itemize}
+
+\subsection{解析と図表生成}
+\begin{itemize}
+  \item trial集計：ログを読み込み，欠損と単位を監査し，指標（PDR, TL, Pout, 平均電力）を算出する．
+  \item 集約：条件ごとに平均と分散を計算し，図表（固定点，δ帯，Pareto等）を生成する．
+  \item 再現確認：同一入力・同一コマンドで同じ図表が出ることを確認する（乱数がある場合はseed固定）．
+  \item 図の固定：提出用には\texttt{\detokenize{修士論文/figures/}}へコピーし，相対パス参照を解消する．
+\end{itemize}
+
+\subsection{既知の注意点}
+\begin{itemize}
+  \item 文字列中の\texttt{\detokenize{_}}（アンダースコア）は，LaTeX本文では\texttt{\detokenize{\texttt{\detokenize{...}}}}等で扱う．
+  \item TL/Poutは開始位相ずれで歪むため，定数オフセット補正を適用した定義（v5）を基準にする（\secref{sec:stress_fixed_metrics}）．
+  \item 条件混在（LED/SYNCの扱いの違い等）は定常オフセットとなるため，比較は同一コード系列に限定する（\secref{sec:measurement_system}）．
+\end{itemize}</file><file path="修士論文/chapters/appx_f_symbols.tex">% chapters/appx_f_symbols.tex --- 付録F 記号表・略語
+\section{記号表・略語}
+\label{sec:symbols}
+
+本節では，本論文で用いる記号と略語をまとめる．
+
+\subsection{記号表}
+\begin{longtable}{p{0.28\linewidth}p{0.16\linewidth}p{0.50\linewidth}}
+  \caption{記号表}\label{tab:symbols}\\
+  \toprule
+  記号 &amp; 単位 &amp; 意味 \\
+  \midrule
+  \endfirsthead
+  \toprule
+  記号 &amp; 単位 &amp; 意味 \\
+  \midrule
+  \endhead
+  $a,\;a(t)$ &amp; ms &amp; 広告間隔（方策が選択する行動） \\
+  $T_{\mathrm{adv}}$ &amp; ms &amp; 広告間隔（説明用の表記） \\
+  $T_{\mathrm{scan}}$ &amp; ms &amp; スキャン周期 \\
+  $d_{\mathrm{scan}}$ &amp; ms &amp; スキャンウィンドウ \\
+  $\delta$ &amp; --- &amp; スキャンデューティ比（$d_{\mathrm{scan}}/T_{\mathrm{scan}}$） \\
+  $\mathbf{p}(t)$ &amp; --- &amp; HAR出力のクラス確率分布 \\
+  $U(t)$ &amp; --- &amp; 不確実度（正規化エントロピー） \\
+  $S(t)$ &amp; --- &amp; 安定度（時間的一貫性） \\
+  $\mathrm{CCS}(t)$ &amp; --- &amp; 複合スコア（$U$と$S$の結合） \\
+  $\alpha$ &amp; --- &amp; CCSの重み係数 \\
+  $W$ &amp; --- &amp; 安定度の窓長（サンプル数等） \\
+  $\theta_{\mathrm{low}},\theta_{\mathrm{high}}$ &amp; --- &amp; CCSの閾値（ヒステリシス） \\
+  $t_{\mathrm{event},j}$ &amp; ms &amp; イベント$j$の真値（truth）時刻 \\
+  $t_{\mathrm{rx},j}$ &amp; ms &amp; イベント$j$に対応する初回受信時刻 \\
+  $\mathrm{TL}_j$ &amp; s &amp; イベント$j$の遅延（Time-to-first-Receive） \\
+  $\mathrm{TL}_{p95}$ &amp; s &amp; TL分布の95パーセンタイル \\
+  $P_{\mathrm{out}}(\tau)$ &amp; --- &amp; 期限$\tau$に対する期限超過率 \\
+  $\tau$ &amp; s &amp; 遅延期限（outage判定の基準） \\
+  $N_{\mathrm{event}}$ &amp; 回 &amp; 評価対象のイベント数 \\
+  $N_{\mathrm{adv}}$ &amp; 回 &amp; 広告イベント数（adv\_count等） \\
+  $\mathrm{PDR}_{\mathrm{raw}}$ &amp; --- &amp; 受信行数に基づくPDR（重複含む） \\
+  $\mathrm{PDR}_{\mathrm{unique}}$ &amp; --- &amp; seqでユニーク化したPDR（重複除外） \\
+  $Q$ &amp; $\si{\micro\coulomb}$ &amp; 試行区間の総電荷（電流積分） \\
+  $\Delta Q$ &amp; $\si{\micro\coulomb}$ &amp; 電荷差分（ON$-$OFF） \\
+  $q_{\mathrm{event}}$ &amp; $\si{\micro\coulomb}/\text{event}$ &amp; イベント当たり電荷（$\Delta Q/N_{\mathrm{event}}$） \\
+  $E$ &amp; mJ &amp; 試行区間の総エネルギー \\
+  $\Delta E$ &amp; mJ &amp; エネルギー差分（ON$-$OFF） \\
+  $\overline{P}$ &amp; mW &amp; 平均電力（$E/T$） \\
+  $p_d$ &amp; --- &amp; 1広告の受信成功確率（近似モデル） \\
+  RSSI &amp; dBm &amp; 受信強度（Received Signal Strength Indicator） \\
+  $t_{\mathrm{inf}}$ &amp; ms &amp; 推論時間（TinyML実機計測） \\
+  \bottomrule
+\end{longtable}
+
+\subsection{略語}
+\begin{longtable}{p{0.26\linewidth}p{0.68\linewidth}}
+  \caption{略語}\label{tab:acronyms}\\
+  \toprule
+  略語 &amp; 意味 \\
+  \midrule
+  \endfirsthead
+  \toprule
+  略語 &amp; 意味 \\
+  \midrule
+  \endhead
+  BLE &amp; Bluetooth Low Energy \\
+  HAR &amp; Human Activity Recognition（人間活動認識） \\
+  MCU &amp; Microcontroller Unit（マイコン） \\
+  QoS &amp; Quality of Service（サービス品質） \\
+  PDR &amp; Packet Delivery Ratio \\
+  RSSI &amp; Received Signal Strength Indicator \\
+  TL &amp; Time-to-first-Receive（発見遅延） \\
+  outage &amp; 期限超過（$P_{\mathrm{out}}(\tau)$） \\
+  PTQ &amp; Post-Training Quantization \\
+  TFLite &amp; TensorFlow Lite \\
+  SD &amp; Secure Digital（SDカード） \\
+  UART &amp; Universal Asynchronous Receiver-Transmitter \\
+  SPI &amp; Serial Peripheral Interface \\
+  I\textsuperscript{2}C &amp; Inter-Integrated Circuit \\
+  DUT &amp; Device Under Test（被測定対象） \\
+  TX &amp; 送信側（DUT） \\
+  RX &amp; 受信側（ロガ） \\
+  TXSD &amp; 電力ロガ（送信側の電力計測） \\
+  SYNC/TICK &amp; 試行境界・広告回数の同期信号 \\
+  \bottomrule
+\end{longtable}</file><file path="修士論文/chapters/appx_g_troubleshooting.tex">% chapters/appx_g_troubleshooting.tex --- 付録G トラブルシューティング集
+\section{トラブルシューティング集}
+\label{sec:troubleshooting}
+
+本節では，実験運用で経験した代表的なトラブルを整理し，原因の切り分けと対策をまとめる．目的は，欠損や時間軸不整合によって結論が崩壊することを避け，再現性を高めることである．
+
+\subsection{症状からの切り分け}
+\begin{longtable}{p{0.28\linewidth}p{0.32\linewidth}p{0.34\linewidth}}
+  \caption{症状からの切り分け（例）}\label{tab:troubleshooting_by_symptom}\\
+  \toprule
+  症状 &amp; 疑う箇所 &amp; まず確認すること \\
+  \midrule
+  \endfirsthead
+  \toprule
+  症状 &amp; 疑う箇所 &amp; まず確認すること \\
+  \midrule
+  \endhead
+  OFFがONより大きい（$\Delta E&lt;0$） &amp; 欠損，単位換算，条件混在 &amp; 生ログ再積分とsummaryの一致，コード系列の統一 \\
+  TL/Poutが不自然に小さい &amp; RXとtruthの時間軸ずれ &amp; 定数オフセット補正（v5）を適用したか \\
+  PDRが1を超える &amp; 重複受信の混入 &amp; seqユニーク化（PDR\_unique）を優先 \\
+  adv\_countが期待値と乖離 &amp; TICK未接続，推定の誤差 &amp; TICK物理カウントの有無，推定式の前提 \\
+  SDログが途中で途切れる &amp; SD I/O，電源，ファイルopen &amp; 末尾summaryの有無，open/initエラー \\
+  数値列に文字が混入する &amp; UART品質，ボーレート過大 &amp; ボーレート低下，厳密パース，配線見直し \\
+  \bottomrule
+\end{longtable}
+
+\subsection{代表的トラブル}
+\subsubsection{広告OFFの方が消費が大きい（$\Delta E&lt;0$）}
+広告OFFが広告ONより大きい結果は，物理的に矛盾して見えるため，最優先で切り分ける必要がある．本研究では，無線スタックの影響を議論する前に，計測・解析起因の破綻を疑う．
+\begin{itemize}
+  \item 主要因候補：I/Oボトルネックによる欠損，単位換算ミス，条件混在（コード系列の違い）．
+  \item 対策：生ログ（mV/µA）から再積分し，summaryと一致することを監査する．比較は同一コード系列で統一し，sleepの有無も条件として明示する．
+  \item 判断：監査を通過した上で$\Delta E&lt;0$が再現する場合，電源ドメインや無線状態遷移など物理要因を再検討する．
+\end{itemize}
+
+\subsubsection{TL/Poutの過小評価（開始位相ずれ）}
+RXログの開始がtruthより遅れる等の理由で，RXの時間軸とtruthの時間軸が一致しない場合がある．このずれを補正しないと，TLや$P_{\mathrm{out}}(\tau)$が過小評価される．本研究ではv5として，seqから定数オフセットを推定して補正する手順を採用する（\secref{sec:stress_fixed_metrics}）．
+
+\subsubsection{UARTデータ化け（数値列への文字混入）}
+UARTログが壊れると，欠損や桁ズレが連鎖し，積分と分母（試行時間・広告回数）が不整合になる．
+\begin{itemize}
+  \item 兆候：パーサの例外，行数不足，msが単調増加しない，0埋め行の増加．
+  \item 対策：ボーレートを下げる，出力列を最小化する，パース失敗は試行ごと除外し理由を記録する．
+  \item 再発防止：末尾summaryの生成を必須とし，欠損率が閾値を超えた試行は自動で失格にする．
+\end{itemize}
+
+\subsubsection{SYNC検出失敗（短パルス）}
+SYNCが短パルスとして出力されると，受信側で取りこぼす可能性がある．境界が崩れると，TL/Poutの定義（イベント時刻）と電力積分区間が一致しなくなる．
+\begin{itemize}
+  \item 対策：SYNCをHIGH保持する，受信側でラッチする，開始と終了の両方を同期する．
+  \item 監査：TXSD summaryのms\_totalが想定長と一致すること，RXの試行数が一致することを確認する．
+\end{itemize}
+
+\subsubsection{SD I/O失敗（open/init）}
+SDカード初期化やファイルopenに失敗した状態で試行を継続すると，欠損が増え，評価が不能になる．
+\begin{itemize}
+  \item 対策：SPIクロック調整，塊書き込み，open/init失敗時の即時停止と再試行．
+  \item 監査：各trialファイルの末尾summaryの存在と整合を確認する．
+\end{itemize}
+
+\subsection{解析前の最終監査}
+解析を自動化しても，入力が壊れていると結論が壊れる．したがって，解析前に以下を最低限チェックする．
+\begin{itemize}
+  \item 末尾summary（ms\_total, adv\_count, E\_total等）が存在し，桁が妥当である．
+  \item 生ログの再積分がsummaryと整合し，単位換算が一貫している．
+  \item RXの試行数・条件IDがTXSDと一致し，条件混在がない．
+  \item 重要データはSHA256を記録し，同一入力で再現できる．
+\end{itemize}</file><file path="修士論文/chapters/appx_h_ccs_params.tex">% chapters/appx_h_ccs_params.tex --- 付録H CCS写像とパラメータ（版管理）
+\section{CCS写像とパラメータ（版管理）}
+\label{sec:ccs_params}
+
+本節では，Phase 1（ルールベース）で用いるCCS写像と主要パラメータを一覧化し，モデル更新時の再キャリブレーション対象を明確化する．評価の再現性のため，パラメータは実験ログ（TX）に保存し，作業ログに変更履歴を残す．
+
+\subsection{主要パラメータ（Phase 1既定値）}
+表\ref{tab:ccs_params_phase1}に，Phase 1で用いる代表的パラメータを示す．これらはモデルの出力分布や量子化誤差に依存するため，モデル更新時には再キャリブレーションが必要となる．
+
+\begin{table}[tb]
+  \centering
+  \caption{CCS写像と安定化の主要パラメータ（例）}
+  \label{tab:ccs_params_phase1}
+  \begin{tabular}{p{0.28\linewidth}p{0.18\linewidth}p{0.44\linewidth}}
+    \toprule
+    パラメータ &amp; 値（例） &amp; 説明 \\
+    \midrule
+    $\alpha$ &amp; 0.7 &amp; $\mathrm{CCS}=\alpha(1-U)+(1-\alpha)S$ の重み \\
+    $W$ &amp; 5 &amp; 安定度$S$の窓長（遷移回数の正規化） \\
+    $\theta_{\mathrm{low}}$ &amp; 0.80 &amp; ACTIVE$\leftrightarrow$UNCERTAINの閾値（上り） \\
+    $\theta_{\mathrm{high}}$ &amp; 0.90 &amp; UNCERTAIN$\leftrightarrow$QUIETの閾値（上り） \\
+    $h$ &amp; 0.05 &amp; ヒステリシス幅（下りは$\theta-h$） \\
+    $t_{\min}$ &amp; \SI{2}{\second} &amp; 最小滞在時間（切替の振動抑制） \\
+    行動集合 &amp; $\{100,500,2000\}$ ms &amp; Phase 1の最小構成（拡張候補は$\{100,500,1000,2000\}$） \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{ログへの記録項目}
+方策の説明可能性と再現性のため，少なくとも以下をTXログに記録する．
+\begin{itemize}
+  \item $U,S,\mathrm{CCS}$と，選択した広告間隔$a$
+  \item $\theta_{\mathrm{low/high}}$，ヒステリシス幅$h$，最小滞在時間$t_{\min}$
+  \item 切替理由（\texttt{\detokenize{reason}}）
+\end{itemize}
+これにより，結果図表の背後にある意思決定とパラメータを監査できる．</file><file path="修士論文/chapters/ch0_introduction.tex">% chapters/ch0_introduction.tex --- 第1章 序論
+\chapter{序論}
+\clearpage
+
+\section{研究背景と社会的文脈}
+ウェアラブル端末やエッジデバイスにおいて，推論結果を近傍のスマートフォンへ低遅延に通知する仕組みは，見守りや労働安全など多くの応用で重要である．一方で，常時高頻度に通信を行うと電力消費が増大し，小型バッテリでの長時間運用が困難となる．Bluetooth Low Energy（BLE）の広告（Advertising）は接続を前提としない軽量な近傍通信手段として広く利用されているが，受信側（スマートフォン）のスキャン動作はOSや端末状態に依存し，連続スキャンが保証されない．
+
+\section{課題設定と狙い}
+本研究は，アプリケーション層（HAR）で得られる推論不確実度を通信層の制御に利用し，QoS制約（一定時間以内に受信されること）を満たしながら省電力化する枠組みを扱う．推論不確実度と時間的安定度から複合スコアCCSを構成し，その値に応じて広告間隔を段階的に切り替えるルールベース方策を定義する．さらに，送信・受信・電力計測を統合した計測基盤を整備し，電力指標とQoS指標を同一試行で評価できる形に整理する．
+
+\section{問題意識：エッジHARの「推論」と「通信」のねじれ}
+ウェアラブル端末やエッジデバイスは，慣性センサ等から人の状態を推定し，異常や重要な変化を近傍のスマートフォンへ通知する用途で用いられる．このとき，アプリケーション層では「推論ができた瞬間に，できるだけ早く届けたい」という要求がある一方，通信層では「常に高頻度に送ると電力が増える」というトレードオフがある．
+
+さらに，BLE広告は送信側の制御が容易である反面，受信側（スマートフォン）のスキャン挙動はOSや端末状態に依存し，連続スキャンが保証されない．したがって，広告間隔を固定して設計した場合，環境変化により「必要なときに届かない」か「届くが電力を使いすぎる」状況が生じ得る．
+
+本研究は，このねじれを緩和するために，アプリケーション層（HAR）で得られる推論不確実度を通信制御に利用し，「いま確信が高いか低いか」に応じて送信頻度を調整する枠組みを扱う．
+
+\section{本研究の核となる主張}
+本研究の核となる主張は，次のとおりである．
+\begin{quote}
+HAR不確実度に基づくBLE広告間隔の適応制御において，単純な閾値ルールでも固定間隔より省電力になりうることを示し，将来のSafe Contextual Bandit最適化の基盤を与える．
+\end{quote}
+
+\section{研究課題：QoS制約下での省電力化}
+本研究の目的は，受信遅延に基づくQoS制約を満たしつつ，電力消費を抑制することである．代表的なQoSとして，イベント発生後に最初に受信されるまでの遅延（TL）を用い，期限$\tau$を超える確率を
+\begin{equation}
+  P_{\mathrm{out}}(\tau)=P(\mathrm{TL}&gt;\tau)
+\end{equation}
+として定義する（詳細は\secref{sec:metrics_detail}）．このとき，広告間隔$a$の選択（固定または動的切替）を含む方策$\pi$に対して，以下の形で整理できる．
+\begin{equation}
+  \text{minimize}\quad \mathbb{E}[q_{\mathrm{event}}(\pi)]
+  \quad \text{subject to}\quad P_{\mathrm{out}}(\tau;\pi)\le \delta
+\end{equation}
+ここで$q_{\mathrm{event}}$（単位：$\si{\micro\coulomb}/\text{event}$）は，セッション中の電荷消費をイベント数で正規化した指標である．平均電力$\overline{P}$や$\Delta E/N_{\mathrm{adv}}$等は従属指標として併用し，単位監査や原因切り分けに用いる（\secref{sec:metrics_detail}）．
+
+\section{本研究の貢献}
+本研究の貢献を以下にまとめる．
+\begin{enumerate}
+  \item 推論不確実度$U$と安定度$S$から複合スコアCCSを構成し，広告間隔を段階的に切り替えるルールベース方策として定義した．
+  \item 送信（TX）・電力（TXSD）・受信（RX）の三ノード構成と同期信号（SYNC/TICK）により，同一試行で電力とQoS（TL，$P_{\mathrm{out}}(\tau)$）を評価できる計測基盤を整備した．
+  \item TL/Poutの算出において開始位相ずれが結果を歪め得ることを示し，定数オフセット補正（v5）として指標定義を固定した．
+  \item オフライン評価（mHealth合成）により，固定間隔点と候補方策点のトレードオフ（δ帯・Pareto）を可視化し，実機実験の探索空間を縮小する枠組みを示した．
+  \item Phase 2の拡張として，$U,S$をコンテキスト，広告間隔を行動，$P_{\mathrm{out}}(\tau)$を制約とするSafe Contextual Banditへ接続できる形で問題設定を整理した．
+\end{enumerate}
+
+\section{スコープと前提（Phase 1 / Phase 2）}
+本研究は，Phase 2でのSafe Contextual Bandit最適化を見据えつつ，Phase 1として「決め打ちルールで評価指標と計測系を確立する」段階に焦点を当てる．したがって，本論文のスコープは次のとおりである．
+
+\subsection{IN（本論文で扱うこと）}
+\begin{itemize}
+  \item $U,S,\mathrm{CCS}$の定義とログ化（推論不確実度を通信制御へ接続するための最小要素）．
+  \item ルールベース方策（閾値，ヒステリシス，最小滞在時間）と，実機での動作確認．
+  \item 一次KPI（$\si{\micro\coulomb}/\text{event}$，$P_{\mathrm{out}}(\tau)$，TL\_p95）の測定方法と再現性の確立．
+\end{itemize}
+
+\subsection{OUT（本論文では深掘りしないこと）}
+\begin{itemize}
+  \item Safe Banditの学習アルゴリズムそのものの実装・オンライン学習（将来課題として定式化までを示す）．
+  \item スキャン窓の推定など，受信側OS挙動の同定（非理想スキャン前提で端末内比較を行う）．
+  \item HARモデルの最終性能の到達（TinyMLの未完タスクは明示し，評価系の枠組みを主張する）．
+\end{itemize}
+
+\section{本論文の構成}
+本論文は，章数を抑えつつ各章を厚くし，特に再現性確保（ログ設計・指標定義・運用手順・破綻モード）を本文内で明示する構成を採用する．第2章では背景と関連研究を統合し，BLE広告・非理想スキャン・sleepの位置づけと関連アプローチを整理する．第3章ではシステム設計と提案手法をまとめ，World Model，一次KPI，HAR不確実度，CCS写像とパラメータを整理する．第4章では計測系・ログ設計・指標定義・Runbook・トラブルシューティングを統合し，再現性のための前提を固定する．第5章ではストレス固定，オフライン評価，実機評価結果をまとめ，固定点と提案方策の比較を示す．第6章では考察として，非理想スキャン下での解釈，sleepの扱い，失敗・未完タスクの位置づけ，およびPhase 2（Safe Contextual Bandit）への展望を述べる．最後におわりにで全体をまとめる．</file><file path="修士論文/chapters/ch1_background.tex">% chapters/ch1_background.tex --- 第2章 背景
+\section{背景}
+
+\subsection{BLEアドバタイズとスキャンの基礎}
+Bluetooth Low Energy（BLE）の広告は，接続を確立せずに情報をブロードキャストでき，端末側の実装が容易である\scite{bluetooth_core_spec}．一方で，広告は受信側のスキャン窓に依存して観測されるため，送信側がどれだけ制御しても「確実に届く」とは限らない．本節では，広告とスキャンの基本要素を整理する．
+
+\subsubsection{広告イベントと3チャネル}
+広告は，規格上の広告チャネル（37/38/39）を用いて送信される．送信側は，広告間隔を$T_{\mathrm{adv}}$として，概ね$T_{\mathrm{adv}}$ごとに広告イベントを発生させる．広告イベントは複数チャネルに送信されるが，周波数ホッピングや干渉により，受信側で観測される成否は確率的になる．
+
+\subsubsection{スキャン間隔・ウィンドウとデューティ比}
+受信側は，スキャン間隔$T_{\mathrm{scan}}$ごとに，スキャンウィンドウ$d_{\mathrm{scan}}$の間だけ受信機を有効化する．スキャンのデューティ比$\delta$は
+\begin{equation}
+  \delta=\frac{d_{\mathrm{scan}}}{T_{\mathrm{scan}}}
+\end{equation}
+で定義できる．$\delta$が小さいほど受信側は省電力になるが，広告イベントとの重なりが起きにくくなり，発見遅延が増える．
+
+\subsubsection{発見遅延（TL）の概念}
+イベント発生後，最初に広告が受信されるまでの遅延をTL（Time-to-first-Receive）とする．TLは，広告間隔とスキャン窓の相互作用（位相差）で分布が決まるため，平均受信率だけではQoSを十分に表現できない．本研究では，一次KPIとして省電力指標$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$），TL分布の裾（TL\_p95），および期限超過率$P_{\mathrm{out}}(\tau)$を採用する．
+
+\subsection{``非理想スキャン&apos;&apos;という現実}
+スマートフォンのスキャン挙動は，端末機種，OSバージョン，画面状態，省電力機構，および他アプリの利用状況に依存して変化する．Androidでは，アプリケーションがスキャンを要求しても，OSが内部的にスキャンの間欠化やスロットリングを行う可能性がある\scite{android_ble_scanner}．このため，本研究ではスキャンを理想的な一定窓として仮定せず，「非理想で観測できない内部状態がある」前提で送信側の制御を議論する．
+
+\subsubsection{Valley Area（ブラインドスポット）}
+広告間隔とスキャン周期が高調波関係に近い場合，広告イベントが系統的にスキャン窓の外側へ入り続け，発見遅延が極端に悪化する領域が生じ得る．このような領域は，平均的な受信率が同程度でもTLの裾を悪化させるため，$P_{\mathrm{out}}(\tau)$により議論する必要がある．
+
+\subsubsection{Androidのスキャンモードと前提条件}
+AndroidのBLEスキャンは，アプリケーションが要求するスキャンモード（例：LOW\_LATENCY）だけで挙動が一意に定まるとは限らない\scite{android_ble_scanner}．画面状態や電源管理の影響により，アプリケーションが意図したとおりに連続スキャンできない場合がある．したがって，本研究は「受信側スキャンは非理想である」前提で，送信側が取り得る適応制御の範囲を議論する．
+
+\subsubsection{OS側のスロットリングとオポチュニスティック・スキャン}
+スマートフォン側では，複数アプリのスキャン要求を統合するような挙動や，バックグラウンド制約に起因するスロットリングが生じ得る．これらはアプリケーション側から直接観測・制御できないため，評価では端末内比較と運用条件の固定（スキャンモード，画面状態等）が重要となる．
+
+\subsubsection{端末内比較という評価姿勢}
+スキャン挙動が端末・OS状態に依存する以上，異なる端末間の比較は外的要因が支配的になりやすい．本研究は，固定条件と提案条件を同一端末・同一設定で取得し，同一パイプラインで集計する端末内比較を基本とする．
+
+\subsection{sleepをどう捉えるか}
+本研究の評価は，送信側の電力と受信側のQoSを同時に扱う．このとき，sleep（間欠動作）の扱いは，受信側と送信側で意味が異なるため，整理が必要である．
+
+\subsubsection{スキャナ側のsleep（scan dutyの縮退）}
+受信側のsleepは，スキャンデューティ比$\delta$の低下として観測される．これはOSの省電力機構に起因し，アプリケーション側から直接制御できない場合が多い．スキャナ側のsleepは，TL分布の右裾を伸ばし，$P_{\mathrm{out}}(\tau)$を悪化させる方向に作用する．
+
+\subsubsection{アドバタイザ側のsleep（平均電力の低下）}
+送信側（DUT）のsleepは，CPUや無線を低消費電力状態に移行させることで平均電力を下げる．広告間隔を長くすると無線イベント回数が減るだけでなく，sleepに入れる時間が増えるため，平均電力が低下しやすい．本研究の予備計測（sleep\_eval\_scan90）では，固定\SI{100}{\milli\second}から固定\SI{500}{\milli\second}への変更で平均電力が大きく低下する一方，\SI{500}{\milli\second}以上では改善幅が小さくなる傾向が確認されている（詳細は\secref{sec:evaluation_results}）．
+
+\subsubsection{広告が支配的コストになりやすい理由}
+広告イベントは，無線送信に加えてスタック処理や割り込み等を伴うため，完全なスタンバイsleepより高コストになりやすい．そのため，広告間隔の制御は「通信頻度そのものの削減」と「sleep時間の増加」という2つの経路で省電力に寄与する．
+
+\subsection{不確実度$U$・安定度$S$・CCSの基礎}
+端末内推論（HAR）は，クラス確率分布として出力を持つことが多い．この確率分布から不確実度$U$を導出すると，「いまの推論がどの程度信頼できるか」を定量化できる．一方で，確率は瞬間的に揺らぐため，時間的一貫性を表す安定度$S$も併用する設計が有効である．
+
+\subsubsection{CCSの直感}
+複合スコアCCSは，確信度$(1-U)$と安定度$S$を組み合わせた指標であり，「確信が高く，かつ安定しているほど長間隔を選びやすい」という単調な解釈を与える．この単調性は，ルールベース方策の説明容易性に寄与する．
+
+\subsubsection{感度分析の必要性}
+CCSは係数（例：$\alpha$）や窓長$W$に依存するため，分布が変わると閾値の意味が変化する．本研究では，Phase 1では説明容易性を優先し，固定の係数でルールベース評価を行う．係数感度や較正は，今後の課題として整理する（関連研究・TinyML章を参照）．
+
+\subsection{まとめ}
+本節では，BLE広告とスキャンの基本要素，非理想スキャン，sleepの二面性，および不確実度指標の位置づけを整理した．次節では，これらを踏まえて関連研究を整理し，本研究の新規性と立脚点を明確化する．</file><file path="修士論文/chapters/ch10_implementation.tex">% chapters/ch10_implementation.tex --- 第10章 実装（ファームウェア・解析パイプライン）
+\section{実装：ファームウェアと解析パイプライン}
+
+\subsection{目的}
+本研究では，方策の比較を可能にするため，計測系と解析パイプラインを共通化した．本節では，実装の要点（ログ設計，同期，解析フロー）を整理する．
+
+\subsection{ファームウェア構成}
+ファームウェアは役割ごとに送信（TX），受信（RX），電力ロガ（TXSD）に分割する．各スケッチは，役割がファイル名から判別できるよう命名し，試行境界の同期とログ出力形式を統一する．
+
+\subsubsection{命名規約}
+実験の再現性を担保するため，スケッチ名は役割別に接頭辞を付与する．
+\begin{itemize}
+  \item RX\_*：受信ロガ（RX）
+  \item TX\_*：送信・被測定対象（TX）
+  \item TXSD\_*：送信側の電力ロガ（TXSD）
+\end{itemize}
+この規約により，ファイル名だけで役割が判別でき，Runbookや作業ログから参照しやすくなる．
+
+\subsection{ログ形式}
+本研究の解析は，TXSDログ（電力）とRXログ（受信）を中心に行う．特に，広告回数（adv\_count）や試行時間（ms\_total）の扱いは，指標の分母・分子に直結するため，ログ末尾のsummaryを正として扱う．
+
+\subsubsection{解析で重要な列}
+TXSDログでは，時刻（ms）と計測値（mV，$\mu$A）が一次情報であり，平均電力や総エネルギーはここから再計算できる．RXログでは，受信時刻とseqがTL/PoutおよびPDR\_uniqueの計算に必須である．したがって，ログ設計では「後から復元できる列」を優先し，表示用の派生列は監査可能な形で保持する．
+
+\subsection{解析パイプラインの流れ}
+解析は，概ね以下の段階で行う．
+\begin{enumerate}
+  \item trialごとのログを読み込み，欠損や単位の整合をチェックする．
+  \item TXSDから平均電力・総エネルギー等を算出する．
+  \item RXからPDR，TL，Pout(τ)を算出する（必要に応じて時間同期を行う）．
+  \item 条件ごとに集約し，図表を生成する．
+\end{enumerate}
+
+\subsubsection{代表的なスクリプト}
+解析は，試行ごとの集計，条件ごとの集約，図表生成に分割することで，再実行と検証を容易にする．例えばストレス固定の解析では，時間同期を含む集計と，集約・図表化を分離して実行できるように整備した．
+
+\subsection{再現性のための運用}
+解析対象の選別（除外理由），生成コマンド，入力データの出典・ハッシュ等を記録し，再現可能な形で結果を残す．作業ログとインデックスを併用して，後から辿れる状態を維持する．
+
+\subsection{まとめ}
+本節では，ファームウェアと解析パイプラインの要点を整理した．これにより，固定間隔と動的制御を同一基盤で比較できる．</file><file path="修士論文/chapters/ch2_background_related.tex">% chapters/ch2_background_related.tex --- 第2章 背景・関連研究（統合）
+\chapter{背景・関連研究}
+\clearpage
+
+本章では，本研究の前提となるBLE近隣発見の基礎，非理想スキャン，sleepの二面性，不確実度指標の位置づけを整理する．続いて関連研究を概観し，本研究の立脚点と新規性を明確化する．
+
+\input{chapters/ch1_background}
+\input{chapters/ch2_related_work}</file><file path="修士論文/chapters/ch2_proposed.tex">% chapters/ch2_proposed.tex --- 第6章 提案手法（CCS→広告間隔制御）
+\section{提案手法：CCSに基づくBLE広告間隔制御}
+\label{sec:proposed_method}
+
+\subsection{問題設定}
+本研究は，広告間隔$a$を選択する方策$\pi$に対して，電荷指標$q_{\mathrm{event}}$を小さくしつつ，受信遅延に基づく期限超過率$P_{\mathrm{out}}(\tau)$を制約する問題として整理する（問題設定は\secref{sec:measurement_setup}と\secref{sec:metrics_detail}に従う）．
+
+\subsection{不確実度と安定度}
+HARモデルの出力確率分布から不確実度$U\in[0,1]$を導出し，過去一定窓におけるラベル遷移回数から安定度$S\in[0,1]$を導出する（算出方法と前提は\secref{sec:har_uncertainty}）．
+
+\subsection{複合スコアに基づく広告間隔制御}
+不確実度と安定度から複合スコア（Composite Confidence Score：CCS）を構成し，その値に応じて広告間隔を段階的に切り替える．本研究では，実装の単純性と説明容易性のためにルールベース方策を採用し，閾値とヒステリシス，最小滞在時間により切替の振動を抑制する．
+
+\subsubsection{複合スコアCCS}
+CCSは，不確実度$U$と安定度$S$の線形結合として定義し（\secref{sec:har_uncertainty}），閾値写像により広告間隔へ変換する．
+
+\subsubsection{閾値写像}
+CCSを3段階に分け，広告間隔$a\in\{100,500,2000\}\,\si{\milli\second}$へ写像する．閾値を$\theta_{\mathrm{low}}$，$\theta_{\mathrm{high}}$（$\theta_{\mathrm{low}}&lt;\theta_{\mathrm{high}}$）とすると，
+\begin{equation}
+  a(\mathrm{CCS}) =
+  \begin{cases}
+    2000\,\si{\milli\second} &amp; (\mathrm{CCS}\ge\theta_{\mathrm{high}})\\
+    500\,\si{\milli\second}  &amp; (\theta_{\mathrm{low}}\le\mathrm{CCS}&lt;\theta_{\mathrm{high}})\\
+    100\,\si{\milli\second}  &amp; (\mathrm{CCS}&lt;\theta_{\mathrm{low}})
+  \end{cases}
+\end{equation}
+と定義する．
+
+\subsubsection{ヒステリシスと最小滞在時間}
+CCSは推論誤差やセンサノイズにより揺らぐため，単純な閾値写像では切替が過度に発生しうる．そこで，閾値にヒステリシス（上下で異なる閾値）を持たせる．また，最小滞在時間を設け，滞在時間が一定値未満の間は切替を抑制する．
+
+なお，Phase 1で用いる代表的なパラメータ（$\alpha,W,\theta_{\mathrm{low/high}}$，ヒステリシス幅，最小滞在時間）は\secref{sec:ccs_params}に一覧化する．
+
+\subsubsection{切替規則（実装上の要点）}
+実装は，現在の間隔$a_t$とCCSの観測値$\mathrm{CCS}_t$から次の間隔$a_{t+1}$を決定する有限状態機械として表せる．本研究では以下を満たす設計とする．
+\begin{itemize}
+  \item \textbf{単調性}：CCSが高いほど長間隔側を選びやすい．
+  \item \textbf{安全側への退避}：QoS悪化の兆候がある場合は短間隔へ戻す余地を残す．
+  \item \textbf{振動抑制}：ヒステリシスと最小滞在時間で切替頻度を抑える．
+\end{itemize}
+切替規則の例は，実験装置・計測方式（\secref{sec:measurement_setup}）および実験設計（\secref{sec:experiment_design}）で示す条件（閾値，滞在時間）と併せて具体化する．
+
+\subsection{ログと説明可能性（Observability）}
+動的制御の評価では，「なぜその間隔を選んだか」を後から説明できることが重要である．特に，本研究は非理想スキャンを前提とするため，受信品質の変動をすべて送信側のせいにできない．したがって，方策の意思決定（$U,S,\mathrm{CCS}$）と，使用したパラメータ（閾値，ヒステリシス，最小滞在時間等）をログとして残し，観測可能性を担保する．
+
+\subsubsection{切替理由（reason）を毎回残す}
+切替のたびに，閾値越え，ヒステリシス判定，最小滞在時間による抑制，フェイルセーフ退避などの理由を\texttt{\detokenize{reason}}として記録する．これにより，結果図表の背後にある「切替の根拠」を監査できる．
+
+\subsubsection{Tx/Rx/Powerのスキーマ}
+TXログは方策の内側（$U,S,\mathrm{CCS}$と選択した$a$），RXログは受信時刻とseq，TXSDログは電流・電圧系列とsummaryを保持する．ログ列の詳細は\secref{sec:log_schema}に示し，\secref{sec:runbook}に従って運用条件（端末，スキャン設定，sleepの有無）を固定する．
+
+\subsection{動的切替の最小構成（2値制御）}
+実機実験の初期段階では，電力低下の主効果が短間隔滞在の削減にあることを踏まえ，広告間隔を\SI{100}{\milli\second}と\SI{500}{\milli\second}の2値に限定した動的切替を用いる．この最小構成により，計測系の同期とログ整合を保ちつつ，動的切替が期待通りに動作することを確認する．
+
+\subsubsection{2値制御の目的}
+2値制御は，行動空間を小さくすることで，実装・解析の複雑性を抑える目的がある．また，\SI{100}{\milli\second}と\SI{500}{\milli\second}の差は平均電力の主効果になりやすく，省電力化の寄与を説明しやすい．</file><file path="修士論文/chapters/ch2_related_work.tex">% chapters/ch2_related_work.tex --- 第3章 関連研究
+\section{関連研究}
+
+\subsection{BLE広告・近隣発見の最適化}
+BLE広告における主要設計パラメータは，広告間隔，送信チャネル数，送信電力等である．これらは到達性（受信率・遅延）と電力のトレードオフに直結するため，固定値の最適化や，状況に応じた動的制御が検討されてきた．
+
+\subsubsection{MABでintervalを選ぶ考え方}
+広告間隔の動的制御は，混雑度推定や直近の受信状況に基づくルールとして実装されることが多い．一方で，未知・非定常な環境では，有限個の行動集合からオンラインで運用点を学習する枠組み（マルチアーム・バンディット）も候補となる\scite{lattimore2020bandit}．本研究はPhase 2での拡張可能性を残しつつ，Phase 1では学習以前の前提（指標・計測）を確立する立場を採る．
+
+\subsubsection{3チャネル送信と電力}
+BLE広告は広告チャネル（37/38/39）で送信されるため，チャネル数や送信回数は到達性と電力に影響する．本研究はPhase 1ではチャネルマスク等を固定し，広告間隔の効果と不確実度駆動制御の枠組みに焦点を当てる．
+
+\subsubsection{学習しない設計（多重化等）}
+学習を用いないアプローチとしては，複数の間隔や送信パターンを組み合わせ，Valley Areaの影響を平均化する設計も考えられる．ただし，受信側スキャンが非理想である場合，無線側のパラメータだけで性能が決まらないため，アプリケーション層の状態（遷移期／安定期）を併用した説明が必要となる．
+
+\subsection{遅延制約・Outage解析}
+近隣発見では，平均遅延だけでなく，期限超過率$P_{\mathrm{out}}(\tau)$や遅延分布の裾（例：TL\_p95）が重要である．スキャン窓のデューティ比が低い場合，平均受信率が一定でも遅延分布が右に伸び，$P_{\mathrm{out}}(\tau)$が支配的な評価軸になる．
+
+理想化した周期モデルでは，広告イベントとスキャン窓の相互作用から遅延分布を解析できるが，実際のスマートフォンはOSの省電力機構によりスキャンが間欠化し，観測できない内部状態が存在する．したがって，本研究では解析モデルによる厳密導出ではなく，実測ログに基づき$P_{\mathrm{out}}(\tau)$と電力のトレードオフを描き，方策比較を端末内比較として解釈する．
+
+\subsubsection{scan duty・sleepとoutageの関係}
+受信側のsleepは，スキャンデューティ比の縮退として現れ，TL分布の裾を悪化させる方向に作用する．一方で送信側のsleepは，広告間隔の延伸と組み合わせることで平均電力を下げる．この二面性を踏まえ，sleepは背景・装置・考察に分散して扱う必要がある．
+
+\subsection{不確実度駆動の通信制御（クロスレイヤー）}
+推論モデルが出力する確率分布は，不確実度として定量化できる．不確実度に基づいて「重要なときだけ通信する」「確信が低いときだけサンプリングや送信を増やす」といった制御は，エッジAIにおける省電力化の代表的な戦略である．
+
+ただし，不確実度の定義や較正が不適切であると，確信が過大評価されて長間隔に偏り，QoS違反が増える危険がある．本研究では，確率較正の必要性を踏まえつつ（将来課題），まずは確率分布から導出した$U$と時間的一貫性$S$を組み合わせ，説明可能な複合スコアCCSとして通信制御へ接続する．
+
+\subsection{TinyML環境での制約付き学習・実装論}
+MCU上で学習・制御を実装する場合，RAMや演算資源の制約により，実装可能なアルゴリズムが制限される．現実的には，学習器そのものは単純な最適化に徹し，その外側にSafety Filter（Action Masking等）を置いてハード制約を担保する構造が採られることが多い．
+
+本研究の行動集合（広告間隔）は小さいため，Phase 2での拡張としては，低次元のコンテキストに対する軽量なContextual Banditが候補となる．一方，Phase 1の段階では，実験計測と指標定義がボトルネックになるため，まずはルールベース方策で再現性の高いデータを取得することが重要である．
+
+\subsection{オンライン最適化（バンディット）と安全制約}
+医療・見守り等の用途ではQoS違反が許容されにくく，探索の過程で制約を破るリスクが課題となる．このため，本研究は，Phase 1として安全側のルールベース方策と評価指標を確立した上で，将来課題として安全制約付きのContextual Bandit（Safe Contextual Bandit）へ接続する方針を採る．
+
+\subsection{本研究の位置づけ}
+表\ref{tab:related_work_positioning}に，本研究と関連アプローチの整理を示す．本研究は，「不確実度を用いた動的制御」と「電力＋QoSの同時実測」を同一の評価系で統合し，Phase 2の安全制約付きオンライン最適化へ接続できる形に整理する点に特徴がある．
+
+\begin{table}[tb]
+  \centering
+  \caption{関連アプローチと本研究の位置づけ（概念整理）}
+  \label{tab:related_work_positioning}
+  \begin{tabular}{p{0.22\linewidth}p{0.22\linewidth}p{0.22\linewidth}p{0.22\linewidth}}
+    \toprule
+    区分 &amp; 主な入力 &amp; 制御の形式 &amp; 評価の主軸 \\
+    \midrule
+    固定設計 &amp; 規格・経験値 &amp; 固定$a$ &amp; 平均電流，PDR \\
+    ルールベース &amp; 混雑度・直近受信 &amp; 閾値で切替 &amp; 平均電力，遅延 \\
+    バンディット &amp; 観測（報酬） &amp; 探索＋活用 &amp; 報酬最大化 \\
+    本研究 &amp; $U,S,\mathrm{CCS}$ &amp; ルール（Phase 1） &amp; $\overline{P}$，$P_{\mathrm{out}}(\tau)$，TL\_p95 \\
+    \bottomrule
+  \end{tabular}
+\end{table}</file><file path="修士論文/chapters/ch3_oncampus.tex">% chapters/ch3_oncampus.tex --- 第7章 実験装置・計測方式
+\section{実験装置・計測方式}
+\label{sec:measurement_setup}
+
+\subsection{概要}
+本研究の一次KPIは，省電力指標$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）とQoS（TL，$P_{\mathrm{out}}(\tau)$）である．これらを同一試行で評価するため，送信（TX），電力（TXSD），受信（RX）の三ノード構成を採用し，同期信号で試行区間を揃える．本節では，計測方式とログ設計を「再現できる手順」として整理する．
+
+\subsection{三ノード構成（TX/TXSD/RX）}
+各ノードの役割を表\ref{tab:nodes}に示す．
+
+\begin{table}[tb]
+  \centering
+  \caption{評価系のノード構成}
+  \label{tab:nodes}
+  \begin{tabular}{lll}
+    \toprule
+    ノード &amp; 役割 &amp; 主なログ \\
+    \midrule
+    TX &amp; BLE広告送信・間隔制御 &amp; ペイロード（時刻/タグ），制御状態 \\
+    TXSD &amp; 電力計測（INA219） &amp; 電圧・電流系列，集約指標 \\
+    RX &amp; 受信ログ取得 &amp; 受信時刻，RSSI，ペイロード \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsubsection{機材と計測パラメータ}
+本研究の計測は，汎用マイコン（ESP32系）と電流センサ（INA219）を中心に構成する．表\ref{tab:hw}に，主要な構成要素と役割を示す．
+
+\begin{table}[tb]
+  \centering
+  \caption{計測システムの主要構成}
+  \label{tab:hw}
+  \begin{tabular}{ll}
+    \toprule
+    要素 &amp; 役割 \\
+    \midrule
+    ESP32（TX） &amp; BLE広告送信，広告間隔制御，ペイロード生成 \\
+    ESP32（TXSD） &amp; INA219計測データの収集，SD保存，エネルギー集約 \\
+    ESP32（RX）/スマートフォン &amp; 受信ログの取得（時刻，RSSI，seq） \\
+    INA219 &amp; 電流・電圧の計測（サンプリング周期は試行条件に依存） \\
+    SYNC/TICK &amp; 試行区間の同期，広告回数の物理カウント \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{同期設計（SYNC/TICK）}
+\subsubsection{SYNC（試行区間の整列）}
+試行（trial）の開始・終了を揃えるために，同期信号（SYNC）を用いる．TXは試行区間の境界でSYNC信号を出力し，TXSDおよびRXはこの信号に同期してログ取得区間を区切る．SYNCにより，「どの区間の電力・受信ログを比較するか」を明確化できる．
+
+\subsubsection{TICK（広告回数の物理カウント）}
+広告イベント数$N_{\mathrm{adv}}$は，到達性指標の分母として重要である．可能であれば，TXがTICK信号を出力し，TXSD側で割り込みにより広告回数を物理カウントする．TICKが利用できない場合は，試行時間と広告間隔から期待回数を推定するが，動的切替では誤差が入り得るため解釈に注意する．
+
+\subsubsection{配線例（UCCS評価）}
+本研究で用いた配線例を表\ref{tab:wiring_example}に示す（実験ディレクトリのREADMEに準拠）．ピン番号は実装に依存するため，運用時はRunbookに記録して固定する（\secref{sec:runbook}）．
+
+\begin{table}[tb]
+  \centering
+  \caption{配線例（UCCS評価）}
+  \label{tab:wiring_example}
+  \begin{tabular}{lll}
+    \toprule
+    信号 &amp; TX（GPIO） &amp; 受け側（GPIO） \\
+    \midrule
+    SYNC &amp; 25 &amp; RX:26, TXSD:26 \\
+    TICK &amp; 27 &amp; TXSD:33 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\figref{fig:measurement_architecture_esp32_three_node}に，外部電源およびINA219を含む三ノード計測系（TX/TXSD/RX）の配線・信号構成を示す．
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.98\linewidth]{figures/measurement_architecture_esp32_three_node}
+  \caption{三ノード計測系のシステムアーキテクチャ（外部電源・INA219・TX/TXSD/RXの配線と信号）}
+  \label{fig:measurement_architecture_esp32_three_node}
+\end{figure}
+
+\subsection{ログ設計とスキーマ}
+解析の再現性を担保するため，ログの列（カラム）を固定する．本研究では，TXSDログ末尾のsummary（例：$N_{\mathrm{adv}}$，$E$，$\overline{P}$）を一次情報として扱い，RXログはPDR/TL評価の基礎とする．ログスキーマの詳細は\secref{sec:log_schema}に示す．
+
+\subsubsection{TXSD（電力）ログ}
+TXSDログは，時刻と計測値（電圧・電流）を行ごとに保持し，末尾に集約値を出力する．積分は$\Delta t$を用いた逐次積分とし，後処理でも再積分して監査する（計測系の健全化は\secref{sec:measurement_system}で述べる）．
+
+\subsubsection{RX（受信）ログ}
+RXログは，受信時刻，RSSI，ペイロード（seq等）を保持する．重複受信があるため，seqでユニーク化した件数を併記する（\secref{sec:metrics_detail}）．また，TL/Pout算出にはRXログとtruthの時間軸整合が必要であり，定数オフセット補正を用いる（定義と実装は\secref{sec:stress_fixed_metrics}で述べる）．
+
+\subsubsection{ファイル命名}
+ログは試行単位で分割し，\texttt{\detokenize{trial_XXX.csv}}等の連番で管理する．条件IDやスキャン設定の違いは，preambleの条件ID（TICKパルス等）と作業ログにより追跡する．
+
+\subsection{計測方針（電力とQoSの同時評価）}
+本研究では，電力とQoSを同一試行で同時に評価する．電力はTXSD，QoSはRXを主に用いる．ただし，動的切替では「イベント時刻の定義」と「時間同期」が結果を左右するため，指標定義（特にTL/Pout）は\secref{sec:stress_fixed_metrics}で固定する．
+
+\subsubsection{ON/OFF差分とsleep}
+省電力指標$q_{\mathrm{event}}$は，電荷積分に基づくため，ログ欠損や単位不整合の影響を強く受ける．そのため，広告ON/OFF差分による基準補正や，生ログからの再積分監査が重要となる．また，送信側がlight sleep等に入れる条件では，広告間隔を伸ばすことが平均電力低下に直結する．sleepの有無は条件として明示し，同一コード系列で比較する（運用手順は\secref{sec:runbook}）．
+
+\subsection{受信端末の運用（スマートフォン側）}
+受信側のスキャン挙動は端末・OS状態に依存するため，実験では運用手順を固定する必要がある．特に，スキャンモード，画面状態，電源状態等を統一し，端末内比較の前提を守る．実験前のチェックリストは\secref{sec:runbook}に示す．
+
+\subsubsection{スキャンアプリと設定例}
+受信ログは，BLEスキャナアプリ（例：nRF Connect）等を用いて取得する．再現性の観点から，以下を固定する．
+\begin{itemize}
+  \item スキャンモード：LOW\_LATENCY相当（可能な範囲で最も積極的なスキャン）
+  \item フィルタ：対象UUID等でフィルタする場合は条件として明記し，条件間で統一する
+  \item 画面：試行中は画面ONを維持し，アプリを前面に置く
+\end{itemize}
+
+\subsubsection{端末状態の固定（端末内比較の前提）}
+OSの省電力機構によりバックグラウンド制約やスロットリングが生じ得るため，試行間で端末状態を揃えることが重要である．具体的には，省電力設定の固定，機内モード・Wi-Fi状態の固定，バックグラウンド制限の解除等をRunbookに従って統一する．
+
+\subsection{データ処理の概要}
+本研究の解析は，ログを読み込んで指標を算出し，条件ごとに集約して図表を生成する流れである．最小構成として，以下を満たすことを解析の合格条件とする．
+\begin{itemize}
+  \item 試行区間がSYNCで正しく切れている（期間$T$が想定と一致する）．
+  \item TXSDの集約値と後処理の再積分が同程度である（単位・欠損が健全）．
+  \item RXのPDR\_uniqueが0付近にならない（受信系が動作している）．
+  \item TL/Poutの算出に時間同期（定数オフセット補正）を適用できる．
+\end{itemize}
+
+\subsection{まとめ}
+本節では，実験装置の構成，同期設計，ログ設計，および運用上の前提を整理した．以降の節では，計測系の破綻モードと修正履歴を\secref{sec:measurement_system}にまとめ，評価の前提を固定する．</file><file path="修士論文/chapters/ch3_system_and_method.tex">% chapters/ch3_system_and_method.tex --- 第3章 システム設計と提案手法（統合）
+\chapter{システム設計と提案手法}
+\clearpage
+
+本章では，問題設定（World Model，一次KPI，制約）と，HAR推論部から得る不確実度・安定度を用いた広告間隔制御（CCS）を統合して述べる．さらに，CCS写像・パラメータを版管理の観点で整理し，Phase 2（Safe Contextual Bandit）へ接続できる形で前提を固定する．
+
+\input{chapters/ch3_system_design}
+\input{chapters/ch9_har_uncertainty}
+\input{chapters/ch2_proposed}
+\input{chapters/appx_h_ccs_params}</file><file path="修士論文/chapters/ch3_system_design.tex">% chapters/ch3_system_design.tex --- 第4章 問題設定とシステム設計
+\section{問題設定とシステム設計}
+
+\subsection{World Model}
+本研究は，アプリケーション層（HAR）と通信層（BLE広告）を跨ぐクロスレイヤー制御である．このため，単に広告間隔を調整するだけでなく，「どの情報がどこで生成され，どこで観測されるか」を明確にする必要がある．本節では，役者（Actors）と能力（Capabilities）を整理し，議論の前提を固定する．
+
+\subsubsection{Actors}
+表\ref{tab:actors}に，本研究で扱う役者を示す．
+
+\begin{table}[tb]
+  \centering
+  \caption{Actors（役者）}
+  \label{tab:actors}
+  \begin{tabular}{p{0.28\linewidth}p{0.62\linewidth}}
+    \toprule
+    Actor &amp; 役割 \\
+    \midrule
+    Edge Node / DUT &amp; IMU等からHARを推論し，不確実度$U$・安定度$S$・CCSを生成して広告間隔を制御する（送信側） \\
+    Gateway（スマートフォン） &amp; BLE広告を受信する主体．スキャン挙動はOS依存で非理想とみなす（受信側） \\
+    Observer（計測系） &amp; 電力（TXSD）と受信（RX）を収集し，一次KPIを算出する（実験時の観測者） \\
+    Safety Oracle（概念） &amp; QoS制約$P_{\mathrm{out}}(\tau)\le\delta$を規定する境界（設計上の規格） \\
+    Policy Engine &amp; コンテキストから広告間隔を決定する意思決定器（Phase 1はルール，Phase 2でSafe Bandit） \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsubsection{Capabilities（5つの柱）}
+本研究の設計で重要となる能力を以下にまとめる．
+\begin{enumerate}
+  \item Perception：HAR推論から確率分布を得て，不確実度$U$と安定度$S$を計算する．
+  \item Decision：$U,S$からCCSを構成し，広告間隔$a$を決定する．
+  \item Communication：BLE広告として送信し，受信側の非理想スキャン下で到達する．
+  \item Safety：QoS制約を守るため，危険兆候では短間隔へ退避できる．
+  \item Observability：意思決定の根拠（$U,S,\mathrm{CCS}$，閾値，切替理由）をログに残す．
+\end{enumerate}
+
+\subsection{一次KPIと不変条件}
+本研究では，議論がぶれないように一次KPIを固定する．表\ref{tab:kpi}に一次・二次KPIを示す．一次KPIは「省電力」と「期限超過」の同時評価を担い，二次KPIは補助指標として扱う．
+
+\begin{table}[tb]
+  \centering
+  \caption{KPIの整理}
+  \label{tab:kpi}
+  \begin{tabular}{p{0.22\linewidth}p{0.68\linewidth}}
+    \toprule
+    区分 &amp; 指標 \\
+    \midrule
+    一次（Primary） &amp; $\si{\micro\coulomb}/\text{event}$，$P_{\mathrm{out}}(\tau)$，TL\_p95 \\
+    二次（Secondary） &amp; 平均電力$\overline{P}$，PDR（unique），RSSI，切替頻度（switch\_rate），平均広告レート（adv\_rate） \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+また，設計上の不変条件として以下を採用する．
+\begin{itemize}
+  \item 後方互換のIF：\texttt{decide\_interval(context) -&gt; interval} の構造を保ち，ルールから学習へ差し替え可能にする．
+  \item 端末内比較：受信端末・設定を固定し，OS依存の影響は端末内で相殺して解釈する．
+  \item ログ優先：KPI算出に必要な列を必ず残し，派生値は後処理で再計算できる形にする．
+\end{itemize}
+
+\subsection{目的関数と制約}
+本研究の問題設定は，広告間隔制御により電力（電荷消費）を下げつつ，期限超過率を制約することである．動的制御の方策$\pi$に対し，
+\begin{equation}
+  \text{minimize}\quad \mathbb{E}[q_{\mathrm{event}}(\pi)]
+  \quad \text{subject to}\quad P_{\mathrm{out}}(\tau;\pi)\le \delta
+\end{equation}
+として表せる．ここで$q_{\mathrm{event}}$（単位：$\si{\micro\coulomb}/\text{event}$）は，セッション中の電荷消費をイベント数で正規化した指標である（定義は\secref{sec:metrics_detail}）．コンテキストとしては$U,S$（またはCCS）を用い，Phase 1ではルール$\pi_{\mathrm{rule}}$，Phase 2では学習$\pi_{\mathrm{safe\_mab}}$を想定する．
+
+\subsection{フェイルセーフと運用設計}
+非理想スキャン環境では，受信品質が瞬間的に悪化する可能性がある．このため，実装では安全側への退避（短間隔）を設けることが望ましい．本研究では，切替規則の設計とログ化により，安全側に寄せた挙動を説明可能にする．
+具体的には，通常はCCSに応じて広告間隔を選択し，QoS悪化の兆候がある場合は短間隔へ退避できる余地を残す．また，退避の根拠（切替理由）をログに残し，監査可能にする．
+
+\subsection{フェーズ設計（Phase 1 → Phase 2）}
+Phase 1では，ルールベース方策で「計測・指標・実機実装」を成立させることを優先する．特に，TL/Poutの定義と時間同期，電力計測の健全化は，学習以前に必須である．Phase 2では，コンテキスト（$U,S$）と行動（広告間隔）の選択をSafe Contextual Banditとして定式化し，環境差に適応しつつQoS制約を守る枠組みを検証する．</file><file path="修士論文/chapters/ch4_measurement_metrics_repro.tex">% chapters/ch4_measurement_metrics_repro.tex --- 第4章 計測系・ログ設計・指標定義（再現性）（統合）
+\chapter{計測系と再現性}
+\clearpage
+
+本研究は，非理想スキャン環境と実機ログに依存するため，条件混在や欠損により結論が逆転し得る．そのため，本章では再現性確保（計測系，ログ設計，指標定義，運用手順，破綻モード）を本文に統合して明示し，評価の前提を固定する．
+
+\input{chapters/ch3_oncampus}
+\input{chapters/ch8_measurement_system}
+
+\section{評価準備（実験設計と実装）}
+\label{sec:eval_preparation}
+\begingroup
+  \let\section\subsection
+  \let\subsection\subsubsection
+  \input{chapters/ch8_experiment_design}
+  \input{chapters/ch10_implementation}
+\endgroup
+
+\section{再現性のための詳細資料}
+\label{sec:repro_details}
+\begingroup
+  \let\section\subsection
+  \let\subsection\subsubsection
+  \input{chapters/appx_d_log_schema}
+  \input{chapters/appx_a_metrics}
+  \input{chapters/appx_e_runbook}
+\endgroup</file><file path="修士論文/chapters/ch4_rain.tex">% chapters/ch4_rain.tex --- 第4章 評価結果
+\section{評価結果}
+\label{sec:evaluation_results}
+
+\subsection{固定間隔の基準特性}
+固定間隔における$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）と受信品質を基準として整理する．ただし，本節では説明の都合上，電力の従属指標として平均電力の例も併記する．特に，\SI{100}{\milli\second}から\SI{500}{\milli\second}への変更により電力が低下する一方で，受信率や遅延分布が変化するため，制約$\delta$に対する可行性が境界条件として現れる．
+
+\subsubsection{固定間隔の平均電力（例）}
+本研究では，固定間隔の平均電力を実測し，オフライン評価で用いる電力テーブルとして利用する．表\ref{tab:power_table_example}に，\SI{100}{\milli\second}から\SI{2000}{\milli\second}までの固定間隔における平均電力の一例を示す．
+
+\begin{table}[tb]
+  \centering
+  \caption{固定間隔の平均電力（例）}
+  \label{tab:power_table_example}
+  \begin{tabular}{lll}
+    \toprule
+    広告間隔 [ms] &amp; 平均電力 [mW] &amp; 備考 \\
+    \midrule
+    100  &amp; 198.56 &amp; n=10（sleep\_on） \\
+    500  &amp; 180.80 &amp; n=9（sleep\_on） \\
+    1000 &amp; 178.62 &amp; n=9（sleep\_on） \\
+    2000 &amp; 177.47 &amp; n=9（sleep\_on） \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsubsection{主効果の観察}
+表\ref{tab:power_table_example}の例では，\SI{100}{\milli\second}から\SI{500}{\milli\second}への変更で平均電力が大きく低下する．一方で，\SI{500}{\milli\second}以上では改善幅が小さくなる．この傾向は，動的制御において短間隔の滞在時間を抑制する設計が有効であることを示唆する．
+
+\subsection{動的切替（2値制御）の実機確認}
+動的制御の最小構成として，\SI{100}{\milli\second}と\SI{500}{\milli\second}の切替を実装し，固定\SI{100}{\milli\second}および固定\SI{500}{\milli\second}と比較する．平均電力が両固定条件の中間に位置し，受信率も中間的になることを確認することで，切替が成立していることを検証する．
+
+切替成立の確認としては，平均電力が両固定条件の中間に位置し，かつログ上でinterval切替が発生することを確認すれば十分である．以降では，TLと$P_{\mathrm{out}}(\tau)$を用いて，QoS制約下での省電力効果を定量評価する．
+
+\subsection{実測のQoS指標（TLとPout）}
+本研究では，受信品質をPDRだけでなく，遅延分布と期限超過率$P_{\mathrm{out}}(\tau)$で評価する．特に，非理想スキャン環境では平均受信率が同程度でも，遅延の裾が悪化する場合があるため，$P_{\mathrm{out}}(\tau)$が重要となる（\secref{sec:metrics_detail}）．
+
+\subsubsection{実測例（D2b，scan90）}
+表\ref{tab:d2_summary}に，D2b（scan90）における実測例を示す．本表は，S1/S4の2条件について，固定\SI{100}{\milli\second}，固定\SI{500}{\milli\second}，および方策（2値切替）の比較をまとめたものである．ここでは run B（n=3）と追加取得 B/02（n=3）を統合し，各条件n=6として集計した．
+
+\begin{table}[tb]
+  \centering
+  \caption{D2b（scan90）の実測例（mean$\pm$std, 各n=6）}
+  \label{tab:d2_summary}
+  {\small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lrrrrr}
+    \toprule
+    条件 &amp; Pout(1s) &amp; TL\_mean[s] &amp; PDR\_u &amp; P[mW] &amp; share100 \\
+    \midrule
+    S1-100   &amp; 0.075$\pm$0.027 &amp; 3.76$\pm$1.46 &amp; 0.789$\pm$0.016 &amp; 204.1$\pm$1.4 &amp; 1.000$\pm$0.000 \\
+    S1-500   &amp; 0.142$\pm$0.049 &amp; 5.29$\pm$0.02 &amp; 0.816$\pm$0.018 &amp; 184.7$\pm$1.5 &amp; 0.000$\pm$0.000 \\
+    S1-policy &amp; 0.125$\pm$0.027 &amp; 5.24$\pm$0.05 &amp; 0.803$\pm$0.022 &amp; 191.5$\pm$1.9 &amp; 0.331$\pm$0.004 \\
+    \midrule
+    S4-100   &amp; 0.053$\pm$0.010 &amp; 1.25$\pm$0.01 &amp; 0.792$\pm$0.009 &amp; 204.4$\pm$2.1 &amp; 0.998$\pm$0.002 \\
+    S4-500   &amp; 0.146$\pm$0.031 &amp; 2.48$\pm$1.11 &amp; 0.817$\pm$0.020 &amp; 184.5$\pm$1.5 &amp; 0.000$\pm$0.000 \\
+    S4-policy &amp; 0.069$\pm$0.029 &amp; 1.58$\pm$0.50 &amp; 0.793$\pm$0.021 &amp; 196.6$\pm$1.6 &amp; 0.595$\pm$0.008 \\
+    \bottomrule
+  \end{tabular}
+  }
+\end{table}
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.90\linewidth]{../uccs_d2_scan90/plots/d2b_B_n6_power_vs_pout}
+  \caption{D2b（run B + B/02, n=6）における平均電力と$P_{\mathrm{out}}(1\mathrm{s})$の関係（share100を注釈）}
+  \label{fig:d2b_power_vs_pout}
+\end{figure}
+
+\subsubsection{解釈}
+表\ref{tab:d2_summary}および図\ref{fig:d2b_power_vs_pout}より，方策（2値切替）はFixed100より低電力であり，Fixed500より低い期限超過率（QoS改善）を示す運用点になり得る．さらに，遷移が多い側（S4）ほどshare100が増加しており，「必要時だけ\SI{100}{\milli\second}に寄せ，それ以外は\SI{500}{\milli\second}に寄せる」挙動が定量で確認できる．
+
+また，平均電力はFixed100/Fixed500の滞在比率（share100）による線形混合で概ね説明できるため，方策の省電力効果はinterval滞在比率に支配されることが示唆される．これにより，「sleep差分が効いた/効かなかった」といった実装依存の議論から切り離し，制御則（どの状態で短間隔へ戻すか）の議論へ接続しやすくなる．
+
+\subsubsection{条件悪化時の頑健性（D3，scan70）}
+\label{sec:d3_scan70}
+表\ref{tab:d3_summary}に，scan dutyを低下させたD3（scan70, S4, 各n=3）の結果を示す．scan70ではFixed500の期限超過率が0.285まで悪化する一方で，方策は0.089まで改善し，Fixed100（0.065）と同様に制約$\delta$（例：$\delta=0.1$）を満たす．このとき方策はFixed100より平均電力を\SI{7.8}{\milli\watt}（約3.7\%）低減するが，Fixed500よりは\SI{12.6}{\milli\watt}高い．
+
+なお，scan70では受信欠落によりRXタグ由来のshare100（約0.42）が過小評価されやすいため，D3では平均電力の線形混合によりshare100\_mixを推定した．固定\SI{100}{\milli\second}/\SI{500}{\milli\second}の平均電力をそれぞれ$P_{100}, P_{500}$とし，方策の平均電力を$P_{\mathrm{policy}}$とすると，$share100_{\mathrm{mix}}=(P_{\mathrm{policy}}-P_{500})/(P_{100}-P_{500})$で与えられる．また，SDコピーでmtimeが信頼できないため，TXSDログはadv\_count（tick\_count）でクラスタリングしてRXと対応付けた．
+
+\begin{table}[tb]
+  \centering
+  \caption{D3（scan70, S4）の実測例（mean$\pm$std, 各n=3）}
+  \label{tab:d3_summary}
+  {\small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lrrrr}
+    \toprule
+    条件 &amp; Pout(1s) &amp; TL\_mean[s] &amp; P[mW] &amp; share100\_mix \\
+    \midrule
+    S4-100   &amp; 0.065$\pm$0.028 &amp; 1.34$\pm$0.02 &amp; 209.9$\pm$0.5 &amp; 1.000 \\
+    S4-500   &amp; 0.285$\pm$0.061 &amp; 2.93$\pm$1.07 &amp; 189.5$\pm$0.5 &amp; 0.000 \\
+    S4-policy &amp; 0.089$\pm$0.037 &amp; 1.40$\pm$0.07 &amp; 202.1$\pm$0.1 &amp; 0.618 \\
+    \bottomrule
+  \end{tabular}
+  }
+\end{table}
+
+\subsubsection{U-shuffleアブレーション（D4，scan90）}
+\label{sec:d4_ablation}
+D2bの主結果に対して，「不確実度$U$は本当に効いているか（単なる閾値遊びではないか）」という疑問に答えるため，D4としてアブレーション実験を行った．ここでは制御器の構造と閾値は固定し，不確実度系列$U$の時間整合だけを破壊する（shuffleする）ことで，制御がどのように崩れるかを観察する．
+
+表\ref{tab:d4_summary}に，S4（遷移が多い条件）における結果（各n=3）を示す．方策（U+CCS）はFixed100より低電力であり，Fixed500より低い期限超過率を示す運用点になり得る．一方で，$U$をshuffleするとshare100が0.593から0.943へ増加し，adv\_countも1227から1715へ増加してFixed100に近い挙動へ崩れる．その結果，平均電力も200.5\,mWから208.1\,mWへ増加し，省電力効果が失われる（図\ref{fig:role_separation_overview}）．
+
+\begin{table}[tb]
+  \centering
+  \caption{D4（scan90, S4）のアブレーション結果（mean$\pm$std, 各n=3）}
+  \label{tab:d4_summary}
+  {\small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lrrrrr}
+    \toprule
+    条件 &amp; Pout(1s) &amp; TL\_mean[s] &amp; P[mW] &amp; adv\_count &amp; share100 \\
+    \midrule
+    Fixed100 &amp; 0.049$\pm$0.000 &amp; 1.24$\pm$0.01 &amp; 208.2$\pm$1.3 &amp; 1796$\pm$0 &amp; 1.000$\pm$0.000 \\
+    Fixed500 &amp; 0.130$\pm$0.014 &amp; 1.59$\pm$0.06 &amp; 187.9$\pm$0.8 &amp; 359$\pm$0 &amp; 0.000$\pm$0.000 \\
+    Policy（U+CCS） &amp; 0.098$\pm$0.024 &amp; 1.28$\pm$0.01 &amp; 200.5$\pm$0.8 &amp; 1227$\pm$0 &amp; 0.593$\pm$0.009 \\
+    Ablation（U-shuf） &amp; 0.049$\pm$0.000 &amp; 1.23$\pm$0.01 &amp; 208.1$\pm$0.3 &amp; 1715$\pm$0 &amp; 0.943$\pm$0.000 \\
+    \bottomrule
+  \end{tabular}
+  }
+\end{table}
+
+\subsubsection{CCS-offアブレーション（D4B，scan90）}
+\label{sec:d4b_ccs_off}
+CCSの寄与を切り分けるため，制御則の構造は固定したままCCSを無効化し，不確実度$U$のみで切替を行う（U-only）実験（D4B）を追加した．
+表\ref{tab:d4b_summary}にS4の結果（各n=3）を示す．Policy（U+CCS）とU-only（CCS-off）は平均電力がほぼ同一（ともに約200.6\,mW）で，adv\_countおよびshare100\_mixも同等であるにも関わらず，Policy（U+CCS）の方が$P_{\mathrm{out}}(1\mathrm{s})$とTL\_meanが改善する．したがって，CCSは「\SI{100}{\milli\second}を増やす」ことでなく，同じ短間隔予算の範囲で「短間隔を使うタイミング」を調整することでQoSを改善していると解釈できる（図\ref{fig:role_separation_overview}）．
+
+\begin{table}[tb]
+  \centering
+  \caption{D4B（scan90, S4）のCCS-offアブレーション結果（mean$\pm$std, 各n=3）}
+  \label{tab:d4b_summary}
+  {\small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lrrrrr}
+    \toprule
+    条件 &amp; Pout(1s) &amp; TL\_mean[s] &amp; P[mW] &amp; adv\_count &amp; share100\_mix \\
+    \midrule
+    Fixed100 &amp; 0.081$\pm$0.014 &amp; 1.49$\pm$0.11 &amp; 208.3$\pm$0.5 &amp; 1796$\pm$0 &amp; 1.000 \\
+    Fixed500 &amp; 0.130$\pm$0.028 &amp; 1.21$\pm$0.26 &amp; 188.1$\pm$0.3 &amp; 359$\pm$0 &amp; 0.000 \\
+    U-only（CCS-off） &amp; 0.065$\pm$0.014 &amp; 1.41$\pm$0.15 &amp; 200.6$\pm$0.2 &amp; 1227$\pm$0 &amp; 0.621 \\
+    Policy（U+CCS） &amp; 0.049$\pm$0.000 &amp; 1.32$\pm$0.03 &amp; 200.6$\pm$0.1 &amp; 1215$\pm$0 &amp; 0.620 \\
+    \bottomrule
+  \end{tabular}
+  }
+\end{table}
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.95\linewidth]{../uccs_d4b_scan90/plots/role_separation_d3_d4_d4b}
+  \caption{U/CCSの役割分離と頑健性のまとめ（S4）: 平均電力と$P_{\mathrm{out}}(1\mathrm{s})$の関係（D3/D4/D4B）。図中の矢印は，Uの寄与（U-shuffleから方策へ），CCSの寄与（CCS-offから方策へ），および受信条件悪化（scan90からscan70）に対する挙動を示す．}
+  \label{fig:role_separation_overview}
+\end{figure}
+
+\subsubsection{解釈（D4/D4B）}
+D4の結果は，制御器の構造と閾値を固定したまま入力$U$の時間整合だけを破壊すると，制御が短間隔（\SI{100}{\milli\second}）に張り付く方向へ崩れることを示している．一方でD4Bの結果は，平均電力（=短間隔滞在量）をほぼ同一に保ったまま，CCSの有効化によって$P_{\mathrm{out}}(1\mathrm{s})$とTL\_meanが改善することを示している．したがって，本研究の2値制御では，$U$が「どれだけ短間隔を使うか（電力）」を決め，CCSが「いつ短間隔を使うか（QoS）」を改善する，という役割分担が示唆される．
+
+\subsubsection{効果量のブートストラップCI（追加検証）}
+各条件$n=3$のため，trial単位の差分に対してpercentile bootstrap（$n_{\mathrm{boot}}=20000$）で効果量の不確かさを確認した．D4Bでは，$\Delta P_{\mathrm{out}}(1\mathrm{s})$（U+CCS $-$ U-only）$=-0.0163$で95\%CIは$[-0.0244, 0.0000]$となり，$\Delta power$は$-0.0235$\,mWで95\%CIが$[-0.2332, 0.1886]$となった．また，D4では$\Delta power$（policy $-$ U-shuf）$=-7.58$\,mW（95\%CI $[-8.39,-6.93]$），$\Delta P_{\mathrm{out}}(1\mathrm{s})=+0.0488$（95\%CI $[0.0244,0.0732]$）であり，U-shuffleが短間隔寄りに崩れることが定量で確認できる．さらに，D3では$\Delta P_{\mathrm{out}}(1\mathrm{s})$（policy $-$ fixed500）$=-0.195$（95\%CI $[-0.260,-0.130]$），$\Delta power$（policy $-$ fixed100）$=-7.76$\,mW（95\%CI $[-8.24,-7.22]$）であり，受信条件悪化時でも方策がFixed500より低い期限超過率を示しつつFixed100より低電力であることが裏付けられる．
+
+\subsubsection{$\alpha$--$P_{\mathrm{out}}$プロット（追加検証）}
+滞在比率の推定を直感的に扱うため，固定\SI{100}{\milli\second}/\SI{500}{\milli\second}の平均電力を$P_{100},P_{500}$とし，各条件の平均電力$P$から
+\begin{equation}
+  \alpha = \frac{P-P_{500}}{P_{100}-P_{500}}
+\end{equation}
+を定義する（$\alpha\approx share100_{\mathrm{mix}}$）．図\ref{fig:alpha_vs_pout_overview}は，$x=\alpha$，$y=P_{\mathrm{out}}(1\mathrm{s})$としてD3/D4/D4Bを同一平面に配置したものである．D4Bでは，Policy（U+CCS）とU-only（CCS-off）が同程度の$\alpha$であるにも関わらず$P_{\mathrm{out}}$が改善し，同電力でQoSが改善する傾向が可視化できる．また，D4（U-shuffle）では$\alpha$が1に近づき，短間隔へ張り付く崩れ方が確認できる．
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.95\linewidth]{../uccs_d4b_scan90/plots/alpha_vs_pout_overview}
+  \caption{$\alpha$（\SI{100}{\milli\second}滞在比率の推定値）と$P_{\mathrm{out}}(1\mathrm{s})$の関係（D3/D4/D4B）．図中の$\delta=0.1$は制約の例として示す．}
+  \label{fig:alpha_vs_pout_overview}
+\end{figure}
+
+\subsubsection{事例解析：同電力でQoS差を生んだ少数イベント（D4B run01）}
+D4B（run01）では，Policy（U+CCS）とU-only（CCS-off）が同程度の平均電力でありながら$P_{\mathrm{out}}(1\mathrm{s})$が異なる．この差の内訳を確認するため，trial$\times$遷移ごとのTLを集計し，outage（TL$&gt;\SI{1}{\second}$）に寄与した遷移をランキングした（出力：\texttt{\detokenize{uccs_d4b_scan90/plots/outage_story_01/}}）．代表例として\texttt{\detokenize{transition_step=1128}}（2$\rightarrow$9）では，U-onlyでTL$\approx\SI{9.889}{\second}$（outage）だがPolicyではTL$\approx\SI{0.212}{\second}$であり，少数の失敗イベントが$P_{\mathrm{out}}$差を生み得ることが確認できる．さらに，遷移単位の集計から復元したoutage率（\texttt{\detokenize{pout_est}}）がsummaryと一致することを確認した（Policy=0.04878, U-only=0.06504）．
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.98\linewidth]{../uccs_d4b_scan90/plots/outage_story_01/fig_outage_timeline}
+  \caption{D4B（run01）における失敗イベント中心のタイムライン図（例：\texttt{\detokenize{transition_step=1128}}, 2$\rightarrow$9）．U-onlyではTLが長くoutageとなる一方で，Policy（U+CCS）では短時間で受信されoutageが回避される．}
+  \label{fig:outage_story_timeline}
+\end{figure}
+
+\subsubsection{尾（TL$&gt;\SI{1}{\second}$）への寄与分解（D4B run01）}
+$P_{\mathrm{out}}(1\mathrm{s})$は「TL$&gt;\SI{1}{\second}$となるoutageの発生有無」で決まりやすい．そこで，trialごとのoutage回数分布と，$\Delta P_{\mathrm{out}}$（U-onlyが悪化する差分）が「どの遷移に集中しているか」を可視化した（出力：\texttt{\detokenize{uccs_d4b_scan90/plots/pout_tail_01/}}）．図\ref{fig:d4b_pout_tail_decomposition}より，本run01では正の$\Delta P_{\mathrm{out}}$を持つ遷移は41遷移中2遷移であり，上位1遷移で差分の50\%を説明するなど，尾の差が少数遷移へ強く集中していることが確認できる．
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.92\linewidth]{../uccs_d4b_scan90/plots/pout_tail_01/fig_outage_count_hist}
+  \vspace{2mm}
+  \includegraphics[width=0.92\linewidth]{../uccs_d4b_scan90/plots/pout_tail_01/fig_delta_pout_cum}
+  \caption{D4B（run01）における尾（TL$&gt;\SI{1}{\second}$）の寄与分解．（上）trialごとのoutage回数分布，（下）上位K遷移が$\Delta P_{\mathrm{out}}(1\mathrm{s})$をどれだけ説明するか（累積寄与）．}
+  \label{fig:d4b_pout_tail_decomposition}
+\end{figure}
+
+\subsubsection{条件付きタイミング：失敗遷移近傍の短間隔割当て（D4B run01）}
+同電力で$P_{\mathrm{out}}$差が生じる要因として，平均的な$\alpha$（滞在比率）ではなく「どのタイミングで短間隔を割り当てたか」が効いている可能性がある．そこで，U-onlyのoutage率が高い遷移（差分上位）に限定し，遷移近傍における$P(\text{interval}=\SI{100}{\milli\second})$を再集計した（出力：\texttt{\detokenize{uccs_d4b_scan90/plots/ccs_timing_conditional_01/}}）．図\ref{fig:d4b_ccs_timing_conditional}は，失敗しやすい遷移近傍では短間隔割当ての差が現れやすいことを示しており，CCSが「同じ短間隔予算の使い方（タイミング）」を通じてQoSを改善する可能性を支持する．
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.95\linewidth]{../uccs_d4b_scan90/plots/ccs_timing_conditional_01/fig_event_triggered_p100_conditional}
+  \caption{D4B（run01）における条件付きタイミング分析：U-onlyが悪化する遷移（差分上位）に限定し，遷移近傍の$P(\text{interval}=\SI{100}{\milli\second})$を可視化した．}
+  \label{fig:d4b_ccs_timing_conditional}
+\end{figure}
+\clearpage
+
+\subsection{オフライン評価との整合}
+オフライン評価で予測される運用点と，実機で得られる平均電力・受信品質の差分を比較し，推定モデルの妥当性と限界を整理する．
+
+\subsubsection{予測と実測の差分}
+オフライン評価は，固定間隔の電力テーブルと受信品質推定を合成するため，実環境の非理想性を完全には表現しない．したがって，予測値は「候補探索と説明のための近似」として用い，実測との差分を評価しながらモデルの限界を記述することが重要である．
+
+\subsubsection{δ帯プロット（参考）}
+δ帯プロットは，\secref{sec:offline_eval}の図\ref{fig:letter_delta_band}に示した通り，固定間隔点と候補方策点の位置関係を俯瞰し，実機評価で探索すべき領域を絞り込むための近似として有効である．
+
+\subsection{まとめ}
+本節の結果を，次章の考察に接続するために要点を整理する．
+\begin{itemize}
+  \item D2b（scan90, n=6）では，方策（2値切替）がFixed100より低電力で，Fixed500より低い期限超過率を示す運用点になり得ることを確認した．
+  \item D3（scan70, S4, n=3）では，scan duty低下でFixed500が崩れる条件でも，方策が期限超過率を抑えつつFixed100より低電力を維持できることを確認した．
+  \item D4（U-shuffleアブレーション, S4, n=3）では，$U$の時間整合を破壊すると短間隔へ張り付く方向へ崩れ，省電力効果が失われることを確認した．
+  \item D4B（CCS-offアブレーション, S4, n=3）では，平均電力をほぼ同一に保ったままCCSの有効化で期限超過率と遅延が改善し，同じ短間隔予算の範囲でQoSを改善できることを確認した．
+  \item オフライン評価（δ帯）は，固定間隔点と候補方策点の位置関係を可視化し，実機評価で探索すべき領域を絞り込むための近似として有効である．
+\end{itemize}</file><file path="修士論文/chapters/ch5_evaluation.tex">% chapters/ch5_evaluation.tex --- 第5章 評価（統合）
+\chapter{評価}
+\clearpage
+
+本章では，ストレス固定実験に基づくTL/Pout指標の確立，オフライン評価による候補探索，および実機評価結果をまとめる．固定間隔と提案方策を同一の評価指標で比較し，省電力とQoSのトレードオフを示す．
+
+\input{chapters/ch6_stress_fixed}
+\input{chapters/ch7_offline_eval}
+\input{chapters/ch4_rain}
+
+% 付録だった追加結果は評価章に吸収
+\input{chapters/appx_c_results}</file><file path="修士論文/chapters/ch5_publicroad.tex">% chapters/ch5_publicroad.tex --- 第5章 考察
+\chapter{考察}
+\clearpage
+
+\section{非理想スキャン環境における解釈}
+受信側スキャンの非理想性は，平均的な受信率だけでなく，遅延の裾や期限超過に影響する．端末・OS状態に依存する要素を前提として，評価は端末内のA/B比較として解釈する必要がある．
+
+\subsection{評価の前提}
+本研究では，端末内比較の前提を守るため，固定条件と提案条件を同一実験系で取得し，同じ処理パイプラインで集計する．また，ログ欠損や同期ずれが評価結果に直結するため，解析対象の選別や単位整合の監査を行う．
+
+\section{制御設計の妥当性と限界}
+ルールベース方策は実装が単純であり，安全側のフォールバックを設計しやすい．一方で，環境ごとに最適な運用点は変化するため，固定閾値では追従できない場合がある．また，切替頻度の増加はログ整合や同期の難易度を上げるため，実装面での制約もある．
+
+\subsection{2値制御の位置づけ}
+2値制御は，実機検証を最小構成で成立させる上で有効である．一方で，\SI{1000}{\milli\second}や\SI{2000}{\milli\second}など長間隔を含めた最適化は，より大きな省電力の可能性を持つ．今後は，計測・同期の堅牢性を維持した上で行動空間を拡張し，QoS制約の境界をより広い範囲で評価する必要がある．
+
+\subsection{閾値設計と感度}
+CCS閾値は，入力データ（活動種別やモデルの確信度分布）に依存する．閾値を厳しくしすぎると短間隔に偏って省電力効果が薄れ，緩くしすぎると長間隔に偏ってQoS違反が増える．したがって，オフライン評価で候補を絞り込んだ上で，実機の端末内比較で境界付近を詰めるアプローチが実務上有効である．
+
+\subsection{UとCCSの役割分離（実機アブレーション）}
+\label{sec:discussion_role_separation}
+本研究では，2値制御の実機成立（D2b）に加え，受信条件悪化時の頑健性（D3）と，U/CCSの役割分離（D4/D4B）を追加検証した．D4（U-shuffle）では，制御器の構造を固定したまま$U$の時間整合のみを破壊すると短間隔へ張り付く方向へ崩れ，省電力効果が失われることを示した（\secref{sec:d4_ablation}）．一方でD4B（CCS-off）では，平均電力（=短間隔滞在量）をほぼ同一に保ったまま，CCS有効化により$P_{\mathrm{out}}(1\mathrm{s})$とTLが改善することを示した（\secref{sec:d4b_ccs_off}）．これらより，$U$が「どれだけ短間隔を使うか（電力）」を，CCSが「いつ短間隔を使うか（QoS）」を改善する，という役割分担が実機データで支持される（\figref{fig:role_separation_overview}）．
+
+\section{sleepの扱いと計測公平性}
+本研究は，広告間隔を制御することで無線イベント回数を減らし，さらに送信側がsleepに入れる時間を増やすことで平均電力を下げることを狙う．一方で，sleepは計測条件そのものでもあるため，条件が混ざると比較が成立しない．本節では，sleepを議論に入れるための前提を整理する．
+
+\subsection{送信側sleep（平均電力への寄与）}
+送信側（DUT）がlight sleep等に入る構成では，広告間隔を延ばすほどsleep時間が増え，平均電力が低下しやすい．ただし，周辺回路やロギングの定常負荷が支配的な場合，改善は飽和する．したがって，sleepの有無（ON/OFFを含む）を条件として明示し，同一コード系列・同一設定の端末内比較として評価することが必要である．
+
+\subsection{受信側sleep（scan dutyの縮退）}
+受信側（スマートフォン）のスキャンは，OSの省電力機構や端末状態により間欠化し得る．この受信側sleepは，TL分布の裾を伸ばし，$P_{\mathrm{out}}(\tau)$を悪化させる方向に作用する．したがって，本研究の主張は「理想スキャン下の最適性」ではなく，「非理想スキャン下でも端末内比較として省電力な運用点が存在し得る」ことに置く．
+
+\subsection{OFF計測と差分評価}
+計測系の定常負荷が大きい場合，平均電力だけでは広告間隔の差が埋もれる．この場合，広告ON/OFF差分$\Delta E$を広告回数で正規化した$\Delta E/N_{\mathrm{adv}}$を併用することで，「無線1回当たりの増分」として議論できる．ただし，OFFのsleep状態やスタック状態がONと異なると差分の解釈が難しくなるため，Runbookに従って条件を固定する必要がある．
+
+\section{Safe Contextual Banditへの拡張}
+将来的には，コンテキスト（不確実度，安定度）に応じて行動（広告間隔）を選択し，報酬（省電力）を最大化しながら制約（$P_{\mathrm{out}}(\tau)\le\delta$）を満たすSafe Contextual Banditとして定式化する．ルールベース方策と固定間隔の基準データは，Warm-Startの事前情報として活用できる．
+
+\subsection{Warm-Startの意義}
+オンライン学習では，学習初期の探索によってQoS制約を破るリスクがある．ルールベース方策は，安全側の初期方策として利用でき，探索の範囲を制約内に保つ設計に接続しやすい．したがって，Phase 1に相当するルールベース評価は，オンライン最適化の前提条件として重要である．
+
+\section{失敗・未完タスクの位置づけ}
+修士論文では，うまくいかなかった点や未完タスクを隠すのではなく，「何が揃っていて，何が揃っていないか」を明示することが再現性に直結する．本研究は，Phase 1として評価系を確立することを目的に置くため，未完点を将来課題として整理し，Phase 2へ接続する材料とする．
+
+\subsection{HARモデル（A\_tiny）の未完点}
+A\_tinyは，4クラス性能の未達やTFLite生成・実機計測が未完である．この状態で閾値制御を議論すると，確率出力の較正や量子化誤差により，CCS分布と閾値の意味が変化する危険がある．したがって，本論文では参照モデルA0を土台として不確実度定義を固定し，A\_tinyの改善は今後の課題として明確化する．
+
+\subsection{計測系トラブルの位置づけ}
+計測系のトラブル（SYNC取りこぼし，UART欠損，SD失敗など）は，研究の本質ではないが，無視すると結論を逆転させ得る．そのため，本研究では計測系の破綻モードと対策を\secref{sec:measurement_system}で整理し，評価の前提として本文に明示した．
+
+\section{脅威と限界（Threats to Validity）}
+本研究の評価は，実機の端末内比較と，オフライン合成評価を組み合わせている．したがって，以下の脅威と限界を明示する必要がある．
+\begin{itemize}
+  \item 外的妥当性：受信端末やOSバージョンが変わると，スキャンの非理想性が変化し，同一方策でもQoSが変化し得る．
+  \item 内的妥当性：ログ欠損や単位換算の誤りは結論を逆転させ得るため，計測健全化と監査を必須とする（\secref{sec:measurement_system}）．
+  \item 統計的妥当性：実機評価は各条件$n=3$のものが含まれる．効果量はブートストラップCIで補助的に確認したが，さらなる反復による不確かさ低減が望ましい（\secref{sec:d3_scan70}）．
+  \item モデル近似：オフライン評価は滞在比率に基づく合成であり，切替直後の非定常性や相関は近似に含まれない．
+  \item 不確実度較正：確率値が過信されると閾値の意味が崩れるため，較正（温度スケーリング等）の導入が今後の課題となる（\secref{sec:har_uncertainty}）．
+\end{itemize}
+
+\section{今後の課題}
+本研究で未解決の課題として，スキャン挙動の端末差の系統的整理，動的制御におけるQoS指標（TL分布・$P_{\mathrm{out}}$）の高精度評価，およびオンライン学習導入時の安全側設計が挙げられる．
+
+\subsection{QoS評価の高精度化}
+動的制御では，イベント時刻の定義と時間同期が結果を左右する．特に長間隔では，開始位相のずれや受信の間欠性により，TL分布と$P_{\mathrm{out}}(\tau)$が不自然に見える場合がある．今後は，ペイロードにインデックス等を埋め込み，時間軸を確実に復元できるログ設計と解析を統一する．
+
+\subsection{行動集合の拡張}
+2値制御は最小構成として有効であるが，運用点の探索範囲を狭める．今後は，$\{100,500,1000,2000\}$のように行動集合を拡張し，制約$\delta$の境界に沿ってより良いトレードオフ点が存在するかを検証する．その際，切替頻度が増えるため，ログ整合と時間同期の堅牢化が前提条件となる．</file><file path="修士論文/chapters/ch6_stress_fixed.tex">% chapters/ch6_stress_fixed.tex --- 第6章 ストレス固定実験と指標定義（scan50/scan90, v5）
+\section{ストレス固定実験と指標定義の確立}
+\label{sec:stress_fixed_metrics}
+
+\subsection{目的}
+本節では，ストレス固定（stress\_fixed）実験を用いて，QoS指標（TLおよびPout(τ)）の定義を「論文で説明できる形」に固定し，実測結果を再現可能に整理する．特に，受信ログの時間軸と真値（truth）の開始位相ずれがTL/Poutに与える影響を明確化し，補正手順を定式化する．
+
+\subsection{実験条件の概要}
+ストレス固定実験では，既知のラベル系列（truth）をTX側で再生し，受信側（RX）がそれをどの程度の遅延で観測できるかを測定する．主な比較軸は以下である．
+\begin{itemize}
+  \item 受信設定：scan50（duty 50\% 相当）とscan90（duty 90\% 相当）
+  \item 固定広告間隔：\SI{100}{\milli\second}，\SI{500}{\milli\second}，\SI{1000}{\milli\second}，\SI{2000}{\milli\second}
+  \item ストレス列：代表的な2条件（例：S1，S4）を中心に評価
+\end{itemize}
+各trialについて，TXSDログとRXログを対応付け，PDR，TL，Pout(τ)，平均電力などを出力する．
+
+\subsection{v4で観察された問題}
+scan90のv4集計では，固定\SI{2000}{\milli\second}においてPout(1s)が理論下限より小さく見える等，直感に反する挙動が観察された．原因は，RXログの`ms`とtruthの時間軸が一致している前提でTL/Poutを計算していた点にある．実機では試行開始のタイミングがずれ得るため，このずれを補正しないとTL/Poutが過小評価される．
+
+\subsection{v5での時間同期（定数オフセット補正）}
+v5では，TL/Pout算出前に定数オフセットを推定し，RXログの時刻を補正する．広告間隔を$\Delta t$（ms），受信ログから得られるseqの初回観測時刻を$\mathrm{first\_ms}(\mathrm{seq})$とすると，seqに対応する期待時刻は$\mathrm{seq}\cdot\Delta t$である．複数のseqに対し，
+\begin{equation}
+  \mathrm{offset\_ms} = \mathrm{median}_{\mathrm{seq}&gt;0}\left(\mathrm{seq}\cdot\Delta t - \mathrm{first\_ms}(\mathrm{seq})\right)
+\end{equation}
+としてオフセットを推定し，補正後の時刻を$\mathrm{ms\_aligned}=\mathrm{ms}+\mathrm{offset\_ms}$とする．TL/Poutは$\mathrm{ms\_aligned}$に基づいて算出する．この補正により，開始位相ずれに起因する過小評価を抑制できる．
+
+\subsection{生成物と再現性}
+v5では，per-trialの集計に加え，modes/agg/enrichedの集約表を再現可能に生成するパイプラインを整備した．また，scan50とscan90の比較結果も同一の定義で出力し，受信設定の違いがPDRやTL/Poutに与える影響を整理できるようにした．
+
+\subsubsection{PDRの扱い}
+PDRは受信ログの行数に基づく指標（重複含む）と，seqでユニーク化した指標（重複除外）の2種類を区別する．QoS比較では，広告イベントの「何割を一度でも拾えたか」を表すPDR\_uniqueを優先する（\secref{sec:metrics_detail}）．
+
+\subsubsection{EFFECTIVE\_LENと末端遷移}
+真値（truth）は有限長のラベル系列であり，試行時間のクランプにより末端の遷移が試行区間外に出る場合がある．その場合，末端遷移を含めた評価は不安定になるため，truth側も同じ長さにクリップし，イベント数$N_{\mathrm{event}}$の分母を揃える．この処理は，試行間比較と再現性の観点で重要である．
+
+\subsection{結果（図表）}
+\subsubsection{scan90の指標サマリ}
+図\ref{fig:stress_fixed_scan90_metrics}に，scan90における主要指標の例を示す．この図は，v5の時間同期を反映したものであり，長間隔側でTL/Poutが不自然に小さくなる問題が緩和される．
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.95\linewidth]{../results/stress_fixed/figures_v5/fig1_scan90_metrics.png}
+  \caption{ストレス固定（scan90）の主要指標（v5）}
+  \label{fig:stress_fixed_scan90_metrics}
+\end{figure}
+
+\subsubsection{実測と簡易モデルの比較}
+図\ref{fig:stress_fixed_real_vs_sim}に，ストレス固定における実測と簡易モデル（比較用）の例を示す．簡易モデルは，スキャンの非理想性や開始位相ずれの影響を完全には表現できないため，実測との差分が残る．一方で，固定間隔の相対関係（短間隔ほど遅延が改善しやすい等）のトレンドを説明する補助として利用できる．
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.95\linewidth]{../results/stress_fixed/compare/stress_causal_real_vs_sim.png}
+  \caption{ストレス固定における実測と簡易モデルの比較（例）}
+  \label{fig:stress_fixed_real_vs_sim}
+\end{figure}
+
+\subsubsection{scan50とscan90の比較}
+図\ref{fig:stress_fixed_scan50_vs_scan90_pdr}に，scan50とscan90の比較（例：PDR\_unique）を示す．duty比を上げることで短間隔側の受信品質が改善することが確認できる．
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.85\linewidth]{../results/stress_fixed/figures_v5/fig3_scan50_vs_scan90_pdr_unique.png}
+  \caption{ストレス固定におけるscan50とscan90の比較（例：PDR\_unique，v5）}
+  \label{fig:stress_fixed_scan50_vs_scan90_pdr}
+\end{figure}
+
+\subsection{指標の変化例（v4→v5）}
+時間同期の導入により，TL/Poutが大きく変化する条件が存在する．例えば，固定\SI{2000}{\milli\second}のPout(1s)や，固定\SI{100}{\milli\second}のTL平均値が大きく更新される場合がある．本研究では，v5を正式な定義として扱い，下流のオフライン評価や図表はv5へ差し替える．
+
+\subsection{まとめ}
+本節では，ストレス固定実験を用いてTL/Poutの定義と実装を固定し，開始位相ずれを補正するv5の時間同期手順を示した．以降では，この指標定義を前提として，固定間隔および動的制御の評価を行う．</file><file path="修士論文/chapters/ch7_offline_eval.tex">% chapters/ch7_offline_eval.tex --- 第7章 オフライン評価（mHealth合成 + ルールベース方策）
+\section{オフライン評価：mHealth合成とルールベース方策探索}
+\label{sec:offline_eval}
+
+\subsection{目的}
+実機実験の探索空間を縮小し，説明可能な代表方策を選定するために，オフライン評価を行う．本節では，mHealth由来の時系列（不確実度・安定度・複合スコア）に対してルールベース方策を適用し，固定間隔の電力テーブルと組み合わせて，QoS制約下の省電力運用点を探索する．
+
+\subsection{入力データ（mHealth合成）}
+オフライン評価では，実機上でのHAR推論を直接用いる代わりに，既存データセット由来の時系列（mHealth）から$U,S,\mathrm{CCS}$を合成し，方策を適用する\scite{uci_ml_repo}．これにより，実機で高価な全探索を行う前に，閾値やヒステリシスの候補を絞り込める．
+
+\subsection{方策のパラメータ化}
+ルールベース方策は，次のパラメータで表せる．
+\begin{itemize}
+  \item 閾値：$\theta_{\mathrm{low}},\theta_{\mathrm{high}}$
+  \item ヒステリシス幅：$\Delta\theta$（上り・下りの閾値差）
+  \item 最小滞在時間：$t_{\mathrm{dwell}}$
+  \item 行動集合：$A=\{100,500\}$ または $\{100,500,1000,2000\}$
+\end{itemize}
+オフライン評価では，これらの組合せをスイープし，平均電力とQoS制約の観点からParetoフロントを抽出する．
+
+\subsection{電力テーブル（固定間隔の実測）}
+固定間隔ごとの平均電力は，実機計測から得られる．オフライン評価では，この電力テーブルに基づき，「ある方策が各広告間隔にどの程度滞在するか」を合成して平均電力を推定する．
+
+\subsubsection{平均電力の合成}
+方策$\pi$が間隔$a\in A$に滞在する比率を$\rho_\pi(a)$とし，固定間隔の平均電力を$P(a)$とすると，方策の平均電力は
+\begin{equation}
+  \overline{P}_\pi=\sum_{a\in A}\rho_\pi(a)\,P(a)
+\end{equation}
+で近似できる．ここで$\rho_\pi(a)$は，mHealth時系列に方策を適用した結果の滞在時間比率として求める．
+
+\subsection{QoS制約と境界条件}
+オフライン評価では，代表的な期限$\tau$に対するPout(τ)を制約として扱い，$\delta$を満たす運用点を可行集合として抽出する．$\delta$は厳しすぎると可行集合が空になり，緩すぎると省電力とQoSの議論が弱くなるため，境界付近を主張点として設計することが重要である．
+
+\subsubsection{QoSの推定}
+オフライン評価におけるQoS推定は，固定間隔の実測から得られる$P_{\mathrm{out}}(\tau\mid a)$等の指標を参照し，方策の滞在比率に基づき合成する（詳細は\secref{sec:metrics_detail}）．動的切替時の非定常性（切替直後の遅延分布など）は近似に含まれないため，実機評価で差分を検証する必要がある．
+
+\subsection{Paretoフロントとδ帯プロット}
+図\ref{fig:letter_delta_band}に，オフライン評価の代表例として，Pout(1s)と平均電力のトレードオフを示す．固定間隔点と候補方策点を同一平面で可視化することで，制約$\delta$付近における省電力運用点の存在を示す．
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.95\linewidth]{../results/mhealth_policy_eval/letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/fig_delta_band.png}
+  \caption{δ帯（例）におけるPout(1s)と平均電力のトレードオフ（オフライン評価）}
+  \label{fig:letter_delta_band}
+\end{figure}
+
+\subsubsection{Paretoプロット（全体像）}
+図\ref{fig:pareto_plots}に，スイープ結果の全体像としてParetoプロットの例を示す．ここでは，行動集合を$\{100,500\}$に縮退した評価（実装の単純性を優先）を例とする．
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.95\linewidth]{../results/mhealth_policy_eval/pareto_front_v8_power_table_scan90_v5_sleep_on_n9_10_actions_100_500/pareto_plots.png}
+  \caption{Paretoプロット（例）：行動集合$\{100,500\}$に縮退したオフライン評価}
+  \label{fig:pareto_plots}
+\end{figure}
+
+\subsection{行動空間の縮退（\{100,500\}）}
+実機の動的制御を最小構成で成立させるため，行動空間を\{100,500\}に限定して代表方策を再選定する．この縮退により，実機側の実装・解析の複雑性を抑えつつ，電力低下の主効果（短間隔滞在の削減）に整合した比較が可能となる．
+
+\subsection{選定方策の例}
+オフライン評価の出力は，単一の最良方策ではなく，「制約$\delta$付近で成立する候補集合」として整理する．その上で，実機実験の本数制約や説明容易性を踏まえて代表点を選定する．代表点の一覧は\secref{sec:extra_results}に示す．
+
+\subsection{まとめ}
+本節では，mHealth合成と固定間隔の実測電力テーブルを組み合わせたオフライン評価により，QoS制約下での省電力運用点を探索する枠組みを示した．次節では，実機評価結果（\secref{sec:evaluation_results}）を示す．</file><file path="修士論文/chapters/ch8_experiment_design.tex">% chapters/ch8_experiment_design.tex --- 第9章 実験設計
+\section{実験設計}
+\label{sec:experiment_design}
+
+\subsection{実験の目的}
+Phase 1の実験目的は，ルールベース方策（CCS→広告間隔切替）が，固定間隔に対して省電力とQoSのトレードオフ上で優位な運用点になり得ることを示すことである．具体的には，以下を検証する．
+\begin{enumerate}
+  \item 省電力：固定\SI{100}{\milli\second}よりも$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）が低い運用点が存在する．
+  \item QoS維持：代表的な期限$\tau$に対して$P_{\mathrm{out}}(\tau)$が過度に悪化しない．
+  \item トレードオフ：固定点と動的点を同一平面（$P_{\mathrm{out}}(\tau)$--$q_{\mathrm{event}}$）で比較し，Pareto的な位置づけを示す．
+\end{enumerate}
+
+\subsection{実験条件}
+\subsubsection{環境条件}
+実験は，距離，受信端末，スキャン設定等を固定し，端末内比較として実施する．干渉状況の違い（例：E1/E2）は外的要因として扱い，必要に応じて環境を分けて評価する．
+
+\begin{table}[tb]
+  \centering
+  \caption{環境条件（例）}
+  \label{tab:env_conditions}
+  \begin{tabular}{ll}
+    \toprule
+    項目 &amp; 値（例） \\
+    \midrule
+    距離 &amp; \SI{1}{\meter} \\
+    TxPower &amp; \SI{0}{\decibelmilliwatt} \\
+    受信端末 &amp; Android（同一端末で統一） \\
+    スキャンモード &amp; LOW\_LATENCY（前提条件を固定） \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsubsection{制御条件}
+制御条件は，固定間隔（ベースライン）と動的制御（提案）を含む．Phase 1の基本方針は，行動集合を$\{100,500,1000,2000\}\,\si{\milli\second}$とし，短間隔（QoS重視）と長間隔（省電力重視）の間を段階的に探索できる形にすることである．
+
+一方で，実機実験の初期段階では，計測系の同期とログ整合を優先し，行動集合を$\{100,500\}\,\si{\milli\second}$に縮退した2値切替で動作成立を確認する．以降，計測の堅牢性が担保できた段階で，$\{100,500,1000,2000\}\,\si{\milli\second}$へ拡張する．
+
+\begin{table}[tb]
+  \centering
+  \caption{制御条件（例）}
+  \label{tab:control_conditions}
+  \begin{tabular}{lll}
+    \toprule
+    条件ID &amp; 条件名 &amp; 広告間隔 \\
+    \midrule
+    C1 &amp; FIXED-100 &amp; \SI{100}{\milli\second} \\
+    C2 &amp; FIXED-500 &amp; \SI{500}{\milli\second} \\
+    C3 &amp; FIXED-2000 &amp; \SI{2000}{\milli\second} \\
+    C4 &amp; POLICY（2値） &amp; \SI{100}{\milli\second}/\SI{500}{\milli\second} \\
+    C5 &amp; POLICY（3値） &amp; \SI{100}{\milli\second}/\SI{500}{\milli\second}/\SI{2000}{\milli\second} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsubsection{反復設計}
+統計的な揺らぎと端末状態のばらつきを抑えるため，各条件は複数回反復する．最小の成立確認としては各条件$n\ge3$とし，差が小さい場合に反復数を増やす．
+
+また，運用シナリオに近い評価としては，環境（例：E1/E2）を分け，3条件（例：FIXED-100/FIXED-2000/POLICY）$\times$ 2環境 $\times$ 10セッション＝60セッション程度を計画し，端末内比較の前提を維持しながら分散（端末状態の非定常）を平均化する．
+
+\subsection{セッション構成とイベント定義}
+\subsubsection{セッション}
+セッションは一定時間の試行（trial）の集合として構成する．実機の動的切替では，短い試行（例：\SI{60}{\second}）を連続して取り，条件間比較を端末内で完結させる設計が有効である．一方，運用シナリオに近い評価として，\SI{10}{\minute}程度の長いセッションを用い，活動遷移イベントでTL/Poutを評価する設計も重要である．
+
+\subsubsection{イベント}
+イベントは，状態遷移（活動の切替）など「QoS評価の基準点」となる時刻である．固定間隔では広告イベントの列から遅延分布を評価できるが，動的切替では開始位相ずれや切替タイミングが影響するため，truthに基づくイベント定義と時間同期が必要となる（次章）．
+
+\subsection{指標算出}
+\subsubsection{電力指標}
+一次KPIの省電力指標は$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）である．$q_{\mathrm{event}}$は，TXSDログの電流系列を積分して得た総電荷を，イベント数$N_{\mathrm{event}}$で正規化して算出する（定義は\secref{sec:metrics_detail}）．必要に応じて広告OFFの基準を差し引き，広告による増分を評価する．
+
+平均電力$\overline{P}$や総エネルギー$E$，および広告回数で正規化した$\Delta E/N_{\mathrm{adv}}$等は従属指標として併用し，計測健全性の監査（単位・欠損）と原因切り分けに用いる．
+
+\subsubsection{TLと$P_{\mathrm{out}}(\tau)$}
+イベント$j$の遅延を$\mathrm{TL}_j$とすると，
+\begin{equation}
+  P_{\mathrm{out}}(\tau)=\frac{1}{N_{\mathrm{event}}}\sum_{j=1}^{N_{\mathrm{event}}}\mathbb{I}[\mathrm{TL}_j&gt;\tau]
+\end{equation}
+である．実装では，RXログの時刻とtruthの時刻の定数オフセットを補正し，$\mathrm{TL}_j$を計算する（次章）．
+
+\subsubsection{理論モデル（参考）}
+固定間隔における$P_{\mathrm{out}}(\tau)$は，1広告の受信成功確率$p_d$を仮定すると，
+\begin{equation}
+  P_{\mathrm{out}}(\tau\mid a)\approx(1-p_d)^{\lfloor \tau/a \rfloor}
+\end{equation}
+のように近似できる．ただし，非理想スキャンや開始位相の影響を含むため，本研究では理論値は補助的に用い，主張は実測に基づく．
+
+\subsection{リスクと対策}
+実験の主要リスクと対策を以下にまとめる．
+\begin{itemize}
+  \item 同期ずれ：SYNC/TICKの取りこぼしにより試行区間が崩れる．対策として，preambleで条件IDを通知し，ログ末尾のsummaryで監査する．
+  \item 条件混在：LED/SYNCの扱い等が異なるコードを跨いで比較すると定常オフセットが入る．比較は同一コード系列で統一する．
+  \item 欠損・単位不整合：UART/SDボトルネックや単位換算ミスは結論を逆転させ得る．パススルー化と再積分監査を行う．
+  \item 端末状態の変動：受信端末のOS状態は非定常である．端末内比較を徹底し，実験前チェックリスト（\secref{sec:runbook}）を運用する．
+\end{itemize}
+
+\subsection{まとめ}
+本節では，Phase 1における実験目的と条件，セッション構成，指標算出，およびリスク対策を整理した．次章では，TL/Poutの定義を実測に基づいて固定し，時間同期の手順（v5）を示す．</file><file path="修士論文/chapters/ch8_measurement_system.tex">% chapters/ch8_measurement_system.tex --- 第8章 計測系の健全化と再現性
+\section{計測系の健全化と再現性確保}
+\label{sec:measurement_system}
+
+\subsection{目的}
+本研究の主張は，電力とQoSを同時に評価した上で，固定間隔より良い運用点が存在することを示す点にある．したがって，計測系が不健全であれば，結論そのものが崩れる．本節では，計測系の構成と，過去に発生した代表的な不具合（異常値）の原因と対策を整理し，再現性確保のための運用ルールを述べる．
+
+\subsection{三ノード構成（TX/TXSD/RX）}
+電力計測はTX（被測定対象）の消費電流・電圧を計測し，受信品質はRXログから算出する．両者を同一試行で取得するために，同期信号で区間を揃える．この三ノード構成により，方策（固定/動的/学習）を差し替えても，同一の評価パイプラインで比較できる．
+
+\subsection{計測装置の外観}
+\figref{fig:measurement_setup_overview}に計測系の全体構成を，\figref{fig:measurement_nodes}に各ノードの外観を示す．以降の評価では，この三ノード構成（TX/TXSD/RX）を前提として，同一試行で電力と受信品質を取得する．
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.85\linewidth]{figures/measurement_setup_overview_02}
+  \caption{計測系の外観（TX/TXSD/RXの三ノード構成，2025-12-16撮影）}
+  \label{fig:measurement_setup_overview}
+\end{figure}
+
+\begin{figure}[tb]
+  \centering
+  \begin{minipage}{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/measurement_rx}
+    \vspace{1mm}
+    {\small (a) RXロガ（受信ログ）}
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/measurement_tx_txsd}
+    \vspace{1mm}
+    {\small (b) TX + TXSD（DUT + 電力ログ）}
+  \end{minipage}
+  \caption{計測ノードの外観（2025-12-16撮影）}
+  \label{fig:measurement_nodes}
+\end{figure}
+
+\subsection{計測系の破綻モードと対策}
+計測系の問題は，「値が揺れる」だけではなく，結論を逆転させる（例：OFFがONより大きい）形で顕在化し得る．表\ref{tab:measurement_failures}に，代表的な破綻モードと対策をまとめる．
+
+\begin{table}[tb]
+  \centering
+  \caption{計測系の代表的な破綻モードと対策}
+  \label{tab:measurement_failures}
+  \begin{tabular}{p{0.30\linewidth}p{0.30\linewidth}p{0.30\linewidth}}
+    \toprule
+    破綻モード &amp; 兆候 &amp; 代表的対策 \\
+    \midrule
+    I/Oボトルネック（UART/SD） &amp; 欠損増加，rate低下，dtの歪み &amp; パススルー化，塊書き込み，整数CSV化 \\
+    単位換算の誤り &amp; 桁ズレ，ON/OFFの逆転 &amp; 生ログから再積分し監査，式とラベルを固定 \\
+    条件混在（LED/SYNCの違い等） &amp; 条件間に定常オフセット &amp; 比較は同一コード系列に限定，条件を明文化 \\
+    時間軸不整合（RXとtruth） &amp; TL/Poutが不自然に小さい &amp; 定数オフセットで時間同期（\secref{sec:stress_fixed_metrics}） \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{代表的な異常：OFFがONより大きい問題}
+初期の計測では，「広告OFFの方が広告ONより消費が大きい」という物理的に矛盾した結果が観察された．この問題は，無線スタックそのものではなく，PowerLogger側の処理能力不足（I/Oボトルネック）や，単位換算の不整合，UART通信エラーによる欠損が原因となり得る．
+
+\noindent
+本研究では，代表的要因と対策を表\ref{tab:measurement_failures}に要点化し，運用上は以下をチェックポイントとして監査した．
+\begin{itemize}
+  \item I/Oボトルネック：欠損増加$\rightarrow$dtの歪み$\rightarrow$積分破綻を引き起こすため，塊書き込み等で追従性を確保する．
+  \item 単位換算：mV/$\mu$A/ms等の桁ずれは結論を逆転させ得るため，生ログ再積分とsummary整合で監査する．
+  \item UART通信：文字混入や欠損を厳密パースで検出し，異常trialはその場で再試行して混在を避ける．
+\end{itemize}
+
+\subsection{実装トラブルと修正履歴}
+本節では，実験の再現性を担保するため，実装上の問題と対策を「問題→症状→対策→再発防止」の観点で整理する．ここで扱う内容は，結果の水増しではなく，欠損や時間軸ずれによる結論の崩壊を避けるための前提条件である．
+
+\begin{table}[tb]
+  \centering
+  \caption{代表的な実装トラブルと対策（要点）}
+  \label{tab:implementation_troubles_summary}
+  \begin{tabularx}{\linewidth}{p{0.26\linewidth}X p{0.28\linewidth}}
+    \toprule
+    問題 &amp; 対策（要点） &amp; 再発防止（監査） \\
+    \midrule
+    UARTデータ化け &amp; ボーレート低下，厳密パース，欠損を許さないsummary設計 &amp; 行数・欠損率・単位監査 \\
+    SYNC検出失敗（短パルス） &amp; HIGH保持やラッチで確実に検出できる信号設計へ変更 &amp; TX/RX/TXSDの境界一致を確認 \\
+    試行境界の不一致 &amp; SYNC\_END等で試行区間を一致させる &amp; ms\_totalとadv\_countの整合 \\
+    SD I/O失敗 &amp; SPIクロック調整，塊書き込み，open失敗時の即時停止 &amp; 末尾summaryの有無を監査 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\noindent
+これらは研究の主張そのものではないが，欠損や試行区間のずれによる結論の崩壊を避けるために不可欠である．対策はRunbook（\secref{sec:runbook}）に固定し，試行ごとにms\_total/adv\_count/欠損率等を監査して再現性を担保した．
+
+\subsection{Golden Master（最小再現構成）}
+比較実験では，ON/OFFや条件間でコード系列が混在すると，LEDや同期信号の扱いの差が定常オフセットとなり，純粋な広告間隔の差分を評価できない．したがって，代表的な再現構成（Golden Master）を定め，これを基準としてデータを蓄積する．本研究では，役割ごとにスケッチを分割し，ファイル名の接頭辞（RX\_/TX\_/TXSD\_）で役割を明確化する．
+
+\subsection{運用ルール}
+再現性確保のため，以下を原則とする．
+\begin{itemize}
+  \item 解析対象の選別はマニフェストで明示し，除外理由を記録する．
+  \item 単位監査（再積分とsummaryの一致）を定期的に実行し，桁ずれや欠損を早期に検知する．
+  \item 重要な作業は作業ログに追記し，生成物のパスとコマンドを残す．
+\end{itemize}
+
+\subsection{まとめ}
+本節では，計測系の健全化と再現性確保のための要点を整理した．これにより，固定間隔と動的制御の比較が「同一の評価系で再現可能」であることを担保し，次段階（オンライン最適化）へ接続する基盤とする．</file><file path="修士論文/chapters/ch9_har_uncertainty.tex">% chapters/ch9_har_uncertainty.tex --- 第5章 HAR推論部（TinyML）と不確実度の構成
+\section{HAR推論部（TinyML）と不確実度の構成}
+\label{sec:har_uncertainty}
+
+\subsection{目的}
+本研究の制御は，HARの推論結果そのものではなく，「推論がどの程度信頼できるか」を表す不確実度と，「状態がどの程度安定しているか」を表す安定度に基づいて動作する．本節では，TinyML環境を想定したHAR推論部の位置づけと現状を整理し，端末内推論から不確実度$U$と安定度$S$を得て複合スコアCCSを構成する流れ，および実装上の制約と未完タスクをまとめる．
+
+\subsection{HARモデルと現状}
+HARは，加速度等の時系列入力を一定窓で切り出し，クラス確率分布を出力する．本研究では参照モデル（A0）と小型モデル（A\_tiny）を区別し，Phase 1では評価指標・計測系・制御の成立を優先するため，最終的なTinyML最適化（A\_tinyの性能到達やTFLite整合の監査）はPhase 2に跨る将来課題として位置づける．
+
+\subsection{不確実度U}
+HARモデルは，各時刻$t$においてクラス確率分布$\mathbf{p}(t)=(p_1(t),\dots,p_K(t))$を出力する．本研究では，この確率分布から不確実度$U(t)$を導出し，通信制御のコンテキストとする．不確実度$U$は，正規化エントロピーとして定義できる\scite{shannon1948}．
+\begin{equation}
+  U(t) = -\frac{\sum_{k=1}^{K} p_k(t)\log p_k(t)}{\log K}
+\end{equation}
+ここで$U=0$は確信度が高い状態，$U=1$は不確実な状態に対応する．$U$は1回の推論出力から計算できるため，多回推論を必要とする不確実度推定（例：MC-Dropout）と比較して計算コストが小さい．
+
+\subsubsection{較正（Calibration）の位置づけ}
+ソフトマックス確率は，ニューラルネットの過信（overconfidence）により，確率値が実際の正解率を過大評価する場合がある．不確実度$U$を通信制御に用いる場合，この過信は「本来短間隔にすべき局面で長間隔を選ぶ」リスクに直結する．そのため，推論結果の確率較正（例：温度スケーリング）により，$U$と実際の誤り確率の対応を改善することが望ましい\scite{guo2017calibration}．
+
+\subsection{安定度S}
+安定度$S$は，直近窓におけるラベル遷移回数や，状態滞在時間に基づいて構成する．例えば，ラベル遷移が少ないほど安定であるという設計意図のもと，$S$を1に近づける．
+
+\subsubsection{窓長と応答性}
+安定度は窓長$W$に依存する．$W$が短いと遷移への応答が速い一方でノイズに敏感になり，$W$が長いと安定する一方で過渡期に追従しにくい．本研究では，実装の単純性を優先し，スライディング窓に基づく遷移回数の正規化という形で$S$を構成する（第2章）．
+
+\subsection{複合スコアCCS}
+複合スコアCCSは，確信度$(1-U)$と安定度$S$の線形結合として定義する．
+\begin{equation}
+  \mathrm{CCS}(t)=\alpha\,(1-U(t))+(1-\alpha)\,S(t)
+\end{equation}
+係数$\alpha$は設計パラメータであり，Phase 1では説明容易性を優先して固定値（例：$\alpha=0.7$）を採用する．ただし，$\alpha$や窓長$W$が変わるとCCS分布が変化し，閾値の意味が変わるため，モデル更新時には閾値再キャリブレーションが必要となる．
+
+\subsubsection{係数設計と解釈}
+係数$\alpha$を大きくすると，瞬時の確信度（$1-U$）を重視し，「いま確信があるなら長間隔」という単調な解釈に近づく．一方で$\alpha$を小さくすると，時間的一貫性（安定度$S$）を重視し，短時間の確信度の揺らぎで切替が発生しにくくなる．本研究では，Phase 1の主張（説明容易性）を優先し，確信度を主成分として扱う．
+
+\subsection{時系列生成とログ}
+制御に用いる$U(t)$，$S(t)$，$\mathrm{CCS}(t)$は，スライディング窓で逐次計算し，TXログとして保存する．このログは，オフライン評価および実機評価で共通に利用するため，ログ形式と時間軸の整合が重要である．
+
+本研究の想定はバッテリ駆動の小型端末であり，推論・制御・ログの計算コストは制約となる．不確実度$U$は推論出力から1回で計算できるため，多回推論を要する不確実度推定より計算コストが小さい．一方で，量子化や確率較正により$U$と閾値の意味づけが変化し得るため，モデル更新時は閾値再キャリブレーションが必要となる．
+
+\subsection{まとめ}
+本節では，TinyML環境を想定したHAR推論部の現状と，不確実度$U$・安定度$S$・CCSの構成を整理した．また，量子化とTFLite整合の重要性，および未完タスクを明示した．以降の章では，このコンテキストに基づく広告間隔制御と，計測・指標に基づく評価を述べる．</file><file path="修士論文/chapters/conclusion.tex">% chapters/conclusion.tex --- おわりに（番号なし、目次には載せる）
+\chapterwithtoc{おわりに}
+
+本研究では，HARの推論不確実度に基づくBLE広告間隔の適応制御を対象とし，ルールベース方策の定義と評価指標の確立，および動的切替の実機検証に取り組んだ．特に，送信・受信・電力計測を統合した計測基盤を整備し，$\si{\micro\coulomb}/\text{event}$と受信遅延に基づく期限超過率を同時に評価できる形に整理した．この結果，単純な閾値ルールでも固定間隔より省電力になりうる運用点が存在し得ることを示し，将来のSafe Contextual Bandit最適化に接続する基盤を与えた．
+
+\section*{本研究のまとめ}
+本研究で得られた知見を以下にまとめる．
+\begin{itemize}
+  \item 不確実度と安定度から複合スコアCCSを構成し，閾値・ヒステリシス・最小滞在時間を用いたルールベース方策として定義した．
+  \item 送信（TX），電力（TXSD），受信（RX）の三ノード構成により，同一試行で電力とQoS（TL，$P_{\mathrm{out}}(\tau)$）を評価できる基盤を整備した．
+  \item TL/Poutの算出において，開始位相ずれが結果を歪め得ることを示し，定数オフセット補正（v5）として指標定義を固定した．
+  \item オフライン評価により，固定間隔点と候補方策点のトレードオフを可視化し，実機実験の探索空間を縮小する枠組みを示した．
+  \item 実機実験（D2b/D3）とアブレーション（D4/D4B）により，方策が固定間隔の間の運用点として成立し得ることを示し，さらに$U$が電力（短間隔滞在量）を，CCSが同電力でQoSを改善する役割分担を示唆した．
+\end{itemize}
+
+\section*{今後の課題}
+今後は，動的制御に対してTL分布と$P_{\mathrm{out}}(\tau)$を高精度に算出し，オフライン評価の予測と実測の差分を体系的に説明できる形にまとめる．また，行動集合を拡張し，制約$\delta$の境界に沿ってより良い運用点を探索する必要がある．さらに，Safe Contextual Banditによるオンライン最適化へ拡張し，環境変化に対してもQoS制約を維持しながら省電力化できる枠組みを検証する．</file><file path="修士論文/figures/README.md"># figures/
+
+図（PDF/PNG）を置くディレクトリ。
+
+- `\includegraphics{figures/&lt;name&gt;}` のように拡張子なしで参照する。
+- 生成物の元（スクリプトや入力データ）は本文側に明記する。
+
+## 写真（計測装置）
+
+- `measurement_setup_overview_02.jpg`: 実験構成（全体）写真（元: `image/実験構成02.JPG`）
+- `measurement_rx.jpg`: RXロガ外観（元: `image/RX.JPG`）
+- `measurement_tx_txsd.jpg`: TX + TXSD外観（元: `image/TX&amp;TXSD.JPG`）
+
+注: 上記は向き補正・メタデータ除去・リサイズを行った派生物（提出用）であり，原本は `image/` に保存する。
+
+## 図（システム構成）
+
+- `measurement_architecture_esp32_three_node.jpg`: ESP32三ノード実験装置（TX/TXSD/RX + 外部電源 + INA219）の配線・信号構成図（元: `image/ESP32三ノード実験装置.jpg`）</file><file path="修士論文/frontmatter/abstract.tex">% frontmatter/abstract.tex --- 要旨本文
+% ここには通常，背景→課題→提案→方法→結果→結論→今後の課題，の順に1ページ程度で書く．
+
+本研究では，Human Activity Recognition（HAR）の推論不確実度に基づいてBluetooth Low Energy（BLE）の広告間隔を適応制御し，省電力化とQuality of Service（QoS）維持を両立する手法を検討する．ウェアラブル端末やエッジデバイスでは，常時通信による電力消費がボトルネックとなる一方，スマートフォン側のスキャンは非理想的であり，広告間隔を単純に長くすると受信遅延や期限超過が増える．
+
+提案手法は，HARの出力確率から得られる不確実度と，時間的安定度から複合スコアCCSを構成し，その値に応じて広告間隔を段階的に切り替えるルールベース方策である．実装・評価のために，送信（TX）・電力ロガ（TXSD）・受信（RX）の三ノード構成を用い，省電力指標$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）と，受信遅延に基づく期限超過率$P_{\mathrm{out}}(\tau)$を同一試行で評価できる計測基盤を整備する．
+
+オフライン評価と実機実験により，単純な閾値ルールでも固定間隔より省電力になりうる運用点が存在することを確認する．さらに，\SI{100}{\milli\second}と\SI{500}{\milli\second}の2値切替を用いた最小構成の動的制御を実装し，固定間隔と比較して中間的な挙動を示すことを確認する．最後に，非理想スキャン環境における限界と，Safe Contextual Banditによるオンライン最適化への拡張方針を議論する．
+
+加えて，$U$の時間整合を破壊するU-shuffleと，CCSを無効化するCCS-offのアブレーションにより，$U$が短間隔滞在量（電力）を，CCSが同電力でQoS（期限超過率・遅延）を改善する役割を切り分けて示す．</file><file path="修士論文/.gitignore">build/
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz</file><file path="修士論文/chubuthesis.sty">% chubuthesis.sty --- 修士論文テンプレート（LuaLaTeX）
+% 例の Word→PDF 修論の体裁を参考に、表紙/要旨/目次/図表キャプション等を整えています。
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{chubuthesis}[2025/12/15 Thesis style]
+
+% --- 日本語（LuaLaTeX） ---
+\RequirePackage{luatexja}
+\RequirePackage[haranoaji]{luatexja-preset}
+
+% --- レイアウト ---
+% Word由来PDFの厳密な余白は推定が難しいため、一般的な学位論文の安全域で設定。
+% 研究室/学科で指定があればここを調整してください。
+\RequirePackage[a4paper,top=25mm,bottom=25mm,left=30mm,right=25mm]{geometry}
+
+% 段落字下げ（1全角）
+% LuaLaTeXでは「zw」単位ではなく \zw を使う（luatexja）
+\setlength{\parindent}{1\zw}
+\setlength{\parskip}{0pt}
+
+% 目次は section まで（先輩修論の見え方に寄せる）
+\setcounter{tocdepth}{1}
+\setcounter{secnumdepth}{2}
+
+% --- ページ番号（下右に統一） ---
+\RequirePackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% chapter開始ページなど plain も同じにする
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[R]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+
+% ltjsreport は章開始などで plainhead/plainfoot を使うため、こちらも同じにする
+\fancypagestyle{plainhead}{%
+  \fancyhf{}%
+  \fancyfoot[R]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+\fancypagestyle{plainfoot}{%
+  \fancyhf{}%
+  \fancyfoot[R]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+
+% --- 章見出し（中央寄せ・太字にしない） ---
+\RequirePackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\Large\centering}
+  {第\thechapter\relax 章}
+  {2em}
+  {\Large}
+\titleformat{name=\chapter,numberless}[display]
+  {\normalfont\Large\centering}
+  {}
+  {0pt}
+  {\Large}
+\titlespacing*{\chapter}{0pt}{0.33\textheight}{0pt}
+\titlespacing*{name=\chapter,numberless}{0pt}{0.33\textheight}{0pt}
+
+% --- 図表 ---
+\RequirePackage{graphicx}
+\RequirePackage{booktabs}
+\RequirePackage{tabularx}
+\RequirePackage{longtable}
+\RequirePackage{array}
+
+% --- 数式 ---
+\RequirePackage{amsmath,amssymb}
+\numberwithin{equation}{chapter}
+
+% --- 単位 ---
+\RequirePackage{siunitx}
+\sisetup{detect-all}
+\DeclareSIUnit{\decibelmilliwatt}{dBm}
+
+% --- キャプション：図 4-1 タイトル / 表 4-1 タイトル ---
+\RequirePackage{caption}
+\renewcommand{\thefigure}{\thechapter-\arabic{figure}}
+\renewcommand{\thetable}{\thechapter-\arabic{table}}
+\captionsetup{labelsep=space}
+\captionsetup[figure]{name=図,justification=centering}
+\captionsetup[table]{name=表,justification=centering}
+
+% --- 参照（図/表/式） ---
+\newcommand{\figref}[1]{図~\ref{#1}}
+\newcommand{\tabref}[1]{表~\ref{#1}}
+\newcommand{\eqrefj}[1]{式~(\ref{#1})}
+\newcommand{\secref}[1]{\ref{#1}節}
+
+% --- 章（番号なし）でも目次に載せる：はじめに / おわりに / 謝辞 ---
+\newcommand{\chapterwithtoc}[1]{%
+  \chapter*{#1}%
+  \addcontentsline{toc}{chapter}{#1}%
+  \clearpage
+}
+
+% --- 参考文献（biblatex） ---
+\RequirePackage[backend=biber,style=numeric,sorting=none]{biblatex}
+
+% \scite{a,b} で [1][2] 形式を作る（普通の \cite は [1,2]）
+\DeclareCiteCommand{\scite}
+  {}
+  {\mkbibbrackets{\usebibmacro{citeindex}\usebibmacro{cite}}}
+  {}
+  {}
+
+% URL 表記を簡素化（&quot;url:&quot; / &quot;visited on&quot; を出さない）
+\DeclareFieldFormat{url}{\url{#1}}
+\renewbibmacro*{url+urldate}{\printfield{url}}
+
+% --- ハイパーリンク（最後の方で読み込み） ---
+\RequirePackage[hidelinks]{hyperref}
+\RequirePackage{bookmark}
+
+% --- 目次 ---
+% numberless \chapter の「章扉（縦中央）」体裁を避け、目次の先頭余白を詰めて表示する
+\makeatletter
+\newcommand{\thesistableofcontents}{%
+  \clearpage
+  \thispagestyle{plain}%
+  \pdfbookmark[0]{\contentsname}{toc}%
+  \begin{center}
+    {\Large \contentsname\par}
+  \end{center}
+  \vspace{1em}
+  \@starttoc{toc}%
+  \clearpage
+}
+\makeatother
+
+% --- 表紙・要旨ページ ---
+% meta.tex で定義するコマンドを使う想定
+
+\newcommand{\makethesistitle}{%
+\begin{titlepage}
+  \thispagestyle{empty}
+  \centering
+  \vspace*{20mm}
+  {\Large \ThesisYearLabel\par}
+  \vspace{25mm}
+
+  \fbox{%
+    \parbox{0.85\textwidth}{\centering
+      \vspace{6mm}
+      {\Large \ThesisTitle\par}
+      \vspace{6mm}
+    }%
+  }
+
+  \vfill
+  {\Large \University\ \GraduateSchool\par}
+  {\Large \Department\ \Course\par}
+  \vspace{10mm}
+  {\Large 氏名\hspace{2em}\AuthorFamily\ \AuthorGiven\par}
+  \vspace{5mm}
+  {\Large 指導教授\hspace{2em}\AdvisorFamily\ \AdvisorGiven\par}
+\end{titlepage}
+}
+
+\newcommand{\makeabstractpage}{%
+\clearpage
+\thispagestyle{empty}
+\noindent 修士論文題目
+
+\vspace{6mm}
+\begin{center}
+  {\Large \ThesisTitle\par}
+  \vspace{-2mm}
+  \rule{0.9\textwidth}{0.4pt}
+\end{center}
+
+\vspace{4mm}
+\noindent \AbstractDepartment\hspace{2em}氏名\hspace{2em}\AuthorFamily\ \AuthorGiven
+
+\vspace{8mm}
+\begin{center}
+  論\quad 文\quad 要\quad 旨
+\end{center}
+
+\vspace{6mm}
+\input{frontmatter/abstract}
+\clearpage
+}</file><file path="修士論文/latexmkrc">$out_dir = &apos;build&apos;;
+$aux_dir = &apos;build&apos;;
+
+# luaotfload/luatexja のキャッシュを書き込み可能な場所に固定する（sandbox対策）
+$ENV{TEXMFCACHE}  = &apos;build/texmf-cache&apos;;
+$ENV{TEXMFVAR}    = &apos;build/texmf-var&apos;;
+$ENV{TEXMFCONFIG} = &apos;build/texmf-config&apos;;
+$ENV{LUATEXCACHE} = &apos;build/luatex-cache&apos;;
+
+# LuaLaTeX + biber (biblatex)
+$pdf_mode = 4;
+$lualatex = &apos;lualatex -interaction=nonstopmode -file-line-error %O %S&apos;;
+$bibtex_use = 2;
+
+# Keep going for draft builds; errors still surface in exit code.
+$interaction = &apos;nonstopmode&apos;;</file><file path="修士論文/main.tex">% main.tex --- 修士論文テンプレート（LuaLaTeX）
+\documentclass[a4paper,12pt,oneside]{ltjsreport}
+
+% 体裁（図表キャプション、目次深さ、表紙/要旨ページ等）
+\usepackage{chubuthesis}
+
+% メタ情報（タイトル等）
+\input{meta}
+
+% 参考文献ファイル
+\addbibresource{references.bib}
+
+\begin{document}
+
+% page anchor の重複警告を避ける（表紙・要旨はページ番号なし）
+\hypersetup{pageanchor=false}
+
+% --- 表紙（ページ番号なし） ---
+\makethesistitle
+
+% --- 要旨ページ（ページ番号なし） ---
+\makeabstractpage
+
+% --- 目次（ローマ数字 i） ---
+\pagenumbering{roman}
+\setcounter{tocdepth}{1}
+\thesistableofcontents
+
+% --- 本文（アラビア数字 1 から） ---
+\hypersetup{pageanchor=true}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\input{chapters/ch0_introduction}
+\input{chapters/ch2_background_related}
+\input{chapters/ch3_system_and_method}
+\input{chapters/ch4_measurement_metrics_repro}
+\input{chapters/ch5_evaluation}
+\input{chapters/ch5_publicroad}
+
+\input{chapters/conclusion}
+\input{chapters/acknowledgements}
+
+% --- 参考文献・参考URL ---
+\printbibliography[heading=bibintoc,title={参考文献・参考 URL}]
+
+\end{document}</file><file path="修士論文/meta.tex">% meta.tex --- 論文メタ情報（ここだけ編集すればOK）
+% 全角数字にしたい場合は「２０２５」のように入力してください。
+
+% ===== 表紙に出る情報 =====
+\newcommand{\ThesisYearLabel}{２０２５年度修士論文}
+\newcommand{\ThesisTitle}{HAR不確実度に基づくBLE広告間隔の適応制御に関する研究}
+
+\newcommand{\University}{中部大学大学院}
+\newcommand{\GraduateSchool}{工学研究科}
+\newcommand{\Department}{情報工学専攻}
+\newcommand{\Course}{博士前期課程}
+
+\newcommand{\AuthorFamily}{萩原}
+\newcommand{\AuthorGiven}{圭島}
+
+\newcommand{\AdvisorFamily}{木村}
+\newcommand{\AdvisorGiven}{秀明}
+
+% ===== PDFの「修士論文題目」ページ（要旨ページ）に出る情報 =====
+\newcommand{\AbstractDepartment}{情報工学専攻}</file><file path="修士論文/README.md"># 修士論文 LaTeX テンプレート（LuaLaTeX）
+
+Word→PDF の修論の体裁を参考に、表紙・要旨・目次・本文・図表キャプション・参考文献を一式で用意したテンプレートです。
+
+---
+
+## 1) まず編集するファイル
+
+- `meta.tex`（タイトル・氏名など）
+- `frontmatter/abstract.tex`（要旨）
+- `chapters/*.tex`（本文）
+- `references.bib`（参考文献）
+
+---
+
+## 2) コンパイル方法（LuaLaTeX推奨）
+
+### ローカル（TeX Live）
+```bash
+latexmk main.tex
+```
+
+生成物は `build/main.pdf` に出力されます（ビルド用の一時ファイル/キャッシュも `build/` 配下）。
+ページ数は `build/main.log` の `Output written on main.pdf (XX pages, ...)` で確認できます。
+
+### Overleaf
+- Compiler: **LuaLaTeX**
+- Bibliography: **Biber**（biblatex使用）
+
+---
+
+## 3) 図の置き場
+
+- `figures/` に入れて、拡張子なしで呼ぶのが楽です（PDF/PNG両対応）
+```tex
+\includegraphics[width=0.9\linewidth]{figures/fig_system_overview}
+```
+
+- 写真も提出用には `figures/` に置く（元データはリポジトリ直下の `image/` に保存し、提出用は向き補正・メタデータ除去・リサイズした派生物を `figures/` へ置く）。
+
+---
+
+## 4) 引用の書き方
+
+このテンプレートは biblatex です。
+
+- 普通の引用（カンマ区切り）：`\cite{ref1,ref2}` → `[1,2]`
+- 括弧を分けたい場合：`\scite{ref1,ref2}` → `[1][2]`
+
+---
+
+## 5) 大学体裁に寄せる追加ルール（固定）
+
+このテンプレートは「先輩修論（大学方針の体裁）」に寄せるため、以下を**ルールとして固定**する。
+
+- ページ番号：目次はローマ数字（i〜）、本文（第1章）からアラビア数字（1〜）
+- ページ番号の位置：全ページ下右（章扉など `plain` も同じ）
+- 章扉：各章は `\chapter{...}\clearpage` で「章タイトルだけのページ」を挟む（`chapters/*.tex` 側で徹底）
+- 章見出し：中央寄せ・太字にしない（日本語太字のゴシック化を避ける）
+- 目次：`section` まで（`tocdepth=1`）
+- 図表キャプション：`図 4-1 タイトル` / `表 4-1 タイトル`（章-連番、区切りはスペース）
+- 参照：章番号・節番号を手で書かない（`\secref{...}` / `\figref{...}` / `\tabref{...}` を使う）
+- 参考文献：URLは載せるが `url:` / `visited on` は出さない（体裁側で抑制）
+
+---
+
+## 6) 体裁を変えたいとき
+
+- 余白：`chubuthesis.sty` の `geometry` を編集
+- 図表キャプション：`chubuthesis.sty` の `caption` 設定を編集
+- 表紙/要旨ページ：`meta.tex`（値）と `chubuthesis.sty`（配置）を編集
+- ページ番号（下右統一）：`chubuthesis.sty` の `fancyhdr` 設定を編集
+- 章見出し（章扉の中央寄せ等）：`chubuthesis.sty` の `titlesec` 設定を編集
+- 参考文献のURL表示：`chubuthesis.sty` の `biblatex` まわりを編集
+
+---
+
+## 7) Repomix（共有用パック）
+
+他のAIに共有して状況を再現しやすくするため、修論（LaTeX）＋主要ログ＋実機評価の解析スクリプト/集計結果を `repomix_thesis_bundle.xml` にまとめる。
+
+注:
+- `repomix` はテキストファイルのみをパックする（PDF/PNG/JPGなどのバイナリは含まれない）ため、必要に応じて `build/main.pdf` や `uccs_*/plots/*.pdf` を別送する。
+
+```bash
+repomix --output repomix_thesis_bundle.xml --style xml --parsable-style \
+  --include &quot;AGENTS.md,README.md,修士論文/**,docs/全体像.md,docs/metrics_definition.md,docs/TODO.md,docs/decision_log_2025-12-13_letter_route.md,logs/worklog_2025-12-17_thesis_setup.txt,logs/worklog_2025-12-17_letter_route.txt,logs/worklog_2025-12-16_letter_route.txt,logs/worklog_2025-12-16_letter_route_continued.txt,logs/worklog_2025-12-15_thesis_setup.txt,logs/worklog_2025-12-15_letter_route.txt,logs/worklog_2025-12-13_stress_fixed_metrics_v5.txt,scripts/bootstrap_effects.py,uccs_d2_scan90/README.md,uccs_d2_scan90/analysis/**,uccs_d2_scan90/metrics/**,uccs_d2_scan90/plots/**,uccs_d2_scan90/src/**,uccs_d2_scan90/truth/**,uccs_d3_scan70/README.md,uccs_d3_scan70/analysis/**,uccs_d3_scan70/metrics/**,uccs_d3_scan70/plots/**,uccs_d3_scan70/src/**,uccs_d4_scan90/README.md,uccs_d4_scan90/analysis/**,uccs_d4_scan90/metrics/**,uccs_d4_scan90/plots/**,uccs_d4_scan90/src/**,uccs_d4b_scan90/README.md,uccs_d4b_scan90/analysis/**,uccs_d4b_scan90/metrics/**,uccs_d4b_scan90/plots/**,uccs_d4b_scan90/src/**,uccs_d4b_scan70/README.md,uccs_d4b_scan70/src/**&quot; \
+  --ignore &quot;uccs_d2_scan90/data/**,uccs_d3_scan70/data/**,uccs_d4_scan90/data/**,uccs_d4b_scan90/data/**&quot;
+```</file><file path="修士論文/references.bib">% references.bib --- 参考文献・参考URL
+% biblatex/biber 用。まずは「本文中で引用できる最小セット」を置く。
+
+@online{bluetooth_core_spec,
+  title        = {Bluetooth Core Specification},
+  organization = {Bluetooth SIG},
+  url          = {https://www.bluetooth.com/specifications/bluetooth-core-specification/},
+  urldate      = {2025-12-15},
+}
+
+@online{android_ble_scanner,
+  title        = {BluetoothLeScanner},
+  organization = {Android Developers},
+  url          = {https://developer.android.com/reference/android/bluetooth/le/BluetoothLeScanner},
+  urldate      = {2025-12-15},
+}
+
+@online{uci_ml_repo,
+  title        = {UCI Machine Learning Repository},
+  organization = {University of California, Irvine},
+  url          = {https://archive.ics.uci.edu/},
+  urldate      = {2025-12-15},
+}
+
+@book{lattimore2020bandit,
+  title     = {Bandit Algorithms},
+  author    = {Lattimore, Tor and Szepesv{\&apos;a}ri, Csaba},
+  year      = {2020},
+  publisher = {Cambridge University Press},
+}
+
+@article{shannon1948,
+  author  = {Shannon, Claude E.},
+  title   = {A Mathematical Theory of Communication},
+  journal = {Bell System Technical Journal},
+  year    = {1948},
+  volume  = {27},
+  pages   = {379--423, 623--656},
+}
+
+@inproceedings{guo2017calibration,
+  title     = {On Calibration of Modern Neural Networks},
+  author    = {Guo, Chuan and Pleiss, Geoff and Sun, Yu and Weinberger, Kilian Q.},
+  booktitle = {Proceedings of the 34th International Conference on Machine Learning},
+  year      = {2017},
+}</file><file path="修士論文/WRITING_RULES.md"># 記述ルール（提案）
+
+Word→PDF の修論（例）を踏まえつつ、LaTeX化で破綻しやすい部分を先に規格化したルールです。
+
+---
+
+## 0. 体裁ルール（守るべき型）
+
+この修論テンプレートは、先輩修論（大学方針の体裁）に寄せる。以下は**ルールとして固定**し、本文側で勝手に崩さない。
+
+1. **表紙**：年度ラベル → 題目（枠で囲う） → 所属（2行） → 氏名（1行） → 指導教授（1行）
+2. **要旨ページ**：上部に「修士論文題目」→題目（下線）→「専攻　氏名　〇〇〇〇」（1行）→「論 文 要 旨」→要旨本文
+3. **ページ番号**：目次はローマ数字（i から），本文はアラビア数字（1 から）で開始する
+4. **ページ番号の位置**：全ページを下右に統一する（章開始ページの `plain` も含む）
+5. **章扉**：各章は「章タイトルだけのページ」を挟み、本文は次ページから開始する（`\chapter{...}\clearpage`）
+6. **図表キャプション**：図は `図 4-1 タイトル`，表は `表 4-1 タイトル`（章-連番、区切りはスペース）
+7. **引用の見た目**：本文中は基本 `[1][2]` 形式（`\scite{a,b}`）を優先する（参考文献では `url:` や `visited on` を表示しない）
+
+テンプレ側で設定済みのため、基本は本文の書き方だけ守ればよい。
+
+---
+
+## A. 文体・表記
+
+1. **文体は「である調」で統一**
+2. **句読点は「，」「．」を基本**（※研究室の慣例があればそちら優先）
+3. **略語は初出で定義**（例：Bluetooth Low Energy（BLE））
+4. **用語の揺れを禁止**（「端末/デバイス」「推定/推測」など）
+
+---
+
+## B. 章立て・見出し
+
+1. **章は `\chapter`、節は `\section`、項は `\subsection`**
+2. **各章は章扉を入れる**：`\chapter{...}` の直後に `\clearpage` を置き、本文は次ページから書く
+3. **番号なし章（おわりに / 謝辞）は `\chapterwithtoc{...}` を使う**（目次に載せる）
+4. **章番号・節番号は手で書かない**：`第X章で述べた` の代わりに `\secref{sec:...}` を使う
+
+---
+
+## C. 図・表
+
+1. **図は `figure`、表は `table` 環境で管理**（手貼り禁止）
+2. **本文中で必ず参照してから出す**（例：`…（\figref{fig:hoge}）…`）
+3. **他資料から転載する場合はキャプションに明記**（例：`（[1]より引用）`）
+4. **`caption` の形式はテンプレート通り**（図：`図 4-1 タイトル`、表：`表 4-1 タイトル`）
+
+---
+
+## D. 引用・参考文献
+
+1. **引用は本文中に番号で示す**（`biblatex`）
+2. **複数引用は**
+   - `[1,2]`（`\cite{a,b}`）でも一般にはOK
+   - 例に合わせたいなら `[1][2]`（`\scite{a,b}`）
+
+3. **Webページは参照日（urldate）を入れる**
+
+---
+
+## E. 数式・単位・記号
+
+1. **単位は SI に寄せる**（`siunitx` を使用）
+2. **記号は定義してから使う**（記号表があると強い）
+
+---
+
+## F. AIを併用する前提の運用ルール（重要）
+
+1. **章ごとにファイル分割**（テンプレート通り）
+2. **AIに依頼するときのプロンプトを固定化**
+   - 「である調」
+   - 「句読点は，．」
+   - 「図表は必ず `\label` と `\ref`」
+   - 「引用は `\cite`/`\scite`」
+3. **ビルドエラーをゼロに保つ**
+   - 変更したら必ずコンパイル
+   - 参照未解決（??）や重複ラベルを放置しない
+
+---
+
+## G. ビルド（ローカル）
+
+このリポジトリでは `latexmk` を使い，生成物は `修士論文/build/` に出力する。
+
+```bash
+cd 修士論文
+latexmk main.tex
+```</file><file path="uccs_d2_scan90/metrics/01/per_trial.csv">rx_trial_id,condition,repeat_idx,session,mode,rx_count,rx_unique,adv_count,pdr_unique,rx_tag_n100,rx_tag_n500,rx_tag_share100_time_est,tl_mean_s,tl_p95_s,pout_1s,pout_2s,pout_3s,tl_time_offset_ms,tl_time_offset_n,txsd_ms_total,E_total_mJ,avg_power_mW,txsd_path,rx_path
+9,S1_fixed100,1,1,FIXED_100,1429,1427,1796,0.794543,1427,0,1.0,2.40725,42.64345,0.05,0.05,0.05,-1191.0,1427,181469.0,36990.437,203.83887606147607,uccs_d2_scan90/data/TX/trial_001_c1_s1_fixed100.csv,uccs_d2_scan90/data/RX/rx_trial_009.csv
+10,S1_fixed500,1,1,FIXED_500,295,295,359,0.821727,1,294,0.00068,5.2275,53.3662,0.1,0.1,0.1,-655.0,295,179635.0,33033.823,183.89413532997466,uccs_d2_scan90/data/TX/trial_002_c2_s1_fixed500.csv,uccs_d2_scan90/data/RX/rx_trial_010.csv
+11,S1_policy,1,1,POLICY,1431,1430,1787,0.800224,1427,3,0.989598,2.413,42.67525,0.05,0.05,0.05,-1134.0,1430,181462.0,36921.888,203.46897973129362,uccs_d2_scan90/data/TX/trial_001_c3_s1_policy.csv,uccs_d2_scan90/data/RX/rx_trial_011.csv
+12,S4_fixed100,1,4,FIXED_100,1463,1463,1796,0.814588,1463,0,1.0,1.244488,13.6686,0.04878,0.04878,0.04878,-1131.0,1463,181480.0,36910.963,203.38859929468816,uccs_d2_scan90/data/TX/trial_001_c4_s4_fixed100.csv,uccs_d2_scan90/data/RX/rx_trial_012.csv
+13,S4_fixed500,1,4,FIXED_500,299,299,359,0.832869,1,298,0.000671,2.096122,20.6021,0.097561,0.097561,0.097561,-606.0,299,179638.0,33062.323,184.04971665237863,uccs_d2_scan90/data/TX/trial_001_c5_s4_fixed500.csv,uccs_d2_scan90/data/RX/rx_trial_013.csv
+14,S4_policy,1,4,POLICY,1462,1461,1787,0.817571,1458,3,0.989817,1.237122,13.6496,0.04878,0.04878,0.04878,-1108.0,1461,181465.0,37035.693,204.092761689582,uccs_d2_scan90/data/TX/trial_001_c6_s4_policy.csv,uccs_d2_scan90/data/RX/rx_trial_014.csv
+15,S1_fixed100,2,1,FIXED_100,1466,1464,1796,0.815145,1464,0,1.0,5.091125,53.355625,0.1,0.1,0.1,-1098.5,1464,181460.0,36991.493,203.85480546676953,uccs_d2_scan90/data/TX/trial_002_c1_s1_fixed100.csv,uccs_d2_scan90/data/RX/rx_trial_015.csv
+16,S1_fixed500,2,1,FIXED_500,304,304,359,0.846797,0,304,0.0,5.334375,53.372025,0.1,0.1,0.1,-570.5,304,179621.0,33031.832,183.89738393617674,uccs_d2_scan90/data/TX/trial_003_c2_s1_fixed500.csv,uccs_d2_scan90/data/RX/rx_trial_016.csv
+17,S1_policy,2,1,POLICY,1444,1442,1787,0.806939,1439,3,0.989684,5.0909,53.36095,0.1,0.1,0.1,-1068.0,1442,181451.0,36931.233,203.53281602195634,uccs_d2_scan90/data/TX/trial_002_c3_s1_policy.csv,uccs_d2_scan90/data/RX/rx_trial_017.csv
+18,S4_fixed100,2,4,FIXED_100,1454,1454,1796,0.809577,1454,0,1.0,1.233951,13.7389,0.04878,0.04878,0.04878,-1065.0,1453,181464.0,37017.088,203.99135916765863,uccs_d2_scan90/data/TX/trial_002_c4_s4_fixed100.csv,uccs_d2_scan90/data/RX/rx_trial_018.csv
+19,S4_fixed500,2,4,FIXED_500,303,303,359,0.844011,0,303,0.0,1.474805,15.0007,0.097561,0.073171,0.073171,-518.0,303,179625.0,33110.978,184.33390675017398,uccs_d2_scan90/data/TX/trial_002_c5_s4_fixed500.csv,uccs_d2_scan90/data/RX/rx_trial_019.csv
+20,S4_policy,2,4,POLICY,1451,1450,1787,0.811416,1447,3,0.98974,1.227305,13.656,0.04878,0.04878,0.04878,-1034.5,1450,181451.0,36983.375,203.8201773481546,uccs_d2_scan90/data/TX/trial_002_c6_s4_policy.csv,uccs_d2_scan90/data/RX/rx_trial_020.csv
+21,S1_fixed100,3,1,FIXED_100,1444,1444,1796,0.804009,1444,0,1.0,5.10125,53.35315,0.1,0.1,0.1,-1025.0,1444,181458.0,36958.209,203.67362695499787,uccs_d2_scan90/data/TX/trial_004_c0_unk.csv,uccs_d2_scan90/data/RX/rx_trial_021.csv
+22,S1_fixed500,3,1,FIXED_500,296,296,359,0.824513,0,296,0.0,5.26515,53.37025,0.1,0.1,0.1,-465.0,296,179606.0,32974.619,183.59419507143414,uccs_d2_scan90/data/TX/trial_004_c2_s1_fixed500.csv,uccs_d2_scan90/data/RX/rx_trial_022.csv
+23,S1_policy,3,1,POLICY,1438,1435,1787,0.803022,1432,3,0.989634,2.44125,42.73345,0.05,0.05,0.05,-981.0,1435,181437.0,37024.787,204.06414898835405,uccs_d2_scan90/data/TX/trial_003_c3_s1_policy.csv,uccs_d2_scan90/data/RX/rx_trial_023.csv
+24,S4_fixed100,3,4,FIXED_100,1421,1421,1796,0.791203,1421,0,1.0,1.23478,13.6117,0.04878,0.04878,0.04878,-979.0,1421,181438.0,36961.461,203.71400147708863,uccs_d2_scan90/data/TX/trial_003_c4_s4_fixed100.csv,uccs_d2_scan90/data/RX/rx_trial_024.csv
+25,S4_fixed500,3,4,FIXED_500,300,300,359,0.835655,1,299,0.000668,2.267902,21.0551,0.195122,0.121951,0.121951,-427.0,300,179606.0,33125.286,184.43307016469385,uccs_d2_scan90/data/TX/trial_003_c5_s4_fixed500.csv,uccs_d2_scan90/data/RX/rx_trial_025.csv
+26,S4_policy,3,4,POLICY,1436,1434,1787,0.802462,1432,2,0.993065,1.483634,14.5786,0.073171,0.073171,0.073171,-936.0,1434,181416.0,37165.78,204.86495127221414,uccs_d2_scan90/data/TX/trial_004_c5_s4_fixed500.csv,uccs_d2_scan90/data/RX/rx_trial_026.csv</file><file path="uccs_d2_scan90/metrics/01/summary_by_condition.csv">condition,n_trials,pout_1s_mean,pout_1s_std,tl_mean_s_mean,tl_mean_s_std,pdr_unique_mean,pdr_unique_std,rx_tag_share100_time_est_mean,rx_tag_share100_time_est_std,avg_power_mW_mean,avg_power_mW_std,adv_count_mean,adv_count_std
+S1_fixed100,3,0.083333,0.028868,4.199875,1.552467,0.804566,0.010312,1.0,0.0,203.789,0.1,1796.0,0.0
+S1_fixed500,3,0.1,0.0,5.275675,0.054209,0.831012,0.013741,0.000227,0.000393,183.795,0.174,359.0,0.0
+S1_policy,3,0.066667,0.028868,3.31505,1.537996,0.803395,0.003373,0.989639,4.3e-05,203.689,0.327,1787.0,0.0
+S4_fixed100,3,0.04878,0.0,1.23774,0.005859,0.805123,0.012312,1.0,0.0,203.698,0.302,1796.0,0.0
+S4_fixed500,3,0.130081,0.056327,1.946276,0.417242,0.837512,0.005798,0.000446,0.000387,184.272,0.199,359.0,0.0
+S4_policy,3,0.05691,0.014082,1.31602,0.145241,0.810483,0.007598,0.990874,0.001898,204.259,0.542,1787.0,0.0</file><file path="uccs_d2_scan90/metrics/01/summary.md"># uccs_d2_scan90 metrics summary
+
+- source RX: `uccs_d2_scan90/data/RX`
+- source TXSD: `uccs_d2_scan90/data/TX`
+- truth: `Mode_C_2_シミュレート_causal/ccs/stress_causal_S1.csv`, `Mode_C_2_シミュレート_causal/ccs/stress_causal_S4.csv` (n_steps=1800, dt=100ms)
+- selected RX trials: 009..026 (n=18)
+- generated: 2025-12-15 14:31 (local)
+- command: `python3 uccs_d2_scan90/analysis/summarize_d2_run.py --rx-dir uccs_d2_scan90/data/RX --txsd-dir uccs_d2_scan90/data/TX --out-dir uccs_d2_scan90/metrics/01`
+
+## Summary (mean ± std, n=3 each)
+| condition | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | adv_count | share100_time_est (RX tags) |
+|---|---:|---:|---:|---:|---:|---:|
+| S1_fixed100 | 0.0833±0.0289 | 4.200±1.552 | 0.805±0.010 | 203.8±0.1 | 1796.0±0.0 | 1.000±0.000 |
+| S1_fixed500 | 0.1000±0.0000 | 5.276±0.054 | 0.831±0.014 | 183.8±0.2 | 359.0±0.0 | 0.000±0.000 |
+| S1_policy | 0.0667±0.0289 | 3.315±1.538 | 0.803±0.003 | 203.7±0.3 | 1787.0±0.0 | 0.990±0.000 |
+| S4_fixed100 | 0.0488±0.0000 | 1.238±0.006 | 0.805±0.012 | 203.7±0.3 | 1796.0±0.0 | 1.000±0.000 |
+| S4_fixed500 | 0.1301±0.0563 | 1.946±0.417 | 0.838±0.006 | 184.3±0.2 | 359.0±0.0 | 0.000±0.000 |
+| S4_policy | 0.0569±0.0141 | 1.316±0.145 | 0.810±0.008 | 204.3±0.5 | 1787.0±0.0 | 0.991±0.002 |
+
+## Notes
+- RX trial selection: latest 18 trials that form 6 conditions × 3 repeats (duration&gt;=160s).
+- TL/Pout alignment: per-trial constant offset estimated from (step_idx*100ms - first_rx_ms(step_idx)).
+- TXSD adv_count is tick_count (1 tick per payload update); used as denominator for pdr_unique when available.
+- share100_time_est: estimated from RX tags (unique step_idx by interval); sanity only (RX has drops).</file><file path="uccs_d2_scan90/metrics/B/per_trial.csv">rx_trial_id,condition,repeat_idx,session,mode,rx_count,rx_unique,adv_count,pdr_unique,rx_tag_n100,rx_tag_n500,rx_tag_share100_time_est,tl_mean_s,tl_p95_s,pout_1s,pout_2s,pout_3s,tl_time_offset_ms,tl_time_offset_n,txsd_ms_total,E_total_mJ,avg_power_mW,txsd_path,rx_path
+2,S1_fixed100,1,1,FIXED_100,1421,1420,1796,0.790646,1420,0,1.0,5.10375,53.35615,0.1,0.1,0.1,-1220.0,1419,181484.0,36847.544,203.03466972295078,uccs_d2_scan90/data/B/TX/trial_001_c1_s1_fixed100.csv,uccs_d2_scan90/data/B/RX/rx_trial_002.csv
+3,S1_fixed500,1,1,FIXED_500,300,300,359,0.835655,1,299,0.000668,5.300375,53.368925,0.2,0.1,0.1,-699.5,300,179653.0,32881.102,183.02562161500225,uccs_d2_scan90/data/B/TX/trial_001_c3_s1_policy.csv,uccs_d2_scan90/data/B/RX/rx_trial_003.csv
+4,S1_policy,1,1,POLICY,700,700,855,0.818713,498,202,0.330239,5.1951,53.3738,0.1,0.1,0.1,-757.0,700,180540.0,34303.246,190.0035781544256,uccs_d2_scan90/data/B/TX/trial_001_c4_s4_fixed100.csv,uccs_d2_scan90/data/B/RX/rx_trial_004.csv
+5,S4_fixed100,1,4,FIXED_100,1429,1429,1796,0.795657,1428,1,0.996511,1.249634,13.6667,0.073171,0.04878,0.04878,-1198.0,1429,181482.0,36739.403,202.44102996440418,uccs_d2_scan90/data/B/TX/trial_001_c5_s4_fixed500.csv,uccs_d2_scan90/data/B/RX/rx_trial_005.csv
+6,S4_fixed500,1,4,FIXED_500,286,286,359,0.796657,1,285,0.000701,1.620049,14.9768,0.195122,0.097561,0.097561,-678.0,286,179637.0,32909.928,183.20239148950384,uccs_d2_scan90/data/B/TX/trial_001_c6_s4_policy.csv,uccs_d2_scan90/data/B/RX/rx_trial_006.csv
+7,S4_policy,1,4,POLICY,958,957,1227,0.779951,844,113,0.599006,1.245537,13.9336,0.073171,0.04878,0.04878,-900.0,957,180906.0,35244.03,194.81957480680572,uccs_d2_scan90/data/B/TX/trial_001_c7_unk.csv,uccs_d2_scan90/data/B/RX/rx_trial_007.csv
+8,S1_fixed100,2,1,FIXED_100,1393,1392,1796,0.775056,1392,0,1.0,5.09495,53.35685,0.1,0.1,0.1,-1171.0,1392,181477.0,36886.619,203.25781779509248,uccs_d2_scan90/data/B/TX/trial_001_c2_s1_fixed500.csv,uccs_d2_scan90/data/B/RX/rx_trial_008.csv
+9,S1_fixed500,2,1,FIXED_500,294,294,359,0.818942,0,294,0.0,5.3122,53.36635,0.15,0.1,0.1,-646.0,294,179619.0,32949.043,183.43851708338204,uccs_d2_scan90/data/B/TX/trial_002_c3_s1_policy.csv,uccs_d2_scan90/data/B/RX/rx_trial_009.csv
+10,S1_policy,2,1,POLICY,700,700,855,0.818713,496,204,0.327177,5.24535,53.37365,0.1,0.1,0.1,-710.0,700,180526.0,34177.069,189.31937227878532,uccs_d2_scan90/data/B/TX/trial_002_c4_s4_fixed100.csv,uccs_d2_scan90/data/B/RX/rx_trial_010.csv
+11,S4_fixed100,2,4,FIXED_100,1393,1393,1796,0.775612,1392,1,0.996421,1.236171,13.6357,0.04878,0.04878,0.04878,-1157.0,1393,181466.0,36685.926,202.16418502639613,uccs_d2_scan90/data/B/TX/trial_002_c5_s4_fixed500.csv,uccs_d2_scan90/data/B/RX/rx_trial_011.csv
+12,S4_fixed500,2,4,FIXED_500,291,291,359,0.810585,1,290,0.000689,1.708902,15.007,0.146341,0.097561,0.097561,-620.0,291,179626.0,32848.146,182.8696625210159,uccs_d2_scan90/data/B/TX/trial_002_c6_s4_policy.csv,uccs_d2_scan90/data/B/RX/rx_trial_012.csv
+13,S4_policy,2,4,POLICY,953,952,1227,0.775876,836,116,0.590395,2.26,23.7535,0.121951,0.073171,0.073171,-823.5,952,180894.0,35375.844,195.56117947527278,uccs_d2_scan90/data/B/TX/trial_002_c7_unk.csv,uccs_d2_scan90/data/B/RX/rx_trial_013.csv
+14,S1_fixed100,3,1,FIXED_100,1419,1419,1796,0.790089,1419,0,1.0,2.43275,42.6563,0.05,0.05,0.05,-1115.0,1419,181465.0,36716.754,202.33518309315846,uccs_d2_scan90/data/B/TX/trial_002_c1_s1_fixed100.csv,uccs_d2_scan90/data/B/RX/rx_trial_014.csv
+15,S1_fixed500,3,1,FIXED_500,285,285,359,0.793872,1,284,0.000704,5.2747,53.36795,0.1,0.1,0.1,-589.0,285,179616.0,32948.453,183.4382961428826,uccs_d2_scan90/data/B/TX/trial_003_c3_s1_policy.csv,uccs_d2_scan90/data/B/RX/rx_trial_015.csv
+16,S1_policy,3,1,POLICY,677,677,855,0.791813,487,190,0.3389,5.30085,53.37445,0.15,0.1,0.1,-609.0,677,180512.0,34285.471,189.93458052650237,uccs_d2_scan90/data/B/TX/trial_003_c4_s4_fixed100.csv,uccs_d2_scan90/data/B/RX/rx_trial_016.csv
+17,S4_fixed100,3,4,FIXED_100,1426,1424,1796,0.792873,1423,1,0.996499,1.256073,13.6019,0.04878,0.04878,0.04878,-1089.0,1424,181445.0,36841.047,203.04250323789577,uccs_d2_scan90/data/B/TX/trial_004_c4_s4_fixed100.csv,uccs_d2_scan90/data/B/RX/rx_trial_017.csv
+18,S4_fixed500,3,4,FIXED_500,303,303,359,0.844011,0,303,0.0,3.169268,20.1689,0.121951,0.097561,0.097561,-564.0,303,179607.0,32970.008,183.5675001531121,uccs_d2_scan90/data/B/TX/trial_003_c6_s4_policy.csv,uccs_d2_scan90/data/B/RX/rx_trial_018.csv
+19,S4_policy,3,4,POLICY,959,957,1227,0.779951,839,118,0.587124,1.258951,13.8866,0.04878,0.04878,0.04878,-771.0,957,180880.0,35327.718,195.31024988942946,uccs_d2_scan90/data/B/TX/trial_003_c7_unk.csv,uccs_d2_scan90/data/B/RX/rx_trial_019.csv</file><file path="uccs_d2_scan90/metrics/B/summary_by_condition.csv">condition,n_trials,pout_1s_mean,pout_1s_std,tl_mean_s_mean,tl_mean_s_std,pdr_unique_mean,pdr_unique_std,rx_tag_share100_time_est_mean,rx_tag_share100_time_est_std,avg_power_mW_mean,avg_power_mW_std,adv_count_mean,adv_count_std
+S1_fixed100,3,0.083333,0.028868,4.210483,1.539569,0.785264,0.008844,1.0,0.0,202.876,0.481,1796.0,0.0
+S1_fixed500,3,0.15,0.05,5.295758,0.019172,0.816156,0.02103,0.000457,0.000396,183.301,0.238,359.0,0.0
+S1_policy,3,0.116667,0.028868,5.2471,0.052897,0.809746,0.015531,0.332105,0.00608,189.753,0.377,855.0,0.0
+S4_fixed100,3,0.05691,0.014082,1.247293,0.010155,0.788047,0.010859,0.996477,4.9e-05,202.549,0.449,1796.0,0.0
+S4_fixed500,3,0.154471,0.037257,2.166073,0.869928,0.817084,0.024337,0.000463,0.000401,183.213,0.349,359.0,0.0
+S4_policy,3,0.081301,0.037257,1.588163,0.581867,0.778593,0.002353,0.592175,0.006138,195.23,0.377,1227.0,0.0</file><file path="uccs_d2_scan90/metrics/B/summary.md"># uccs_d2_scan90 metrics summary
+
+- source RX: `uccs_d2_scan90/data/B/RX`
+- source TXSD: `uccs_d2_scan90/data/B/TX`
+- truth: `Mode_C_2_シミュレート_causal/ccs/stress_causal_S1.csv`, `Mode_C_2_シミュレート_causal/ccs/stress_causal_S4.csv` (n_steps=1800, dt=100ms)
+- selected RX trials: 002..019 (n=18)
+- generated: 2025-12-15 18:43 (local)
+- command: `python3 uccs_d2_scan90/analysis/summarize_d2_run.py --rx-dir uccs_d2_scan90/data/B/RX --txsd-dir uccs_d2_scan90/data/B/TX --out-dir uccs_d2_scan90/metrics/B`
+
+## Summary (mean ± std, n=3 each)
+| condition | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | adv_count | share100_time_est (RX tags) |
+|---|---:|---:|---:|---:|---:|---:|
+| S1_fixed100 | 0.0833±0.0289 | 4.210±1.540 | 0.785±0.009 | 202.9±0.5 | 1796.0±0.0 | 1.000±0.000 |
+| S1_fixed500 | 0.1500±0.0500 | 5.296±0.019 | 0.816±0.021 | 183.3±0.2 | 359.0±0.0 | 0.000±0.000 |
+| S1_policy | 0.1167±0.0289 | 5.247±0.053 | 0.810±0.016 | 189.8±0.4 | 855.0±0.0 | 0.332±0.006 |
+| S4_fixed100 | 0.0569±0.0141 | 1.247±0.010 | 0.788±0.011 | 202.5±0.4 | 1796.0±0.0 | 0.996±0.000 |
+| S4_fixed500 | 0.1545±0.0373 | 2.166±0.870 | 0.817±0.024 | 183.2±0.3 | 359.0±0.0 | 0.000±0.000 |
+| S4_policy | 0.0813±0.0373 | 1.588±0.582 | 0.779±0.002 | 195.2±0.4 | 1227.0±0.0 | 0.592±0.006 |
+
+## Notes
+- RX trial selection: latest 18 trials that form 6 conditions × 3 repeats (duration&gt;=160s).
+- TL/Pout alignment: per-trial constant offset estimated from (step_idx*100ms - first_rx_ms(step_idx)).
+- TXSD adv_count is tick_count (1 tick per payload update); used as denominator for pdr_unique when available.
+- share100_time_est: estimated from RX tags (unique step_idx by interval); sanity only (RX has drops).</file><file path="uccs_d2_scan90/metrics/B_02/per_trial.csv">rx_trial_id,condition,repeat_idx,session,mode,rx_count,rx_unique,adv_count,pdr_unique,rx_tag_n100,rx_tag_n500,rx_tag_share100_time_est,tl_mean_s,tl_p95_s,pout_1s,pout_2s,pout_3s,tl_time_offset_ms,tl_time_offset_n,txsd_ms_total,E_total_mJ,avg_power_mW,txsd_path,rx_path
+84,S4_policy,1,4,POLICY,1009,1008,1227,0.821516,893,115,0.608311,2.180732,23.6714,0.073171,0.073171,0.073171,1226.5,1008,180905.0,35958.479,198.76995660705896,uccs_d2_scan90/data/B/02/TX/trial_001_c7_unk.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_084.csv
+85,S1_fixed100,1,1,FIXED_100,1468,1466,1793,0.817624,1466,0,1.0,2.4398,42.7262,0.05,0.05,0.05,977.0,1466,181134.0,37155.962,205.1296940386675,uccs_d2_scan90/data/B/02/TX/trial_001_c1_s1_fixed100.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_085.csv
+86,S1_fixed500,1,1,FIXED_500,300,300,359,0.835655,0,300,0.0,5.30245,53.36735,0.2,0.1,0.1,1560.0,300,179653.0,33355.851,185.66821038335016,uccs_d2_scan90/data/B/02/TX/trial_001_c2_s1_fixed500.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_086.csv
+87,S1_policy,1,1,POLICY,698,697,855,0.815205,496,201,0.330446,5.28585,53.3993,0.15,0.1,0.1,1531.0,697,180538.0,34904.265,193.33472731502508,uccs_d2_scan90/data/B/02/TX/trial_001_c4_s4_fixed100.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_087.csv
+88,S4_fixed100,1,4,FIXED_100,1444,1443,1796,0.803452,1443,0,1.0,1.250439,13.6383,0.04878,0.04878,0.04878,1116.0,1443,181477.0,37489.878,206.58198008563068,uccs_d2_scan90/data/B/02/TX/trial_001_c5_s4_fixed500.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_088.csv
+89,S4_fixed500,1,4,FIXED_500,298,298,359,0.830084,0,298,0.0,2.929366,15.0313,0.121951,0.097561,0.097561,1700.0,298,179638.0,33424.385,186.0652256204144,uccs_d2_scan90/data/B/02/TX/trial_001_c6_s4_policy.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_089.csv
+90,S4_policy,2,4,POLICY,1003,1003,1227,0.817441,882,121,0.593141,1.23739,14.2797,0.04878,0.04878,0.04878,1509.0,1003,180891.0,35788.503,197.8456805479543,uccs_d2_scan90/data/B/02/TX/trial_002_c7_unk.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_090.csv
+91,S1_fixed100,2,1,FIXED_100,1387,1387,1796,0.772272,1387,0,1.0,2.41465,42.71505,0.05,0.05,0.05,2612.0,1387,181460.0,37222.167,205.12601675300343,uccs_d2_scan90/data/B/02/TX/trial_002_c1_s1_fixed100.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_091.csv
+92,S1_fixed500,2,1,FIXED_500,292,292,359,0.81337,0,292,0.0,5.266075,53.369075,0.1,0.1,0.1,1837.5,292,179634.0,33486.651,186.4159958582451,uccs_d2_scan90/data/B/02/TX/trial_001_c3_s1_policy.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_092.csv
+93,S1_policy,2,1,POLICY,653,652,855,0.762573,464,188,0.330484,5.2295,53.37455,0.15,0.1,0.1,1825.0,652,180518.0,34900.067,193.33289201076903,uccs_d2_scan90/data/B/02/TX/trial_002_c4_s4_fixed100.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_093.csv
+94,S4_fixed100,2,4,FIXED_100,1417,1417,1796,0.788976,1417,0,1.0,1.253561,13.5936,0.04878,0.04878,0.04878,1417.0,1417,181462.0,37505.15,206.68321742293153,uccs_d2_scan90/data/B/02/TX/trial_002_c5_s4_fixed500.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_094.csv
+95,S4_fixed500,2,4,FIXED_500,297,297,359,0.827298,0,297,0.0,1.325268,10.2239,0.121951,0.097561,0.097561,2004.0,297,179623.0,33422.906,186.07252968717816,uccs_d2_scan90/data/B/02/TX/trial_002_c6_s4_policy.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_095.csv
+96,S4_policy,3,4,POLICY,960,959,1227,0.781581,842,117,0.590049,1.269244,13.9147,0.04878,0.04878,0.04878,1817.0,959,180873.0,35677.639,197.25243126392553,uccs_d2_scan90/data/B/02/TX/trial_003_c7_unk.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_096.csv
+97,S1_fixed100,3,1,FIXED_100,1412,1411,1796,0.785635,1411,0,1.0,5.08815,53.3578,0.1,0.1,0.1,1571.0,1411,181469.0,37361.659,205.88452573166768,uccs_d2_scan90/data/B/02/TX/trial_002_c2_s1_fixed500.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_097.csv
+98,S1_fixed500,3,1,FIXED_500,286,286,359,0.796657,0,286,0.0,5.299125,53.368425,0.1,0.1,0.1,2148.5,286,179621.0,33399.636,185.94505096842795,uccs_d2_scan90/data/B/02/TX/trial_002_c3_s1_policy.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_098.csv
+99,S1_policy,3,1,POLICY,693,693,855,0.810526,491,202,0.327115,5.17525,53.3739,0.1,0.1,0.1,2148.0,693,180508.0,34850.709,193.0701630952645,uccs_d2_scan90/data/B/02/TX/trial_003_c4_s4_fixed100.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_099.csv
+100,S4_fixed100,3,4,FIXED_100,1428,1428,1796,0.7951,1428,0,1.0,1.240537,13.5884,0.04878,0.04878,0.04878,1719.0,1428,181450.0,37333.104,205.74871314411683,uccs_d2_scan90/data/B/02/TX/trial_003_c5_s4_fixed500.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_100.csv
+101,S4_fixed500,3,4,FIXED_500,285,285,359,0.793872,0,285,0.0,4.150585,37.7058,0.170732,0.121951,0.121951,2337.0,285,179609.0,33318.131,185.50368300029507,uccs_d2_scan90/data/B/02/TX/trial_003_c6_s4_policy.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_101.csv</file><file path="uccs_d2_scan90/metrics/B_02/summary_by_condition.csv">condition,n_trials,pout_1s_mean,pout_1s_std,tl_mean_s_mean,tl_mean_s_std,pdr_unique_mean,pdr_unique_std,rx_tag_share100_time_est_mean,rx_tag_share100_time_est_std,avg_power_mW_mean,avg_power_mW_std,adv_count_mean,adv_count_std
+S1_fixed100,3,0.066667,0.028868,3.3142,1.536337,0.791844,0.023305,1.0,0.0,205.38,0.437,1795.0,1.732
+S1_fixed500,3,0.133333,0.057735,5.289217,0.02011,0.815227,0.019565,0.0,0.0,186.01,0.378,359.0,0.0
+S1_policy,3,0.133333,0.028868,5.2302,0.055303,0.796101,0.02913,0.329348,0.001934,193.246,0.152,855.0,0.0
+S4_fixed100,3,0.04878,0.0,1.248179,0.0068,0.795843,0.007267,1.0,0.0,206.338,0.513,1796.0,0.0
+S4_fixed500,3,0.138211,0.028164,2.80174,1.416976,0.817085,0.020151,0.0,0.0,185.88,0.326,359.0,0.0
+S4_policy,3,0.05691,0.014082,1.562455,0.53568,0.806846,0.021975,0.597167,0.009774,197.956,0.765,1227.0,0.0</file><file path="uccs_d2_scan90/metrics/B_02/summary.md"># uccs_d2_scan90 metrics summary
+
+- source RX: `uccs_d2_scan90/data/B/02/RX`
+- source TXSD: `uccs_d2_scan90/data/B/02/TX`
+- truth: `Mode_C_2_シミュレート_causal/ccs/stress_causal_S1.csv`, `Mode_C_2_シミュレート_causal/ccs/stress_causal_S4.csv` (n_steps=1800, dt=100ms)
+- selected RX trials: 084..101 (n=18)
+- generated: 2025-12-16 14:38 (local)
+- command: `python3 uccs_d2_scan90/analysis/summarize_d2_run.py --rx-dir uccs_d2_scan90/data/B/02/RX --txsd-dir uccs_d2_scan90/data/B/02/TX --out-dir uccs_d2_scan90/metrics/B_02`
+
+## Summary (mean ± std, n=3 each)
+| condition | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | adv_count | share100_time_est (RX tags) |
+|---|---:|---:|---:|---:|---:|---:|
+| S1_fixed100 | 0.0667±0.0289 | 3.314±1.536 | 0.792±0.023 | 205.4±0.4 | 1795.0±1.7 | 1.000±0.000 |
+| S1_fixed500 | 0.1333±0.0577 | 5.289±0.020 | 0.815±0.020 | 186.0±0.4 | 359.0±0.0 | 0.000±0.000 |
+| S1_policy | 0.1333±0.0289 | 5.230±0.055 | 0.796±0.029 | 193.2±0.2 | 855.0±0.0 | 0.329±0.002 |
+| S4_fixed100 | 0.0488±0.0000 | 1.248±0.007 | 0.796±0.007 | 206.3±0.5 | 1796.0±0.0 | 1.000±0.000 |
+| S4_fixed500 | 0.1382±0.0282 | 2.802±1.417 | 0.817±0.020 | 185.9±0.3 | 359.0±0.0 | 0.000±0.000 |
+| S4_policy | 0.0569±0.0141 | 1.562±0.536 | 0.807±0.022 | 198.0±0.8 | 1227.0±0.0 | 0.597±0.010 |
+
+## Notes
+- RX trial selection: latest 18 trials that form 6 conditions × 3 repeats (duration&gt;=160s).
+- TL/Pout alignment: per-trial constant offset estimated from (step_idx*100ms - first_rx_ms(step_idx)).
+- TXSD adv_count is tick_count (1 tick per payload update); used as denominator for pdr_unique when available.
+- share100_time_est: estimated from RX tags (unique step_idx by interval); sanity only (RX has drops).</file><file path="uccs_d2_scan90/metrics/B_n6/per_trial.csv">rx_trial_id,condition,repeat_idx,session,mode,rx_count,rx_unique,adv_count,pdr_unique,rx_tag_n100,rx_tag_n500,rx_tag_share100_time_est,tl_mean_s,tl_p95_s,pout_1s,pout_2s,pout_3s,tl_time_offset_ms,tl_time_offset_n,txsd_ms_total,E_total_mJ,avg_power_mW,txsd_path,rx_path
+2,S1_fixed100,1,1,FIXED_100,1421,1420,1796,0.790646,1420,0,1.0,5.10375,53.35615,0.1,0.1,0.1,-1220.0,1419,181484.0,36847.544,203.03466972295078,uccs_d2_scan90/data/B/TX/trial_001_c1_s1_fixed100.csv,uccs_d2_scan90/data/B/RX/rx_trial_002.csv
+3,S1_fixed500,1,1,FIXED_500,300,300,359,0.835655,1,299,0.000668,5.300375,53.368925,0.2,0.1,0.1,-699.5,300,179653.0,32881.102,183.02562161500225,uccs_d2_scan90/data/B/TX/trial_001_c3_s1_policy.csv,uccs_d2_scan90/data/B/RX/rx_trial_003.csv
+4,S1_policy,1,1,POLICY,700,700,855,0.818713,498,202,0.330239,5.1951,53.3738,0.1,0.1,0.1,-757.0,700,180540.0,34303.246,190.0035781544256,uccs_d2_scan90/data/B/TX/trial_001_c4_s4_fixed100.csv,uccs_d2_scan90/data/B/RX/rx_trial_004.csv
+5,S4_fixed100,1,4,FIXED_100,1429,1429,1796,0.795657,1428,1,0.996511,1.249634,13.6667,0.073171,0.04878,0.04878,-1198.0,1429,181482.0,36739.403,202.44102996440418,uccs_d2_scan90/data/B/TX/trial_001_c5_s4_fixed500.csv,uccs_d2_scan90/data/B/RX/rx_trial_005.csv
+6,S4_fixed500,1,4,FIXED_500,286,286,359,0.796657,1,285,0.000701,1.620049,14.9768,0.195122,0.097561,0.097561,-678.0,286,179637.0,32909.928,183.20239148950384,uccs_d2_scan90/data/B/TX/trial_001_c6_s4_policy.csv,uccs_d2_scan90/data/B/RX/rx_trial_006.csv
+7,S4_policy,1,4,POLICY,958,957,1227,0.779951,844,113,0.599006,1.245537,13.9336,0.073171,0.04878,0.04878,-900.0,957,180906.0,35244.03,194.81957480680572,uccs_d2_scan90/data/B/TX/trial_001_c7_unk.csv,uccs_d2_scan90/data/B/RX/rx_trial_007.csv
+8,S1_fixed100,2,1,FIXED_100,1393,1392,1796,0.775056,1392,0,1.0,5.09495,53.35685,0.1,0.1,0.1,-1171.0,1392,181477.0,36886.619,203.25781779509248,uccs_d2_scan90/data/B/TX/trial_001_c2_s1_fixed500.csv,uccs_d2_scan90/data/B/RX/rx_trial_008.csv
+9,S1_fixed500,2,1,FIXED_500,294,294,359,0.818942,0,294,0.0,5.3122,53.36635,0.15,0.1,0.1,-646.0,294,179619.0,32949.043,183.43851708338204,uccs_d2_scan90/data/B/TX/trial_002_c3_s1_policy.csv,uccs_d2_scan90/data/B/RX/rx_trial_009.csv
+10,S1_policy,2,1,POLICY,700,700,855,0.818713,496,204,0.327177,5.24535,53.37365,0.1,0.1,0.1,-710.0,700,180526.0,34177.069,189.31937227878532,uccs_d2_scan90/data/B/TX/trial_002_c4_s4_fixed100.csv,uccs_d2_scan90/data/B/RX/rx_trial_010.csv
+11,S4_fixed100,2,4,FIXED_100,1393,1393,1796,0.775612,1392,1,0.996421,1.236171,13.6357,0.04878,0.04878,0.04878,-1157.0,1393,181466.0,36685.926,202.16418502639613,uccs_d2_scan90/data/B/TX/trial_002_c5_s4_fixed500.csv,uccs_d2_scan90/data/B/RX/rx_trial_011.csv
+12,S4_fixed500,2,4,FIXED_500,291,291,359,0.810585,1,290,0.000689,1.708902,15.007,0.146341,0.097561,0.097561,-620.0,291,179626.0,32848.146,182.8696625210159,uccs_d2_scan90/data/B/TX/trial_002_c6_s4_policy.csv,uccs_d2_scan90/data/B/RX/rx_trial_012.csv
+13,S4_policy,2,4,POLICY,953,952,1227,0.775876,836,116,0.590395,2.26,23.7535,0.121951,0.073171,0.073171,-823.5,952,180894.0,35375.844,195.56117947527278,uccs_d2_scan90/data/B/TX/trial_002_c7_unk.csv,uccs_d2_scan90/data/B/RX/rx_trial_013.csv
+14,S1_fixed100,3,1,FIXED_100,1419,1419,1796,0.790089,1419,0,1.0,2.43275,42.6563,0.05,0.05,0.05,-1115.0,1419,181465.0,36716.754,202.33518309315846,uccs_d2_scan90/data/B/TX/trial_002_c1_s1_fixed100.csv,uccs_d2_scan90/data/B/RX/rx_trial_014.csv
+15,S1_fixed500,3,1,FIXED_500,285,285,359,0.793872,1,284,0.000704,5.2747,53.36795,0.1,0.1,0.1,-589.0,285,179616.0,32948.453,183.4382961428826,uccs_d2_scan90/data/B/TX/trial_003_c3_s1_policy.csv,uccs_d2_scan90/data/B/RX/rx_trial_015.csv
+16,S1_policy,3,1,POLICY,677,677,855,0.791813,487,190,0.3389,5.30085,53.37445,0.15,0.1,0.1,-609.0,677,180512.0,34285.471,189.93458052650237,uccs_d2_scan90/data/B/TX/trial_003_c4_s4_fixed100.csv,uccs_d2_scan90/data/B/RX/rx_trial_016.csv
+17,S4_fixed100,3,4,FIXED_100,1426,1424,1796,0.792873,1423,1,0.996499,1.256073,13.6019,0.04878,0.04878,0.04878,-1089.0,1424,181445.0,36841.047,203.04250323789577,uccs_d2_scan90/data/B/TX/trial_004_c4_s4_fixed100.csv,uccs_d2_scan90/data/B/RX/rx_trial_017.csv
+18,S4_fixed500,3,4,FIXED_500,303,303,359,0.844011,0,303,0.0,3.169268,20.1689,0.121951,0.097561,0.097561,-564.0,303,179607.0,32970.008,183.5675001531121,uccs_d2_scan90/data/B/TX/trial_003_c6_s4_policy.csv,uccs_d2_scan90/data/B/RX/rx_trial_018.csv
+19,S4_policy,3,4,POLICY,959,957,1227,0.779951,839,118,0.587124,1.258951,13.8866,0.04878,0.04878,0.04878,-771.0,957,180880.0,35327.718,195.31024988942946,uccs_d2_scan90/data/B/TX/trial_003_c7_unk.csv,uccs_d2_scan90/data/B/RX/rx_trial_019.csv
+84,S4_policy,1,4,POLICY,1009,1008,1227,0.821516,893,115,0.608311,2.180732,23.6714,0.073171,0.073171,0.073171,1226.5,1008,180905.0,35958.479,198.76995660705896,uccs_d2_scan90/data/B/02/TX/trial_001_c7_unk.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_084.csv
+85,S1_fixed100,1,1,FIXED_100,1468,1466,1793,0.817624,1466,0,1.0,2.4398,42.7262,0.05,0.05,0.05,977.0,1466,181134.0,37155.962,205.1296940386675,uccs_d2_scan90/data/B/02/TX/trial_001_c1_s1_fixed100.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_085.csv
+86,S1_fixed500,1,1,FIXED_500,300,300,359,0.835655,0,300,0.0,5.30245,53.36735,0.2,0.1,0.1,1560.0,300,179653.0,33355.851,185.66821038335016,uccs_d2_scan90/data/B/02/TX/trial_001_c2_s1_fixed500.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_086.csv
+87,S1_policy,1,1,POLICY,698,697,855,0.815205,496,201,0.330446,5.28585,53.3993,0.15,0.1,0.1,1531.0,697,180538.0,34904.265,193.33472731502508,uccs_d2_scan90/data/B/02/TX/trial_001_c4_s4_fixed100.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_087.csv
+88,S4_fixed100,1,4,FIXED_100,1444,1443,1796,0.803452,1443,0,1.0,1.250439,13.6383,0.04878,0.04878,0.04878,1116.0,1443,181477.0,37489.878,206.58198008563068,uccs_d2_scan90/data/B/02/TX/trial_001_c5_s4_fixed500.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_088.csv
+89,S4_fixed500,1,4,FIXED_500,298,298,359,0.830084,0,298,0.0,2.929366,15.0313,0.121951,0.097561,0.097561,1700.0,298,179638.0,33424.385,186.0652256204144,uccs_d2_scan90/data/B/02/TX/trial_001_c6_s4_policy.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_089.csv
+90,S4_policy,2,4,POLICY,1003,1003,1227,0.817441,882,121,0.593141,1.23739,14.2797,0.04878,0.04878,0.04878,1509.0,1003,180891.0,35788.503,197.8456805479543,uccs_d2_scan90/data/B/02/TX/trial_002_c7_unk.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_090.csv
+91,S1_fixed100,2,1,FIXED_100,1387,1387,1796,0.772272,1387,0,1.0,2.41465,42.71505,0.05,0.05,0.05,2612.0,1387,181460.0,37222.167,205.12601675300343,uccs_d2_scan90/data/B/02/TX/trial_002_c1_s1_fixed100.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_091.csv
+92,S1_fixed500,2,1,FIXED_500,292,292,359,0.81337,0,292,0.0,5.266075,53.369075,0.1,0.1,0.1,1837.5,292,179634.0,33486.651,186.4159958582451,uccs_d2_scan90/data/B/02/TX/trial_001_c3_s1_policy.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_092.csv
+93,S1_policy,2,1,POLICY,653,652,855,0.762573,464,188,0.330484,5.2295,53.37455,0.15,0.1,0.1,1825.0,652,180518.0,34900.067,193.33289201076903,uccs_d2_scan90/data/B/02/TX/trial_002_c4_s4_fixed100.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_093.csv
+94,S4_fixed100,2,4,FIXED_100,1417,1417,1796,0.788976,1417,0,1.0,1.253561,13.5936,0.04878,0.04878,0.04878,1417.0,1417,181462.0,37505.15,206.68321742293153,uccs_d2_scan90/data/B/02/TX/trial_002_c5_s4_fixed500.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_094.csv
+95,S4_fixed500,2,4,FIXED_500,297,297,359,0.827298,0,297,0.0,1.325268,10.2239,0.121951,0.097561,0.097561,2004.0,297,179623.0,33422.906,186.07252968717816,uccs_d2_scan90/data/B/02/TX/trial_002_c6_s4_policy.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_095.csv
+96,S4_policy,3,4,POLICY,960,959,1227,0.781581,842,117,0.590049,1.269244,13.9147,0.04878,0.04878,0.04878,1817.0,959,180873.0,35677.639,197.25243126392553,uccs_d2_scan90/data/B/02/TX/trial_003_c7_unk.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_096.csv
+97,S1_fixed100,3,1,FIXED_100,1412,1411,1796,0.785635,1411,0,1.0,5.08815,53.3578,0.1,0.1,0.1,1571.0,1411,181469.0,37361.659,205.88452573166768,uccs_d2_scan90/data/B/02/TX/trial_002_c2_s1_fixed500.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_097.csv
+98,S1_fixed500,3,1,FIXED_500,286,286,359,0.796657,0,286,0.0,5.299125,53.368425,0.1,0.1,0.1,2148.5,286,179621.0,33399.636,185.94505096842795,uccs_d2_scan90/data/B/02/TX/trial_002_c3_s1_policy.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_098.csv
+99,S1_policy,3,1,POLICY,693,693,855,0.810526,491,202,0.327115,5.17525,53.3739,0.1,0.1,0.1,2148.0,693,180508.0,34850.709,193.0701630952645,uccs_d2_scan90/data/B/02/TX/trial_003_c4_s4_fixed100.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_099.csv
+100,S4_fixed100,3,4,FIXED_100,1428,1428,1796,0.7951,1428,0,1.0,1.240537,13.5884,0.04878,0.04878,0.04878,1719.0,1428,181450.0,37333.104,205.74871314411683,uccs_d2_scan90/data/B/02/TX/trial_003_c5_s4_fixed500.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_100.csv
+101,S4_fixed500,3,4,FIXED_500,285,285,359,0.793872,0,285,0.0,4.150585,37.7058,0.170732,0.121951,0.121951,2337.0,285,179609.0,33318.131,185.50368300029507,uccs_d2_scan90/data/B/02/TX/trial_003_c6_s4_policy.csv,uccs_d2_scan90/data/B/02/RX/rx_trial_101.csv</file><file path="uccs_d2_scan90/metrics/B_n6/summary_by_condition.csv">condition,n_trials,pout_1s_mean,pout_1s_std,tl_mean_s_mean,tl_mean_s_std,pdr_unique_mean,pdr_unique_std,rx_tag_share100_time_est_mean,rx_tag_share100_time_est_std,avg_power_mW_mean,avg_power_mW_std,adv_count_mean,adv_count_std
+S1_fixed100,6,0.075,0.027386,3.762342,1.460561,0.788554,0.016172,1.0,0.0,204.128,1.432,1795.5,1.225
+S1_fixed500,6,0.141667,0.04916,5.292488,0.017934,0.815692,0.018174,0.000229,0.000354,184.655,1.51,359.0,0.0
+S1_policy,6,0.125,0.027386,5.23865,0.049278,0.802924,0.022176,0.330727,0.004309,191.499,1.931,855.0,0.0
+S4_fixed100,6,0.052845,0.009958,1.247736,0.007745,0.791945,0.009301,0.998239,0.00193,204.444,2.119,1796.0,0.0
+S4_fixed500,6,0.146341,0.030852,2.483906,1.107727,0.817084,0.019983,0.000232,0.000359,184.547,1.492,359.0,0.0
+S4_policy,6,0.069106,0.028513,1.575309,0.500407,0.792719,0.020853,0.594671,0.007795,196.593,1.587,1227.0,0.0</file><file path="uccs_d2_scan90/metrics/B_n6/summary.md"># uccs_d2_scan90 merged metrics summary
+
+- purpose: merge summarized runs (per_trial.csv) and increase n without re-parsing raw logs.
+- source: `uccs_d2_scan90/metrics/B`
+- source: `uccs_d2_scan90/metrics/B_02`
+- generated: 2025-12-16 14:52 (local)
+- command: `python3 uccs_d2_scan90/analysis/merge_metrics_runs.py --out-dir uccs_d2_scan90/metrics/B_n6 --input-dir uccs_d2_scan90/metrics/B --input-dir uccs_d2_scan90/metrics/B_02`
+
+## Summary (mean ± std)
+| condition | n | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | adv_count | share100_time_est (RX tags) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| S1_fixed100 | 6 | 0.0750±0.0274 | 3.762±1.461 | 0.789±0.016 | 204.1±1.4 | 1795.5±1.2 | 1.000±0.000 |
+| S1_fixed500 | 6 | 0.1417±0.0492 | 5.292±0.018 | 0.816±0.018 | 184.7±1.5 | 359.0±0.0 | 0.000±0.000 |
+| S1_policy | 6 | 0.1250±0.0274 | 5.239±0.049 | 0.803±0.022 | 191.5±1.9 | 855.0±0.0 | 0.331±0.004 |
+| S4_fixed100 | 6 | 0.0528±0.0100 | 1.248±0.008 | 0.792±0.009 | 204.4±2.1 | 1796.0±0.0 | 0.998±0.002 |
+| S4_fixed500 | 6 | 0.1463±0.0309 | 2.484±1.108 | 0.817±0.020 | 184.5±1.5 | 359.0±0.0 | 0.000±0.000 |
+| S4_policy | 6 | 0.0691±0.0285 | 1.575±0.500 | 0.793±0.021 | 196.6±1.6 | 1227.0±0.0 | 0.595±0.008 |
+
+## Notes
+- This script does not recompute TL/Pout; it re-aggregates existing per-trial metrics.
+- Rounding follows summarize_d2_run.py (pout/TL/PDR/share: 6 decimals, power/adv: 3 decimals).</file><file path="uccs_d3_scan70/metrics/01/effects_ci.csv">metric,cond_a,cond_b,label,n_a,n_b,mean_a,mean_b,delta_mean,ci_low,ci_high,p_two_sided,n_boot,alpha,seed,generated_local,source_csv
+pout_1s,S4_policy,S4_fixed500,Δpout (policy − fixed500),3,3,0.08943066666666666,0.2845526666666667,-0.19512200000000002,-0.2601626666666667,-0.13008133333333335,0.0,20000,0.05,20251217,2025-12-17 10:56,uccs_d3_scan70/metrics/01/per_trial.csv
+avg_power_mW,S4_policy,S4_fixed100,Δpower_mW (policy − fixed100),3,3,202.11704727801632,209.87827976275707,-7.761232484740759,-8.244096320546646,-7.224741775455584,0.0,20000,0.05,20251217,2025-12-17 10:56,uccs_d3_scan70/metrics/01/per_trial.csv</file><file path="uccs_d3_scan70/metrics/01/effects_ci.md"># effects_ci: D3 scan70 S4 (run01)
+
+- source: `uccs_d3_scan70/metrics/01/per_trial.csv`
+- generated: 2025-12-17 10:56 (local)
+- bootstrap: percentile CI, n_boot=20000, alpha=0.05, seed=20251217
+
+| label | delta(mean) | 95% CI | p(two-sided) |
+|---|---:|---:|---:|
+| Δpout (policy − fixed500) | -0.1951 | [-0.2602, -0.1301] | 0.0000 |
+| Δpower_mW (policy − fixed100) | -7.7612 | [-8.2441, -7.2247] | 0.0000 |</file><file path="uccs_d3_scan70/metrics/01/per_trial.csv">rx_trial_id,condition,repeat_idx,mode,rx_count,rx_unique,adv_count,pdr_unique,rx_tag_share100_time_est,tl_mean_s,tl_p95_s,pout_1s,pout_2s,pout_3s,tl_time_offset_ms,tl_time_offset_n,txsd_ms_total,E_total_mJ,avg_power_mW,txsd_mtime_s,txsd_path,rx_path
+10,S4_fixed100,1,FIXED_100,568,568,1796,0.316258,1.0,1.35225,14.4065,0.097561,0.073171,0.073171,-1148.0,567,181426.0,37975.314,209.31572101021905,315500596.0,uccs_d3_scan70/data/01/TX/trial_006_c2_s4_fixed500.csv,uccs_d3_scan70/data/01/RX/rx_trial_010.csv
+11,S4_fixed500,1,FIXED_500,237,237,359,0.660167,0.000847,3.391575,20.44275,0.292683,0.121951,0.121951,-631.0,237,179594.0,34076.595,189.74239117119726,315500782.0,uccs_d3_scan70/data/01/TX/trial_004_c3_s4_policy.csv,uccs_d3_scan70/data/01/RX/rx_trial_011.csv
+12,S4_policy,1,POLICY,439,439,1227,0.357783,0.440252,1.426366,14.1972,0.097561,0.073171,0.073171,-828.0,439,180869.0,36553.523,202.09943660881632,315500968.0,uccs_d3_scan70/data/01/TX/trial_004_c4_unk.csv,uccs_d3_scan70/data/01/RX/rx_trial_012.csv
+13,S4_fixed100,2,FIXED_100,559,559,1796,0.311247,1.0,1.36078,13.7353,0.04878,0.04878,0.04878,-1133.0,559,181415.0,38167.396,210.38721164181575,315501156.0,uccs_d3_scan70/data/01/TX/trial_007_c2_s4_fixed500.csv,uccs_d3_scan70/data/01/RX/rx_trial_013.csv
+14,S4_fixed500,2,FIXED_500,232,232,359,0.64624,0.0,1.709275,15.2669,0.219512,0.097561,0.097561,-586.0,232,179580.0,34098.496,189.87914021605968,315501342.0,uccs_d3_scan70/data/01/TX/trial_005_c3_s4_policy.csv,uccs_d3_scan70/data/01/RX/rx_trial_014.csv
+15,S4_policy,2,POLICY,425,425,1227,0.346373,0.413233,1.453275,14.6777,0.121951,0.073171,0.073171,-789.0,425,180855.0,36536.55,202.02123247905783,315501528.0,uccs_d3_scan70/data/01/TX/trial_005_c4_unk.csv,uccs_d3_scan70/data/01/RX/rx_trial_015.csv
+16,S4_fixed100,3,FIXED_100,511,511,1796,0.284521,1.0,1.313976,13.838,0.04878,0.04878,0.04878,-1129.0,511,181398.0,38081.228,209.93190663623636,315501716.0,uccs_d3_scan70/data/01/TX/trial_008_c2_s4_fixed500.csv,uccs_d3_scan70/data/01/RX/rx_trial_016.csv
+17,S4_fixed500,3,FIXED_500,233,233,359,0.649025,0.000861,3.683317,20.2645,0.341463,0.121951,0.121951,-561.0,233,179564.0,33937.529,188.99962687398366,315501902.0,uccs_d3_scan70/data/01/TX/trial_006_c3_s4_policy.csv,uccs_d3_scan70/data/01/RX/rx_trial_017.csv
+18,S4_policy,3,POLICY,398,398,1227,0.324368,0.406332,1.319695,14.3289,0.04878,0.04878,0.04878,-750.5,398,180837.0,36570.752,202.23047274617474,315502088.0,uccs_d3_scan70/data/01/TX/trial_006_c4_unk.csv,uccs_d3_scan70/data/01/RX/rx_trial_018.csv</file><file path="uccs_d4_scan90/metrics/01/effects_ci.csv">metric,cond_a,cond_b,label,n_a,n_b,mean_a,mean_b,delta_mean,ci_low,ci_high,p_two_sided,n_boot,alpha,seed,generated_local,source_csv
+avg_power_mW,S4_policy,S4_ablation_u_shuf,Δpower_mW (policy − U-shuf),3,3,200.53050596988783,208.1082346520751,-7.577728682187285,-8.387487258529745,-6.926056002554532,0.0,20000,0.05,20251217,2025-12-17 10:56,uccs_d4_scan90/metrics/01/per_trial.csv
+pout_1s,S4_policy,S4_ablation_u_shuf,Δpout (policy − U-shuf),3,3,0.09756100000000001,0.04878,0.04878100000000001,0.024391000000000003,0.07317099999999999,0.0,20000,0.05,20251217,2025-12-17 10:56,uccs_d4_scan90/metrics/01/per_trial.csv</file><file path="uccs_d4_scan90/metrics/01/effects_ci.md"># effects_ci: D4 scan90 S4 (run01)
+
+- source: `uccs_d4_scan90/metrics/01/per_trial.csv`
+- generated: 2025-12-17 10:56 (local)
+- bootstrap: percentile CI, n_boot=20000, alpha=0.05, seed=20251217
+
+| label | delta(mean) | 95% CI | p(two-sided) |
+|---|---:|---:|---:|
+| Δpower_mW (policy − U-shuf) | -7.5777 | [-8.3875, -6.9261] | 0.0000 |
+| Δpout (policy − U-shuf) | 0.0488 | [0.0244, 0.0732] | 0.0000 |</file><file path="uccs_d4_scan90/metrics/01/per_trial.csv">rx_trial_id,condition,repeat_idx,mode,rx_count,rx_unique,adv_count,pdr_unique,rx_tag_share100_time_est,tl_mean_s,tl_p95_s,pout_1s,pout_2s,pout_3s,tl_time_offset_ms,tl_time_offset_n,txsd_ms_total,E_total_mJ,avg_power_mW,txsd_mtime_s,txsd_path,rx_path
+1,S4_fixed100,1,FIXED_100,1406,1406,1796,0.782851,1.0,1.247732,13.6733,0.04878,0.04878,0.04878,-1247.0,1405,181462.0,37557.87,206.97374656952974,315500596.0,uccs_d4_scan90/data/01/TX/trial_003_c1_s4_fixed100.csv,uccs_d4_scan90/data/01/RX/rx_trial_001.csv
+2,S4_fixed500,1,FIXED_500,293,293,359,0.816156,0.000684,1.629675,15.2854,0.121951,0.121951,0.121951,-699.0,293,179643.0,33730.189,187.7623341850225,315500782.0,uccs_d4_scan90/data/01/TX/trial_001_c3_s4_policy.csv,uccs_d4_scan90/data/01/RX/rx_trial_002.csv
+3,S4_policy,1,POLICY,966,965,1227,0.786471,0.596491,1.293976,13.9341,0.121951,0.04878,0.04878,-931.0,965,180903.0,36117.799,199.6528471059076,315500970.0,uccs_d4_scan90/data/01/TX/trial_001_c4_s4_ablation_ushuf.csv,uccs_d4_scan90/data/01/RX/rx_trial_003.csv
+4,S4_ablation_u_shuf,1,ABL_U_SHUF,1338,1338,1715,0.780175,0.942939,1.234524,13.6617,0.04878,0.04878,0.04878,-1178.5,1338,181370.0,37797.006,208.39723217731708,315501156.0,uccs_d4_scan90/data/01/TX/trial_001_c5_unk.csv,uccs_d4_scan90/data/01/RX/rx_trial_004.csv
+5,S4_fixed100,2,FIXED_100,1408,1406,1796,0.782851,1.0,1.232451,13.641,0.04878,0.04878,0.04878,-1205.5,1406,181475.0,38015.021,209.47800523488084,315501344.0,uccs_d4_scan90/data/01/TX/trial_001_c2_s4_fixed500.csv,uccs_d4_scan90/data/01/RX/rx_trial_005.csv
+6,S4_fixed500,2,FIXED_500,293,293,359,0.816156,0.000684,1.52135,15.2484,0.121951,0.097561,0.097561,-690.0,293,179625.0,33907.168,188.76641892832288,315501530.0,uccs_d4_scan90/data/01/TX/trial_002_c3_s4_policy.csv,uccs_d4_scan90/data/01/RX/rx_trial_006.csv
+7,S4_policy,2,POLICY,968,967,1227,0.788101,0.599438,1.272024,13.9467,0.097561,0.04878,0.04878,-910.0,967,180893.0,36330.713,200.84090042179633,315501716.0,uccs_d4_scan90/data/01/TX/trial_002_c4_s4_ablation_ushuf.csv,uccs_d4_scan90/data/01/RX/rx_trial_007.csv
+8,S4_ablation_u_shuf,2,ABL_U_SHUF,1359,1359,1715,0.79242,0.943781,1.227634,13.625,0.04878,0.04878,0.04878,-1142.0,1359,181371.0,37704.698,207.88713741447086,315501904.0,uccs_d4_scan90/data/01/TX/trial_002_c5_unk.csv,uccs_d4_scan90/data/01/RX/rx_trial_008.csv
+9,S4_fixed100,3,FIXED_100,1428,1427,1796,0.794543,1.0,1.240683,13.6383,0.04878,0.04878,0.04878,-1190.0,1427,181460.0,37762.289,208.1025515265072,315502092.0,uccs_d4_scan90/data/01/TX/trial_002_c2_s4_fixed500.csv,uccs_d4_scan90/data/01/RX/rx_trial_009.csv
+10,S4_fixed500,3,FIXED_500,290,290,359,0.807799,0.0,1.608756,14.9814,0.146341,0.097561,0.097561,-647.0,290,179612.0,33634.486,187.26190900385274,315502278.0,uccs_d4_scan90/data/01/TX/trial_003_c3_s4_policy.csv,uccs_d4_scan90/data/01/RX/rx_trial_010.csv
+11,S4_policy,3,POLICY,976,974,1227,0.793806,0.582763,1.267988,13.9737,0.073171,0.04878,0.04878,-862.5,974,180883.0,36375.168,201.09777038195958,315502464.0,uccs_d4_scan90/data/01/TX/trial_003_c4_s4_ablation_ushuf.csv,uccs_d4_scan90/data/01/RX/rx_trial_011.csv
+12,S4_ablation_u_shuf,3,ABL_U_SHUF,1358,1358,1715,0.791837,0.943741,1.238366,13.6982,0.04878,0.04878,0.04878,-1089.0,1358,181359.0,37729.987,208.04033436443737,315502652.0,uccs_d4_scan90/data/01/TX/trial_003_c5_unk.csv,uccs_d4_scan90/data/01/RX/rx_trial_012.csv</file><file path="uccs_d4_scan90/metrics/01/summary_by_condition.csv">condition,n_trials,pout_1s_mean,pout_1s_std,tl_mean_s_mean,tl_mean_s_std,pdr_unique_mean,pdr_unique_std,rx_tag_share100_time_est_mean,rx_tag_share100_time_est_std,avg_power_mW_mean,avg_power_mW_std,adv_count_mean,adv_count_std
+S4_ablation_u_shuf,3,0.04878,0.0,1.233508,0.005438,0.788144,0.006908,0.943487,0.000475,208.108,0.262,1715.0,0.0
+S4_fixed100,3,0.04878,0.0,1.240289,0.007648,0.786748,0.00675,1.0,0.0,208.185,1.254,1796.0,0.0
+S4_fixed500,3,0.130081,0.014082,1.586594,0.057463,0.81337,0.004825,0.000456,0.000395,187.93,0.766,359.0,0.0
+S4_policy,3,0.097561,0.02439,1.277996,0.013985,0.789459,0.003852,0.592897,0.008899,200.531,0.771,1227.0,0.0</file><file path="uccs_d4_scan90/metrics/01/summary.md"># uccs_d4_scan90 metrics summary (v2)
+
+- source RX: `uccs_d4_scan90/data/01/RX`
+- source TXSD: `uccs_d4_scan90/data/01/TX`
+- truth: `Mode_C_2_シミュレート_causal/ccs/stress_causal_S4.csv` (n_steps=1800, dt=100ms)
+- selected RX trials: 001..012 (n=12)
+- selected TXSD trials (by mtime): trial_003_c1_s4_fixed100.csv .. trial_003_c5_unk.csv (n=12)
+- generated: 2025-12-16 18:40 (local)
+- command: `python3 uccs_d4_scan90/analysis/summarize_d4_run_v2.py --rx-dir uccs_d4_scan90/data/01/RX --txsd-dir uccs_d4_scan90/data/01/TX --out-dir uccs_d4_scan90/metrics/01`
+
+## Summary (mean ± std)
+| condition | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | adv_count | share100_time_est (RX tags) |
+|---|---:|---:|---:|---:|---:|---:|
+| S4_ablation_u_shuf | 0.0488±0.0000 | 1.234±0.005 | 0.788±0.007 | 208.1±0.3 | 1715.0±0.0 | 0.943±0.000 |
+| S4_fixed100 | 0.0488±0.0000 | 1.240±0.008 | 0.787±0.007 | 208.2±1.3 | 1796.0±0.0 | 1.000±0.000 |
+| S4_fixed500 | 0.1301±0.0141 | 1.587±0.057 | 0.813±0.005 | 187.9±0.8 | 359.0±0.0 | 0.000±0.000 |
+| S4_policy | 0.0976±0.0244 | 1.278±0.014 | 0.789±0.004 | 200.5±0.8 | 1227.0±0.0 | 0.593±0.009 |
+
+## Notes
+- RX window: latest 12 trials that form 4 conditions × 3 repeats (duration&gt;=160s).
+- TXSD pairing: last 12 TXSD trials by file modification time; zipped in order with RX window.
+- TL/Pout alignment: per-trial constant offset estimated from (step_idx*100ms - first_rx_ms(step_idx)).
+- TXSD adv_count is tick_count (1 tick per payload update); used as denominator for pdr_unique.
+- share100_time_est: estimated from RX tags (unique step_idx by interval); sanity only (RX has drops).</file><file path="uccs_d4b_scan90/metrics/01/effects_ci.csv">metric,cond_a,cond_b,label,n_a,n_b,mean_a,mean_b,delta_mean,ci_low,ci_high,p_two_sided,n_boot,alpha,seed,generated_local,source_csv
+pout_1s,S4_policy,S4_ablation_ccs_off,Δpout (U+CCS − U-only),3,3,0.04878,0.06504066666666666,-0.016260666666666666,-0.024391000000000003,0.0,0.0758,20000,0.05,20251217,2025-12-17 10:56,uccs_d4b_scan90/metrics/01/per_trial.csv
+avg_power_mW,S4_policy,S4_ablation_ccs_off,Δpower_mW (U+CCS − U-only),3,3,200.62558239671534,200.6491276940079,-0.023545297292542955,-0.23315122934343435,0.18857135899770583,0.8283,20000,0.05,20251217,2025-12-17 10:56,uccs_d4b_scan90/metrics/01/per_trial.csv
+tl_mean_s,S4_policy,S4_ablation_ccs_off,Δtl_mean_s (U+CCS − U-only),3,3,1.3173253333333335,1.4065450000000002,-0.0892196666666667,-0.25917100000000004,0.014316999999999913,0.2274,20000,0.05,20251217,2025-12-17 10:56,uccs_d4b_scan90/metrics/01/per_trial.csv
+pdr_unique,S4_policy,S4_ablation_ccs_off,Δpdr_unique (U+CCS − U-only),3,3,0.44773666666666667,0.43357799999999996,0.014158666666666708,-0.0013263333333333183,0.02963566666666667,0.0624,20000,0.05,20251217,2025-12-17 10:56,uccs_d4b_scan90/metrics/01/per_trial.csv</file><file path="uccs_d4b_scan90/metrics/01/effects_ci.md"># effects_ci: D4B scan90 S4 (run01)
+
+- source: `uccs_d4b_scan90/metrics/01/per_trial.csv`
+- generated: 2025-12-17 10:56 (local)
+- bootstrap: percentile CI, n_boot=20000, alpha=0.05, seed=20251217
+
+| label | delta(mean) | 95% CI | p(two-sided) |
+|---|---:|---:|---:|
+| Δpout (U+CCS − U-only) | -0.0163 | [-0.0244, 0.0000] | 0.0758 |
+| Δpower_mW (U+CCS − U-only) | -0.0235 | [-0.2332, 0.1886] | 0.8283 |
+| Δtl_mean_s (U+CCS − U-only) | -0.0892 | [-0.2592, 0.0143] | 0.2274 |
+| Δpdr_unique (U+CCS − U-only) | 0.0142 | [-0.0013, 0.0296] | 0.0624 |</file><file path="uccs_d4b_scan90/metrics/01/extra_analysis.md"># D4B run01: 追加解析メモ（tail / conditional）
+
+このrun01は「同電力（同α）なのにQoS（pout/TL）が改善」の主結果を持つが、poutは少数のアウトエイジイベント（TL&gt;1s）で決まりやすい。
+そのため、平均化したタイミング指標よりも「尾（outage）」に焦点を当てた可視化を追加する。
+
+## 1) outage story（失敗イベント中心のストーリー図）
+
+- 出力: `uccs_d4b_scan90/plots/outage_story_01/fig_outage_timeline.svg`
+- 遷移の選び方: `uccs_d4b_scan90/plots/outage_story_01/outage_ranking.csv` の上位（U-onlyのoutage率が大きい遷移）から機械的に選択
+- 例（選択イベント）: transition_step=1128 は U-onlyでTL≈9.889s（outage）だが、Policy(U+CCS)はTL≈0.212s（非outage）
+
+再現コマンド:
+
+`python3 uccs_d4b_scan90/analysis/outage_story_trace.py --rx-dir uccs_d4b_scan90/data/01/RX --truth Mode_C_2_シミュレート_causal/ccs/stress_causal_S4.csv --out-dir uccs_d4b_scan90/plots/outage_story_01 --n-steps 1800 --tau-s 1.0 --window-s 3.0`
+
+## 2) Poutの寄与分解（尾の集中度）
+
+- 出力: `uccs_d4b_scan90/plots/pout_tail_01/`
+  - `fig_outage_count_hist.svg`（trialごとのoutage数分布）
+  - `fig_delta_pout_cum.svg`（上位K遷移がΔPoutをどれだけ説明するか）
+
+再現コマンド:
+
+`python3 uccs_d4b_scan90/analysis/pout_tail_decomposition.py --per-transition-csv uccs_d4b_scan90/plots/outage_story_01/per_transition.csv --outage-ranking-csv uccs_d4b_scan90/plots/outage_story_01/outage_ranking.csv --out-dir uccs_d4b_scan90/plots/pout_tail_01 --tau-s 1.0 --top-k-max 20`
+
+## 3) 条件付きタイミング（失敗しやすい遷移のみ）
+
+- 出力: `uccs_d4b_scan90/plots/ccs_timing_conditional_01/fig_event_triggered_p100_conditional.svg`
+- 条件: U-onlyが悪化している遷移（outage差上位topK）に限定して `P(interval=100ms)` を再集計（平均化で差が薄まるのを避ける）
+
+再現コマンド:
+
+`python3 uccs_d4b_scan90/analysis/ccs_timing_analysis_conditional.py --rx-dir uccs_d4b_scan90/data/01/RX --truth Mode_C_2_シミュレート_causal/ccs/stress_causal_S4.csv --outage-ranking-csv uccs_d4b_scan90/plots/outage_story_01/outage_ranking.csv --out-dir uccs_d4b_scan90/plots/ccs_timing_conditional_01 --n-steps 1800 --window-s 2.0 --subset u_only_worse --top-k 5`</file><file path="uccs_d4b_scan90/metrics/01/per_trial.csv">rx_trial_id,condition,repeat_idx,mode,rx_count,rx_unique,adv_count,pdr_unique,rx_tag_share100_time_est,tl_mean_s,tl_p95_s,pout_1s,pout_2s,pout_3s,tl_time_offset_ms,tl_time_offset_n,txsd_ms_total,E_total_mJ,avg_power_mW,txsd_path,rx_path
+2,S4_fixed100,1,FIXED_100,737,737,1796,0.410356,1.0,1.552585,14.5963,0.073171,0.073171,0.073171,-1228.0,737,181463.0,37744.841,208.00295928095537,uccs_d4b_scan90/data/01/TX/trial_003_c2_s4_fixed500.csv,uccs_d4b_scan90/data/01/RX/rx_trial_002.csv
+3,S4_fixed500,1,FIXED_500,290,290,359,0.807799,0.000692,1.042333,9.59,0.146341,0.097561,0.097561,-697.0,290,179628.0,33736.67,187.81409357115817,uccs_d4b_scan90/data/01/TX/trial_001_c3_s4_policy.csv,uccs_d4b_scan90/data/01/RX/rx_trial_003.csv
+4,S4_policy,1,POLICY,538,537,1215,0.441975,0.428716,1.333439,13.9455,0.04878,0.04878,0.04878,-897.0,537,180885.0,36316.025,200.7685822483899,uccs_d4b_scan90/data/01/TX/trial_001_c5_unk.csv,uccs_d4b_scan90/data/01/RX/rx_trial_004.csv
+5,S4_ablation_ccs_off,1,U_ONLY,533,533,1227,0.434393,0.418255,1.312,13.9479,0.04878,0.04878,0.04878,-900.0,533,180898.0,36302.285,200.67819986953975,uccs_d4b_scan90/data/01/TX/trial_001_c4_s4_ablation_ccs_off.csv,uccs_d4b_scan90/data/01/RX/rx_trial_005.csv
+6,S4_fixed100,2,FIXED_100,705,705,1796,0.392539,1.0,1.553244,14.6142,0.073171,0.073171,0.073171,-1205.0,705,181448.0,37894.507,208.8449969137163,uccs_d4b_scan90/data/01/TX/trial_004_c2_s4_fixed500.csv,uccs_d4b_scan90/data/01/RX/rx_trial_006.csv
+7,S4_fixed500,2,FIXED_500,301,301,359,0.83844,0.000666,1.513049,14.9559,0.097561,0.097561,0.097561,-685.0,301,179612.0,33813.545,188.25883014497919,uccs_d4b_scan90/data/01/TX/trial_002_c3_s4_policy.csv,uccs_d4b_scan90/data/01/RX/rx_trial_007.csv
+8,S4_policy,2,POLICY,549,549,1215,0.451852,0.432836,1.288439,13.9323,0.04878,0.04878,0.04878,-860.0,549,180875.0,36260.876,200.47478092605388,uccs_d4b_scan90/data/01/TX/trial_002_c5_unk.csv,uccs_d4b_scan90/data/01/RX/rx_trial_008.csv
+9,S4_ablation_ccs_off,2,U_ONLY,512,512,1227,0.417278,0.430851,1.57761,15.2289,0.073171,0.073171,0.073171,-860.0,512,180889.0,36261.609,200.4633172829746,uccs_d4b_scan90/data/01/TX/trial_002_c4_s4_ablation_ccs_off.csv,uccs_d4b_scan90/data/01/RX/rx_trial_009.csv
+10,S4_fixed100,3,FIXED_100,591,591,1796,0.329065,1.0,1.354073,13.8769,0.097561,0.04878,0.04878,-1095.0,591,181442.0,37737.473,207.98642541418192,uccs_d4b_scan90/data/01/TX/trial_005_c2_s4_fixed500.csv,uccs_d4b_scan90/data/01/RX/rx_trial_010.csv
+11,S4_fixed500,3,FIXED_500,295,295,359,0.821727,0.0,1.073375,9.65505,0.146341,0.073171,0.073171,-633.0,295,179606.0,33833.253,188.3748482790107,uccs_d4b_scan90/data/01/TX/trial_003_c3_s4_policy.csv,uccs_d4b_scan90/data/01/RX/rx_trial_011.csv
+12,S4_policy,3,POLICY,546,546,1215,0.449383,0.439394,1.330098,13.9118,0.04878,0.04878,0.04878,-846.0,546,180865.0,36287.557,200.63338401570232,uccs_d4b_scan90/data/01/TX/trial_003_c5_unk.csv,uccs_d4b_scan90/data/01/RX/rx_trial_012.csv
+13,S4_ablation_ccs_off,3,U_ONLY,551,551,1227,0.449063,0.43669,1.330025,14.66235,0.073171,0.073171,0.073171,-839.0,551,180875.0,36320.761,200.8058659295093,uccs_d4b_scan90/data/01/TX/trial_003_c4_s4_ablation_ccs_off.csv,uccs_d4b_scan90/data/01/RX/rx_trial_013.csv</file><file path="uccs_d4b_scan90/metrics/01/summary_by_condition.csv">condition,n_trials,pout_1s_mean,pout_1s_std,tl_mean_s_mean,tl_mean_s_std,pdr_unique_mean,pdr_unique_std,rx_tag_share100_time_est_mean,rx_tag_share100_time_est_std,avg_power_mW_mean,avg_power_mW_std,adv_count_mean,adv_count_std,share100_power_mix_mean
+S4_ablation_ccs_off,3,0.065041,0.014082,1.406545,0.148421,0.433578,0.015908,0.428599,0.009422,200.649,0.173,1227.0,0.0,0.620995
+S4_fixed100,3,0.081301,0.014082,1.486634,0.114802,0.37732,0.042729,1.0,0.0,208.278,0.491,1796.0,0.0,
+S4_fixed500,3,0.130081,0.028163,1.209586,0.263265,0.822655,0.015342,0.000453,0.000392,188.149,0.296,359.0,0.0,
+S4_policy,3,0.04878,0.0,1.317325,0.025072,0.447737,0.00514,0.433649,0.005385,200.626,0.147,1215.0,0.0,0.619852</file><file path="uccs_d4b_scan90/metrics/01/summary.md"># uccs_d4b_scan90 metrics summary (v2)
+
+- source RX: `uccs_d4b_scan90/data/01/RX`
+- source TXSD: `uccs_d4b_scan90/data/01/TX`
+- truth: `Mode_C_2_シミュレート_causal/ccs/stress_causal_S4.csv` (n_steps=1800, dt=100ms)
+- selected RX trials: 002..013 (n=12)
+- selected TXSD trials: grouped by adv_count=[359, 1215, 1227, 1796] (3 trials each)
+- generated: 2025-12-17 00:10 (local)
+- command: `python3 uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py --rx-dir uccs_d4b_scan90/data/01/RX --txsd-dir uccs_d4b_scan90/data/01/TX --out-dir uccs_d4b_scan90/metrics/01`
+
+## Summary (mean ± std)
+| condition | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | adv_count | share100_time_est (RX tags) | share100_power_mix |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| S4_ablation_ccs_off | 0.0650±0.0141 | 1.407±0.148 | 0.434±0.016 | 200.6±0.2 | 1227.0±0.0 | 0.429±0.009 | 0.621 |
+| S4_fixed100 | 0.0813±0.0141 | 1.487±0.115 | 0.377±0.043 | 208.3±0.5 | 1796.0±0.0 | 1.000±0.000 |  |
+| S4_fixed500 | 0.1301±0.0282 | 1.210±0.263 | 0.823±0.015 | 188.1±0.3 | 359.0±0.0 | 0.000±0.000 |  |
+| S4_policy | 0.0488±0.0000 | 1.317±0.025 | 0.448±0.005 | 200.6±0.1 | 1215.0±0.0 | 0.434±0.005 | 0.620 |
+
+## Notes
+- RX window: latest 12 trials that form 4 conditions × 3 repeats (duration&gt;=160s).
+- TXSD pairing: cond_idがズレる/mtimeが壊れる可能性があるため、adv_count（tick_count）でクラスタリングして割り当て。
+  - filter: avg_power_mW &gt;= 150.0 かつ E_total_mJ&gt;0（古いログ混在/逆符号を除外）
+- TL/Pout alignment: per-trial constant offset estimated from (step_idx*100ms - first_rx_ms(step_idx)).
+- TXSD adv_count is tick_count (1 tick per payload update); used as denominator for pdr_unique.
+- share100_time_est: estimated from RX tags (unique step_idx by interval); sanity only (RX has drops).</file><file path="uccs_d3_scan70/metrics/01/summary_by_condition.csv">condition,n_trials,pout_1s_mean,pout_1s_std,tl_mean_s_mean,tl_mean_s_std,pdr_unique_mean,pdr_unique_std,rx_tag_share100_time_est_mean,rx_tag_share100_time_est_std,avg_power_mW_mean,avg_power_mW_std,adv_count_mean,adv_count_std,share100_power_mix_mean
+S4_fixed100,3,0.06504,0.028164,1.342335,0.024927,0.304009,0.017062,1.0,0.0,209.878,0.538,1796.0,0.0,
+S4_fixed500,3,0.284553,0.061381,2.928056,1.065527,0.651811,0.00737,0.000569,0.000493,189.54,0.473,359.0,0.0,
+S4_policy,3,0.089431,0.037257,1.399779,0.070647,0.342841,0.016985,0.419939,0.017927,202.117,0.106,1227.0,0.0,0.618399</file><file path="uccs_d3_scan70/metrics/01/summary.md"># uccs_d3_scan70 metrics summary (v2)
+
+- source RX: `uccs_d3_scan70/data/01/RX`
+- source TXSD: `uccs_d3_scan70/data/01/TX`
+- truth: `Mode_C_2_シミュレート_causal/ccs/stress_causal_S4.csv` (n_steps=1800, dt=100ms)
+- selected RX trials: 010..018 (n=9)
+- selected TXSD trials: grouped by adv_count=[359, 1227, 1796] (n=9)
+- generated: 2025-12-16 20:57 (local)
+- command: `python3 uccs_d3_scan70/analysis/summarize_d3_run_v2.py --rx-dir uccs_d3_scan70/data/01/RX --txsd-dir uccs_d3_scan70/data/01/TX --out-dir uccs_d3_scan70/metrics/01`
+
+## Summary (mean ± std)
+| condition | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | adv_count | share100_time_est (RX tags) | share100_power_mix |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| S4_fixed100 | 0.0650±0.0282 | 1.342±0.025 | 0.304±0.017 | 209.9±0.5 | 1796.0±0.0 | 1.000±0.000 |  |
+| S4_fixed500 | 0.2846±0.0614 | 2.928±1.066 | 0.652±0.007 | 189.5±0.5 | 359.0±0.0 | 0.001±0.000 |  |
+| S4_policy | 0.0894±0.0373 | 1.400±0.071 | 0.343±0.017 | 202.1±0.1 | 1227.0±0.0 | 0.420±0.018 | 0.618 |
+
+## Notes
+- RX window: latest 9 trials that form 3 conditions × 3 repeats (duration&gt;=160s).
+- TXSD pairing: mtimeが信頼できないため、adv_count（tick_count）でクラスタリングして各条件3本を割り当て。
+  - filter: avg_power_mW &gt;= 150.0（古いログ混在を除外）
+- TL/Pout alignment: per-trial constant offset estimated from (step_idx*100ms - first_rx_ms(step_idx)).
+- TXSD adv_count is tick_count (1 tick per payload update); used as denominator for pdr_unique.
+- share100_time_est: estimated from RX tags (unique step_idx by interval); sanity only (RX has drops).</file><file path="uccs_d3_scan70/README.md"># uccs_d3_scan70（D3: scan duty を 90%→70% に落として適応性確認）
+
+- 目的: `scan90`（良条件）で強い `Fixed500` が崩れる条件を作り、`Policy(100↔500)` が **必要時だけ100msに寄って耐える**ことを示す。
+- スコープ: **S4のみ**（差が出やすい）
+- 条件: `Fixed100 / Fixed500 / Policy(U+CCS, 100↔500)` × `n=3`
+- RX設定: scan70%（interval=100ms, window=70ms）
+
+## 結論（レター用の置き方）
+
+scan70 / S4 では **Fixed500 がQoSで崩れる**一方、`Policy` は **Fixed500よりQoSを改善しつつ、Fixed100より低電力**という「中間解」を維持できた。
+
+- Fixed500 がQoSで崩れる: `pout_1s = 0.2846 ± 0.0614`
+- Policy は Fixed500 より改善: `pout_1s = 0.0894 ± 0.0373`
+- Policy は Fixed100 より省電力（ただし Fixed500 より高電力）
+  - power: Fixed100 `209.9±0.5` → Policy `202.1±0.1`（`-7.8 mW`, 約 `-3.7%`）
+  - Fixed500 `189.5±0.5` → Policy（Fixed500比 `+12.6 mW`）
+
+制約として `δ=0.1`（例: `Pout(1s) ≤ 0.1`）を置くと、scan70では
+
+- Fixed500 は **不適**（`pout_1s &gt; 0.1`）
+- Fixed100 は **適**だが高電力
+- Policy は **適**かつ Fixed100 より低電力
+
+→ D3の価値は「悪条件で Fixed500 が使えない状況を作って、policy が“100ms張り付きではない中間解”として意味を持つ」ことを実機で示せた点。
+
+## ディレクトリ構成
+
+- `uccs_d3_scan70/src/`
+  - `tx/` : `TX_UCCS_D3_SCAN70`（Arduino）
+  - `rx/` : `RX_UCCS_D3_SCAN70`（Arduino）
+  - `txsd/`: `TXSD_UCCS_D3_SCAN70`（Arduino）
+- `uccs_d3_scan70/data/01/`
+  - `RX/` と `TX/`（TXSDのSD `/logs/` を `TX/` にコピー）
+
+## 配線（D2/D4と同じ）
+
+- TX GPIO25 → RX GPIO26（SYNC）
+- TX GPIO25 → TXSD GPIO26（SYNC）
+- TX GPIO27 → TXSD GPIO33（TICK）
+
+## 実行手順（ME）
+
+1. Arduino IDEで書き込み（フォルダ名=スケッチ名）
+   - TX: `uccs_d3_scan70/src/tx/TX_UCCS_D3_SCAN70/TX_UCCS_D3_SCAN70.ino`
+   - RX: `uccs_d3_scan70/src/rx/RX_UCCS_D3_SCAN70/RX_UCCS_D3_SCAN70.ino`
+   - TXSD: `uccs_d3_scan70/src/txsd/TXSD_UCCS_D3_SCAN70/TXSD_UCCS_D3_SCAN70.ino`
+2. 自動で `S4 × (Fixed100 → Fixed500 → Policy) × 3回` が流れる。
+3. SDカードの `/logs/` を回収し、以下へコピー
+   - RX側: `uccs_d3_scan70/data/01/RX/`
+   - TXSD側: `uccs_d3_scan70/data/01/TX/`
+
+## 期待される結果（成功条件）
+
+- `Fixed500` の `pout_1s` / `tl_mean_s` が scan90 より悪化
+- `Policy` が `Fixed500` よりQoSを改善しつつ、`Fixed100` より平均電力が下がる（または同程度）
+
+## 出力（run01）
+
+- 集計: `uccs_d3_scan70/metrics/01/summary.md`
+- 図: `uccs_d3_scan70/plots/d3_01_power_vs_pout.png`
+
+### share100 推定の注意（scan70では重要）
+
+scan70では 100ms 側の取りこぼしが増えるため、`share100_time_est (RX tags)` は **系統的に過小評価**になりやすい。
+
+そのため本実験では、`TXSD avg_power_mW` から **power-mix** で `share100_power_mix` を推定して併記している。
+
+- 推定式（S4_policy）: `share100_power_mix ≈ (P_policy - P_500) / (P_100 - P_500)`
+- run01の結果: `share100_power_mix≈0.618`（RX tags推定 `≈0.420` より大きい）</file><file path="uccs_d4_scan90/README.md"># uccs_d4_scan90（Step D4: Uが効いている切り分け / Ablation）
+
+## 目的
+
+実機D2bで得られた「Fixed100より省電力、Fixed500よりQoS良」の“程よい点”が **U（不確実度）**に依存しているかを、Ablationで切り分ける。
+
+* 対象セッション: **S4のみ**（差が出やすい）
+* 条件: 4条件 × n=3（最小セット）
+  1. Fixed100
+  2. Fixed500
+  3. Policy（U+CCS）
+  4. Ablation（**U-shuffle**: Uの分布は同じ、時間相関だけ破壊）
+
+## 真値（truth）
+
+* `Mode_C_2_シミュレート_causal/ccs/stress_causal_S4.csv`（100msグリッド, n_steps=1800=180s）
+* TXは上記CSV由来の `label/U/CCS` をフラッシュに埋め込み、同一セッションを再生する。
+
+## スケッチ（Arduino IDE 用）
+
+* TX: `uccs_d4_scan90/src/tx/TX_UCCS_D4_SCAN90/TX_UCCS_D4_SCAN90.ino`
+* RX: `uccs_d4_scan90/src/rx/RX_UCCS_D4_SCAN90/RX_UCCS_D4_SCAN90.ino`
+* TXSD: `uccs_d4_scan90/src/txsd/TXSD_UCCS_D4_SCAN90/TXSD_UCCS_D4_SCAN90.ino`
+
+## 配線
+
+* TX `GPIO25 (SYNC_OUT)` → RX `GPIO26 (SYNC_IN)` / TXSD `GPIO26 (SYNC_IN)`
+* TX `GPIO27 (TICK_OUT)` → TXSD `GPIO33 (TICK_IN)`
+
+## 実行
+
+* 1回の起動で S4 × 4条件を自動実行（`REPEAT=3`）。
+* trial長: 180s（`EFFECTIVE_LEN_STEPS=1800`）。
+
+## TX payload仕様（ManufacturerData）
+
+形式: `&lt;step_idx&gt;_&lt;tag&gt;`
+
+* `step_idx`: 100msグリッドの整数（0..）
+* `tag`: `F4-&lt;label&gt;-&lt;itv&gt;` / `P4-&lt;label&gt;-&lt;itv&gt;` / `A4-&lt;label&gt;-&lt;itv&gt;`
+  * `F`: fixed, `P`: policy, `A`: ablation（U-shuffle）
+  * `&lt;label&gt;`: truth label（2桁）
+  * `&lt;itv&gt;`: current interval（100 or 500）
+
+## TXSD cond_id（preamble TICKパルス数）
+
+* 1: S4 fixed100
+* 2: S4 fixed500
+* 3: S4 policy
+* 4: S4 ablation_u_shuf
+
+trial中は「広告更新」ごとにTICKを1発出し、TXSD側で `adv_count=tick_count` を記録する（近似）。
+
+## データ配置
+
+* SDから吸い上げた `/logs/` を `uccs_d4_scan90/data/&lt;run&gt;/{RX,TX}/` にコピーする（TX=TXSDログ）。
+* `uccs_d4_scan90/data/&lt;run&gt;/README.md` に測定条件をメモ。
+
+## 解析
+
+* 集計スクリプト: `uccs_d4_scan90/analysis/summarize_d4_run_v2.py`（推奨: TXSDのtrial番号がcond毎にリセットされるのでmtime順でペアリングする）
+  * 入力: `--rx-dir .../RX --txsd-dir .../TX`
+  * 出力: `per_trial.csv`, `summary_by_condition.csv`, `summary.md`
+
+* 図（任意）: `uccs_d4_scan90/analysis/plot_power_vs_pout.py`
+  * 入力: `--summary-csv uccs_d4_scan90/metrics/&lt;run&gt;/summary_by_condition.csv`
+  * 出力: `uccs_d4_scan90/plots/d4_&lt;run&gt;_power_vs_pout.png`（PDFも同時生成）
+  * 実行例（matplotlibは `.venv_mhealth310` 推奨）:
+    - `.venv_mhealth310/bin/python uccs_d4_scan90/analysis/plot_power_vs_pout.py --summary-csv uccs_d4_scan90/metrics/01/summary_by_condition.csv --out uccs_d4_scan90/plots/d4_01_power_vs_pout.png`
+
+## D4で得られた知見（固定）
+
+出典: `uccs_d4_scan90/metrics/01/summary.md`（S4のみ、scan90、4条件×n=3）
+
+- 主要結果（mean±std, n=3）
+  - Fixed100: `avg_power=208.2±1.3 mW`, `pout_1s=0.0488±0.0000`, `adv_count=1796`, `share100≈1.000`
+  - Fixed500: `avg_power=187.9±0.8 mW`, `pout_1s=0.1301±0.0141`, `adv_count=359`, `share100≈0.000`
+  - Policy(U+CCS): `avg_power=200.5±0.8 mW`, `pout_1s=0.0976±0.0244`, `adv_count=1227`, `share100≈0.593`
+  - Ablation(U-shuffle): `avg_power=208.1±0.3 mW`, `pout_1s=0.0488±0.0000`, `adv_count=1715`, `share100≈0.943`
+
+- 解釈（レター用の1行）
+  - **Uを時間シャッフルして“いつ不確実か”の整合を壊すと、100ms張り付き寄りに崩れて省電力が消える**（`share100`と`adv_count`が増え、`avg_power`がFixed100級に戻る）。</file><file path="uccs_d4b_scan90/README.md"># uccs_d4b_scan90（Step D4B: CCSが効いている切り分け / Ablation）
+
+## 目的
+
+Step D4で「Uを壊す（U-shuffle）と100ms張り付き寄りに崩れる」を示した。次にレターで突っ込まれやすい
+「CCSは要るのか？ Uだけで十分では？」へ答えるため、**CCSを無効化したU-only**を追加して切り分ける。
+
+* 対象セッション: **S4のみ**（差が出やすい）
+* 条件: 4条件 × n=3（最小セット）
+  1. Fixed100
+  2. Fixed500
+  3. Policy（U+CCS, 100↔500）
+  4. Ablation（CCS-off = **U-only**, 100↔500）
+
+## 真値（truth）
+
+* `Mode_C_2_シミュレート_causal/ccs/stress_causal_S4.csv`（100msグリッド, n_steps=1800=180s）
+* TXは上記CSV由来の `label/U/CCS` をフラッシュに埋め込み、同一セッションを再生する。
+
+## スケッチ（Arduino IDE 用）
+
+* TX: `uccs_d4b_scan90/src/tx/TX_UCCS_D4B_SCAN90/TX_UCCS_D4B_SCAN90.ino`
+* RX: `uccs_d4b_scan90/src/rx/RX_UCCS_D4B_SCAN90/RX_UCCS_D4B_SCAN90.ino`
+* TXSD: `uccs_d4b_scan90/src/txsd/TXSD_UCCS_D4B_SCAN90/TXSD_UCCS_D4B_SCAN90.ino`
+
+## 配線
+
+* TX `GPIO25 (SYNC_OUT)` → RX `GPIO26 (SYNC_IN)` / TXSD `GPIO26 (SYNC_IN)`
+* TX `GPIO27 (TICK_OUT)` → TXSD `GPIO33 (TICK_IN)`
+
+## 実行
+
+* 1回の起動で S4 × 4条件を自動実行（`REPEAT=3`）。
+* trial長: 180s（`EFFECTIVE_LEN_STEPS=1800`）。
+
+## TX payload仕様（ManufacturerData）
+
+形式: `&lt;step_idx&gt;_&lt;tag&gt;`
+
+* `step_idx`: 100msグリッドの整数（0..）
+* `tag`: `F4-&lt;label&gt;-&lt;itv&gt;` / `P4-&lt;label&gt;-&lt;itv&gt;` / `U4-&lt;label&gt;-&lt;itv&gt;`
+  * `F`: fixed, `P`: policy(U+CCS), `U`: U-only（CCS-off）
+  * `&lt;label&gt;`: truth label（2桁）
+  * `&lt;itv&gt;`: current interval（100 or 500）
+
+## TXSD cond_id（preamble TICKパルス数）
+
+* 1: S4 fixed100
+* 2: S4 fixed500
+* 3: S4 policy
+* 4: S4 ablation_ccs_off（U-only）
+
+trial中は「広告更新」ごとにTICKを1発出し、TXSD側で `adv_count=tick_count` を記録する（近似）。
+
+## データ配置
+
+* SDから吸い上げた `/logs/` を `uccs_d4b_scan90/data/&lt;run&gt;/{RX,TX}/` にコピーする（TX=TXSDログ）。
+* `uccs_d4b_scan90/data/&lt;run&gt;/README.md` に測定条件をメモ。
+
+## 解析
+
+* 集計スクリプト: `uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py`
+  * 入力: `--rx-dir .../RX --txsd-dir .../TX`
+  * 出力: `per_trial.csv`, `summary_by_condition.csv`, `summary.md`
+  * 注意: SDコピーでmtimeが壊れる/cond_idがズレることがあるため、TXSDは **adv_count（tick_count）でクラスタリング**して割り当てる（古いログ混在/逆符号はフィルタで除外）。
+
+* 図（任意）: `uccs_d4b_scan90/analysis/plot_power_vs_pout.py`
+  * 入力: `--summary-csv uccs_d4b_scan90/metrics/&lt;run&gt;/summary_by_condition.csv`
+  * 出力: `uccs_d4b_scan90/plots/d4b_&lt;run&gt;_power_vs_pout.svg`（matplotlibが無い環境ではSVGを生成）
+
+## 結果（run01）
+
+- 集計: `uccs_d4b_scan90/metrics/01/summary.md`
+- 図: `uccs_d4b_scan90/plots/d4b_01_power_vs_pout.svg`
+  - 統合図（D3/D4/D4B）: `uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.svg`
+  - α正規化図（runごとのfixed100/500で正規化）: `uccs_d4b_scan90/plots/alpha_vs_pout_overview.svg`
+  - 失敗イベント中心のストーリー図（TL&gt;1sを生んだ少数イベントの追跡）: `uccs_d4b_scan90/plots/outage_story_01/fig_outage_timeline.svg`
+  - Poutの寄与分解（上位少数遷移が支配することの可視化）: `uccs_d4b_scan90/plots/pout_tail_01/`
+  - 条件付きタイミング（失敗しやすい遷移だけに条件付け）: `uccs_d4b_scan90/plots/ccs_timing_conditional_01/fig_event_triggered_p100_conditional.svg`
+  - 追加解析（CCSタイミング可視化）: `uccs_d4b_scan90/plots/ccs_timing_01/`
+    - `fig_event_triggered_p100.svg`（truth遷移中心のP(100ms)）
+    - `fig_lag_cdf.svg`（遷移→100msへのlag CDF）
+    - `fig_hit_cover.svg`（Hit/PreHit/Coverの棒グラフ）
+    - `alloc_efficiency_summary.csv`（100ms割当の“効率”指標）
+
+### 主要な結論（S4のみ, mean±std, n=3）
+
+同じ2値（100↔500）で **電力/100ms滞在（share100）がほぼ同等**のまま、CCSを有効にした `Policy(U+CCS)` の方が `U-only(CCS-off)` よりQoSが改善した。
+
+- `S4_policy(U+CCS)`:
+  - `avg_power_mW = 200.6±0.1`, `pout_1s = 0.0488±0.0000`, `share100_power_mix≈0.620`
+- `S4_ablation_ccs_off(U-only)`:
+  - `avg_power_mW = 200.6±0.2`, `pout_1s = 0.0650±0.0141`, `share100_power_mix≈0.621`
+
+→ **Uは100ms滞在（電力）を決め、CCSは同じ電力の範囲でQoS（pout/TL）を改善する**、という「U/CCSの2本立て設計」の正当化に使える。
+
+### レター用の言い切り（D4B単体）
+
+`Policy(U+CCS)` と `U-only(CCS-off)` は **平均電力がほぼ同一**なのに、`Policy(U+CCS)` が **QoSを改善**している。
+
+- 平均電力: `200.626 mW` vs `200.649 mW`（差 `-0.023 mW`）
+- `adv_count`: `1215` vs `1227`（100/500のmixもほぼ同等）
+- QoS改善（同電力での改善）:
+  - `pout_1s`: `0.0650 → 0.0488`（絶対 `-0.0163`, 相対 `-25%`）
+  - `tl_mean_s`: `1.407 → 1.317`（約 `-0.089 s`, 相対 `-6.3%`）
+  - `pdr_unique`: `0.434 → 0.448`（小さいが改善）
+
+→ **CCSは「100msを増やす」ことでなく、“同じ100ms予算の使い方（タイミング）”でQoSを下げる**と解釈できる。
+
+#### 備考（追加解析の読み）
+
+`uccs_d4b_scan90/plots/ccs_timing_01/` では、truth遷移を基準にした 100ms 割当（event-triggered average 等）を出力している。
+ただし現状のD4B run01では、**truth遷移中心の100ms配置差は大きく出ない指標もある**ため、
+本文ではまず「同電力でpout/TLが改善した」という事実（D4Bの主結果）を主軸に置くのが安全。
+（必要に応じて、遷移定義や“outage近傍”での再可視化に拡張する）
+
+`uccs_d4b_scan90/plots/outage_story_01/` は、上記の「同電力なのにpoutが改善」の内訳が、
+**少数のアウトエイジ（TL&gt;1s）イベントの差**として現れていることを示すための、失敗イベント中心の可視化。
+（例: transition_step=1128 は U-only でTL≈9.89sだが、Policy(U+CCS)ではTL≈0.21s）
+
+また、チェリーピック回避のため、
+`outage_story_01` は `outage_ranking.csv`（U-onlyとPolicyのoutage率差）で遷移をランキングし、
+その上位から「U-onlyが悪化している遷移」を機械的に選択してストーリー図を生成する（選び方を固定）。
+
+### Fixedとの位置づけ（S4, scan90）
+
+`Policy(U+CCS)` は
+
+- vs `Fixed500`
+  - power: `188.1 → 200.6 mW`（`+12.5 mW`）
+  - `pout_1s`: `0.130 → 0.0488`（`-62.5%`）
+  - → **電力を少し足してQoSを大きく改善**する点として置ける
+- vs `Fixed100`
+  - power: `208.3 → 200.6 mW`（`-7.65 mW`, 約 `-3.7%`）
+  - `pout_1s`: `0.0813 → 0.0488`（改善）
+  - → 本runでは `Fixed100` を支配して見えるが、**環境依存はある**ので本文では言い方を調整する（例: “in this setup”）。</file><file path="uccs_d2_scan90/README.md"># uccs_d2_scan90（Step D2 実機：動的QoS（TL/Pout）を“動的ログ”起点で確定）
+
+## 目的（Gate-D2）
+
+* D1で「100↔500 の動的切替が成立（電力も線形混合で説明可能）」まで確認できた。
+* D2では **動的でもTL/Poutを評価できるログ仕様**にして、実機の `TL/Pout(τ)` を確定する。
+
+## 方針（最小で壊れない形）
+
+* 真値は **stress causal（100msグリッド）** を使用:
+  * `Mode_C_2_シミュレート_causal/ccs/stress_causal_S1.csv`
+  * `Mode_C_2_シミュレート_causal/ccs/stress_causal_S4.csv`
+* TXは上記CSV由来の **label/U/CCS** をフラッシュに埋め込み、同一セッションを再生する。
+* 動的でも同期が壊れないよう、広告payloadに **`step_idx`（100msグリッドの整数）**を入れる。
+
+## スケッチ（Arduino IDE 用）
+
+* TX: `src/tx/TX_UCCS_D2_SCAN90/TX_UCCS_D2_SCAN90.ino`
+* RX: `src/rx/RX_UCCS_D2_SCAN90/RX_UCCS_D2_SCAN90.ino`
+* TXSD: `src/txsd/TXSD_UCCS_D2_SCAN90/TXSD_UCCS_D2_SCAN90.ino`
+
+### D2b（policy修正版）
+
+policy が 100ms 張り付きになった場合の再取得用。
+
+* TX: `uccs_d2_scan90/src/tx/TX_UCCS_D2B_SCAN90/TX_UCCS_D2B_SCAN90.ino`
+* RX: `uccs_d2_scan90/src/rx/RX_UCCS_D2B_SCAN90/RX_UCCS_D2B_SCAN90.ino`
+* TXSD: `uccs_d2_scan90/src/txsd/TXSD_UCCS_D2B_SCAN90/TXSD_UCCS_D2B_SCAN90.ino`
+
+修正点:
+* `stress_causal_*` の `CCS` を `CCS_change = 1-CCS` に変換して判定（CCS定義の整合）。
+* SYNC HIGH の直後に `preamble_guard_ms=100` を入れて cond_id の取りこぼしを低減。
+
+## 配線（1210系と同じ）
+
+* TX `GPIO25 (SYNC_OUT)` → RX `GPIO26 (SYNC_IN)` / TXSD `GPIO26 (SYNC_IN)`
+* TX `GPIO27 (TICK_OUT)` → TXSD `GPIO33 (TICK_IN)`
+
+## 実行（1回の起動で自動ループ）
+
+* セッション: S1 と S4（両方）
+* 条件（各セッションで3つ）:
+  1. Fixed100
+  2. Fixed500
+  3. Policy(100↔500, u_mid=0.20,u_high=0.35,c_mid=0.20,c_high=0.35,hyst=0.02)
+* 繰り返し: `REPEAT=3`（= 各条件×3）
+
+※ trialの長さは `EFFECTIVE_LEN_STEPS`（100msグリッドの長さ）で決まる。デフォルトは 1800 (=180s)。
+
+## TX payload仕様（ManufacturerData）
+
+* 形式: `&lt;step_idx&gt;_&lt;tag&gt;`
+  * `step_idx`: 100msグリッドの整数（0..）
+  * `tag`: `F1-&lt;label&gt;-&lt;itv&gt;` / `P1-&lt;label&gt;-&lt;itv&gt;` / `F4-...` / `P4-...`
+    * 先頭: `F`=fixed, `P`=policy
+    * `1/4`: session id
+    * `&lt;label&gt;`: 真値ラベル（数値）
+    * `&lt;itv&gt;`: current interval（100 or 500）
+
+この設計により、**動的でも `step_idx*100ms` が真値時刻として扱える**。
+
+## TXSD cond_id（preamble TICKパルス数）
+
+* 1: S1 fixed100
+* 2: S1 fixed500
+* 3: S1 policy
+* 4: S4 fixed100
+* 5: S4 fixed500
+* 6: S4 policy
+
+trial中は **各広告更新ごとにTICKを1発**出し、TXSD側で `adv_count=tick_count` が取れる。
+
+## データ配置
+
+* SDから吸い上げた `/logs/` を `uccs_d2_scan90/data/&lt;run&gt;/{RX,TX}/` にコピーする（TXはTXSDのログ）。
+* `data/&lt;run&gt;/README.md` に測定条件（距離/環境/電源/scan duty）をメモ。
+
+## 解析（D2）
+
+* 実測ログ（RX/TXSD）から、`step_idx` 起点で TL/Pout を算出する。
+  * スクリプト: `uccs_d2_scan90/analysis/summarize_d2_run.py`
+  * 出力:
+    * D2（policyが100ms張り付きになった取得分）: `uccs_d2_scan90/metrics/01/summary.md`
+    * D2b（CCS反転でpolicyが100↔500で動作した取得分）: `uccs_d2_scan90/metrics/B/summary.md`
+      * データ: `uccs_d2_scan90/data/B/README.md`
+  * 図（D2b run B）: `uccs_d2_scan90/plots/d2b_B_power_vs_pout.png`（power vs pout + share100注釈）</file></files></repomix>

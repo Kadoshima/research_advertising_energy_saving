@@ -29,7 +29,7 @@ HAR不確実度に基づくBLE広告間隔の適応制御において，単純�
 として定義する（詳細は\secref{sec:metrics_detail}）．このとき，広告間隔$a$の選択（固定または動的切替）を含む方策$\pi$に対して，以下の形で整理できる．
 \begin{equation}
   \text{minimize}\quad \mathbb{E}[q_{\mathrm{event}}(\pi)]
-  \quad \text{subject to}\quad P_{\mathrm{out}}(\tau;\pi)\le \delta
+  \quad \text{subject to}\quad P_{\mathrm{out}}(\tau;\pi)\le \epsilon
 \end{equation}
 ここで$q_{\mathrm{event}}$（単位：$\si{\micro\coulomb}/\text{event}$）は，セッション中の電荷消費をイベント数で正規化した指標である．平均電力$\overline{P}$や$\Delta E/N_{\mathrm{adv}}$等は従属指標として併用し，単位監査や原因切り分けに用いる（\secref{sec:metrics_detail}）．
 
@@ -39,7 +39,7 @@ HAR不確実度に基づくBLE広告間隔の適応制御において，単純�
   \item 推論不確実度$U$と安定度$S$から複合スコアCCSを構成し，広告間隔を段階的に切り替えるルールベース方策として定義した．
   \item 送信（TX）・電力（TXSD）・受信（RX）の三ノード構成と同期信号（SYNC/TICK）により，同一試行で電力とQoS（TL，$P_{\mathrm{out}}(\tau)$）を評価できる計測基盤を整備した．
   \item TL/Poutの算出において開始位相ずれが結果を歪め得ることを示し，定数オフセット補正（v5）として指標定義を固定した．
-  \item オフライン評価（mHealth合成）により，固定間隔点と候補方策点のトレードオフ（δ帯・Pareto）を可視化し，実機実験の探索空間を縮小する枠組みを示した．
+  \item オフライン評価（mHealth合成）により，固定間隔点と候補方策点のトレードオフ（制約帯・Pareto）を可視化し，実機実験の探索空間を縮小する枠組みを示した．
   \item Phase 2の拡張として，$U,S$をコンテキスト，広告間隔を行動，$P_{\mathrm{out}}(\tau)$を制約とするSafe Contextual Banditへ接続できる形で問題設定を整理した．
 \end{enumerate}
 

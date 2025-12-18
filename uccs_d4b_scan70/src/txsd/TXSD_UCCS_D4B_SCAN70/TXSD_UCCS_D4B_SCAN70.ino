@@ -35,7 +35,11 @@ static const uint32_t TICK_PER_TRIAL = 0;     // 0=disabled (use SYNC to end)
 static const char SUBJECT_ID[] = "uccs_d4b_scan70";
 
 // Preamble window (count TICK pulses after SYNC rising edge)
-static const uint32_t PREAMBLE_WINDOW_MS = 800;
+// NOTE:
+// TX must NOT emit periodic ticks during this window, otherwise the counted pulses
+// can become (cond_id + background_ticks) and collapse to 10..13.
+// We keep this short and rely on TX to send preamble pulses immediately after SYNC.
+static const uint32_t PREAMBLE_WINDOW_MS = 300;
 static const uint8_t PREAMBLE_MAX_ID = 16;
 
 HardwareSerial Debug(0);
@@ -53,6 +57,7 @@ uint32_t syncLowSince=0;
 uint32_t pendingSinceMs=0;
 uint32_t tickAtSync=0;
 uint8_t condId=0;
+uint32_t lastPreamblePulsesRaw=0;
 
 // Stats
 double sumP=0.0; double sumV=0.0; double sumI=0.0; uint32_t sampN=0;
@@ -92,8 +97,8 @@ static void startTrial(uint8_t id){
   if (!f){ Debug.println("[SD] open FAIL"); return; }
   f.println("ms,mV,uA,p_mW");
 
-  f.printf("# meta, firmware=TXSD_UCCS_D4B_SCAN70, cond_id=%u, tag=%s, subject=%s\r\n",
-           (unsigned)condId, tag, SUBJECT_ID);
+  f.printf("# meta, firmware=TXSD_UCCS_D4B_SCAN70, cond_id=%u, cond_id_raw=%lu, tag=%s, subject=%s\r\n",
+           (unsigned)condId, (unsigned long)lastPreamblePulsesRaw, tag, SUBJECT_ID);
   if (condId == 3){
     f.printf("# meta, policy=U+CCS actions{100,500} u_mid=0.20 u_high=0.35 c_mid=0.20 c_high=0.35 hyst=0.02 ema_alpha=0.20 ccs_inverted=true\r\n");
   } else if (condId == 4){
@@ -110,6 +115,18 @@ static void startTrial(uint8_t id){
   sumP=sumV=sumI=0.0;
   sampN=0;
   Debug.printf("[PWR] start %s subject=%s\n", path.c_str(), SUBJECT_ID);
+}
+
+static uint8_t decodeCondIdFromPreamble(uint32_t pulses_raw){
+  // Expected (ideal): 1..4
+  if (pulses_raw >= 1 && pulses_raw <= 4) return (uint8_t)pulses_raw;
+
+  // Common failure mode when TX emits background ticks during the preamble window:
+  // pulses_raw becomes (cond_id + ~9), e.g., 10..13. Recover by subtracting 9.
+  if (pulses_raw >= 10 && pulses_raw <= 13) return (uint8_t)(pulses_raw - 9);
+
+  // Otherwise unknown.
+  return 0;
 }
 
 static void endTrial(){
@@ -184,7 +201,8 @@ void loop(){
       Debug.println("[PWR] pending start canceled (SYNC LOW)");
     } else if ((nowMs - pendingSinceMs) >= PREAMBLE_WINDOW_MS){
       uint32_t pulses = tickCountRaw - tickAtSync;
-      uint8_t id = (pulses >= 1 && pulses <= PREAMBLE_MAX_ID) ? (uint8_t)pulses : 0;
+      lastPreamblePulsesRaw = pulses;
+      uint8_t id = decodeCondIdFromPreamble(pulses);
       startTrial(id);
       pendingStart = false;
       syncLowSince = 0;
@@ -241,4 +259,3 @@ void loop(){
     delay(10);
   }
 }
-

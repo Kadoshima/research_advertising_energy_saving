@@ -92,3 +92,26 @@
     - `uccs_d4b_scan70/src/tx/TX_UCCS_D4B_SCAN70/TX_UCCS_D4B_SCAN70.ino`
     - `uccs_d4b_scan70/src/rx/RX_UCCS_D4B_SCAN70/RX_UCCS_D4B_SCAN70.ino`
     - `uccs_d4b_scan70/src/txsd/TXSD_UCCS_D4B_SCAN70/TXSD_UCCS_D4B_SCAN70.ino`
+
+2025-12-17 12:45 JST
+- D4B-scan70の運用で困らないよう、data/metrics/plots/analysis の index を追加（runごとのディレクトリ構成を明文化）
+  - `uccs_d4b_scan70/data/README.md`
+  - `uccs_d4b_scan70/analysis/README.md`
+  - `uccs_d4b_scan70/metrics/README.md`
+  - `uccs_d4b_scan70/plots/README.md`
+
+2025-12-17 17:25 JST
+- D4B-scan70 run01（S4, scan70）データを確認・集計
+  - データ: `uccs_d4b_scan70/data/01/`
+    - RX: `uccs_d4b_scan70/data/01/RX/`（rx_trial_001..032。集計は 020..031 を採用）
+    - TXSD: `uccs_d4b_scan70/data/01/TX/`（ログ混在あり: cond_id c9..c13 など32/63ファイル）
+  - 集計: `python3 uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py --rx-dir uccs_d4b_scan70/data/01/RX --txsd-dir uccs_d4b_scan70/data/01/TX --out-dir uccs_d4b_scan70/metrics/01`
+    - `uccs_d4b_scan70/metrics/01/summary.md`
+    - `uccs_d4b_scan70/metrics/01/summary_by_condition.csv`
+  - 図: `uccs_d4b_scan70/plots/d4b_scan70_01_power_vs_pout.svg`
+  - 読み（mean±std, n=3）:
+    - S4_fixed100: avg_power≈207.1mW, pout_1s≈0.0244
+    - S4_fixed500: avg_power≈187.5mW, pout_1s≈0.0163
+    - S4_policy(U+CCS): avg_power≈199.0mW（α≈0.586）, pout_1s≈0.0000
+    - S4_ablation_ccs_off(U-only): avg_power≈205.4mW（α≈0.910）, pout_1s≈0.0081
+  - 注意: TXSDはファイル名のcond_id/タグがズレているものが混在しており、集計は adv_count クラスタリングで割当（runごとにSD /logs を空にして再取得すると管理が楽）。

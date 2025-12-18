@@ -26,3 +26,21 @@
   - 図追加: `image/ESP32三ノード実験装置.jpg` を `修士論文/figures/measurement_architecture_esp32_three_node.jpg` にコピーし，`修士論文/chapters/ch3_oncampus.tex` に図\ref{fig:measurement_architecture_esp32_three_node}として追加（配線例の直後）。
   - 図一覧: `修士論文/figures/README.md` に当該図の派生物・原本パスを追記。
   - ビルド: `cd 修士論文 && latexmk -g -lualatex main.tex` → `修士論文/build/main.pdf`（71 pages）を生成確認。
+- [13:40 JST] 他AI共有用のRepomixを更新:
+  - 出力: `repomix_thesis_bundle.xml`（修論LaTeX + 主要docs/logs + D2/D3/D4/D4Bのanalysis/metrics/plots/src をinclude。raw dataは除外）
+  - コマンド: `repomix --output repomix_thesis_bundle.xml --style xml --parsable-style --include "AGENTS.md,README.md,修士論文/**,docs/全体像.md,docs/metrics_definition.md,docs/TODO.md,docs/decision_log_2025-12-13_letter_route.md,logs/worklog_2025-12-17_thesis_setup.txt,logs/worklog_2025-12-17_letter_route.txt,logs/worklog_2025-12-16_letter_route.txt,logs/worklog_2025-12-16_letter_route_continued.txt,logs/worklog_2025-12-15_thesis_setup.txt,logs/worklog_2025-12-15_letter_route.txt,logs/worklog_2025-12-13_stress_fixed_metrics_v5.txt,scripts/bootstrap_effects.py,uccs_d2_scan90/README.md,uccs_d2_scan90/analysis/**,uccs_d2_scan90/metrics/**,uccs_d2_scan90/plots/**,uccs_d2_scan90/src/**,uccs_d2_scan90/truth/**,uccs_d3_scan70/README.md,uccs_d3_scan70/analysis/**,uccs_d3_scan70/metrics/**,uccs_d3_scan70/plots/**,uccs_d3_scan70/src/**,uccs_d4_scan90/README.md,uccs_d4_scan90/analysis/**,uccs_d4_scan90/metrics/**,uccs_d4_scan90/plots/**,uccs_d4_scan90/src/**,uccs_d4b_scan90/README.md,uccs_d4b_scan90/analysis/**,uccs_d4b_scan90/metrics/**,uccs_d4b_scan90/plots/**,uccs_d4b_scan90/src/**,uccs_d4b_scan70/README.md,uccs_d4b_scan70/src/**" --ignore "uccs_d2_scan90/data/**,uccs_d3_scan70/data/**,uccs_d4_scan90/data/**,uccs_d4b_scan90/data/**"`
+  - 付随: `修士論文/README.md` にRepomix生成コマンドを追記（ルールとして固定）。
+- [14:20 JST] Repomixを軽量化（src/docs/analysis/plots/dataを除外）:
+  - 出力: `repomix_thesis_bundle_light.xml`（約245KB, 86k tokens）
+  - 方針: 修論（LaTeX）＋主要worklog＋各実験のmetrics（summary/per_trial/effects_ci）だけに絞り、`--compress --remove-comments --remove-empty-lines` を有効化。
+  - コマンド: `repomix --output repomix_thesis_bundle_light.xml --style xml --parsable-style --compress --remove-comments --remove-empty-lines --include "修士論文/**,logs/worklog_2025-12-17_thesis_setup.txt,logs/worklog_2025-12-17_letter_route.txt,logs/worklog_2025-12-16_letter_route.txt,logs/worklog_2025-12-16_letter_route_continued.txt,logs/worklog_2025-12-15_thesis_setup.txt,uccs_d2_scan90/README.md,uccs_d2_scan90/metrics/**,uccs_d3_scan70/README.md,uccs_d3_scan70/metrics/**,uccs_d4_scan90/README.md,uccs_d4_scan90/metrics/**,uccs_d4b_scan90/README.md,uccs_d4b_scan90/metrics/**" --ignore "docs/**,**/src/**,**/analysis/**,**/plots/**,**/data/**"`
+  - 付随: `修士論文/README.md` のRepomixコマンドを軽量版に差し替え。
+- [17:58 JST] 記号衝突（δ/α）解消と図表可読性の改善:
+  - δ衝突: QoS制約の許容値は $\epsilon$ に統一（scan duty の $\delta$ は維持）。`修士論文/chapters/ch0_introduction.tex`, `修士論文/chapters/ch3_system_design.tex`, `修士論文/chapters/ch7_offline_eval.tex`, `修士論文/chapters/ch4_rain.tex`, `修士論文/chapters/ch5_publicroad.tex`, `修士論文/chapters/conclusion.tex`, `修士論文/chapters/appx_e_runbook.tex`, `修士論文/chapters/appx_b_assets.tex` を更新し，記号表 `修士論文/chapters/appx_f_symbols.tex` に $\epsilon$ を追加。
+  - α衝突: share100推定の $\alpha$ を $\hat{\rho}_{100}$ に改名し，`修士論文/chapters/ch4_rain.tex` の本文・表・キャプションと `修士論文/chapters/appx_f_symbols.tex` / `修士論文/chapters/appx_b_assets.tex` を更新。`uccs_d4b_scan90/analysis/plot_alpha_vs_pout.py` を更新して図中表記を ρ̂100 と ε=0.1 に修正し，`uccs_d4b_scan90/plots/alpha_vs_pout_overview.svg` / `uccs_d4b_scan90/plots/alpha_vs_pout_overview.pdf` を再生成。
+  - 表の画像貼りを廃止: `修士論文/chapters/appx_c_results.tex` の `../results/mhealth_policy_eval/policy_table.png` を LaTeX表に置換（幅は `\resizebox{\linewidth}{!}{...}` で収める）。
+  - ビルド: `cd 修士論文 && latexmk -lualatex main.tex` → `修士論文/build/main.pdf`（71 pages）を生成確認。
+- [18:25 JST] 第4章の圧縮（8p程度へ）:
+  - 第4章から詳細を分離: `修士論文/chapters/ch4_measurement_metrics_repro.tex` から「評価準備（実験設計と実装）」と「再現性のための詳細資料（ログスキーマ/指標定義/Runbook）」を削除し，計測系と計測健全化の要点に絞った。
+  - 移設: 上記の詳細は `修士論文/chapters/ch5_repro_appendix.tex` に移動し，`修士論文/chapters/ch5_evaluation.tex` 末尾で読み込む形に変更（参照ラベル `sec:eval_preparation` / `sec:repro_details` は維持）。
+  - 確認: `修士論文/build/main.toc` 上で第4章開始=21p、第5章開始=30p（=本文8p相当で第4章を圧縮）。`cd 修士論文 && latexmk -g -lualatex main.tex` → `修士論文/build/main.pdf`（71 pages）を生成確認。

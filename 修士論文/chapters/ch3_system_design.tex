@@ -18,7 +18,7 @@
     Edge Node / DUT & IMU等からHARを推論し，不確実度$U$・安定度$S$・CCSを生成して広告間隔を制御する（送信側） \\
     Gateway（スマートフォン） & BLE広告を受信する主体．スキャン挙動はOS依存で非理想とみなす（受信側） \\
     Observer（計測系） & 電力（TXSD）と受信（RX）を収集し，一次KPIを算出する（実験時の観測者） \\
-    Safety Oracle（概念） & QoS制約$P_{\mathrm{out}}(\tau)\le\delta$を規定する境界（設計上の規格） \\
+    Safety Oracle（概念） & QoS制約$P_{\mathrm{out}}(\tau)\le\epsilon$を規定する境界（設計上の規格） \\
     Policy Engine & コンテキストから広告間隔を決定する意思決定器（Phase 1はルール，Phase 2でSafe Bandit） \\
     \bottomrule
   \end{tabular}
@@ -62,7 +62,7 @@
 本研究の問題設定は，広告間隔制御により電力（電荷消費）を下げつつ，期限超過率を制約することである．動的制御の方策$\pi$に対し，
 \begin{equation}
   \text{minimize}\quad \mathbb{E}[q_{\mathrm{event}}(\pi)]
-  \quad \text{subject to}\quad P_{\mathrm{out}}(\tau;\pi)\le \delta
+  \quad \text{subject to}\quad P_{\mathrm{out}}(\tau;\pi)\le \epsilon
 \end{equation}
 として表せる．ここで$q_{\mathrm{event}}$（単位：$\si{\micro\coulomb}/\text{event}$）は，セッション中の電荷消費をイベント数で正規化した指標である（定義は\secref{sec:metrics_detail}）．コンテキストとしては$U,S$（またはCCS）を用い，Phase 1ではルール$\pi_{\mathrm{rule}}$，Phase 2では学習$\pi_{\mathrm{safe\_mab}}$を想定する．
 

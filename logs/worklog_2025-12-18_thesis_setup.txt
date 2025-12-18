@@ -1,0 +1,45 @@
+2025-12-18 14:10 JST
+- 修論アブストを修論更新（D3/D4/D4B）に追従：`修士論文アブスト/main.tex`
+  - 記号衝突回避：QoS制約 `\\epsilon`，短間隔比率 `\\hat{\\rho}_{100}`
+  - 図を統合俯瞰に更新：`修士論文アブスト/figures/fig_role_separation_overview.pdf`（元：`uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.pdf`）
+  - 旧：計測写真/ D2b図表は本文から外し，2ページ制約を維持
+- ビルド確認：`cd 修士論文アブスト && latexmk -lualatex main.tex` → `修士論文アブスト/build/main.pdf`（2 pages）
+
+2025-12-18 14:25 JST
+- 2ページ制約を維持したまま，理解補助のため簡易ブロック図を同一figureに追加：`修士論文アブスト/main.tex`
+  - 図（a）：TX/TXSD/RX + INA219 + 外部電源（BLE/UART/I2C/SYNC/TICK）
+  - 図（b）：D3/D4/D4B統合俯瞰（既存）
+- ビルド再確認：`修士論文アブスト/build/main.pdf`（2 pages）
+
+2025-12-18 15:55 JST
+- 図配置を調整（アブスト2ページ維持）：
+  - 図1（簡易ブロック図）を1ページ目の本文中に配置：`修士論文アブスト/main.tex`
+  - 図2（Role separation: D3/D4/D4B）を2ページ目で大きく表示（figure* 維持）
+- ビルド確認：`修士論文アブスト/build/main.pdf`（2 pages）
+
+2025-12-18 15:55 JST
+- D4B-scan70 run02（取り直し分）データ `uccs_d4b_scan70/data/02/` を健全性チェック
+  - RX: `uccs_d4b_scan70/data/02/RX/` は scan70 のメタ整合あり（`scan_window_ms=70.0` が複数ファイルで一致）
+  - TXSD: `uccs_d4b_scan70/data/02/TX/` が不整合
+    - `cond_id` が 9〜13 に偏り（本来は1〜4を想定）、ファイル名も `trial_*_c9..c13_unk.csv` に偏っていた
+    - `adv_count` が 178x 近傍に集中（固定100相当のクラスタ）し、D4B想定の複数クラスタ（例：359/≈1215/≈1227/≈1796）が揃わず
+    - `uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py` が「グループごとの試行数不足」で失敗（metrics生成不可）
+  - 結論：run02はこのままだと D4B-scan70 の比較実験データとして不成立。TXSD側の preamble/TICK 誤検出（配線/プルダウン/ログ混在）を疑い、再取得が必要。
+
+2025-12-18 16:15 JST
+- D4B-scan70 の cond_id 崩壊（10..13問題）を「コード側で潰す」修正を実施
+  - TX: preamble完了まで advertising と adv_count用TICKを開始しない + adv_count用TICKを「100msステップ毎」ではなく「現在intervalのイベント時刻のみ」に変更
+    - `uccs_d4b_scan70/src/tx/TX_UCCS_D4B_SCAN70/TX_UCCS_D4B_SCAN70.ino`
+  - TXSD: preamble window短縮 + 10..13→1..4の復元デコード（フォールバック） + `cond_id_raw` をmetaに保存
+    - `uccs_d4b_scan70/src/txsd/TXSD_UCCS_D4B_SCAN70/TXSD_UCCS_D4B_SCAN70.ino`
+  - ドキュメント: 症状/対策メモ追記
+    - `uccs_d4b_scan70/analysis/README.md`
+2025-12-18 16:36 JST
+- 図（$\hat{\\rho}_{100}$ vs $P_{\\mathrm{out}}$）が見づらい問題に対応。生成スクリプト `uccs_d4b_scan90/analysis/plot_alpha_vs_pout.py` を改修して、軸の目盛りを固定（x: 0,0.25,0.5,0.75,1 / y: 0〜上限を0.05刻み）、凡例を簡略化、ラベルを重要点のみに限定しオフセットで衝突回避（白縁取り付き）に変更。
+- 再生成: `uccs_d4b_scan90/plots/alpha_vs_pout_overview.svg` / `uccs_d4b_scan90/plots/alpha_vs_pout_overview.pdf`
+- 修論ビルド確認: `修士論文/main.tex` を `latexmk -lualatex` で再ビルドし、図の差し替えを確認（PDF: `修士論文/build/main.pdf`）。
+
+2025-12-18 16:50 JST
+- 追加調整: ρ̂100 図の凡例を右上に移動し、x軸を[0,1]でクリップ（誤差棒のはみ出しを抑制）して見た目の余白を削減。右下のラベル密集が起きにくいように主要ラベルの位置（dx,dy）も調整。
+- 再生成: `uccs_d4b_scan90/plots/alpha_vs_pout_overview.svg` / `uccs_d4b_scan90/plots/alpha_vs_pout_overview.pdf`
+- 修論ビルド確認: `修士論文/main.tex` を `latexmk -lualatex` で再ビルドし、p.43（図5-8）に反映を確認（PDF: `修士論文/build/main.pdf`）。

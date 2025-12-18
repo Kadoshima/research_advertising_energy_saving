@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="600" viewBox="0 0 900 600">
+<rect x="0" y="0" width="900" height="600" fill="#ffffff"/>
+<text x="450.0" y="34" font-size="20" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">D4B scan70 run01: power vs pout</text>
+<rect x="90" y="60" width="780" height="470" fill="none" stroke="#111827" stroke-width="1.2"/>
+<line x1="90.00" y1="60" x2="90.00" y2="530" stroke="#e5e7eb" stroke-width="1"/>
+<text x="90.00" y="554" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">185.6</text>
+<line x1="246.00" y1="60" x2="246.00" y2="530" stroke="#e5e7eb" stroke-width="1"/>
+<text x="246.00" y="554" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">190.2</text>
+<line x1="402.00" y1="60" x2="402.00" y2="530" stroke="#e5e7eb" stroke-width="1"/>
+<text x="402.00" y="554" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">194.9</text>
+<line x1="558.00" y1="60" x2="558.00" y2="530" stroke="#e5e7eb" stroke-width="1"/>
+<text x="558.00" y="554" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">199.6</text>
+<line x1="714.00" y1="60" x2="714.00" y2="530" stroke="#e5e7eb" stroke-width="1"/>
+<text x="714.00" y="554" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">204.3</text>
+<line x1="870.00" y1="60" x2="870.00" y2="530" stroke="#e5e7eb" stroke-width="1"/>
+<text x="870.00" y="554" font-size="12" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">208.9</text>
+<line x1="90" y1="530.00" x2="870" y2="530.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="80" y="534.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.000</text>
+<line x1="90" y1="436.00" x2="870" y2="436.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="80" y="440.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.011</text>
+<line x1="90" y1="342.00" x2="870" y2="342.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="80" y="346.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.022</text>
+<line x1="90" y1="248.00" x2="870" y2="248.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="80" y="252.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.033</text>
+<line x1="90" y1="154.00" x2="870" y2="154.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="80" y="158.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.044</text>
+<line x1="90" y1="60.00" x2="870" y2="60.00" stroke="#e5e7eb" stroke-width="1"/>
+<text x="80" y="64.00" font-size="12" text-anchor="end" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">0.055</text>
+<text x="480.0" y="576" font-size="14" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">avg_power_mW (mean±std)</text>
+<text x="22" y="295.0" font-size="14" text-anchor="middle" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system" transform="rotate(-90 22 295.0)">pout_1s (mean±std)</text>
+<line x1="803.92" y1="322.89" x2="816.21" y2="322.89" stroke="#ef4444" stroke-width="2" opacity="0.9"/>
+<line x1="810.07" y1="115.77" x2="810.07" y2="530.00" stroke="#ef4444" stroke-width="2" opacity="0.9"/>
+<circle cx="810.07" cy="322.89" r="6" fill="#ef4444" opacity="0.95"/>
+<text x="820.07" y="312.89" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">fixed100 (adv=1796, share100_rx=1.000, share100_mix=NA)</text>
+<line x1="143.79" y1="391.92" x2="166.49" y2="391.92" stroke="#3b82f6" stroke-width="2" opacity="0.9"/>
+<line x1="155.14" y1="272.34" x2="155.14" y2="511.50" stroke="#3b82f6" stroke-width="2" opacity="0.9"/>
+<circle cx="155.14" cy="391.92" r="6" fill="#3b82f6" opacity="0.95"/>
+<text x="165.14" y="381.92" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">fixed500 (adv=359, share100_rx=NA, share100_mix=NA)</text>
+<line x1="532.03" y1="530.00" x2="546.39" y2="530.00" stroke="#10b981" stroke-width="2" opacity="0.9"/>
+<line x1="539.21" y1="530.00" x2="539.21" y2="530.00" stroke="#10b981" stroke-width="2" opacity="0.9"/>
+<circle cx="539.21" cy="530.00" r="6" fill="#10b981" opacity="0.95"/>
+<text x="549.21" y="520.00" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">policy (adv=1215, share100_rx=0.511, share100_mix=0.586)</text>
+<line x1="744.95" y1="460.96" x2="757.03" y2="460.96" stroke="#f59e0b" stroke-width="2" opacity="0.9"/>
+<line x1="750.99" y1="341.38" x2="750.99" y2="580.54" stroke="#f59e0b" stroke-width="2" opacity="0.9"/>
+<circle cx="750.99" cy="460.96" r="6" fill="#f59e0b" opacity="0.95"/>
+<text x="760.99" y="450.96" font-size="12" fill="#111827" font-family="ui-sans-serif, system-ui, -apple-system">ablation_ccs_off (adv=1787, share100_rx=0.500, share100_mix=0.910)</text>
+</svg>
