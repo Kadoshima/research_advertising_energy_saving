@@ -47,6 +47,7 @@ Adafruit_INA219 ina;
 File f;
 
 volatile uint32_t tickCountRaw=0; // cumulative
+volatile uint32_t lastTickUs=0;
 uint32_t tickStart=0;
 uint32_t tickCount=0;
 bool logging=false;
@@ -86,7 +87,16 @@ static inline String nextPath(uint8_t id){
   }
 }
 
-void IRAM_ATTR onTickRaw(){ tickCountRaw++; }
+void IRAM_ATTR onTickRaw(){
+  // Debounce / glitch filter:
+  // Ignore pulses that are too close in time (ringing/noise on TICK line).
+  // Preamble pulses are spaced by ~20ms; valid adv-event pulses are >=100ms apart.
+  uint32_t nowUs = micros();
+  uint32_t dt = nowUs - lastTickUs;
+  if (dt < 2000) return; // <2ms => very likely noise/bounce
+  lastTickUs = nowUs;
+  tickCountRaw++;
+}
 
 static void startTrial(uint8_t id){
   condId = id;

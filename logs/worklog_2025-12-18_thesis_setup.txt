@@ -34,6 +34,13 @@
     - `uccs_d4b_scan70/src/txsd/TXSD_UCCS_D4B_SCAN70/TXSD_UCCS_D4B_SCAN70.ino`
   - ドキュメント: 症状/対策メモ追記
     - `uccs_d4b_scan70/analysis/README.md`
+
+2025-12-18 18:25 JST
+- 追加修正（preamble window内への「余計な1パルス」混入対策）
+  - TX: `step_idx=0` の「adv-event TICK」がTXSD preamble windowに入らないよう、trial開始時刻を `SYNC立上り + PREAMBLE_WINDOW_MS + margin` に固定して遅延
+    - `uccs_d4b_scan70/src/tx/TX_UCCS_D4B_SCAN70/TX_UCCS_D4B_SCAN70.ino`
+  - TXSD: TICK入力に2msデバウンス（ノイズ/リンギングでpreambleパルスが+1されるのを抑制）
+    - `uccs_d4b_scan70/src/txsd/TXSD_UCCS_D4B_SCAN70/TXSD_UCCS_D4B_SCAN70.ino`
 2025-12-18 16:36 JST
 - 図（$\hat{\\rho}_{100}$ vs $P_{\\mathrm{out}}$）が見づらい問題に対応。生成スクリプト `uccs_d4b_scan90/analysis/plot_alpha_vs_pout.py` を改修して、軸の目盛りを固定（x: 0,0.25,0.5,0.75,1 / y: 0〜上限を0.05刻み）、凡例を簡略化、ラベルを重要点のみに限定しオフセットで衝突回避（白縁取り付き）に変更。
 - 再生成: `uccs_d4b_scan90/plots/alpha_vs_pout_overview.svg` / `uccs_d4b_scan90/plots/alpha_vs_pout_overview.pdf`
@@ -43,3 +50,18 @@
 - 追加調整: ρ̂100 図の凡例を右上に移動し、x軸を[0,1]でクリップ（誤差棒のはみ出しを抑制）して見た目の余白を削減。右下のラベル密集が起きにくいように主要ラベルの位置（dx,dy）も調整。
 - 再生成: `uccs_d4b_scan90/plots/alpha_vs_pout_overview.svg` / `uccs_d4b_scan90/plots/alpha_vs_pout_overview.pdf`
 - 修論ビルド確認: `修士論文/main.tex` を `latexmk -lualatex` で再ビルドし、p.43（図5-8）に反映を確認（PDF: `修士論文/build/main.pdf`）。
+
+2025-12-18 18:06 JST
+- アブスト／修論で共用している「役割分離」図を可読性改善。`uccs_d4b_scan90/analysis/plot_role_separation_overview.py` を改修し、軸範囲と目盛りを固定（x: 186〜211, y: 0〜0.35 を0.05刻み）、凡例を右上へ移動、ラベルを主要点のみに限定して衝突回避（白縁取り＋オフセット）に変更。ε=0.1ガイド線も追加。
+- 再生成: `uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.svg` / `uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.pdf`
+- 反映:
+  - 修論: `修士論文/main.tex` を `latexmk -lualatex` で再ビルドし、図5-7に反映を確認（PDF: `修士論文/build/main.pdf`）。
+  - 修論アブスト: `修士論文アブスト/figures/fig_role_separation_overview.pdf` を差し替え、`修士論文アブスト/main.tex` を `latexmk -lualatex` で再ビルドして2ページ維持を確認（PDF: `修士論文アブスト/build/main.pdf`）。
+
+2025-12-18 18:33 JST
+- アブストの図番号表記を「図2（スペースなし）」に変更（`修士論文アブスト/main.tex` で caption の labelformat を nonspace 化）。
+- 図2キャプションで ε が単独改行されて空欄っぽく見える問題を回避するため、`\mbox{$\\epsout$を}` で改行抑制。
+- `修士論文アブスト/main.tex` を `latexmk -lualatex` で再ビルドし、2ページ維持と図2キャプション表示を確認（PDF: `修士論文アブスト/build/main.pdf`）。
+
+2025-12-18 18:38 JST
+- アブスト図2（role separation）のキャプションが長すぎる問題に対応し、内容を保ったまま短文化。2ページ制約に影響しないことを確認（PDF: `修士論文アブスト/build/main.pdf`）。

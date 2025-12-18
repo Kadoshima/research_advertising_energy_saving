@@ -35,7 +35,8 @@
 \titlespacing*{\subsection}{0pt}{0.4\baselineskip}{0.2\baselineskip}
 
 % 図表キャプション: "図 1 タイトル" / "表 1 タイトル"（コロン無し）
-\captionsetup{labelsep=space}
+\DeclareCaptionLabelFormat{nonspace}{#1#2} % 図2 / 表1（スペースなし）
+\captionsetup{labelformat=nonspace,labelsep=space}
 \captionsetup[figure]{name=図,position=bottom}
 \captionsetup[table]{name=表,position=top}
 
@@ -63,6 +64,8 @@
 \setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
 \setlength{\intextsep}{6pt plus 2pt minus 2pt}
 \setlength{\floatsep}{6pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\dblfloatsep}{6pt plus 2pt minus 2pt}
 
 % 文献（2ページ制約のためコンパクトに）
 \renewcommand*{\bibfont}{\footnotesize}
@@ -128,7 +131,7 @@ scan90（scan duty 90\%）でS1/S4の2条件について固定$\SI{100}{\milli\s
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\textwidth]{figures/fig_role_separation_overview}
-  \caption{固定条件・方策・アブレーションの全体俯瞰（power--$\Pout(\SI{1}{\second})$）．受信条件悪化（scan70）では固定$\SI{500}{\milli\second}$が$\epsout$を超え得る一方，方策は$\epsout$を満たしつつ固定$\SI{100}{\milli\second}$より低電力となる．矢印はUおよびCCSの寄与（Uは短間隔滞在量，CCSは同電力でのQoS改善）を示す．}
+  \caption{固定・方策・アブレーション（S4, scan90/70）のpower--$\Pout(\SI{1}{\second})$俯瞰．scan70では固定$\SI{500}{\milli\second}$が制約（$\Pout(\SI{1}{\second})\le 0.1$）を満たさない一方，方策は制約を満たし固定$\SI{100}{\milli\second}$より低電力となる．矢印はU/CCSの寄与を示す．}
   \label{fig:role_separation}
 \end{figure*}
 

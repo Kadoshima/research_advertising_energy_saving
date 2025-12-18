@@ -44,6 +44,7 @@ static const bool RESTART_ADV_ON_INTERVAL_CHANGE = true;
 static const uint32_t PREAMBLE_WINDOW_MS = 800; // TXSD window
 static const uint32_t PREAMBLE_GUARD_MS = 100;  // after SYNC HIGH before preamble
 static const uint32_t PREAMBLE_POST_MS = 50;    // after preamble before starting ADV/trial
+static const uint32_t PREAMBLE_MARGIN_MS = 30;  // ensure no extra tick inside TXSD window
 
 // ==== actions（実機は100↔500に固定） ====
 static const uint16_t ACTIONS[] = {100, 500};
@@ -259,8 +260,14 @@ static void startTrial(const Condition& c) {
   tickPreamble(c.cond_id); // encode cond_id as N pulses (1..4)
   delay(PREAMBLE_POST_MS);
 
-  // Start the trial AFTER preamble (step_idx=0 is aligned to this t0)
-  trialT0Ms = millis();
+  // Start the trial AFTER TXSD's preamble window ends, so the first adv-event tick
+  // (at step_idx=0) cannot be counted into preamble pulses.
+  // trialT0Ms is aligned to the SYNC rising edge timeline.
+  trialT0Ms = syncRiseMs + PREAMBLE_WINDOW_MS + PREAMBLE_MARGIN_MS;
+  uint32_t nowMs = millis();
+  if ((int32_t)(trialT0Ms - nowMs) > 0) {
+    delay((uint32_t)(trialT0Ms - nowMs));
+  }
   trialStartMs = trialT0Ms;
   nextUpdateMs = trialT0Ms;
   stepIdx = 0;

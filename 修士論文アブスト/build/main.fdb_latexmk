@@ -1,12 +1,12 @@
 # Fdb version 4
-["biber build/main"] 1766041105.64677 "build/main.bcf" "build/main.bbl" "build/main" 1766041114.94647 0
-  "build/main.bcf" 1766041114.59996 107969 15704abbc69321b6771fad7742a06225 "lualatex"
+["biber build/main"] 1766041105.64677 "build/main.bcf" "build/main.bbl" "build/main" 1766050682.54067 0
+  "build/main.bcf" 1766050682.16342 107969 15704abbc69321b6771fad7742a06225 "lualatex"
   "references.bib" 1765877225.57114 1248 8c50a59570c45f9422372976f5c66ba9 ""
   (generated)
   "build/main.bbl"
   "build/main.blg"
   (rewritten before read)
-["lualatex"] 1766041111.11755 "main.tex" "build/main.pdf" "main" 1766041114.94682 0
+["lualatex"] 1766050679.24231 "main.tex" "build/main.pdf" "main" 1766050682.54098 0
   "/usr/local/texlive/2025/texmf-dist/fonts/opentype/public/haranoaji/HaranoAjiMincho-Regular.otf" 1696969431 6420628 688119813d53b7282d5209dbc0147746 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/opentype/public/lm/lmmono8-regular.otf" 1255129361 66268 9cda782e3eb1fe3b50d078d2ea7728b5 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/opentype/public/lm/lmroman10-regular.otf" 1255129361 111536 ae9d1b331000d544f47e5223081b7b54 ""
@@ -274,10 +274,10 @@
   "/usr/local/texlive/2025/texmf-dist/tex/platex/jsclasses/jslogo.sty" 1601931076 5585 8e4615c54073c390d14154b29cee89cb ""
   "/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1753953035 5526361 5adee4aa342457daf971a29efd2119d0 ""
   "/usr/local/texlive/2025/texmf-var/web2c/luahbtex/lualatex.fmt" 1753953255 6517652 a07fe3662948e8db633777d8901dbc99 ""
-  "build/main.aux" 1766041114.59601 2862 e4459ce48fc59b19aa57b4f0f9e07f24 "lualatex"
+  "build/main.aux" 1766050682.15929 2746 15690c0cfdb2c0c745912197ec4a95ee "lualatex"
   "build/main.bbl" 1766041107.89181 3111 829bbbd08f704ddd3e8afa3b8134c902 "biber build/main"
-  "build/main.out" 1766041114.59696 503 c166a659e919c59d33d20527715fc42e "lualatex"
-  "build/main.run.xml" 1766041114.60069 2340 6db8a715c2a4d89a32bb73ebd4fd78a0 "lualatex"
+  "build/main.out" 1766050682.16019 503 c166a659e919c59d33d20527715fc42e "lualatex"
+  "build/main.run.xml" 1766050682.16419 2340 6db8a715c2a4d89a32bb73ebd4fd78a0 "lualatex"
   "build/texmf-cache/luatex-cache/generic/fonts/otl/haranoajigothic-medium.luc" 1765875594.31119 1924615 00e631720a15f814ed6146121037dccf ""
   "build/texmf-cache/luatex-cache/generic/fonts/otl/haranoajimincho-regular.luc" 1765875592.52302 2011213 f3ef4f31d2fe078f6ff31258426a4ba7 ""
   "build/texmf-cache/luatex-cache/generic/fonts/otl/lmmono8-regular.luc" 1766041105.20865 81440 f39b303bf676de2a5f82f0f543587f3d ""
@@ -306,8 +306,8 @@
   "build/texmf-var/luatexja/ltj-cid-auto-adobe-japan1.luc" 1765875580.3053 1643763 c1ea8ddc02b30d60bd3941c236e2085b ""
   "build/texmf-var/luatexja/ltj-jisx0208.luc" 1765875592.77628 93919 1f6dc76354e6e3b148c06f9f9254f22e ""
   "build/texmf-var/luatexja/ltj-kinsoku_default.luc" 1765875580.55207 17654 e3e3c85f63c77f4caa824d338e2428e0 ""
-  "figures/fig_role_separation_overview.pdf" 1766034359.29306 101894 d6f872b6ed68f1966e9a424ccf85e929 ""
-  "main.tex" 1766041082.29205 10638 0d3dc35b06116a1a5eecb2b7e9b2e58b ""
+  "figures/fig_role_separation_overview.pdf" 1766048569.4796 673159 13dbfbaefc5ba2d1d84bff2d1f263eec ""
+  "main.tex" 1766050629.44575 10778 ebb920a9376e6ce1203077532beac306 ""
   "meta.tex" 1765875563.78111 336 df738b3f2ee1cc4685be183f4f82d7ea ""
   (generated)
   "build/main.aux"
