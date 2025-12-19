@@ -1,0 +1,19 @@
+# uccs_s4_tradeoff_power_vs_pout
+
+UCCS 系（S4, scan90）の平均電力と Pout(1s) の散布図。D4B（Fixed/Policy/U-only）と D4（U-shuffle）を同一図に載せた参考図。
+
+## 生成物
+- `plot.svg`
+
+## 生成スクリプト
+- `plot.py`
+- 実行: `python results/idea_plots_20251219/uccs_s4_tradeoff_power_vs_pout/plot.py`
+
+## 入力データ
+- `results/final/tab/tab_summary_by_condition.csv`
+
+## SHA256
+- `b5f2a57d02666b03d9d90b11ad346a2477fbad145230bb5e3dc2b3790005d55a`  `results/final/tab/tab_summary_by_condition.csv`
+
+## 生成日
+- 2025-12-19

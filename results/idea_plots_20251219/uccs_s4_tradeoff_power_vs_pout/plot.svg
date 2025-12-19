@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520">\n<style>\n  text { font-family: "Times New Roman", serif; fill: #111; }\n  .axis { stroke: #111; stroke-width: 1; }\n  .grid { stroke: #ddd; stroke-width: 1; }\n  .tick { stroke: #111; stroke-width: 1; }\n</style>\n<text x="450.0" y="22" font-size="16" text-anchor="middle">UCCS S4: avg power vs Pout(1s) (mixed runs)</text>
+<line class="axis" x1="90" y1="450" x2="870" y2="450" />
+<line class="axis" x1="90" y1="40" x2="90" y2="450" />
+<line class="grid" x1="84.22624074718064" y1="40" x2="84.22624074718064" y2="450" />
+<line class="tick" x1="84.22624074718064" y1="450" x2="84.22624074718064" y2="456" />
+<text x="84.22624074718064" y="470" font-size="12" text-anchor="middle">188</text>
+<line class="grid" x1="161.72636494609768" y1="40" x2="161.72636494609768" y2="450" />
+<line class="tick" x1="161.72636494609768" y1="450" x2="161.72636494609768" y2="456" />
+<text x="161.72636494609768" y="470" font-size="12" text-anchor="middle">190</text>
+<line class="grid" x1="239.22648914501468" y1="40" x2="239.22648914501468" y2="450" />
+<line class="tick" x1="239.22648914501468" y1="450" x2="239.22648914501468" y2="456" />
+<text x="239.22648914501468" y="470" font-size="12" text-anchor="middle">192</text>
+<line class="grid" x1="316.7266133439317" y1="40" x2="316.7266133439317" y2="450" />
+<line class="tick" x1="316.7266133439317" y1="450" x2="316.7266133439317" y2="456" />
+<text x="316.7266133439317" y="470" font-size="12" text-anchor="middle">194</text>
+<line class="grid" x1="394.2267375428487" y1="40" x2="394.2267375428487" y2="450" />
+<line class="tick" x1="394.2267375428487" y1="450" x2="394.2267375428487" y2="456" />
+<text x="394.2267375428487" y="470" font-size="12" text-anchor="middle">196</text>
+<line class="grid" x1="471.72686174176573" y1="40" x2="471.72686174176573" y2="450" />
+<line class="tick" x1="471.72686174176573" y1="450" x2="471.72686174176573" y2="456" />
+<text x="471.72686174176573" y="470" font-size="12" text-anchor="middle">198</text>
+<line class="grid" x1="549.2269859406828" y1="40" x2="549.2269859406828" y2="450" />
+<line class="tick" x1="549.2269859406828" y1="450" x2="549.2269859406828" y2="456" />
+<text x="549.2269859406828" y="470" font-size="12" text-anchor="middle">200</text>
+<line class="grid" x1="626.7271101395997" y1="40" x2="626.7271101395997" y2="450" />
+<line class="tick" x1="626.7271101395997" y1="450" x2="626.7271101395997" y2="456" />
+<text x="626.7271101395997" y="470" font-size="12" text-anchor="middle">202</text>
+<line class="grid" x1="704.2272343385168" y1="40" x2="704.2272343385168" y2="450" />
+<line class="tick" x1="704.2272343385168" y1="450" x2="704.2272343385168" y2="456" />
+<text x="704.2272343385168" y="470" font-size="12" text-anchor="middle">204</text>
+<line class="grid" x1="781.7273585374338" y1="40" x2="781.7273585374338" y2="450" />
+<line class="tick" x1="781.7273585374338" y1="450" x2="781.7273585374338" y2="456" />
+<text x="781.7273585374338" y="470" font-size="12" text-anchor="middle">206</text>
+<line class="grid" x1="859.2274827363508" y1="40" x2="859.2274827363508" y2="450" />
+<line class="tick" x1="859.2274827363508" y1="450" x2="859.2274827363508" y2="456" />
+<text x="859.2274827363508" y="470" font-size="12" text-anchor="middle">208</text>
+<line class="grid" x1="936.7276069352679" y1="40" x2="936.7276069352679" y2="450" />
+<line class="tick" x1="936.7276069352679" y1="450" x2="936.7276069352679" y2="456" />
+<text x="936.7276069352679" y="470" font-size="12" text-anchor="middle">210</text>
+<line class="grid" x1="90" y1="450.0" x2="870" y2="450.0" />
+<line class="tick" x1="84" y1="450.0" x2="90" y2="450.0" />
+<text x="80" y="454.0" font-size="12" text-anchor="end">0.000</text>
+<line class="grid" x1="90" y1="392.6930492958583" x2="870" y2="392.6930492958583" />
+<line class="tick" x1="84" y1="392.6930492958583" x2="90" y2="392.6930492958583" />
+<text x="80" y="396.6930492958583" font-size="12" text-anchor="end">0.020</text>
+<line class="grid" x1="90" y1="335.38609859171663" x2="870" y2="335.38609859171663" />
+<line class="tick" x1="84" y1="335.38609859171663" x2="90" y2="335.38609859171663" />
+<text x="80" y="339.38609859171663" font-size="12" text-anchor="end">0.040</text>
+<line class="grid" x1="90" y1="278.079147887575" x2="870" y2="278.079147887575" />
+<line class="tick" x1="84" y1="278.079147887575" x2="90" y2="278.079147887575" />
+<text x="80" y="282.079147887575" font-size="12" text-anchor="end">0.060</text>
+<line class="grid" x1="90" y1="220.77219718343332" x2="870" y2="220.77219718343332" />
+<line class="tick" x1="84" y1="220.77219718343332" x2="90" y2="220.77219718343332" />
+<text x="80" y="224.77219718343332" font-size="12" text-anchor="end">0.080</text>
+<line class="grid" x1="90" y1="163.46524647929164" x2="870" y2="163.46524647929164" />
+<line class="tick" x1="84" y1="163.46524647929164" x2="90" y2="163.46524647929164" />
+<text x="80" y="167.46524647929164" font-size="12" text-anchor="end">0.100</text>
+<line class="grid" x1="90" y1="106.15829577514995" x2="870" y2="106.15829577514995" />
+<line class="tick" x1="84" y1="106.15829577514995" x2="90" y2="106.15829577514995" />
+<text x="80" y="110.15829577514995" font-size="12" text-anchor="end">0.120</text>
+<line class="grid" x1="90" y1="48.85134507100821" x2="870" y2="48.85134507100821" />
+<line class="tick" x1="84" y1="48.85134507100821" x2="90" y2="48.85134507100821" />
+<text x="80" y="52.85134507100821" font-size="12" text-anchor="end">0.140</text>
+<line class="grid" x1="90" y1="-8.45560563313336" x2="870" y2="-8.45560563313336" />
+<line class="tick" x1="84" y1="-8.45560563313336" x2="90" y2="-8.45560563313336" />
+<text x="80" y="-4.455605633133359" font-size="12" text-anchor="end">0.160</text>
+<text x="480.0" y="490" font-size="14" text-anchor="middle">Avg power (mW)</text>
+<text x="40" y="245.0" font-size="14" text-anchor="middle" transform="rotate(-90 40,245.0)">Pout (1s)</text>
+<circle cx="863.4124894430926" cy="310.2283472325985" r="4" fill="#9467bd" stroke="#111" stroke-width="0.5" />
+<text x="871.4124894430926" y="304.2283472325985" font-size="12">U-shuffle (U broken)</text>
+<circle cx="574.3757762432314" cy="263.63493096259606" r="4" fill="#d62728" stroke="#111" stroke-width="0.5" />
+<text x="582.3757762432314" y="257.63493096259606" font-size="12">U-only (CCS-off)</text>
+<circle cx="870.0" cy="217.04438004012889" r="4" fill="#1f77b4" stroke="#111" stroke-width="0.5" />
+<text x="878.0" y="211.04438004012889" font-size="12">Fixed100</text>
+<circle cx="90.0" cy="77.27272727272731" r="4" fill="#2ca02c" stroke="#111" stroke-width="0.5" />
+<text x="98.0" y="71.27272727272731" font-size="12">Fixed500</text>
+<circle cx="573.484524814944" cy="310.2283472325985" r="4" fill="#ff7f0e" stroke="#111" stroke-width="0.5" />
+<text x="581.484524814944" y="304.2283472325985" font-size="12">Policy (U+CCS)</text>
+<circle cx="110" cy="50" r="4" fill="#9467bd" />
+<text x="126" y="54" font-size="12">U-shuffle (U broken)</text>
+<circle cx="110" cy="68" r="4" fill="#d62728" />
+<text x="126" y="72" font-size="12">U-only (CCS-off)</text>
+<circle cx="110" cy="86" r="4" fill="#1f77b4" />
+<text x="126" y="90" font-size="12">Fixed100</text>
+<circle cx="110" cy="104" r="4" fill="#2ca02c" />
+<text x="126" y="108" font-size="12">Fixed500</text>
+<circle cx="110" cy="122" r="4" fill="#ff7f0e" />
+<text x="126" y="126" font-size="12">Policy (U+CCS)</text>
+</svg>

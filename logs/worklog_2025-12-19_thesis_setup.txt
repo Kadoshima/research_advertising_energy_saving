@@ -14,3 +14,27 @@
 2025-12-19 02:34 JST
 - 参考文献にTsai+Liu (IEEE Access 2025, doi:10.1109/ACCESS.2025.3601116) を追加（`修士論文アブスト/references.bib`）。アブスト側では本文に影響を出さず参照一覧へ含めるため `\\nocite{Tsai2025BLEDelaySensitive}` を追加（`修士論文アブスト/main.tex`）。
 - ビルド更新：`修士論文アブスト/build/main.pdf`（`latexmk main.tex`、2 pages）。
+
+2025-12-19 13:35 JST
+- 修論本文の表記揺れ・冗長表現を整理（初出定義の明確化、接続詞「一方で」の多用抑制、単位表記の統一など）：`修士論文/chapters/ch0_introduction.tex`、`修士論文/chapters/ch1_background.tex`、`修士論文/chapters/ch2_related_work.tex`、`修士論文/chapters/ch2_proposed.tex`、`修士論文/chapters/ch4_rain.tex`、`修士論文/chapters/ch5_publicroad.tex`、`修士論文/chapters/ch6_stress_fixed.tex`、`修士論文/chapters/ch7_offline_eval.tex`、`修士論文/chapters/ch8_experiment_design.tex`。
+- 指標定義（EFFECTIVE_LEN）を明文化し、参照先を明確化：`修士論文/chapters/appx_a_metrics.tex`、`修士論文/chapters/ch3_oncampus.tex`。
+- Repomixの説明を明確化（バイナリ非対応・npx実行の注記など）：`修士論文/README.md`。
+- ビルド確認：`修士論文/build/main.pdf`（`latexmk main.tex`、72 pages）。
+
+2025-12-19 14:06 JST
+- 要旨の時制を未来形→過去形へ統一し、完成済み研究として読めるよう調整：`修士論文/frontmatter/abstract.tex`。
+- 要旨内の初出定義を明確化（HAR/QoS/CCS）：`修士論文/frontmatter/abstract.tex`。
+- ビルド確認：`修士論文/build/main.pdf`（`latexmk -quiet main.tex`、72 pages）。
+
+2025-12-19 14:24 JST
+- 序論末尾の誤字を修正（「最後に『おわりに』では…」の表現に統一）：`修士論文/chapters/ch0_introduction.tex`。
+- ビルド確認：`修士論文/build/main.pdf`（`latexmk -quiet main.tex`）。
+
+2025-12-19 14:25 JST
+- 探索的な図案を追加（S4 固定間隔・UCCS 条件の累積エネルギー線図、平均電力 vs Pout(1s) 散布図、avg power × Pout 指標など）: `results/idea_plots_20251219/` 配下（各 `plot.svg` / `plot.py` / `README.md`）。
+- 生成スクリプトは標準ライブラリのみで SVG 生成（共通: `results/idea_plots_20251219/_shared/plot_utils.py`）。
+- results index 更新: `results/README.md`。
+
+2025-12-19 14:46 JST
+- 追加図を作成（Pout(tau) 曲線、遷移アライン P(100ms) 波形、Policy vs U-only のペア差分図）: `results/idea_plots_20251219/uccs_s4_pout_tau_curves/`, `results/idea_plots_20251219/uccs_transition_aligned_p100/`, `results/idea_plots_20251219/uccs_policy_vs_uonly_paired_delta_pout/`。
+- 各図の `plot.svg` を生成し、入力CSVの SHA256 を README に追記。

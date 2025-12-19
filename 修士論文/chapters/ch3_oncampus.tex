@@ -1,4 +1,4 @@
-% chapters/ch3_oncampus.tex --- 第7章 実験装置・計測方式
+% chapters/ch3_oncampus.tex --- 構成要素：実験装置・計測方式
 \section{実験装置・計測方式}
 \label{sec:measurement_setup}
 
@@ -48,7 +48,7 @@
 試行（trial）の開始・終了を揃えるために，同期信号（SYNC）を用いる．TXは試行区間の境界でSYNC信号を出力し，TXSDおよびRXはこの信号に同期してログ取得区間を区切る．SYNCにより，「どの区間の電力・受信ログを比較するか」を明確化できる．
 
 \subsubsection{TICK（広告回数の物理カウント）}
-広告イベント数$N_{\mathrm{adv}}$は，到達性指標の分母として重要である．可能であれば，TXがTICK信号を出力し，TXSD側で割り込みにより広告回数を物理カウントする．TICKが利用できない場合は，試行時間と広告間隔から期待回数を推定するが，動的切替では誤差が入り得るため解釈に注意する．
+広告イベント数$N_{\mathrm{adv}}$（定義は\secref{sec:metrics_detail}）は，到達性指標の分母として重要である．可能であれば，TXがTICK信号を出力し，TXSD側で割り込みにより広告回数を物理カウントする．TICKが利用できない場合は，試行時間と広告間隔から期待回数を推定するが，動的切替では誤差が入り得るため解釈に注意する．
 
 \subsubsection{配線例（UCCS評価）}
 本研究で用いた配線例を表\ref{tab:wiring_example}に示す（実験ディレクトリのREADMEに準拠）．ピン番号は実装に依存するため，運用時はRunbookに記録して固定する（\secref{sec:runbook}）．
@@ -72,7 +72,7 @@
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.98\linewidth]{figures/measurement_architecture_esp32_three_node}
-  \caption{三ノード計測系のシステムアーキテクチャ（外部電源・INA219・TX/TXSD/RXの配線と信号）}
+  \caption{三ノード計測系のシステムアーキテクチャ}
   \label{fig:measurement_architecture_esp32_three_node}
 \end{figure}
 

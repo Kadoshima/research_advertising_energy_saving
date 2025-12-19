@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520">\n<style>\n  text { font-family: "Times New Roman", serif; fill: #111; }\n  .axis { stroke: #111; stroke-width: 1; }\n  .grid { stroke: #ddd; stroke-width: 1; }\n  .tick { stroke: #111; stroke-width: 1; }\n</style>\n<text x="450.0" y="22" font-size="16" text-anchor="middle">S4 fixed intervals: avg power * Pout(1s)</text>
+<line class="axis" x1="90" y1="430" x2="870" y2="430" />
+<line class="axis" x1="90" y1="40" x2="90" y2="430" />
+<line class="grid" x1="90" y1="430.0" x2="870" y2="430.0" />
+<line class="tick" x1="84" y1="430.0" x2="90" y2="430.0" />
+<text x="80" y="434.0" font-size="12" text-anchor="end">0.000</text>
+<line class="grid" x1="90" y1="394.61195374143955" x2="870" y2="394.61195374143955" />
+<line class="tick" x1="84" y1="394.61195374143955" x2="90" y2="394.61195374143955" />
+<text x="80" y="398.61195374143955" font-size="12" text-anchor="end">20.0</text>
+<line class="grid" x1="90" y1="359.2239074828791" x2="870" y2="359.2239074828791" />
+<line class="tick" x1="84" y1="359.2239074828791" x2="90" y2="359.2239074828791" />
+<text x="80" y="363.2239074828791" font-size="12" text-anchor="end">40.0</text>
+<line class="grid" x1="90" y1="323.8358612243186" x2="870" y2="323.8358612243186" />
+<line class="tick" x1="84" y1="323.8358612243186" x2="90" y2="323.8358612243186" />
+<text x="80" y="327.8358612243186" font-size="12" text-anchor="end">60.0</text>
+<line class="grid" x1="90" y1="288.44781496575814" x2="870" y2="288.44781496575814" />
+<line class="tick" x1="84" y1="288.44781496575814" x2="90" y2="288.44781496575814" />
+<text x="80" y="292.44781496575814" font-size="12" text-anchor="end">80.0</text>
+<line class="grid" x1="90" y1="253.05976870719766" x2="870" y2="253.05976870719766" />
+<line class="tick" x1="84" y1="253.05976870719766" x2="90" y2="253.05976870719766" />
+<text x="80" y="257.0597687071977" font-size="12" text-anchor="end">100</text>
+<line class="grid" x1="90" y1="217.6717224486372" x2="870" y2="217.6717224486372" />
+<line class="tick" x1="84" y1="217.6717224486372" x2="90" y2="217.6717224486372" />
+<text x="80" y="221.6717224486372" font-size="12" text-anchor="end">120</text>
+<line class="grid" x1="90" y1="182.28367619007673" x2="870" y2="182.28367619007673" />
+<line class="tick" x1="84" y1="182.28367619007673" x2="90" y2="182.28367619007673" />
+<text x="80" y="186.28367619007673" font-size="12" text-anchor="end">140</text>
+<line class="grid" x1="90" y1="146.89562993151628" x2="870" y2="146.89562993151628" />
+<line class="tick" x1="84" y1="146.89562993151628" x2="90" y2="146.89562993151628" />
+<text x="80" y="150.89562993151628" font-size="12" text-anchor="end">160</text>
+<line class="grid" x1="90" y1="111.50758367295578" x2="870" y2="111.50758367295578" />
+<line class="tick" x1="84" y1="111.50758367295578" x2="90" y2="111.50758367295578" />
+<text x="80" y="115.50758367295578" font-size="12" text-anchor="end">180</text>
+<line class="grid" x1="90" y1="76.11953741439532" x2="870" y2="76.11953741439532" />
+<line class="tick" x1="84" y1="76.11953741439532" x2="90" y2="76.11953741439532" />
+<text x="80" y="80.11953741439532" font-size="12" text-anchor="end">200</text>
+<line class="grid" x1="90" y1="40.731491155834874" x2="870" y2="40.731491155834874" />
+<line class="tick" x1="84" y1="40.731491155834874" x2="90" y2="40.731491155834874" />
+<text x="80" y="44.731491155834874" font-size="12" text-anchor="end">220</text>
+<line class="grid" x1="90" y1="5.3434448972744235" x2="870" y2="5.3434448972744235" />
+<line class="tick" x1="84" y1="5.3434448972744235" x2="90" y2="5.3434448972744235" />
+<text x="80" y="9.343444897274424" font-size="12" text-anchor="end">240</text>
+<text x="480.0" y="470" font-size="14" text-anchor="middle">Interval (ms)</text>
+<text x="40" y="235.0" font-size="14" text-anchor="middle" transform="rotate(-90 40,235.0)">Avg power * Pout (mW)</text>
+<rect x="129.0" y="98.3516470150555" width="117.0" height="331.6483529849445" fill="#1f77b4" stroke="#111" stroke-width="0.5" />
+<text x="187.5" y="454" font-size="12" text-anchor="middle">100</text>
+<text x="187.5" y="92.3516470150555" font-size="12" text-anchor="middle">187.44</text>
+<rect x="324.0" y="90.86956521739131" width="117.0" height="339.1304347826087" fill="#2ca02c" stroke="#111" stroke-width="0.5" />
+<text x="382.5" y="454" font-size="12" text-anchor="middle">500</text>
+<text x="382.5" y="84.86956521739131" font-size="12" text-anchor="middle">191.66</text>
+<rect x="519.0" y="100.21448388161974" width="117.0" height="329.78551611838026" fill="#ff7f0e" stroke="#111" stroke-width="0.5" />
+<text x="577.5" y="454" font-size="12" text-anchor="middle">1000</text>
+<text x="577.5" y="94.21448388161974" font-size="12" text-anchor="middle">186.38</text>
+<rect x="714.0" y="208.18708776792116" width="117.0" height="221.81291223207884" fill="#d62728" stroke="#111" stroke-width="0.5" />
+<text x="772.5" y="454" font-size="12" text-anchor="middle">2000</text>
+<text x="772.5" y="202.18708776792116" font-size="12" text-anchor="middle">125.36</text>
+</svg>

@@ -294,3 +294,15 @@
 2025-12-19 03:15 JST
 - 修士論文の参考文献が小さく詰まって見える件を調整：`修士論文/chubuthesis.sty` の biblatex 設定に `\renewcommand*{\bibfont}{\normalfont\normalsize}` を追加し、本文と同じ文字サイズ・行間（ベースライン）に揃えた。併せて `\bibitemsep`/`\bibparsep` を 0pt に固定。
 - `修士論文/latexmk -g main.tex` で再ビルドし、`修士論文/build/main.pdf` を更新。
+2025-12-19 03:20 JST
+- 修士論文の参考文献の文字サイズ/行間を本文と揃える調整を強化：`修士論文/chubuthesis.sty` に `\AtBeginBibliography{\normalfont\normalsize\normalbaselines ...}` を追加し、bbx側の上書きがあっても確実に反映されるようにした。
+- `修士論文/latexmk -g main.tex` で再ビルドし、`修士論文/build/main.pdf` を更新。
+2025-12-19 03:27 JST
+- 参考文献の行間（A: 文献内の行と行の間）が本文より詰まって見える問題に対し、本文の `\baselineskip` を起動時に保存して参考文献開始時に同値を適用するよう修正：`修士論文/chubuthesis.sty` に `\AtBeginDocument` + `\AtBeginBibliography` を追加（`\baselineskip` を `\thesisbodybaselineskip` に統一）。
+- `修士論文/latexmk -g main.tex` で再ビルドし、`修士論文/build/main.pdf` を更新。
+2025-12-19 03:33 JST
+- アブストの参考文献を本文と同じ文字サイズ・行間へ変更：`修士論文アブスト/main.tex` の `\bibfont` を `\normalsize` に戻し、行間詰め設定を撤廃する方向に調整。
+- `修士論文アブスト/latexmk -g main.tex` を実行し、`修士論文アブスト/build/main.pdf` が 3 pages になることを確認（2ページ制約からは溢れるため、次に収め方を再検討予定）。
+2025-12-19 03:41 JST
+- アブストの参考文献を[3]までに縮約：ユーザ指示により `修士論文アブスト/main.tex` の引用を Bluetooth仕様・近隣発見サーベイ・広告電力の3件に限定し、`修士論文アブスト/references.bib` も3件だけ残して[4]以降を削除。
+- 参考文献を本文サイズに戻したままでも `修士論文アブスト/build/main.pdf` が 2 pages に収まることを確認（`latexmk -C && latexmk -g main.tex`）。

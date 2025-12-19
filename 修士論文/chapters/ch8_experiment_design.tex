@@ -1,4 +1,4 @@
-% chapters/ch8_experiment_design.tex --- 第9章 実験設計
+% chapters/ch8_experiment_design.tex --- 構成要素：実験設計
 \section{実験設計}
 \label{sec:experiment_design}
 
@@ -12,20 +12,24 @@ Phase 1の実験目的は，ルールベース方策（CCS→広告間隔切替�
 
 \subsection{実験条件}
 \subsubsection{環境条件}
-実験は，距離，受信端末，スキャン設定等を固定し，端末内比較として実施する．干渉状況の違い（例：E1/E2）は外的要因として扱い，必要に応じて環境を分けて評価する．
+実験は，距離，受信端末，スキャン設定等を固定し，端末内比較として実施する．干渉状況の違い（例：E1/E2）は外的要因として扱い，必要に応じて環境を分けて評価する．表\ref{tab:env_conditions}に，主結果で固定した受信端末とスキャン設定を整理する．
 
 \begin{table}[tb]
   \centering
-  \caption{環境条件（例）}
+  \caption{環境条件と受信設定（主結果）}
   \label{tab:env_conditions}
-  \begin{tabular}{ll}
+  \begin{tabular}{lll}
     \toprule
-    項目 & 値（例） \\
+    項目 & 主結果（ESP32 RX） & 補助（Android） \\
     \midrule
-    距離 & \SI{1}{\meter} \\
-    TxPower & \SI{0}{\decibelmilliwatt} \\
-    受信端末 & Android（同一端末で統一） \\
-    スキャンモード & LOW\_LATENCY（前提条件を固定） \\
+    距離 & \SI{1}{\meter} & \SI{1}{\meter} \\
+    TxPower & \SI{0}{\decibelmilliwatt} & \SI{0}{\decibelmilliwatt} \\
+    受信端末 & ESP32-WROVER-E（NimBLE passive scan） & Galaxy S9（SCV38）, Android 10（One UI 2.1） \\
+    受信アプリ & RXログ（SD保存） & nRF Connect for Mobile \\
+    スキャンモード & passive scan & Android LOW\_LATENCY \\
+    フィルタ & ペイロード識別子（seq） & デバイス名 ``TXM\_ESP32'' \\
+    scan90設定 & interval \SI{100}{\milli\second}, window \SI{90}{\milli\second}（duty 90\%） & OS制御（固定不可） \\
+    scan70設定 & interval \SI{100}{\milli\second}, window \SI{70}{\milli\second}（duty 70\%） & OS制御（固定不可） \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -33,7 +37,7 @@ Phase 1の実験目的は，ルールベース方策（CCS→広告間隔切替�
 \subsubsection{制御条件}
 制御条件は，固定間隔（ベースライン）と動的制御（提案）を含む．Phase 1の基本方針は，行動集合を$\{100,500,1000,2000\}\,\si{\milli\second}$とし，短間隔（QoS重視）と長間隔（省電力重視）の間を段階的に探索できる形にすることである．
 
-一方で，実機実験の初期段階では，計測系の同期とログ整合を優先し，行動集合を$\{100,500\}\,\si{\milli\second}$に縮退した2値切替で動作成立を確認する．以降，計測の堅牢性が担保できた段階で，$\{100,500,1000,2000\}\,\si{\milli\second}$へ拡張する．
+ただし，実機実験の初期段階では，計測系の同期とログ整合を優先し，行動集合を$\{100,500\}\,\si{\milli\second}$に縮退した2値切替で動作成立を確認する．以降，計測の堅牢性が担保できた段階で，$\{100,500,1000,2000\}\,\si{\milli\second}$へ拡張する．
 
 \begin{table}[tb]
   \centering

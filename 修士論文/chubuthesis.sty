@@ -104,6 +104,7 @@
 \newcommand{\tabref}[1]{表~\ref{#1}}
 \newcommand{\eqrefj}[1]{式~(\ref{#1})}
 \newcommand{\secref}[1]{\ref{#1}節}
+\newcommand{\chapref}[1]{第\ref{#1}章}
 
 % --- 章（番号なし）でも目次に載せる：はじめに / おわりに / 謝辞 ---
 \newcommand{\chapterwithtoc}[1]{%
@@ -117,12 +118,15 @@
 
 % 参考文献の体裁：本文と同じ文字サイズ・行間に揃える
 % （bbx/lbx 側で \bibfont 等が調整される場合があるため、開始フックで確実に上書きする）
+\newlength{\thesisbodybaselineskip}
+\AtBeginDocument{\setlength{\thesisbodybaselineskip}{\baselineskip}}
 \AtBeginBibliography{%
-  \normalfont\normalsize\normalbaselines
+  \normalfont\normalsize\selectfont
+  \setlength{\baselineskip}{\thesisbodybaselineskip}%
   \setlength{\bibitemsep}{0pt}%
   \setlength{\bibparsep}{0pt}%
 }
-\renewcommand*{\bibfont}{\normalfont\normalsize\normalbaselines}
+\renewcommand*{\bibfont}{\normalfont\normalsize}
 
 % \scite{a,b} で [1][2] 形式を作る（普通の \cite は [1,2]）
 \DeclareCiteCommand{\scite}

@@ -17,17 +17,24 @@ $\mathrm{PDR}_{\mathrm{raw}}$は重複受信により1を超え得るため，�
 \subsection{TLとPout(τ)}
 TLは，イベント後に最初に受信されるまでの遅延である．Pout(τ)は，TLが期限$\tau$を超える確率として定義する．TL/Poutの算出では，受信ログの時間軸と真値（truth）の時間軸の一致が必要であり，開始位相ずれがある場合は定数オフセットで補正する（\secref{sec:stress_fixed_metrics}）．
 
-真値（truth）における状態遷移（イベント）時刻を$t_{\mathrm{event},j}$，その後に初めて正しいラベル（または該当イベントに対応する識別子）が受信される時刻を$t_{\mathrm{rx},j}$とすると，
+真値（truth）における状態遷移（イベント）時刻を$t_{\mathrm{event},j}$，その後に初めて正しいラベル（または該当イベントに対応する識別子）が受信される時刻を$t_{\mathrm{rx},j}$とする．ログ上の時刻はmsで記録されるため，TLは秒単位に変換して扱う．
 \begin{equation}
-  \mathrm{TL}_j = t_{\mathrm{rx},j} - t_{\mathrm{event},j}
+  \mathrm{TL}_j = \frac{t_{\mathrm{rx},j} - t_{\mathrm{event},j}}{1000}\quad [\mathrm{s}]
 \end{equation}
 である．期限$\tau$に対する期限超過率は，
 \begin{equation}
-  P_{\mathrm{out}}(\tau)=\frac{1}{N_{\mathrm{event}}}\sum_{j=1}^{N_{\mathrm{event}}}\mathbb{I}[\mathrm{TL}_j>\tau]
+P_{\mathrm{out}}(\tau)=\frac{1}{N_{\mathrm{event}}}\sum_{j=1}^{N_{\mathrm{event}}}\mathbb{I}[\mathrm{TL}_j>\tau]
 \end{equation}
 で定義する．
 \noindent
-また，試行時間がtruthの全長より短い場合は末端遷移が試行区間外に出るため，truth側も有効長（EFFECTIVE\_LEN）でクリップし，$N_{\mathrm{event}}$の分母を揃える．
+試行時間がtruthの全長より短い場合は末端遷移が試行区間外に出るため，truth側も有効長（EFFECTIVE\_LEN）でクリップし，$N_{\mathrm{event}}$の分母を揃える．
+
+\subsubsection{EFFECTIVE\_LEN（評価に用いるtruthの有効長）}
+truthの全長を$T_{\mathrm{truth}}$，trialの計測区間長を$T_{\mathrm{trial}}$とする．このとき評価に用いるtruthの有効長を
+\begin{equation}
+  \mathrm{EFFECTIVE\_LEN}=\min(T_{\mathrm{trial}},T_{\mathrm{truth}})
+\end{equation}
+と定義し，truthを$[0,\mathrm{EFFECTIVE\_LEN}]$にクリップしてイベント数$N_{\mathrm{event}}$を数える．これにより，「末端遷移が試行区間外に出る」ことによる$N_{\mathrm{event}}$の不一致を避け，trial間比較の安定性を確保する．動的切替では試行の切り出し条件が揺らぎやすいため，EFFECTIVE\_LENを明示して分母を固定することが重要である（背景と実装上の理由は\secref{sec:stress_fixed_metrics}）．
 
 \subsection{電荷と$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）}
 本研究の一次KPIである$q_{\mathrm{event}}$は，セッション中の電荷消費をイベント数で正規化した指標である．電力やエネルギーは電圧に依存するため，バッテリ消費の観点では電荷（Coulomb count）で整理すると解釈が容易である．

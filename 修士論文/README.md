@@ -80,7 +80,9 @@ latexmk main.tex
 他のAIに共有して状況を再現しやすくするため、修論（LaTeX）＋主要ログ＋実機評価の集計結果を `repomix_thesis_bundle_light.xml` にまとめる（軽量版）。
 
 注:
-- `repomix` はテキストファイルのみをパックする（PDF/PNG/JPGなどのバイナリは含まれない）ため、必要に応じて `build/main.pdf` や `uccs_*/plots/*.pdf` を別送する。
+- `repomix` は指定したファイル群（テキスト）を単一ファイルにまとめるCLIで、LLMへの共有用パックとして使う。
+- `repomix` はテキストファイルのみを扱う（PDF/PNG/JPGなどのバイナリは含まれない）ため、必要に応じて `build/main.pdf` や `uccs_*/plots/*.pdf` を別送する。
+- `repomix` が未導入の場合は `npx repomix ...`（または `npm install -g repomix`）で実行できる。
 
 ```bash
 repomix --output repomix_thesis_bundle_light.xml --style xml --parsable-style \

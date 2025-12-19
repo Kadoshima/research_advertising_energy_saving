@@ -71,9 +71,10 @@
 \setlength{\dbltextfloatsep}{8pt plus 2pt minus 2pt}
 \setlength{\dblfloatsep}{6pt plus 2pt minus 2pt}
 
-% 文献（2ページ制約のためコンパクトに）
-\renewcommand*{\bibfont}{\scriptsize}
+% 文献（本文と同じ文字サイズ・行間）
+\renewcommand*{\bibfont}{\normalfont\normalsize}
 \setlength{\bibitemsep}{0pt}
+\setlength{\bibparsep}{0pt}
 
 \begin{document}
 
@@ -88,13 +89,13 @@
 ]
 
 \section{はじめに}
-ウェアラブル等のエッジ端末における行動認識（Human Activity Recognition; HAR）では，推論と通信が電力消費を支配しやすい．Bluetooth Low Energy（BLE）広告\scite{BluetoothSIGCore52}は簡便なブロードキャスト手段だが，スマートフォン受信（スキャン）が非理想であるため，固定広告間隔では遅延分布の裾が悪化し得る\scite{Luo2021BLENeighborDiscoverySurvey}．本研究は，HARの不確実度に応じてBLE広告間隔を適応させ，QoS制約$\Pout(\tau)\le\epsout$（$\tau=\SI{1}{\second}$，$\epsout=0.1$）の下で送信側消費を抑えることを目的とする\scite{Schrader2016BLEPower,Chen2020BLEPowerMgmt}．
+ウェアラブル等のエッジ端末における行動認識（Human Activity Recognition; HAR）では，推論と通信が電力消費を支配しやすい．Bluetooth Low Energy（BLE）広告\scite{BluetoothSIGCore52}は簡便なブロードキャスト手段だが，スマートフォン受信（スキャン）が非理想であるため，固定広告間隔では遅延分布の裾が悪化し得る\scite{Luo2021BLENeighborDiscoverySurvey}．本研究は，HARの不確実度に応じてBLE広告間隔を適応させ，QoS制約$\Pout(\tau)\le\epsout$（$\tau=\SI{1}{\second}$，$\epsout=0.1$）の下で送信側消費を抑えることを目的とする\scite{Schrader2016BLEPower}．
 
 \par
-本稿では，意思決定に基づく省電力ビーコニング\scite{Fujisawa2024BLEBeaconing}に着想を得つつ，広告間隔$\SI{100}{\milli\second}$／$\SI{500}{\milli\second}$の2値切替を実装し，TX/TXSD/RXの三ノード計測により電力とQoSを同一試行で評価した．
+本稿では，意思決定に基づく省電力化の方向性に着想を得つつ，広告間隔$\SI{100}{\milli\second}$／$\SI{500}{\milli\second}$の2値切替を実装し，TX/TXSD/RXの三ノード計測により電力とQoSを同一試行で評価した．
 
 \section{提案手法}
-不確実度の指標にはエントロピー\scite{shannon1948}等が知られるが，実装上は計算量や確率の校正（calibration）\scite{guo2017calibration}の影響が重要である．本研究ではHARモデルの出力確信度と時系列安定度から通信信頼度指標CCS（Communication Confidence Score）を構成する．CCSに基づいて広告間隔を切り替え，本アブストでは実装の最小構成として$\SI{100}{\milli\second}$と$\SI{500}{\milli\second}$の2値切替方策を扱う．CCSが低い（遷移・不確実）区間では短間隔へ寄せてQoSを守り，それ以外は長間隔へ寄せて平均消費を下げる．評価指標は，送信イベント当たり電荷$q_{\mathrm{event}}$（\si{\micro\coulomb}/event）と遅延指標TLおよび期限超過率$P_{\mathrm{out}}(\tau)$とし，平均電力は補助的に用いる．
+不確実度の指標にはエントロピー等が用いられるが，実装上は計算量や確率の校正（calibration）の影響も無視できない．本研究ではHARモデルの出力確信度と時系列安定度から通信信頼度指標CCS（Communication Confidence Score）を構成する．CCSに基づいて広告間隔を切り替え，本アブストでは実装の最小構成として$\SI{100}{\milli\second}$と$\SI{500}{\milli\second}$の2値切替方策を扱う．CCSが低い（遷移・不確実）区間では短間隔へ寄せてQoSを守り，それ以外は長間隔へ寄せて平均消費を下げる．評価指標は，送信イベント当たり電荷$q_{\mathrm{event}}$（\si{\micro\coulomb}/event）と遅延指標TLおよび期限超過率$P_{\mathrm{out}}(\tau)$とし，平均電力は補助的に用いる．
 
 \subsection{CCSと2値切替}
 CCSは，モデル出力の確信度と，推定ラベルの時間的一貫性（安定度）を合成して定義する．具体例として，確信度と安定度の加重和を用い，閾値とヒステリシスにより状態（ACTIVE/QUIET等）を切り替える．これにより，遷移が多い区間ほど短間隔に滞在し，定常区間は長間隔に滞在する設計とする．
@@ -153,7 +154,6 @@ HAR不確実度に基づく2値広告間隔制御が，固定間隔の中間的�
 
 \vspace{-1mm}
 \section*{参考文献}
-\nocite{Tsai2025BLEDelaySensitive}
 \printbibliography[heading=none]
 
 \end{document}

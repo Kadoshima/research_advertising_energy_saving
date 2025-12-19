@@ -23,3 +23,6 @@
   - 図: `results/final/fig/`
   - 表: `results/final/tab/`
   - 一括生成: `results/final/build.sh`
+
+## idea_plots_20251219
+- 探索的な可視化案: `results/idea_plots_20251219/`

@@ -1,4 +1,4 @@
-% chapters/ch6_stress_fixed.tex --- 第6章 ストレス固定実験と指標定義（scan50/scan90, v5）
+% chapters/ch6_stress_fixed.tex --- 構成要素：ストレス固定実験と指標定義（scan50/scan90, v5）
 \section{ストレス固定実験と指標定義の確立}
 \label{sec:stress_fixed_metrics}
 
@@ -39,17 +39,17 @@ PDRは受信ログの行数に基づく指標（重複含む）と，seqでユ�
 
 \begin{figure}[tb]
   \centering
-  \includegraphics[width=0.95\linewidth]{../results/stress_fixed/figures_v5/fig1_scan90_metrics.png}
+  \includegraphics[width=0.95\linewidth]{figures/stress_scan90_metrics_v5.png}
   \caption{ストレス固定（scan90）の主要指標（v5）}
   \label{fig:stress_fixed_scan90_metrics}
 \end{figure}
 
 \subsubsection{実測と簡易モデルの比較}
-図\ref{fig:stress_fixed_real_vs_sim}に，ストレス固定における実測と簡易モデル（比較用）の例を示す．簡易モデルは，スキャンの非理想性や開始位相ずれの影響を完全には表現できないため，実測との差分が残る．一方で，固定間隔の相対関係（短間隔ほど遅延が改善しやすい等）のトレンドを説明する補助として利用できる．
+図\ref{fig:stress_fixed_real_vs_sim}に，ストレス固定における実測と簡易モデル（比較用）の例を示す．簡易モデルは，スキャンの非理想性や開始位相ずれの影響を完全には表現できないため，実測との差分が残る．ただし，固定間隔の相対関係（短間隔ほど遅延が改善しやすい等）のトレンドを説明する補助として利用できる．
 
 \begin{figure}[tb]
   \centering
-  \includegraphics[width=0.95\linewidth]{../results/stress_fixed/compare/stress_causal_real_vs_sim.png}
+  \includegraphics[width=0.95\linewidth]{figures/stress_real_vs_sim.png}
   \caption{ストレス固定における実測と簡易モデルの比較（例）}
   \label{fig:stress_fixed_real_vs_sim}
 \end{figure}
@@ -59,7 +59,7 @@ PDRは受信ログの行数に基づく指標（重複含む）と，seqでユ�
 
 \begin{figure}[tb]
   \centering
-  \includegraphics[width=0.85\linewidth]{../results/stress_fixed/figures_v5/fig3_scan50_vs_scan90_pdr_unique.png}
+  \includegraphics[width=0.85\linewidth]{figures/stress_scan50_vs_scan90_pdr_unique_v5.png}
   \caption{ストレス固定におけるscan50とscan90の比較（例：PDR\_unique，v5）}
   \label{fig:stress_fixed_scan50_vs_scan90_pdr}
 \end{figure}
