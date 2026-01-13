@@ -16,7 +16,6 @@ from plot_utils import (
     draw_scatter_point,
     linear_scale,
     nice_ticks,
-    svg_escape,
 )
 
 
@@ -83,7 +82,7 @@ def main() -> int:
 
     canvas = SvgCanvas(width, height)
     canvas.add(
-        f'<text x="{width / 2}" y="22" font-size="16" text-anchor="middle">'
+        f'<text class="title" x="{width / 2}" y="22" text-anchor="middle">'
         "UCCS S4: avg power vs Pout(1s) (mixed runs)</text>\n"
     )
 
@@ -110,10 +109,6 @@ def main() -> int:
         color = colors.get(condition, "#333")
         draw_scatter_point(canvas, x, y, color)
         label = label_map.get(condition, condition)
-        canvas.add(
-            f'<text x="{x + 8}" y="{y - 6}" font-size="12">'
-            f'{svg_escape(label)}</text>\n'
-        )
         legend_items.append((label, color, "dot"))
 
     draw_legend(canvas, legend_items, chart_left + 10, chart_top + 10)

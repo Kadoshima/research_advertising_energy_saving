@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[3]
 SHARED = Path(__file__).resolve().parents[1] / "_shared"
 sys.path.insert(0, str(SHARED))
 
-from plot_utils import SvgCanvas, draw_axes, draw_scatter_point, linear_scale, nice_ticks, svg_escape
+from plot_utils import SvgCanvas, draw_axes, draw_scatter_point, linear_scale, nice_ticks
 
 
 def load_pairs(per_trial_path: Path):
@@ -93,7 +93,7 @@ def main() -> int:
 
     canvas = SvgCanvas(width, height)
     canvas.add(
-        f'<text x="{width / 2}" y="22" font-size="16" text-anchor="middle">'
+        f'<text class="title" x="{width / 2}" y="22" text-anchor="middle">'
         "Policy vs U-only (paired): Pout(1s)</text>\n"
     )
 

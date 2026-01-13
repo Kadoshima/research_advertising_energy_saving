@@ -17,7 +17,6 @@ from plot_utils import (
     linear_scale,
     nice_ticks,
     polyline,
-    svg_escape,
 )
 
 
@@ -101,7 +100,7 @@ def main() -> int:
 
     canvas = SvgCanvas(width, height)
     canvas.add(
-        f'<text x="{width / 2}" y="22" font-size="16" text-anchor="middle">'
+        f'<text class="title" x="{width / 2}" y="22" text-anchor="middle">'
         "UCCS S4: Pout(tau) curves (tau = 1..3 s)</text>\n"
     )
 
@@ -124,9 +123,9 @@ def main() -> int:
     legend_items = []
     for cond, tau_map in series.items():
         points = [(tau, tau_map[int(tau)]) for tau in taus]
-        line = polyline(points, scale_x, scale_y)
         color = colors.get(cond, "#333")
-        canvas.add(line.replace("stroke-width=\"2\"", f"stroke=\"{color}\" stroke-width=\"2\""))
+        line = polyline(points, scale_x, scale_y, color)
+        canvas.add(line)
         for x, y in points:
             draw_scatter_point(canvas, scale_x(x), scale_y(y), color)
         legend_items.append((labels.get(cond, cond), color, "line"))

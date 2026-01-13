@@ -53,7 +53,7 @@ def main() -> int:
 
     canvas = SvgCanvas(width, height)
     canvas.add(
-        f'<text x="{width / 2}" y="22" font-size="16" text-anchor="middle">'
+        f'<text class="title" x="{width / 2}" y="22" text-anchor="middle">'
         "S4 fixed intervals: avg power * Pout(1s)</text>\n"
     )
 

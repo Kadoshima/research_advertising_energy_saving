@@ -148,7 +148,7 @@ def main() -> int:
 
     canvas = SvgCanvas(width, height)
     canvas.add(
-        f'<text x="{width / 2}" y="22" font-size="16" text-anchor="middle">'
+        f'<text class="title" x="{width / 2}" y="22" text-anchor="middle">'
         "UCCS S4: cumulative energy vs time (mixed runs)</text>\n"
     )
 
@@ -173,9 +173,9 @@ def main() -> int:
         if not times:
             continue
         points = list(zip(times, energies))
-        line = polyline(points, scale_x, scale_y)
         color = colors.get(condition, "#333")
-        canvas.add(line.replace("stroke-width=\"2\"", f"stroke=\"{color}\" stroke-width=\"2\""))
+        line = polyline(points, scale_x, scale_y, color)
+        canvas.add(line)
         legend_items.append((labels.get(condition, condition), color, "line"))
 
     draw_legend(canvas, legend_items, chart_right - 220, chart_top + 10)

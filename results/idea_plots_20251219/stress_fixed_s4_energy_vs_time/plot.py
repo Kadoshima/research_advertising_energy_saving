@@ -129,7 +129,7 @@ def main() -> int:
 
     canvas = SvgCanvas(width, height)
     canvas.add(
-        f'<text x="{width / 2}" y="22" font-size="16" text-anchor="middle">'
+        f'<text class="title" x="{width / 2}" y="22" text-anchor="middle">'
         "S4 fixed intervals: cumulative energy vs time</text>\n"
     )
 
@@ -152,8 +152,8 @@ def main() -> int:
     legend_items = []
     for interval, times, energies in trimmed:
         points = list(zip(times, energies))
-        line = polyline(points, scale_x, scale_y)
-        canvas.add(line.replace("stroke-width=\"2\"", f"stroke=\"{colors[interval]}\" stroke-width=\"2\""))
+        line = polyline(points, scale_x, scale_y, colors[interval])
+        canvas.add(line)
         legend_items.append((f"{interval} ms", colors[interval], "line"))
 
     draw_legend(canvas, legend_items, chart_right - 160, chart_top + 10)

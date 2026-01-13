@@ -16,7 +16,6 @@ from plot_utils import (
     draw_scatter_point,
     linear_scale,
     nice_ticks,
-    svg_escape,
 )
 
 
@@ -69,7 +68,7 @@ def main() -> int:
 
     canvas = SvgCanvas(width, height)
     canvas.add(
-        f'<text x="{width / 2}" y="22" font-size="16" text-anchor="middle">'
+        f'<text class="title" x="{width / 2}" y="22" text-anchor="middle">'
         "S4 fixed intervals: E per adv vs Pout(1s)</text>\n"
     )
 
@@ -95,10 +94,6 @@ def main() -> int:
         y = scale_y(pout_1s)
         color = colors[interval]
         draw_scatter_point(canvas, x, y, color)
-        canvas.add(
-            f'<text x="{x + 8}" y="{y - 6}" font-size="12">'
-            f'{svg_escape(str(interval))}ms</text>\n'
-        )
         legend_items.append((f"{interval} ms", color, "dot"))
 
     draw_legend(canvas, legend_items, chart_left + 10, chart_top + 10)

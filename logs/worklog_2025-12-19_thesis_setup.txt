@@ -38,3 +38,15 @@
 2025-12-19 14:46 JST
 - 追加図を作成（Pout(tau) 曲線、遷移アライン P(100ms) 波形、Policy vs U-only のペア差分図）: `results/idea_plots_20251219/uccs_s4_pout_tau_curves/`, `results/idea_plots_20251219/uccs_transition_aligned_p100/`, `results/idea_plots_20251219/uccs_policy_vs_uonly_paired_delta_pout/`。
 - 各図の `plot.svg` を生成し、入力CSVの SHA256 を README に追記。
+
+2025-12-19 16:45 JST
+- 要旨にscan70の数値を追記し、固定500msのPout悪化と方策の改善を明記：`修士論文/frontmatter/abstract.tex`。
+- 評価章の一次KPIの扱いを明記し、D2bのshare100注記を本文側に移動。図キャプションを短く整理：`修士論文/chapters/ch5_evaluation.tex`、`修士論文/chapters/ch4_rain.tex`、`修士論文/chapters/ch7_offline_eval.tex`。
+- 計測系/装置図のキャプションを簡潔化：`修士論文/chapters/ch8_measurement_system.tex`、`修士論文/chapters/ch3_oncampus.tex`。
+- 関連研究にBLE遅延サービスの文献を追加し、参考文献に追記：`修士論文/chapters/ch2_related_work.tex`、`修士論文/references.bib`。
+- 章構成の変更に合わせてファイル先頭コメントを整理し、章参照を更新：`修士論文/chapters/ch9_har_uncertainty.tex` ほか。
+- 謝辞の表記をOpenAI表記に統一し、AI支援の位置づけを明確化：`修士論文/chapters/acknowledgements.tex`。
+2025-12-19 19:17 JST
+- SVG描画の見栄え調整（フォント/軸/グリッド/legend背景/series-line/point style/y軸目盛のbaseline）：`results/idea_plots_20251219/_shared/plot_utils.py`。
+- 散布図の点ラベルを凡例に統一：`results/idea_plots_20251219/stress_fixed_s4_tradeoff_power_vs_pout/plot.py`、`results/idea_plots_20251219/stress_fixed_s4_eperadv_vs_pout/plot.py`、`results/idea_plots_20251219/uccs_s4_tradeoff_power_vs_pout/plot.py`。
+- polylineの色指定とタイトルのクラス化を整理：`results/idea_plots_20251219/stress_fixed_s4_energy_vs_time/plot.py`、`results/idea_plots_20251219/uccs_s4_energy_vs_time/plot.py`、`results/idea_plots_20251219/uccs_s4_pout_tau_curves/plot.py`、`results/idea_plots_20251219/uccs_transition_aligned_p100/plot.py` ほか。

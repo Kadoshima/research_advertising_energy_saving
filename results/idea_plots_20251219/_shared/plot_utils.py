@@ -25,11 +25,18 @@ class SvgCanvas:
             f'<svg xmlns="http://www.w3.org/2000/svg" '
             f'width="{self.width}" height="{self.height}" '
             f'viewBox="0 0 {self.width} {self.height}">\\n'
+            '<rect x="0" y="0" width="100%" height="100%" fill="#fff"/>\\n'
             '<style>\\n'
-            '  text { font-family: "Times New Roman", serif; fill: #111; }\\n'
-            '  .axis { stroke: #111; stroke-width: 1; }\\n'
-            '  .grid { stroke: #ddd; stroke-width: 1; }\\n'
-            '  .tick { stroke: #111; stroke-width: 1; }\\n'
+            '  text { font-family: "Helvetica", "Arial", sans-serif; fill: #111; }\\n'
+            '  .title { font-size: 16px; font-weight: 600; }\\n'
+            '  .axis { stroke: #111; stroke-width: 1.2; shape-rendering: crispEdges; }\\n'
+            '  .grid { stroke: #e6e6e6; stroke-width: 1; shape-rendering: crispEdges; }\\n'
+            '  .tick { stroke: #111; stroke-width: 1.2; shape-rendering: crispEdges; }\\n'
+            '  .tick-label { font-size: 12px; fill: #222; }\\n'
+            '  .axis-label { font-size: 14px; font-weight: 500; }\\n'
+            '  .series-line { fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }\\n'
+            '  .pt { stroke: #111; stroke-width: 0.6; }\\n'
+            '  .legend-bg { fill: #fff; fill-opacity: 0.85; stroke: #cfcfcf; stroke-width: 1; }\\n'
             '</style>\\n'
         )
         footer = '</svg>\n'
@@ -120,7 +127,7 @@ def draw_axes(
             f'x2="{x}" y2="{chart_bottom + 6}" />\n'
         )
         canvas.add(
-            f'<text x="{x}" y="{chart_bottom + 20}" font-size="12" '
+            f'<text class="tick-label" x="{x}" y="{chart_bottom + 20}" '
             f'text-anchor="middle">{svg_escape(format_tick(tick))}</text>\n'
         )
     for tick in y_ticks:
@@ -134,16 +141,17 @@ def draw_axes(
             f'x2="{chart_left}" y2="{y}" />\n'
         )
         canvas.add(
-            f'<text x="{chart_left - 10}" y="{y + 4}" font-size="12" '
-            f'text-anchor="end">{svg_escape(format_tick(tick))}</text>\n'
+            f'<text class="tick-label" x="{chart_left - 10}" y="{y}" '
+            f'text-anchor="end" dominant-baseline="middle">'
+            f'{svg_escape(format_tick(tick))}</text>\n'
         )
     canvas.add(
         f'<text x="{(chart_left + chart_right) / 2}" y="{chart_bottom + 40}" '
-        f'font-size="14" text-anchor="middle">{svg_escape(x_label)}</text>\n'
+        f'class="axis-label" text-anchor="middle">{svg_escape(x_label)}</text>\n'
     )
     canvas.add(
         f'<text x="{chart_left - 50}" y="{(chart_top + chart_bottom) / 2}" '
-        f'font-size="14" text-anchor="middle" '
+        f'class="axis-label" text-anchor="middle" '
         f'transform="rotate(-90 {chart_left - 50},{(chart_top + chart_bottom) / 2})">'
         f'{svg_escape(y_label)}</text>\n'
     )
@@ -156,16 +164,25 @@ def draw_legend(
     y: float,
     row_height: float = 18,
 ) -> None:
+    if not items:
+        return
+    max_len = max(len(label) for label, _, _ in items)
+    box_w = 26 + max_len * 6.5 + 16
+    box_h = row_height * len(items) + 14
+    canvas.add(
+        f'<rect class="legend-bg" x="{x - 8}" y="{y - 12}" '
+        f'width="{box_w}" height="{box_h}" rx="4" ry="4" />\n'
+    )
     for idx, (label, color, marker) in enumerate(items):
         y_pos = y + idx * row_height
         if marker == 'line':
             canvas.add(
-                f'<line x1="{x}" y1="{y_pos}" x2="{x + 20}" y2="{y_pos}" '
-                f'stroke="{color}" stroke-width="2" />\n'
+                f'<line class="series-line" x1="{x}" y1="{y_pos}" '
+                f'x2="{x + 20}" y2="{y_pos}" stroke="{color}" />\n'
             )
         else:
             canvas.add(
-                f'<circle cx="{x + 10}" cy="{y_pos}" r="4" fill="{color}" />\n'
+                f'<circle class="pt" cx="{x + 10}" cy="{y_pos}" r="4" fill="{color}" />\n'
             )
         canvas.add(
             f'<text x="{x + 26}" y="{y_pos + 4}" font-size="12">'
@@ -173,14 +190,15 @@ def draw_legend(
         )
 
 
-def polyline(points: Sequence[Point], scale_x, scale_y) -> str:
+def polyline(points: Sequence[Point], scale_x, scale_y, color: Color | None = None) -> str:
     coords = ' '.join(f"{scale_x(x)},{scale_y(y)}" for x, y in points)
-    return f'<polyline fill="none" stroke-width="2" points="{coords}" />\n'
+    color_attr = f' stroke="{color}"' if color else ""
+    return f'<polyline class="series-line"{color_attr} points="{coords}" />\n'
 
 
 def draw_scatter_point(canvas: SvgCanvas, x: float, y: float, color: Color) -> None:
     canvas.add(
-        f'<circle cx="{x}" cy="{y}" r="4" fill="{color}" stroke="#111" stroke-width="0.5" />\n'
+        f'<circle class="pt" cx="{x}" cy="{y}" r="4" fill="{color}" />\n'
     )
 
 

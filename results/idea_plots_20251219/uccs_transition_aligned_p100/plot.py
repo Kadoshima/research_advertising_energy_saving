@@ -54,7 +54,7 @@ def main() -> int:
 
     canvas = SvgCanvas(width, height)
     canvas.add(
-        f'<text x="{width / 2}" y="22" font-size="16" text-anchor="middle">'
+        f'<text class="title" x="{width / 2}" y="22" text-anchor="middle">'
         "Transition-aligned P(100ms) around label changes</text>\n"
     )
 
@@ -76,11 +76,11 @@ def main() -> int:
 
     policy_points = list(zip(xs, policy))
     u_only_points = list(zip(xs, u_only))
-    policy_line = polyline(policy_points, scale_x, scale_y)
-    u_only_line = polyline(u_only_points, scale_x, scale_y)
+    policy_line = polyline(policy_points, scale_x, scale_y, "#ff7f0e")
+    u_only_line = polyline(u_only_points, scale_x, scale_y, "#d62728")
 
-    canvas.add(policy_line.replace("stroke-width=\"2\"", "stroke=\"#ff7f0e\" stroke-width=\"2\""))
-    canvas.add(u_only_line.replace("stroke-width=\"2\"", "stroke=\"#d62728\" stroke-width=\"2\""))
+    canvas.add(policy_line)
+    canvas.add(u_only_line)
 
     legend_items = [
         ("Policy (U+CCS)", "#ff7f0e", "line"),
