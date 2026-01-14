@@ -1,72 +1,87 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">\n<style>\n  text { font-family: "Times New Roman", serif; fill: #111; }\n  .axis { stroke: #111; stroke-width: 1; }\n  .grid { stroke: #ddd; stroke-width: 1; }\n  .tick { stroke: #111; stroke-width: 1; }\n</style>\n<text x="480.0" y="22" font-size="16" text-anchor="middle">UCCS S4: Pout(tau) curves (tau = 1..3 s)</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+<rect x="0" y="0" width="100%" height="100%" fill="#fff"/>
+<style>
+  text { font-family: "Helvetica", "Arial", sans-serif; fill: #111; }
+  .title { font-size: 16px; font-weight: 600; }
+  .axis { stroke: #111; stroke-width: 1.2; shape-rendering: crispEdges; }
+  .grid { stroke: #e6e6e6; stroke-width: 1; shape-rendering: crispEdges; }
+  .tick { stroke: #111; stroke-width: 1.2; shape-rendering: crispEdges; }
+  .tick-label { font-size: 12px; fill: #222; }
+  .axis-label { font-size: 14px; font-weight: 500; }
+  .series-line { fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .pt { stroke: #111; stroke-width: 0.6; }
+  .legend-bg { fill: #fff; fill-opacity: 0.85; stroke: #cfcfcf; stroke-width: 1; }
+</style>
+<text class="title" x="480.0" y="22" text-anchor="middle">UCCS S4: Pout(tau) curves (tau = 1..3 s)</text>
 <line class="axis" x1="90" y1="470" x2="930" y2="470" />
 <line class="axis" x1="90" y1="40" x2="90" y2="470" />
 <line class="grid" x1="90.0" y1="40" x2="90.0" y2="470" />
 <line class="tick" x1="90.0" y1="470" x2="90.0" y2="476" />
-<text x="90.0" y="490" font-size="12" text-anchor="middle">1.00</text>
+<text class="tick-label" x="90.0" y="490" text-anchor="middle">1.00</text>
 <line class="grid" x1="510.0" y1="40" x2="510.0" y2="470" />
 <line class="tick" x1="510.0" y1="470" x2="510.0" y2="476" />
-<text x="510.0" y="490" font-size="12" text-anchor="middle">2.00</text>
+<text class="tick-label" x="510.0" y="490" text-anchor="middle">2.00</text>
 <line class="grid" x1="930.0" y1="40" x2="930.0" y2="470" />
 <line class="tick" x1="930.0" y1="470" x2="930.0" y2="476" />
-<text x="930.0" y="490" font-size="12" text-anchor="middle">3.00</text>
+<text class="tick-label" x="930.0" y="490" text-anchor="middle">3.00</text>
 <line class="grid" x1="90" y1="470.0" x2="930" y2="470.0" />
 <line class="tick" x1="84" y1="470.0" x2="90" y2="470.0" />
-<text x="80" y="474.0" font-size="12" text-anchor="end">0.000</text>
+<text class="tick-label" x="80" y="470.0" text-anchor="end" dominant-baseline="middle">0.000</text>
 <line class="grid" x1="90" y1="409.8975882859002" x2="930" y2="409.8975882859002" />
 <line class="tick" x1="84" y1="409.8975882859002" x2="90" y2="409.8975882859002" />
-<text x="80" y="413.8975882859002" font-size="12" text-anchor="end">0.020</text>
+<text class="tick-label" x="80" y="409.8975882859002" text-anchor="end" dominant-baseline="middle">0.020</text>
 <line class="grid" x1="90" y1="349.7951765718004" x2="930" y2="349.7951765718004" />
 <line class="tick" x1="84" y1="349.7951765718004" x2="90" y2="349.7951765718004" />
-<text x="80" y="353.7951765718004" font-size="12" text-anchor="end">0.040</text>
+<text class="tick-label" x="80" y="349.7951765718004" text-anchor="end" dominant-baseline="middle">0.040</text>
 <line class="grid" x1="90" y1="289.6927648577006" x2="930" y2="289.6927648577006" />
 <line class="tick" x1="84" y1="289.6927648577006" x2="90" y2="289.6927648577006" />
-<text x="80" y="293.6927648577006" font-size="12" text-anchor="end">0.060</text>
+<text class="tick-label" x="80" y="289.6927648577006" text-anchor="end" dominant-baseline="middle">0.060</text>
 <line class="grid" x1="90" y1="229.5903531436008" x2="930" y2="229.5903531436008" />
 <line class="tick" x1="84" y1="229.5903531436008" x2="90" y2="229.5903531436008" />
-<text x="80" y="233.5903531436008" font-size="12" text-anchor="end">0.080</text>
+<text class="tick-label" x="80" y="229.5903531436008" text-anchor="end" dominant-baseline="middle">0.080</text>
 <line class="grid" x1="90" y1="169.48794142950095" x2="930" y2="169.48794142950095" />
 <line class="tick" x1="84" y1="169.48794142950095" x2="90" y2="169.48794142950095" />
-<text x="80" y="173.48794142950095" font-size="12" text-anchor="end">0.100</text>
+<text class="tick-label" x="80" y="169.48794142950095" text-anchor="end" dominant-baseline="middle">0.100</text>
 <line class="grid" x1="90" y1="109.38552971540116" x2="930" y2="109.38552971540116" />
 <line class="tick" x1="84" y1="109.38552971540116" x2="90" y2="109.38552971540116" />
-<text x="80" y="113.38552971540116" font-size="12" text-anchor="end">0.120</text>
+<text class="tick-label" x="80" y="109.38552971540116" text-anchor="end" dominant-baseline="middle">0.120</text>
 <line class="grid" x1="90" y1="49.28311800130132" x2="930" y2="49.28311800130132" />
 <line class="tick" x1="84" y1="49.28311800130132" x2="90" y2="49.28311800130132" />
-<text x="80" y="53.28311800130132" font-size="12" text-anchor="end">0.140</text>
+<text class="tick-label" x="80" y="49.28311800130132" text-anchor="end" dominant-baseline="middle">0.140</text>
 <line class="grid" x1="90" y1="-10.819293712798412" x2="930" y2="-10.819293712798412" />
 <line class="tick" x1="84" y1="-10.819293712798412" x2="90" y2="-10.819293712798412" />
-<text x="80" y="-6.819293712798412" font-size="12" text-anchor="end">0.160</text>
-<text x="510.0" y="510" font-size="14" text-anchor="middle">Tau (s)</text>
-<text x="40" y="255.0" font-size="14" text-anchor="middle" transform="rotate(-90 40,255.0)">Pout(tau)</text>
-<polyline fill="none" stroke="#1f77b4" stroke-width="2" points="90.0,225.6806912615986 510.0,274.5449536920236 930.0,274.5449536920236" />
-<circle cx="90.0" cy="225.6806912615986" r="4" fill="#1f77b4" stroke="#111" stroke-width="0.5" />
-<circle cx="510.0" cy="274.5449536920236" r="4" fill="#1f77b4" stroke="#111" stroke-width="0.5" />
-<circle cx="930.0" cy="274.5449536920236" r="4" fill="#1f77b4" stroke="#111" stroke-width="0.5" />
-<polyline fill="none" stroke="#2ca02c" stroke-width="2" points="90.0,79.09090909090918 510.0,201.24906089981704 930.0,201.24906089981704" />
-<circle cx="90.0" cy="79.09090909090918" r="4" fill="#2ca02c" stroke="#111" stroke-width="0.5" />
-<circle cx="510.0" cy="201.24906089981704" r="4" fill="#2ca02c" stroke="#111" stroke-width="0.5" />
-<circle cx="930.0" cy="201.24906089981704" r="4" fill="#2ca02c" stroke="#111" stroke-width="0.5" />
-<polyline fill="none" stroke="#ff7f0e" stroke-width="2" points="90.0,323.41021782931057 510.0,323.41021782931057 930.0,323.41021782931057" />
-<circle cx="90.0" cy="323.41021782931057" r="4" fill="#ff7f0e" stroke="#111" stroke-width="0.5" />
-<circle cx="510.0" cy="323.41021782931057" r="4" fill="#ff7f0e" stroke="#111" stroke-width="0.5" />
-<circle cx="930.0" cy="323.41021782931057" r="4" fill="#ff7f0e" stroke="#111" stroke-width="0.5" />
-<polyline fill="none" stroke="#d62728" stroke-width="2" points="90.0,274.5449536920236 510.0,274.5449536920236 930.0,274.5449536920236" />
-<circle cx="90.0" cy="274.5449536920236" r="4" fill="#d62728" stroke="#111" stroke-width="0.5" />
-<circle cx="510.0" cy="274.5449536920236" r="4" fill="#d62728" stroke="#111" stroke-width="0.5" />
-<circle cx="930.0" cy="274.5449536920236" r="4" fill="#d62728" stroke="#111" stroke-width="0.5" />
-<polyline fill="none" stroke="#9467bd" stroke-width="2" points="90.0,323.41021782931057 510.0,323.41021782931057 930.0,323.41021782931057" />
-<circle cx="90.0" cy="323.41021782931057" r="4" fill="#9467bd" stroke="#111" stroke-width="0.5" />
-<circle cx="510.0" cy="323.41021782931057" r="4" fill="#9467bd" stroke="#111" stroke-width="0.5" />
-<circle cx="930.0" cy="323.41021782931057" r="4" fill="#9467bd" stroke="#111" stroke-width="0.5" />
-<line x1="710" y1="50" x2="730" y2="50" stroke="#1f77b4" stroke-width="2" />
+<text class="tick-label" x="80" y="-10.819293712798412" text-anchor="end" dominant-baseline="middle">0.160</text>
+<text x="510.0" y="510" class="axis-label" text-anchor="middle">Tau (s)</text>
+<text x="40" y="255.0" class="axis-label" text-anchor="middle" transform="rotate(-90 40,255.0)">Pout(tau)</text>
+<polyline class="series-line" stroke="#1f77b4" points="90.0,225.6806912615986 510.0,274.5449536920236 930.0,274.5449536920236" />
+<circle class="pt" cx="90.0" cy="225.6806912615986" r="4" fill="#1f77b4" />
+<circle class="pt" cx="510.0" cy="274.5449536920236" r="4" fill="#1f77b4" />
+<circle class="pt" cx="930.0" cy="274.5449536920236" r="4" fill="#1f77b4" />
+<polyline class="series-line" stroke="#2ca02c" points="90.0,79.09090909090918 510.0,201.24906089981704 930.0,201.24906089981704" />
+<circle class="pt" cx="90.0" cy="79.09090909090918" r="4" fill="#2ca02c" />
+<circle class="pt" cx="510.0" cy="201.24906089981704" r="4" fill="#2ca02c" />
+<circle class="pt" cx="930.0" cy="201.24906089981704" r="4" fill="#2ca02c" />
+<polyline class="series-line" stroke="#ff7f0e" points="90.0,323.41021782931057 510.0,323.41021782931057 930.0,323.41021782931057" />
+<circle class="pt" cx="90.0" cy="323.41021782931057" r="4" fill="#ff7f0e" />
+<circle class="pt" cx="510.0" cy="323.41021782931057" r="4" fill="#ff7f0e" />
+<circle class="pt" cx="930.0" cy="323.41021782931057" r="4" fill="#ff7f0e" />
+<polyline class="series-line" stroke="#d62728" points="90.0,274.5449536920236 510.0,274.5449536920236 930.0,274.5449536920236" />
+<circle class="pt" cx="90.0" cy="274.5449536920236" r="4" fill="#d62728" />
+<circle class="pt" cx="510.0" cy="274.5449536920236" r="4" fill="#d62728" />
+<circle class="pt" cx="930.0" cy="274.5449536920236" r="4" fill="#d62728" />
+<polyline class="series-line" stroke="#9467bd" points="90.0,323.41021782931057 510.0,323.41021782931057 930.0,323.41021782931057" />
+<circle class="pt" cx="90.0" cy="323.41021782931057" r="4" fill="#9467bd" />
+<circle class="pt" cx="510.0" cy="323.41021782931057" r="4" fill="#9467bd" />
+<circle class="pt" cx="930.0" cy="323.41021782931057" r="4" fill="#9467bd" />
+<rect class="legend-bg" x="702" y="38" width="172.0" height="104" rx="4" ry="4" />
+<line class="series-line" x1="710" y1="50" x2="730" y2="50" stroke="#1f77b4" />
 <text x="736" y="54" font-size="12">Fixed100</text>
-<line x1="710" y1="68" x2="730" y2="68" stroke="#2ca02c" stroke-width="2" />
+<line class="series-line" x1="710" y1="68" x2="730" y2="68" stroke="#2ca02c" />
 <text x="736" y="72" font-size="12">Fixed500</text>
-<line x1="710" y1="86" x2="730" y2="86" stroke="#ff7f0e" stroke-width="2" />
+<line class="series-line" x1="710" y1="86" x2="730" y2="86" stroke="#ff7f0e" />
 <text x="736" y="90" font-size="12">Policy (U+CCS)</text>
-<line x1="710" y1="104" x2="730" y2="104" stroke="#d62728" stroke-width="2" />
+<line class="series-line" x1="710" y1="104" x2="730" y2="104" stroke="#d62728" />
 <text x="736" y="108" font-size="12">U-only (CCS-off)</text>
-<line x1="710" y1="122" x2="730" y2="122" stroke="#9467bd" stroke-width="2" />
+<line class="series-line" x1="710" y1="122" x2="730" y2="122" stroke="#9467bd" />
 <text x="736" y="126" font-size="12">U-shuffle (U broken)</text>
 </svg>

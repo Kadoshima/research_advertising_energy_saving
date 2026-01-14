@@ -1,47 +1,61 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520">\n<style>\n  text { font-family: "Times New Roman", serif; fill: #111; }\n  .axis { stroke: #111; stroke-width: 1; }\n  .grid { stroke: #ddd; stroke-width: 1; }\n  .tick { stroke: #111; stroke-width: 1; }\n</style>\n<text x="450.0" y="22" font-size="16" text-anchor="middle">S4 fixed intervals: avg power * Pout(1s)</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520">
+<rect x="0" y="0" width="100%" height="100%" fill="#fff"/>
+<style>
+  text { font-family: "Helvetica", "Arial", sans-serif; fill: #111; }
+  .title { font-size: 16px; font-weight: 600; }
+  .axis { stroke: #111; stroke-width: 1.2; shape-rendering: crispEdges; }
+  .grid { stroke: #e6e6e6; stroke-width: 1; shape-rendering: crispEdges; }
+  .tick { stroke: #111; stroke-width: 1.2; shape-rendering: crispEdges; }
+  .tick-label { font-size: 12px; fill: #222; }
+  .axis-label { font-size: 14px; font-weight: 500; }
+  .series-line { fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .pt { stroke: #111; stroke-width: 0.6; }
+  .legend-bg { fill: #fff; fill-opacity: 0.85; stroke: #cfcfcf; stroke-width: 1; }
+</style>
+<text class="title" x="450.0" y="22" text-anchor="middle">S4 fixed intervals: avg power * Pout(1s)</text>
 <line class="axis" x1="90" y1="430" x2="870" y2="430" />
 <line class="axis" x1="90" y1="40" x2="90" y2="430" />
 <line class="grid" x1="90" y1="430.0" x2="870" y2="430.0" />
 <line class="tick" x1="84" y1="430.0" x2="90" y2="430.0" />
-<text x="80" y="434.0" font-size="12" text-anchor="end">0.000</text>
+<text class="tick-label" x="80" y="430.0" text-anchor="end" dominant-baseline="middle">0.000</text>
 <line class="grid" x1="90" y1="394.61195374143955" x2="870" y2="394.61195374143955" />
 <line class="tick" x1="84" y1="394.61195374143955" x2="90" y2="394.61195374143955" />
-<text x="80" y="398.61195374143955" font-size="12" text-anchor="end">20.0</text>
+<text class="tick-label" x="80" y="394.61195374143955" text-anchor="end" dominant-baseline="middle">20.0</text>
 <line class="grid" x1="90" y1="359.2239074828791" x2="870" y2="359.2239074828791" />
 <line class="tick" x1="84" y1="359.2239074828791" x2="90" y2="359.2239074828791" />
-<text x="80" y="363.2239074828791" font-size="12" text-anchor="end">40.0</text>
+<text class="tick-label" x="80" y="359.2239074828791" text-anchor="end" dominant-baseline="middle">40.0</text>
 <line class="grid" x1="90" y1="323.8358612243186" x2="870" y2="323.8358612243186" />
 <line class="tick" x1="84" y1="323.8358612243186" x2="90" y2="323.8358612243186" />
-<text x="80" y="327.8358612243186" font-size="12" text-anchor="end">60.0</text>
+<text class="tick-label" x="80" y="323.8358612243186" text-anchor="end" dominant-baseline="middle">60.0</text>
 <line class="grid" x1="90" y1="288.44781496575814" x2="870" y2="288.44781496575814" />
 <line class="tick" x1="84" y1="288.44781496575814" x2="90" y2="288.44781496575814" />
-<text x="80" y="292.44781496575814" font-size="12" text-anchor="end">80.0</text>
+<text class="tick-label" x="80" y="288.44781496575814" text-anchor="end" dominant-baseline="middle">80.0</text>
 <line class="grid" x1="90" y1="253.05976870719766" x2="870" y2="253.05976870719766" />
 <line class="tick" x1="84" y1="253.05976870719766" x2="90" y2="253.05976870719766" />
-<text x="80" y="257.0597687071977" font-size="12" text-anchor="end">100</text>
+<text class="tick-label" x="80" y="253.05976870719766" text-anchor="end" dominant-baseline="middle">100</text>
 <line class="grid" x1="90" y1="217.6717224486372" x2="870" y2="217.6717224486372" />
 <line class="tick" x1="84" y1="217.6717224486372" x2="90" y2="217.6717224486372" />
-<text x="80" y="221.6717224486372" font-size="12" text-anchor="end">120</text>
+<text class="tick-label" x="80" y="217.6717224486372" text-anchor="end" dominant-baseline="middle">120</text>
 <line class="grid" x1="90" y1="182.28367619007673" x2="870" y2="182.28367619007673" />
 <line class="tick" x1="84" y1="182.28367619007673" x2="90" y2="182.28367619007673" />
-<text x="80" y="186.28367619007673" font-size="12" text-anchor="end">140</text>
+<text class="tick-label" x="80" y="182.28367619007673" text-anchor="end" dominant-baseline="middle">140</text>
 <line class="grid" x1="90" y1="146.89562993151628" x2="870" y2="146.89562993151628" />
 <line class="tick" x1="84" y1="146.89562993151628" x2="90" y2="146.89562993151628" />
-<text x="80" y="150.89562993151628" font-size="12" text-anchor="end">160</text>
+<text class="tick-label" x="80" y="146.89562993151628" text-anchor="end" dominant-baseline="middle">160</text>
 <line class="grid" x1="90" y1="111.50758367295578" x2="870" y2="111.50758367295578" />
 <line class="tick" x1="84" y1="111.50758367295578" x2="90" y2="111.50758367295578" />
-<text x="80" y="115.50758367295578" font-size="12" text-anchor="end">180</text>
+<text class="tick-label" x="80" y="111.50758367295578" text-anchor="end" dominant-baseline="middle">180</text>
 <line class="grid" x1="90" y1="76.11953741439532" x2="870" y2="76.11953741439532" />
 <line class="tick" x1="84" y1="76.11953741439532" x2="90" y2="76.11953741439532" />
-<text x="80" y="80.11953741439532" font-size="12" text-anchor="end">200</text>
+<text class="tick-label" x="80" y="76.11953741439532" text-anchor="end" dominant-baseline="middle">200</text>
 <line class="grid" x1="90" y1="40.731491155834874" x2="870" y2="40.731491155834874" />
 <line class="tick" x1="84" y1="40.731491155834874" x2="90" y2="40.731491155834874" />
-<text x="80" y="44.731491155834874" font-size="12" text-anchor="end">220</text>
+<text class="tick-label" x="80" y="40.731491155834874" text-anchor="end" dominant-baseline="middle">220</text>
 <line class="grid" x1="90" y1="5.3434448972744235" x2="870" y2="5.3434448972744235" />
 <line class="tick" x1="84" y1="5.3434448972744235" x2="90" y2="5.3434448972744235" />
-<text x="80" y="9.343444897274424" font-size="12" text-anchor="end">240</text>
-<text x="480.0" y="470" font-size="14" text-anchor="middle">Interval (ms)</text>
-<text x="40" y="235.0" font-size="14" text-anchor="middle" transform="rotate(-90 40,235.0)">Avg power * Pout (mW)</text>
+<text class="tick-label" x="80" y="5.3434448972744235" text-anchor="end" dominant-baseline="middle">240</text>
+<text x="480.0" y="470" class="axis-label" text-anchor="middle">Interval (ms)</text>
+<text x="40" y="235.0" class="axis-label" text-anchor="middle" transform="rotate(-90 40,235.0)">Avg power * Pout (mW)</text>
 <rect x="129.0" y="98.3516470150555" width="117.0" height="331.6483529849445" fill="#1f77b4" stroke="#111" stroke-width="0.5" />
 <text x="187.5" y="454" font-size="12" text-anchor="middle">100</text>
 <text x="187.5" y="92.3516470150555" font-size="12" text-anchor="middle">187.44</text>

@@ -1,0 +1,15 @@
+2026-01-13 16:12 JST
+- 実験結果統合サマリの欠損欄を n/a で明示し、表を整備: `docs/フェーズ1/実験結果_統合サマリ_2026-01-12.md`.
+- フェーズ1索引に実験結果統合サマリを追加: `docs/フェーズ1/README.md`.
+
+2026-01-13 16:50 JST
+- repomixのinclude挙動を確認し、指定ファイルの存在を検証後にパッケージ試行: `results/phase1_bundle_2026-01-13.xml`.
+
+2026-01-13 18:00 JST
+- docsの旧版/生成物を `_archive` に退避し、索引READMEを追加: `docs/_archive/`.
+- 対象: `docs/全体像.md`, `docs/フェーズ0-0/実験装置仕様書_v2.md`, `docs/フェーズ1/results/phase1_summary.md`, `docs/フェーズ1/results/delta_energy_row1120_row1123_off.md`, `docs/フェーズ1/results/pdr_row1120_txsd_rx.md`, `docs/フェーズ1/現状整理_2026-01-12.html`, `docs/フェーズ1/現状整理_2026-01-12_files/`.
+
+2026-01-13 18:32 JST
+- 旧定義のmHealthラベル在庫とCSS感度分析の草稿をアーカイブへ退避: `docs/_archive/mhealth_label_inventory_1203.md`, `docs/_archive/レター下書き.md`.
+- `_archive` README に退避理由を追記: `docs/_archive/README.md`.
+

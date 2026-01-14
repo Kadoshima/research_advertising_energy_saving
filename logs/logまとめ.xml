@@ -1,0 +1,2150 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+2025-12-03_modeC2prime_tx_flash.md
+ccs_mode_firmware_2025-11-28.md
+exploration_2025-11-27.md
+inventory_0.1_2025-11-27.md
+inventory_0.2_2025-11-27.md
+threshold_adjustment_2025-11-27.md
+worklog_2025-12-09_causal.txt
+worklog_2025-12-10_causal.txt
+worklog_2025-12-12_causal.txt
+worklog_2025-12-12_uncertainty.txt
+worklog_2025-12-13_letter_route.txt
+worklog_2025-12-13_sleep_eval.txt
+worklog_2025-12-13_stress_fixed_metrics_v5.txt
+worklog_2025-12-14_letter_route.txt
+worklog_2025-12-14_sleep_eval.txt
+worklog_2025-12-15_letter_route.txt
+worklog_2025-12-15_thesis_setup.txt
+worklog_2025-12-16_letter_route_continued.txt
+worklog_2025-12-16_letter_route.txt
+worklog_2025-12-16_thesis_setup.txt
+worklog_2025-12-17_letter_route.txt
+worklog_2025-12-17_thesis_setup.txt
+worklog_2025-12-18_thesis_setup.txt
+worklog_2025-12-19_b2_rx_spec.txt
+worklog_2025-12-19_thesis_setup.txt
+worklog_2026-01-12_status_summary.txt
+worklog_2026-01-13_status_summary.txt
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="2025-12-03_modeC2prime_tx_flash.md">
+# 2025-12-03 作業ログ (Mode C2' TXフラッシュ版)
+
+- 目的: SDなしでラベル再生を行う Mode C2' TX のビルド/配布用に、NimBLE固定・ラベルヘッダ選択方式を整理。
+
+## 実施内容
+
+1. ラベル配列の自動生成スクリプト追加
+   - `scripts/gen_labels_header.py` を作成。
+   - 例: `python3 scripts/gen_labels_header.py --csv data/ccs_sequences/subject05_ccs.csv --label-col true_label_4 --out esp32_firmware/1202/modeC2prime_tx/labels_generated.h`
+   - 出力: `static const char* labels[] ...; static const uint16_t nLabels = N;`
+
+2. subject別ヘッダを一括生成
+   - コマンド: `for i in 01..10` を回して `esp32_firmware/1202/modeC2prime_tx/labels_subjects/labels_subjectXX.h` を生成済み。
+   - 例: subject05 → nLabels=669。
+
+3. TXフラッシュ版の整備
+   - ファイル: `esp32_firmware/1202/modeC2prime_tx/TX_ModeC2prime_1202_flash/TX_ModeC2prime_1202_flash.ino`
+   - NimBLEを明示的に使用（ArduinoBLEとの衝突回避）。
+   - ラベル配列はヘッダ側のみで定義。多重定義を解消（手書きサンプルを削除）。
+   - デフォルトで `labels_subject05.h` を include（別subjectを使う場合は該当行を差し替え）。
+   - ADV_MS固定、TICK(27)/SYNC(25)出力、300 advで1トライアル終了。
+
+4. 使い方メモ
+   - ラベルを差し替える場合: 冒頭の include を `labels_subjectXX.h` に変更。
+   - 任意CSVを使う場合: `scripts/gen_labels_header.py` でヘッダ生成→`#include "labels_generated.h"` に切り替え。
+   - TXにSDは不要。TXSD/RXは従来のC2構成で計測可。
+
+## 所感
+- SDをTXに載せずとも、フラッシュ埋め込みで十分。NimBLE固定でArduinoBLEとの衝突も解消。
+- ラベル切替はヘッダ差し替えで済むため、ビルド手順はシンプル。
+</file>
+
+<file path="ccs_mode_firmware_2025-11-28.md">
+# CCSモードファームウェア実装ログ (2025-11-28)
+
+## 概要
+
+既存のESP32ファームウェアにCCSモード（T_adv動的変更）機能を追加。
+
+## 変更内容
+
+### 新規作成ファイル
+
+| ファイル | 説明 |
+|----------|------|
+| `esp32_sweep/TX_BLE_Adv_CCS_Mode.ino` | CCSモード対応TXファームウェア |
+| `esp32_sweep/TXSD_PowerLogger_CCS_Mode.ino` | CCSモード対応TXSDファームウェア |
+| `esp32_sweep/ccs_session_data.h` | セッションデータ（自動生成） |
+| `scripts/convert_session_to_header.py` | CSV→Cヘッダー変換スクリプト |
+
+---
+
+## TX_BLE_Adv_CCS_Mode.ino
+
+### モード選択
+
+```cpp
+enum RunMode {
+  MODE_FIXED_100,   // 100ms固定
+  MODE_FIXED_2000,  // 2000ms固定
+  MODE_CCS          // CCS時系列に従って動的変更
+};
+
+static const RunMode RUN_MODE = MODE_CCS;
+```
+
+### 主な機能
+
+1. **3モード対応**: FIXED_100, FIXED_2000, CCS
+2. **CCS時系列埋め込み**: `ccs_session_data.h` を `#include`
+3. **1秒解像度でT_adv更新**: `getIntervalForTime(elapsedS)`
+4. **BLE interval動的変更**: `adv->stop()` → `setMinInterval/setMaxInterval` → `adv->start()`
+5. **拡張UART出力**: `mv,uA,interval_ms` 形式
+
+### セッション制御
+
+- セッション長: 600秒（10分）
+- 開始: 100ms SYNCパルス
+- 終了: 自動（SESSION_DURATION_S経過後）
+
+### ピン割り当て（既存と同一）
+
+| Pin | 機能 |
+|-----|------|
+| GPIO25 | SYNC_OUT |
+| GPIO27 | TICK_OUT |
+| GPIO2 | LED |
+| GPIO21/22 | I2C (INA219) |
+| GPIO4 | UART TX |
+
+---
+
+## TXSD_PowerLogger_CCS_Mode.ino
+
+### 変更点
+
+1. **パーサー拡張**: `mv,uA` または `mv,uA,interval_ms` を両対応
+2. **CSV出力拡張**: `ms,mV,µA,p_mW,interval_ms`
+3. **CCS統計追跡**:
+   - interval別カウント (100/500/2000ms)
+   - interval変更回数
+
+### サマリー出力例
+
+```
+# summary, ms_total=600000, adv_count=XXX, E_total_mJ=XXX, E_per_adv_uJ=XXX
+# ccs, interval_100ms=157 (26.2%), interval_500ms=14 (2.3%), interval_2000ms=429 (71.5%)
+# ccs, interval_changes=13
+```
+
+---
+
+## convert_session_to_header.py
+
+### 使用方法
+
+```bash
+python3 scripts/convert_session_to_header.py --session 01
+```
+
+### 出力例 (session_01)
+
+```
+Generated: esp32_sweep/ccs_session_data.h
+  Session: 01
+  Duration: 600s
+  Intervals: 100ms=157, 500ms=14, 2000ms=429
+```
+
+### 生成されるヘッダー構造
+
+```cpp
+static const char* CCS_SESSION_ID = "01";
+static const uint16_t CCS_N_ENTRIES = 600;
+static const uint32_t CCS_DURATION_S = 600;
+
+static const uint16_t CCS_INTERVALS[600] = {
+     100,  100,  100, ..., 2000, 2000, 2000
+};
+
+static inline uint16_t getIntervalForTime(uint32_t elapsed_s);
+```
+
+---
+
+## ビルド手順
+
+### 1. セッションヘッダー生成
+
+```bash
+cd /Users/kadoshima/Documents/research_advertising-energy_saving
+python3 scripts/convert_session_to_header.py --session 01
+```
+
+### 2. TXファームウェア設定
+
+`TX_BLE_Adv_CCS_Mode.ino` の定数を編集:
+
+```cpp
+// モード選択（27行目付近）
+static const RunMode RUN_MODE = MODE_CCS;  // または MODE_FIXED_100, MODE_FIXED_2000
+
+// 条件ID（37行目付近）- ログ識別用
+static const uint8_t RUN_GROUP_ID = 5;  // 1=FIXED_100, 2=FIXED_2000, 5=CCS
+```
+
+| 実験条件 | RUN_MODE | RUN_GROUP_ID | 備考 |
+|----------|----------|--------------|------|
+| 固定100ms | MODE_FIXED_100 | 1 | ベースライン比較用 |
+| 固定2000ms | MODE_FIXED_2000 | 2 | 省電力上限 |
+| CCS制御 | MODE_CCS | 5 | CCS時系列に従う |
+
+**注意**: RUN_GROUP_IDはTXSDログのメタデータに記録されるため、条件に応じて変更すること。
+
+### 3. ビルド・書き込み
+
+Arduino IDE設定:
+- Board: ESP32 Dev Module
+- Upload Speed: 921600
+- Flash Frequency: 80MHz
+
+書き込み順序:
+1. TX: `TX_BLE_Adv_CCS_Mode.ino`
+2. TXSD: `TXSD_PowerLogger_CCS_Mode.ino`
+3. RX: `RX_BLE_to_SD_SYNC_B.ino`（既存のまま）
+
+---
+
+## セッション一覧
+
+全10セッションの統計（ソース: `data/esp32_sessions/session_selection_report.md`）:
+
+| Session | Subject | CCS Mean | CCS Range | Transitions | Score | 100ms% | 500ms% | 2000ms% |
+|---------|---------|----------|-----------|-------------|-------|--------|--------|---------|
+| 01 | 06 | 0.896 | 0.36-1.00 | 13 | 0.930 | 26.2% | 2.3% | 71.5% |
+| 02 | 08 | 0.859 | 0.20-1.00 | 32 | 0.880 | 27.3% | 4.7% | 68.0% |
+| 03 | 09 | 0.888 | 0.54-1.00 | 36 | 0.818 | 24.2% | 9.7% | 66.2% |
+| 04 | 05 | 0.931 | 0.58-1.00 | 34 | 0.812 | 15.5% | 7.7% | 76.8% |
+| 05 | 07 | 0.868 | 0.22-1.00 | 51 | 0.690 | 30.5% | 11.3% | 58.2% |
+| 06 | 04 | 0.860 | 0.32-1.00 | 56 | 0.640 | 32.0% | 6.3% | 61.7% |
+| 07 | 01 | 0.836 | 0.26-1.00 | 64 | 0.600 | 32.2% | 10.0% | 57.8% |
+| 08 | 02 | 0.844 | 0.26-1.00 | 61 | 0.600 | 32.2% | 18.3% | 49.5% |
+| 09 | 03 | 0.898 | 0.44-1.00 | 70 | 0.600 | 19.8% | 12.5% | 67.7% |
+| 10 | 10 | 0.848 | 0.38-1.00 | 66 | 0.600 | 36.7% | 13.2% | 50.2% |
+
+### 選定基準（`scripts/create_esp32_sessions.py`）
+
+1. 遷移回数が適度（10-30回が理想、スコア加点）
+2. 間隔の多様性（100/500/2000msが全て出現）
+3. CCS範囲が広い
+
+### 推奨セッション
+
+| 用途 | Session | 理由 |
+|------|---------|------|
+| 動作確認 | 01 | 遷移少(13回)で安定、スコア最高(0.930) |
+| バランス検証 | 02 | 遷移適度(32回)、CCS範囲広い(0.20-1.00) |
+| 高遷移検証 | 08 | 500ms比率最高(18.3%)、3区間バランス良好 |
+| 極端ケース | 10 | 100ms比率最高(36.7%)、遷移多(66回) |
+
+---
+
+## 注意事項
+
+1. **BLE interval変更時の挙動**: `adv->stop()/start()` でわずかなギャップが発生する可能性あり
+2. **セッション長**: mHealthデータ制約により10分（600秒）固定
+3. **閾値**: θ_high=0.90, θ_low=0.80（2025-11-27調整済み）
+
+---
+
+## 修正履歴
+
+| 日付 | 内容 |
+|------|------|
+| 2025-11-28 | 初版作成 |
+| 2025-11-28 | 補強: (1) 全10セッションの統計表を追加, (2) 推奨セッションの選定理由を明記, (3) RUN_MODE/RUN_GROUP_ID設定手順を詳細化 |
+
+---
+
+*Last updated: 2025-11-28*
+</file>
+
+<file path="exploration_2025-11-27.md">
+# ディレクトリ探索ログ (2025-11-27)
+
+## 概要
+
+docs/, har/001/, har/004/ の構造と関係性を調査した。
+
+---
+
+## 1. docs/ ディレクトリ構造
+
+```
+docs/
+├── 全体像.md              # プロジェクトビジョン（Phase 1→2→3）
+├── TODO.md                # 実験計画・TODO管理
+├── paper/                 # 論文関連
+├── トラブルシューティング/ # 問題解決記録
+├── フェーズ0-0/           # Phase 0-0 (ΔEベースライン計測)
+├── フェーズ0-1/           # Phase 0-1 HARモデル開発
+│   ├── phase0-1_to_phase1_handover.md
+│   ├── splits.yaml
+│   ├── splits_subject90.yaml
+│   └── 要件定義.md
+├── フェーズ0-2/           # Phase 0-2
+├── フェーズ1/             # Phase 1 要件・設計
+│   ├── results/           # 実験結果（ΔE/adv, PDR等）
+│   ├── 要件定義.md
+│   └── 実験設計書.md
+└── フェーズ2/             # Phase 2 要件・設計
+    ├── 要件定義.md
+    └── 実験設計書.md
+```
+
+### 主要ドキュメント
+
+| ファイル | 内容 |
+|----------|------|
+| 全体像.md | Phase構造、CCS定義、研究ビジョン |
+| フェーズ1/要件定義.md | ルールベース（CCS→T_adv写像）の要件 |
+| フェーズ2/要件定義.md | Safe Contextual Banditの要件 |
+| TODO.md | 実験計画、ハードウェアリスト、週次スケジュール |
+
+---
+
+## 2. har/001/ ディレクトリ（Phase 0-1 オリジナル）
+
+### 概要
+
+- **目的**: Phase 0-1 HARモデル開発（LOSO 10-fold評価）
+- **データセット**: mHealth (12クラス → 4クラス統合)
+- **学習方式**: Leave-One-Subject-Out (被験者1〜10の10-fold)
+
+### 構造
+
+```
+har/001/
+├── src/
+│   ├── model.py           # DSCNN定義（004でも利用）
+│   └── train_phase0-1.py  # 学習スクリプト
+├── configs/               # YAMLコンフィグ
+├── runs/                  # 学習済みモデル・メトリクス
+├── export/                # ONNX/TFLiteエクスポート
+├── data_processed/        # 前処理済みデータ（004でも利用）
+├── docs/                  # 作業ログ・引き継ぎ資料
+└── analysis/              # 混同行列等の分析
+```
+
+### 重要ファイル
+
+| ファイル | 内容 |
+|----------|------|
+| src/model.py | DSCNN(in_ch, stem_ch, dw_channels, fc_hidden, dropout) |
+| docs/Phase0-1_引き継ぎ資料_2025-11-26.md | 10-fold結果、ECE=0.0425(fold5最良) |
+| data_processed/subject01-10.npz | 前処理済み窓データ |
+
+### 10-fold LOSO結果（12クラス）
+
+**注意**: har/001 は研究用LOSO評価。Phase 1実験には **har/004** の9:1分割モデルを採用。
+
+| Fold | BAcc | 備考 |
+|------|------|------|
+| Best (fold5) | **90.98%** | ECE=0.0425 |
+| Worst (fold2) | **51.31%** | |
+| 平均 | **74.13%** | std=14.4% |
+
+データソース: `har/001/runs/phase0-1/summary.json`
+
+---
+
+## 3. har/004/ ディレクトリ（Phase 1 採用モデル）★
+
+### 概要
+
+- **目的**: Phase 1 実験用のベースラインHARモデル確定
+- **データセット**: mHealth (har/001/data_processed/ を流用)
+- **学習方式**: 被験者ベース9:1分割（train=1-9, test=10）
+- **採用モデル**: 3軸加速度のみ (acc.v1)
+- **ステータス**: **Phase 1 正式採用** (2025-11-26決定)
+
+### 構造
+
+```
+har/004/
+├── configs/               # YAMLコンフィグ
+│   ├── phase0-1.acc.yaml
+│   ├── phase0-1.acc.v1.yaml  # 採用版
+│   ├── phase0-1.gyro.yaml
+│   └── phase0-1.acc.v2_tiny.yaml
+├── runs/
+│   ├── phase0-1-acc/      # 3軸加速度モデル
+│   ├── phase0-1-gyro/     # ジャイロモデル
+│   └── phase0-1-acc-tiny/ # 軽量版
+├── export/
+│   ├── acc_v1/            # ONNX
+│   └── acc_v1_keras/      # TFLite int8 ★採用
+├── tools/                 # エクスポート・比較スクリプト
+└── docs/                  # 意思決定ログ
+```
+
+### 重要ファイル
+
+| ファイル | 内容 |
+|----------|------|
+| runs/phase0-1-acc/summary.json | BAcc=0.828, ECE=0.092 |
+| export/acc_v1_keras/manifest.json | TFLiteアーティファクト情報 |
+| docs/decision_log_2025-11-26.md | 採用判断の記録 |
+
+---
+
+## 4. har/001 と har/004 の関係
+
+### 依存関係
+
+```
+har/004 ──依存──> har/001
+  │                │
+  │                ├── src/model.py (DSCNNクラス定義)
+  │                └── data_processed/subject01-10.npz
+  │
+  └── configs, runs, export は独自管理
+```
+
+### 主な違い
+
+| 項目 | har/001 | har/004 |
+|------|---------|---------|
+| 学習方式 | LOSO 10-fold | 9:1固定分割 |
+| 目的 | HAR研究精度 | BLE評価用ベースライン |
+| 入力チャネル | 6軸(acc+gyro) | 3軸(accのみ) ★採用 |
+| テスト被験者 | 全員(fold別) | 被験者10固定 |
+| 成果物 | 10個の.pth | 1個の.pth + TFLite |
+
+### har/004が001から流用しているもの
+
+1. **model.py**: DSCNNアーキテクチャ定義
+2. **data_processed/**: 前処理済みの窓データ (100x6 or 100x3)
+3. **rep_data.npy**: TFLite量子化用の代表データ
+
+---
+
+## 5. 採用ベースラインモデル (AI-A: acc.v1)
+
+### スペック
+
+| 項目 | 値 |
+|------|-----|
+| モデルID | d9fcb1364f888c98e0b61f034519f5e5d794e3e5574cb275b6e4c0083024fd30 |
+| 入力形状 | [1, 100, 3] (2秒窓@50Hz, 3軸加速度) |
+| Test BAcc | 0.828 |
+| 4クラスBAcc | 0.960 |
+| ECE | 0.092 |
+| Unknown率 | 4.4% |
+
+### TFLiteアーティファクト
+
+| 項目 | 値 |
+|------|-----|
+| ファイル | har/004/export/acc_v1_keras/phase0-1-acc.v1.int8.tflite |
+| SHA256 | e1c3ff0042badac5dd9bb478a17fac79991736c813143b45e5cb981d9db68610 |
+| PyTorch vs TFLite | argmax一致率 0.98, max_prob MAE 0.0277 |
+
+### CCS定義（Phase 1適用）
+
+**仕様定義** (`docs/全体像.md`, `docs/フェーズ1/要件定義.md`):
+```
+U = 正規化エントロピー (不確実度) ∈ [0, 1]
+S = 安定度 ∈ [0, 1]
+confidence = 1 - U
+
+CCS = 0.7 × (1 - U) + 0.3 × S
+    = 0.7 × confidence + 0.3 × S
+```
+
+**現行設定** (`har/004/configs/phase0-1.acc.v1.yaml`):
+```yaml
+ccs:
+  alpha: 0.6  # confidence係数
+  beta: 0.4   # stability係数
+```
+
+**注意**: 仕様(0.7/0.3)と設定(0.6/0.4)に差異あり。感度分析で調整予定。
+
+- θ_low = 0.40, θ_high = 0.70 → **0.80, 0.90に調整済み** (2025-11-27)
+- 調整理由: mHealthのCCS分布が高め(0.84-0.93)のため
+
+---
+
+## 6. 次のアクション
+
+1. ~~Phase 1実験開始前に、TFLiteモデルをESP32-S3にデプロイ~~ → PC側でTFLite推論実施
+2. ~~CCS閾値（θ_low, θ_high）のバリデーション実験~~ → 0.80/0.90に調整済み
+3. ESP32ファームウェアのCCSモード実装
+
+---
+
+## 7. 修正履歴
+
+| 日付 | 内容 |
+|------|------|
+| 2025-11-27 | 初版作成 |
+| 2025-11-28 | 誤記修正: (1) har/001 10-fold結果の値訂正 (Best=90.98%, Worst=51.31%, 平均=74.13%), (2) CCS定義を仕様に合わせて修正, (3) docs/構造を実態に合わせて修正, (4) har/004が採用モデルであることを明確化 |
+
+---
+
+*Last updated: 2025-11-28*
+</file>
+
+<file path="inventory_0.1_2025-11-27.md">
+# 0.1 既存資産の棚卸し結果 (2025-11-27)
+
+## 概要
+
+TODO.md の「0.1 既存資産の棚卸し」に従い、以下を確認した。
+
+---
+
+## 1. フェーズ0-0データの確認
+
+### 1.1 ΔE/adv実測値
+
+| 状態 | 結果 |
+|------|------|
+| **確認済み** | OK |
+
+**ファイル**: `docs/フェーズ1/results/delta_energy_row1120_row1123_off.md`
+
+| Interval | Trials | ΔE/adv Mean (mJ) | ΔE/adv Std |
+|----------|--------|------------------|------------|
+| 100ms | 10 | 2.257 | ±0.162 |
+| 500ms | 10 | 9.760 | ±0.339 |
+| 1000ms | 4 | 19.661 | ±0.134 |
+| 2000ms | 2 | 39.482 | ±0.063 |
+
+**データソース**:
+- ON: `data/実験データ/研究室/row_1120/TX`
+- OFF: `data/実験データ/研究室/row_1123_off/TX`
+
+### 1.2 P_off_mean = 22.106 mW
+
+| 状態 | 結果 |
+|------|------|
+| **確認済み** | OK |
+
+**ファイル**: `docs/フェーズ1/results/delta_energy_row1120_row1123_off.md` (Line 9)
+- OFF trials: 7/7 kept (MAD3 outlier filter適用)
+- OFF mean E_total_mJ: 1326.381 mJ
+
+### 1.3 PDR実測値 (p_d ≈ 0.85)
+
+| 状態 | 結果 |
+|------|------|
+| **確認済み** | OK |
+
+**ファイル**: `docs/フェーズ1/results/pdr_row1120_txsd_rx.md`
+
+| Interval | Trials | PDR_ms Mean | PDR_ms Std |
+|----------|--------|-------------|------------|
+| 100ms | 10 | 0.814 | ±0.021 |
+| 500ms | 10 | **0.845** | ±0.018 |
+| 1000ms | 4 | 0.872 | ±0.009 |
+| 2000ms | 2 | 0.876 | ±0.008 |
+
+**結論**: p_d ≈ 0.85 は500ms条件の実測値として妥当。
+
+---
+
+## 2. HARモデル（A0）の確認
+
+### 2.1 TFLite int8モデル
+
+| 状態 | 結果 |
+|------|------|
+| **エクスポート済み** | OK |
+
+**ファイル**: `har/004/export/acc_v1_keras/phase0-1-acc.v1.int8.tflite`
+- サイズ: **92,768 bytes (90.6 KB)**
+- SHA256: `e1c3ff0042badac5dd9bb478a17fac79991736c813143b45e5cb981d9db68610`
+- 入力形状: [1, 100, 3] (2秒窓@50Hz, 3軸加速度)
+
+**注意**: TODO記載の「90.6KB」と一致。ただし目標22KBは未達。
+
+### 2.2 校正パラメータ
+
+| 状態 | 結果 |
+|------|------|
+| **確定済み** | OK |
+
+**ファイル**: `har/001/docs/A0_acc_v1_baseline_summary.md`
+
+| パラメータ | 値 | 備考 |
+|------------|-----|------|
+| Temperature (T) | **0.7443** | valロジット温度スケーリング |
+| τ (Unknown閾値) | **0.66** | Unknown率調整用 |
+| ECE | 0.0924 | T適用後 |
+| Unknown率 | 4.35% | τ適用後（目標5-15%の下限未達） |
+
+**注意**:
+- TODOに記載の「T=0.7443, τ=0.66」と一致
+- Unknown率4.35%は目標レンジ(5-15%)の下限を下回るが、安全側（過剰にUnknownにしない）として許容
+
+### 2.3 CCS閾値
+
+| 状態 | 結果 |
+|------|------|
+| **調整済み** | OK (2025-11-27更新) |
+
+| パラメータ | 初期値 | 調整後 | 備考 |
+|------------|--------|--------|------|
+| θ_low | 0.40 | **0.80** | mHealth CCS分布に合わせて引き上げ |
+| θ_high | 0.70 | **0.90** | 同上 |
+
+**調整理由** (`logs/threshold_adjustment_2025-11-27.md`):
+- mHealthデータのCCS分布が高め（平均0.84-0.93）
+- 初期閾値ではほぼ全サンプルが2000ms区間に入り、間隔多様性が出ない
+- 閾値引き上げにより100ms/500ms/2000msの3区間が適度に出現
+
+### 2.4 モデル性能
+
+| 指標 | 値 |
+|------|-----|
+| 12クラス BAcc | 0.828 |
+| 4クラス BAcc | 0.960 |
+| Macro F1 (12c) | 0.747 |
+| PT↔TFLite argmax一致 | 0.98 |
+| PT↔TFLite max_prob MAE | 0.0277 |
+
+---
+
+## 3. mHealthデータセットの確認
+
+### 3.1 生データへのアクセス
+
+| 状態 | 結果 |
+|------|------|
+| **アクセス可能** | OK |
+
+**パス**: `data/MHEALTHDATASET/`
+
+| ファイル | サイズ |
+|----------|--------|
+| mHealth_subject1.log | 29 MB |
+| mHealth_subject2.log | 23 MB |
+| mHealth_subject3.log | 22 MB |
+| mHealth_subject4.log | 21 MB |
+| mHealth_subject5.log | 21 MB |
+| mHealth_subject6.log | 17 MB |
+| mHealth_subject7.log | 19 MB |
+| mHealth_subject8.log | 23 MB |
+| mHealth_subject9.log | 24 MB |
+| mHealth_subject10.log | 18 MB |
+
+### 3.2 被験者数・セッション数・活動ラベル
+
+| 項目 | 値 |
+|------|-----|
+| 被験者数 | **10名** |
+| サンプリングレート | 50 Hz |
+| センサー位置 | 胸・左足首・右前腕 |
+| 使用センサー（本研究） | **胸3軸加速度のみ** |
+
+**活動ラベル（12クラス）**:
+| L# | 活動 | 時間/回数 |
+|----|------|-----------|
+| L1 | Standing still | 1 min |
+| L2 | Sitting and relaxing | 1 min |
+| L3 | Lying down | 1 min |
+| L4 | Walking | 1 min |
+| L5 | Climbing stairs | 1 min |
+| L6 | Waist bends forward | 20x |
+| L7 | Frontal elevation of arms | 20x |
+| L8 | Knees bending (crouching) | 20x |
+| L9 | Cycling | 1 min |
+| L10 | Jogging | 1 min |
+| L11 | Running | 1 min |
+| L12 | Jump front & back | 20x |
+
+### 3.3 データ前処理パイプライン
+
+| 状態 | 結果 |
+|------|------|
+| **動作確認済み** | OK |
+
+**前処理済みデータ**: `har/001/data_processed/subject{01-10}.npz`
+
+| 被験者 | 窓数 |
+|--------|------|
+| subject01 | 694 |
+| subject02 | 704 |
+| subject03 | 698 |
+| subject04 | 697 |
+| subject05 | 669 |
+| subject06 | 634 |
+| subject07 | 670 |
+| subject08 | 659 |
+| subject09 | 677 |
+| subject10 | 666 |
+| **合計** | **6,768** |
+
+**npzファイル構造**:
+- `X`: 窓データ [N, 100, 3] (100サンプル×3軸)
+- `y12`: 12クラスラベル [N]
+- `y4`: 4クラスラベル [N] (Locomotion/Transition/Stationary)
+- `spans`: 元データ位置
+- `preproc_hash`: 前処理ハッシュ
+
+---
+
+## 4. 棚卸し結果サマリ
+
+| 項目 | 状態 | 備考 |
+|------|------|------|
+| ΔE/adv実測値 (100/500/1000/2000ms) | **OK** | 使用可能 |
+| P_off_mean = 22.106 mW | **OK** | 使用可能 |
+| PDR (p_d ≈ 0.85) | **OK** | 500ms条件 |
+| TFLite int8モデル | **OK** | 90.6KB |
+| 校正パラメータ (T=0.7443, τ=0.66) | **OK** | 確定済み |
+| θ_low=0.80, θ_high=0.90 | **OK** | 2025-11-27調整済み |
+| mHealth生データ | **OK** | アクセス可能 |
+| 前処理パイプライン | **OK** | 動作確認済み |
+
+---
+
+## 5. 次のアクション
+
+1. ~~**θ_low/θ_high の再キャリブ**~~: **完了** (0.80/0.90に調整済み)
+2. **TFLiteサイズ削減**: 90.6KB→22KB目標への軽量化検討（A_tiny）→ Phase 1実験後に検討
+3. ~~**0.2 ハードウェア準備状況の確認**~~: **完了**
+
+---
+
+## 6. 判断ログ
+
+### 2025-11-27: θ_low/θ_high 再キャリブについて
+
+**初期判断**: デフォルト値（0.40/0.70）で進める
+
+**その後の変更** (同日):
+- mHealthデータでCCS時系列を生成したところ、CCS分布が高め（平均0.84-0.93）
+- 初期閾値ではほぼ全サンプルが2000ms区間に入り、間隔多様性が出ない
+- **θ_low=0.80, θ_high=0.90** に引き上げて再生成
+- 詳細: `logs/threshold_adjustment_2025-11-27.md`
+
+---
+
+## 7. 修正履歴
+
+| 日付 | 内容 |
+|------|------|
+| 2025-11-27 | 初版作成 |
+| 2025-11-28 | 誤記修正: (1) CCS閾値を調整後の値(0.80/0.90)に更新, (2) Unknown率の目標未達を明記, (3) 生データサイズを実測値に更新 |
+
+---
+
+*Last updated: 2025-11-28*
+</file>
+
+<file path="inventory_0.2_2025-11-27.md">
+# 0.2 ハードウェア準備状況 (2025-11-27)
+
+## 概要
+
+TODO.md の「0.2 ハードウェア準備状況」に従い確認。
+ドキュメントから判明した情報と、ユーザー確認が必要な項目を整理。
+
+---
+
+## 1. ESP32ボード
+
+### ドキュメントから判明
+
+| 項目 | 値 | ソース |
+|------|-----|--------|
+| ボード | ESP32 Dev Module | `docs/フェーズ0-0/実験装置最終仕様書.md` |
+| ビルド環境 | Arduino-ESP32 v3.x | 同上 |
+| 電源 | 外部3.3V直接供給 | 同上 |
+| BLE設定 | Legacy Adv, 0 dBm | 同上 |
+
+### 3ノード構成（Phase 0-0で使用）
+
+| ノード | 役割 | ファームウェア |
+|--------|------|----------------|
+| TX | 送信 + 電流計測 | `esp32_sweep/TX_BLE_Adv_Meter_ON_sweep.ino` |
+| TXSD | パワーロガー | `esp32_sweep/TXSD_PowerLogger_PASS_THRU_ON_v2.ino` |
+| RX | BLE受信ロガー | `esp32_sweep/RX_BLE_to_SD_SYNC_B.ino` |
+
+### ユーザー確認結果 (2025-11-27)
+
+- [x] **物理的に手元にあるか？** → **YES** (3台)
+- [x] **動作確認済みか？** → **YES**
+
+---
+
+## 2. 電力計測
+
+### 使用機器
+
+**決定**: **INA219構成を継続**（PPK-IIは使用しない）
+
+| 項目 | 値 | ソース |
+|------|-----|--------|
+| 計測器 | INA219 | `docs/フェーズ0-0/実験装置最終仕様書.md` |
+| 構成 | TX + TXSD PowerLogger | 同上 |
+| シャント抵抗 | 0.1Ω (100mΩ) | 同上 |
+| サンプリング | 100Hz (10ms周期) | 同上 |
+| ベースライン | P_off = 22.106 mW | `docs/フェーズ1/results/delta_energy_row1120_row1123_off.md` |
+
+### ユーザー確認結果 (2025-11-27)
+
+- Phase 0-0と同じINA219構成を維持
+- PPK-IIは使用しない
+
+---
+
+## 3. Android端末
+
+### 設定要件
+
+| 項目 | 値 | ソース |
+|------|-----|--------|
+| スキャンモード | LOW_LATENCY | `docs/TODO.md` |
+| フィルタ | "TXM_ESP32" (デバイス名) | 同上 |
+| 計測項目 | timestamp, RSSI, Advertising Data | 同上 |
+| 使用アプリ | nRF Connect for Mobile | 2025-11-28決定 |
+
+### ユーザー確認結果 (2025-11-28)
+
+- [x] **機種名**: **Galaxy S9** (SCV38)
+- [x] **OSバージョン**: **Android 10** (One UI 2.1)
+- [x] **BLE受信アプリ**: nRF Connect使用
+- **ビルド番号**: QP1A.190711.020.SCV38KDS1CVK1
+- **カーネル**: 4.9.186-21874876 (2022-11-17)
+
+---
+
+## 4. 実験環境
+
+### 環境定義
+
+| 環境 | 説明 |
+|------|------|
+| E1 | 低干渉（Wi-Fi OFF等） |
+| E2 | 高Wi-Fi干渉（Wi-Fi稼働） |
+
+### ユーザー確認結果 (2025-11-27)
+
+- [ ] **E1環境**: 未確認
+- [x] **E2環境**: **確保済み**（簡易に実施可能）
+- [ ] **距離1mの固定方法**: 要確認
+
+---
+
+## 5. ステータスサマリ
+
+| カテゴリ | 状態 | 備考 |
+|----------|------|------|
+| ESP32ボード | **OK** | 3台動作確認済み |
+| 電力計測 | **OK** | INA219構成を継続 |
+| Android端末 | **OK** | Galaxy S9 (SCV38), Android 10 |
+| 実験環境 | **一部未確認** | E2確保済み、E1未確認 |
+
+---
+
+## 6. 残タスク
+
+- [x] ~~Android OSバージョン確認~~ → Android 10 (2025-11-28確認)
+- [x] ~~BLE受信アプリの準備確認~~ → nRF Connect使用 (2025-11-28決定)
+- [ ] E1環境の確保確認
+- [ ] 距離1mマーキング確認
+
+---
+
+## 7. 修正履歴
+
+| 日付 | 内容 |
+|------|------|
+| 2025-11-27 | 初版作成 |
+| 2025-11-28 | 誤記修正: (1) PPK-II→INA219に修正しソース明記, (2) Android「Passiveスキャン」削除, (3) 距離1m「マーキング済み」→「要確認」に修正, (4) nRF Connect使用を追記 |
+
+---
+
+*Last updated: 2025-11-28*
+</file>
+
+<file path="threshold_adjustment_2025-11-27.md">
+# CCS閾値調整ログ (2025-11-27)
+
+## 変更内容
+
+### 閾値変更
+
+| パラメータ | 変更前 | 変更後 |
+|------------|--------|--------|
+| θ_high | 0.70 | **0.90** |
+| θ_low | 0.40 | **0.80** |
+| hysteresis | 0.05 | 0.05 (変更なし) |
+| min_stay | 2.0s | 2.0s (変更なし) |
+
+### 写像ルール
+
+| CCS範囲 | T_adv | 意味 |
+|---------|-------|------|
+| CCS < 0.80 | 100ms | 不確実 → 高応答 |
+| 0.80 ≤ CCS < 0.90 | 500ms | 中間 |
+| CCS ≥ 0.90 | 2000ms | 確信あり → 省電力 |
+
+---
+
+## 変更理由
+
+mHealthデータのCCS分布が高め（平均0.84-0.93）であり、元の閾値（θ_high=0.70, θ_low=0.40）では：
+
+- ほぼ全てのサンプルが2000ms区間に入る
+- 遷移がほとんど発生しない（5-59回/セッション）
+- 固定間隔との差が見えにくい
+
+閾値を上げることで：
+
+- 3つの間隔が適度に出現
+- 遷移回数が増加（13-70回/セッション）
+- CCS制御の効果が可視化できる
+
+---
+
+## 変更前後の比較
+
+### 変更前（θ_high=0.70, θ_low=0.40）
+
+| Subject | CCS Mean | Trans | 100ms | 500ms | 2000ms |
+|---------|----------|-------|-------|-------|--------|
+| 01 | 0.839 | 59 | 2.9% | 15.3% | 81.8% |
+| 08 | 0.872 | 40 | 2.6% | 17.3% | 80.1% |
+
+### 変更後（θ_high=0.90, θ_low=0.80）
+
+| Subject | CCS Mean | Trans | 100ms | 500ms | 2000ms |
+|---------|----------|-------|-------|-------|--------|
+| 01 | 0.839 | 85 | 32.4% | 10.4% | 57.2% |
+| 08 | 0.872 | 32 | 24.9% | 4.2% | 70.9% |
+
+---
+
+## 影響範囲
+
+### 変更ファイル
+
+- `scripts/generate_ccs_sequences.py`: THETA_HIGH, THETA_LOW定数
+
+### 再生成したデータ
+
+- `data/ccs_sequences/subject{01-10}_ccs.csv`
+- `data/ccs_sequences/generation_summary.json`
+- `data/esp32_sessions/session_{01-10}.csv`
+- `data/esp32_sessions/session_manifest.json`
+- `data/esp32_sessions/session_selection_report.md`
+
+---
+
+## 注意事項
+
+1. **この閾値はmHealthデータに最適化**されたもの。実機実験時のCCS分布が異なる場合、再調整が必要。
+
+2. **Phase 2（Safe Bandit）では閾値を自動学習**するため、この閾値はPhase 1の暫定値として扱う。
+
+3. **ドキュメントとの整合性**: `docs/フェーズ1/要件定義.md` には旧閾値（0.40/0.70）が記載されている。実験結果に基づき、ドキュメントを更新するか、「mHealthシミュレーション用に調整」と注記する。
+
+---
+
+*Last updated: 2025-11-27*
+</file>
+
+<file path="worklog_2025-12-09_causal.txt">
+2025-12-09
+- add script scripts/generate_modec2_stress_causal.py (causal CCS: S from time since last transition only; U=1-S+N(0,0.05^2); CCS=0.7*(1-U)+0.3*S; T_adv thresholds 0.3/0.7 -> 100/500/2000ms)
+- generated Mode_C_2_シミュレート_causal/ccs/stress_causal_S1..S6.csv and manifest_stress_causal.json
+- ran causal simulation (PDR=1) to produce Mode_C_2_シミュレート_causal/sim_timeline_metrics_causal.csv and sim_timeline_metrics_causal_agg.csv (agg: FIXED_100 acc=1.0, FIXED_500 acc≈0.972 TL≈2.9s, FIXED_1000 acc≈0.935 TL≈5.3s, FIXED_2000 acc≈0.870 TL≈9.4s; CCS_causal acc≈0.916 TL≈6.8s)
+</file>
+
+<file path="worklog_2025-12-10_causal.txt">
+2025-12-10
+- A-1/A-2: read Mode_C_2_シミュレート_causal/sim_timeline_metrics_causal_agg.csv → CCS_causal acc=0.9160, TL_mean=6.81s, Pout(1s/2s/3s)=0.323/0.091/0.088; positioned between FIXED_1000(0.935,5.26s,0.064) and FIXED_2000(0.870,9.40s,0.492), with FIXED_500 as upper-QoS reference (acc=0.972, TL=2.92s, Pout1s=0.036).
+- A-2: from manifest_stress_causal.json interval_frac mean {100ms:0.2086, 500ms:0.2033, 2000ms:0.5881}, E[T_adv]≈1298.7ms. Using Mode_C_2_03 E_per_adv_uJ (100:19872.3, 500:96739.4, 1000:197036.0, 2000:394849.8) → weighted E/adv≈256,025 μJ (rel vs 100ms=12.88x, vs 500ms=2.65x, vs 2000ms=0.65x); weighted power≈196.9 mW (~0.99x vs FIXED_100, ~1.02x vs FIXED_500, ~1.00x vs FIXED_1000/2000).
+- docs/TODO.md: marked A-1/A-2 as done, added the above QoS/energy numbers, kept A-3 frozen parameters (CCS=0.7*(1-U)+0.3*S; S_causal=time_since_last_transition/5s clip; U_causal=1-S+N(0,0.05^2); thresholds 0.30/0.70 -> 100/500/2000ms; no hysteresis for stress case).
+- A-4: PDR<1 sweep (0.95/0.9) → Mode_C_2_シミュレート_causal/sim_timeline_metrics_causal_pdr_sweep.csv. Ranking stable: CCS_causal remains between FIXED_1000 and 2000 (PDR=0.95: CCS acc≈0.915 TL≈0.69s Pout1s≈0.30; FIXED_500 acc≈0.968 TL≈0.33s Pout1s=0; FIXED_2000 acc≈0.860 TL≈1.21s Pout1s≈0.55). TODO.md A-4 checked.
+- B-1 prep: added scripts/analyze_stress_causal_real.py (RX+TXSD→ per-trial PDR, Pout, TL_mean/p95, E_total/E_per_adv/avg_power; supports truth map; outputs CSV summary).
+- B-2 prep: added scripts/plot_stress_causal_real_vs_sim.py (aggregates real summary, reads sim agg, plots Pout(1s) bars real/sim + relative energy line vs ref mode).
+- Firmware prep: duplicated 1202 modeC2prime code into new versioned path esp32_firmware/1210:
+  - RX: esp32_firmware/1210/modeC2prime_rx/RX_ModeC2prime_1210/RX_ModeC2prime_1210.ino (from 1202 RX)
+  - TX: esp32_firmware/1210/modeC2prime_tx/{TX_ModeC2prime_1210.ino, TX_ModeC2prime_1210_flash/*.ino, labels_all.h, labels_subjects/*}
+- Firmware tweaks: bumped version strings/comments to 1210 (RX FW_TAG/boot log; TX flash banner; TX comment).
+- TX flash sweep tweaks: esp32_firmware/1210/modeC2prime_tx/TX_ModeC2prime_1210_flash/TX_ModeC2prime_1210_flash.ino
+  - clarified schedule comment (subjects × intervals 100/500/1000/2000 × repeats), added <cmath>
+  - added SUBJECT_START/SUBJECT_END knobs (default all subjects)
+  - start/end serial prints include stepCount/len; FW banner notes fixed-intervals sweep
+- TXSD: created esp32_firmware/1210/modeC2prime_txsd/TXSD_ModeC2prime_1210.ino from TXSD_1201
+  - FW banner/meta updated, pin comments aligned (SYNC=26 from TX GPIO25, TICK=33), SUBJECT_ID default set to modeC2prime_1210, SYNC gate + optional TICK end logic retained.
+- TXSD/RX run (fixed-interval sweep auto):
+  - Completed TXSD trials 010–019 (~10 trials): adv_counts ≈ {100ms: 6345/6344/6343; 500ms: 1270/1269/1269; 1000ms: 635/635; 2000ms: 317/317}. Each trial ~634s, mean power ~198–204 mW, E_total ~125–132 J. PDR calc pending (RX dup filter off; needs uniq postproc).
+  - RX logs rx_trial_003–013 aligned with TXSD times; buf_overflow=0, rate ≈8.3 Hz (dup-on).
+  - Remaining time if full 10 subjects: ~30 trials left → ~5.3h; if stop after subject3 (two more trials), ~20 min.
+- Data commit (0d34217): added RX logs rx_trial_003–014 and TXSD logs trial_010_on–021_on under data/1210_modeC2prime_fixed/.
+  - Interval mapping by adv_count: 100ms → 010/014/018; 500ms → 011/015/019; 1000ms → 012/016/020; 2000ms → 013/017/021.
+- Analysis run: generated results/stress_causal_real_summary.csv using manifest (rx↔txsd mapping).
+  - PDR (uniq seq): 100ms ≈0.83–0.84; 500/1000/2000ms ≈1.0.
+  - E_per_adv_uJ: ~20.1k–20.8k (100ms), ~99.0k–99.6k (500ms), ~197.9k–198.7k (1000ms), ~396.5k–396.9k (2000ms).
+  - TL/Pout remain 0.0 because truth_file not specified in manifest; add truth mapping to compute TL/Pout.
+- Truth export + TL/Pout計算:
+  - 1202 labels_all.h を CSV 化 (scripts/export_labels_all_to_csv.py) → data/1210_modeC2prime_fixed/truth/subject01..10.csv
+  - manifest に truth_file 列を追加（subject01→trial_003–006, subject02→007–010, subject03→011–014）
+  - 再解析で TL/Pout 取得: results/stress_causal_real_summary.csv 更新
+    - subj01: tl_mean≈0.05–0.56s, pout<=0.25; subj02: tl_mean≈10s, pout=0.167 (ラベル滞留区間が長いため)
+    - PDR/E_per_adv は前回同等（100ms≈0.83, 500/1000/2000≈1.0; E_per_adv 既報）
+- Truth clip fix: subject02 に TX再生範囲外の遷移あり (idx=6410>6352)。export を EFFECTIVE_LEN=6352 にクリップするよう修正し再出力、再解析。
+  - 全trialの TL/Pout 正常化（subj02 の tl_mean≈10s→~1s 台、pout_1s=0 except 2000ms=0.25）。PDR/E_per_adv は不変。
+  - scripts/export_labels_all_to_csv.py に seq[:6352] clip を追加。
+
+[2025-12-11 11:33 JST] Note: stress auto-sweep run aborted early (Nadv~77); user says alternate dataset available and will use that instead. Awaiting path/manifest for analysis.
+[2025-12-11 11:35 JST] User opted to use alternate stress fixed dataset (path/manifest TBD). Next: await dataset path + RX/TXSD mapping, then run scripts/analyze_stress_causal_real.py with manifest and optional plots.
+[2025-12-11 11:45 JST] Cleaned data/1211_modeC2prime_stress_fixed (kept trial_001-004). Renamed TX logs to align with RX IDs. Added manifest.csv mapping trials to stress_causal_S1 truth. Ran analyze_stress_causal_real.py -> results/stress_causal_real_summary_1211_stress100.csv (100ms stress; pdr~0.80-0.83, tl_mean~6.12s, pout_1s=0.05, E_per_adv~20.0-20.4k uJ).
+[2025-12-11 11:47 JST] Analysis summary (stress 100ms, S1): PDR 0.80-0.83, TL_mean ~6.12s, TL_p95 ~42s, Pout_1s=0.05, E_per_adv ~20.0-20.4k uJ, avg_power ~200 mW. Files: data/1211_modeC2prime_stress_fixed/{RX,TX,manifest.csv}, results/stress_causal_real_summary_1211_stress100.csv.
+[2025-12-11 12:05 JST] Restored stress fixed logs (rx 008-012, txsd 009-013). Renamed TXSD for alignment (009_on_short kept, 010→009, 011→010, 012→011, 013→012). Updated manifest (S1@100: 001-004,009; S1@2000:010; S4@100:011; S4@2000:012). Re-ran analyze_stress_causal_real.py -> results/stress_causal_real_summary_1211_stress.csv.
+[2025-12-11 12:12 JST] Removed trial_002_on.csv (truncated) and rx_trial_002.csv. Updated manifest to 001/003/004/009 (S1-100ms), 010 (S1-2000ms), 011 (S4-100ms), 012 (S4-2000ms). Re-ran analyze_stress_causal_real.py -> results/stress_causal_real_summary_1211_stress.csv (no 002 warnings).
+[2025-12-11 12:18 JST] Updated TX_ModeC2prime_1210_flash_stress.ino: sweep intervals now {100,500,1000,2000} for stress S1/S4, REPEAT=1. Ready to flash for full 4-interval run.
+[2025-12-11 12:30 JST] Note: User analysis recap: data/1211_modeC2prime_stress_fixed cleaned well; S1/S4×100/2000 manifest OK; S1 100ms shows PDR≈0.81, TL_mean≈6s, Pout1s=0.05, E_per_adv≈20kµJ (energy model consistent, QoS hit likely due to PDR~0.8/outliers); TL_mean driven by rare long gaps—use Pout/TL_p95 as primary QoS; next suggested steps: (1) manifest to just S1/S4 100/2000 (done), make 4-row table (PDR, Pout1s, TL_mean/p95, E_per_adv, relative power), (2) overlay vs sim agg to check ordering/scale.
+[2025-12-11 17:26 JST] Stress flash auto-sweep (full intervals) complete: trials 18-25 & rx 17-24 captured. Mapping: S1 100/500/1000/2000 -> (rx17/18/19/20 ↔ txsd18/19/20/21); S4 100/500/1000/2000 -> (rx21/22/23/24 ↔ txsd22/23/24/25). Trial17/rx16 was short-run (discard). All TXSD parse_drop=0, RX overflow=0, adv_counts {100:~6347, 500:~1270, 1000:~635, 2000:~317}. Pending: place data into data/1211_modeC2prime_stress_fixed and run analyze with manifest.
+[2025-12-11 17:40 JST] Added manifest for full stress sweep (S1/S4 x 100/500/1000/2000) at data/1211_modeC2prime_stress_fixed/full/manifest.csv. Ran analyze_stress_causal_real.py -> results/stress_causal_real_summary_1211_stress_full.csv (trials 18-25). Note: trial16/17 skipped (missing TXSD). PDR uses rx_unique/adv_count and appears low; can switch to rx_count if needed.
+[2025-12-12 12:00 JST] Updated scripts/analyze_stress_causal_real.py to output pdr_raw (rx_count/adv) and pdr_unique (rx_unique/adv). Re-ran full stress sweep manifest -> results/stress_causal_real_summary_1211_stress_full.csv updated. Note: pdr_raw shows large values for 500/1000/2000 due to duplicate RX entries; interpretation needed (likely use pdr_unique as QoS).
+[2025-12-12 12:25 JST] TX_ModeC2prime_1210_flash_stress.ino updated for 2000ms-only sweep, REPEAT=2 (S1,S4 each run twice).
+[2025-12-12 12:45 JST] Re-flashed 2000ms-only (REPEAT=2) and captured S1/S4 runs: TX 030-033, RX 030-032 (029 missing TXSD). Manifest at data/1211_modeC2prime_stress_fixed/harf2000/manifest.csv. analyze_stress_causal_real.py -> results/stress_causal_real_summary_1211_stress_2000_runs.csv (pdr_raw/pdr_unique ~0.88, Pout1s ~0.71-0.98, TL_mean ~12.5-54s). Need to integrate S4 2000ms into main full dataset; still missing RX for trial033.
+[2025-12-12 12:55 JST] TX_ModeC2prime_1210_flash_stress.ino updated: SESS_LIST={S4 only}, INTERVALS={2000}, REPEAT=1 (single S4@2000 retake).
+[2025-12-12 12:57 JST] Reminder: build now set to S4-only 2000ms single run (REPEAT=1). After capture, place RX/TXSD into full/ and map to trial_025/rx_trial_025 for manifest.
+[2025-12-12 13:05 JST] Added S4@2000 retake: rx_trial_035/trial_038_on copied to full as rx_trial_025/trial_025_on. Manifest refreshed. Re-ran analyze -> results/stress_causal_real_summary_1211_stress_full.csv and modes.csv now 8 rows. PDR clamped to adv_count; S4 2000ms now pdr_unique≈0.86, Pout1s≈0.67, TL_mean≈16.6s, E_per_adv≈359kµJ, avg_power≈180mW.
+[2025-12-12 13:15 JST] Docs update: added data/1211_modeC2prime_stress_fixed/README.md (S1/S4 fixed 100/500/1000/2000 summary, manifest, key metrics). Updated docs/TODO.md with progress memo (stress fixed full dataset done; PDR unique guidance; next CCS/self-UCB).
+[2025-12-12 13:16 JST] Docs reflected: added stress fixed README (data/1211_modeC2prime_stress_fixed/README.md) and TODO progress memo (stress fixed full set done; pdr_unique guidance; next CCS/self-UCB).
+[2025-12-12 13:20 JST] README.md: added note on latest stress fixed dataset (S1/S4 x 100/500/1000/2000) with manifest/results/summary paths.
+[2025-12-12 13:25 JST] Integrated S1@2000 retakes (trial_030/031) into full manifest; removed old 021. Re-ran analysis -> results/stress_causal_real_summary_1211_stress_full.csv (9 rows) and per-trial modes + new agg summary (results/stress_causal_real_summary_1211_stress_modes.csv, ..._agg.csv). Updated data/1211_modeC2prime_stress_fixed/README.md to reflect retakes and metrics; noted RX FW includes 1202 logs. README root updated earlier.
+[2025-12-12 13:35 JST] Added docs/metrics_definition.md (pdr_raw/unique definitions, TL/Pout, 2000ms Pout≥0.5 note, EFFECTIVE_LEN, file references).
+[2025-12-12 13:36 JST] Metrics doc added (docs/metrics_definition.md: pdr_raw/unique, TL/Pout, Pout1s≥0.5 @2000ms, EFFECTIVE_LEN, file refs).
+[2025-12-12 13:40 JST] Updated README.md to link metrics_definition.md; updated docs/TODO.md progress memo to mention metrics_definition.md.
+[2025-12-12 13:50 JST] RX_ModeC2prime_1210: increased scan duty (interval 100ms, window 90ms, passive) to improve coverage at 100ms adv. No other logic changes.
+[2025-12-12 13:55 JST] TX_ModeC2prime_1210_flash_stress.ino: retargeted to S1 only, 100ms only, REPEAT=1 (single trial). RX scan duty already increased earlier (interval=100, window=90).
+[2025-12-12 14:05 JST] Retest S1@100ms with increased scan duty (interval=100, window=90): trial_044_on/rx_trial_040 -> pdr_unique=0.8299, Pout1s=0.0667, TL_mean=8.38s, E_per_adv=20205.6 uJ. Manifest used in 1s100ms folder.
+[2025-12-12 14:20 JST] TX_ModeC2prime_1210_flash_stress.ino reset to full sweep: S1/S4 x {100,500,1000,2000}, REPEAT=1 (8 trials total). RX scan duty already set to interval=100ms, window=90ms. Ready to retake full set under scan90.
+[2025-12-12 14:30 JST] Archived scan50 results: renamed stress_causal_real_summary_1211_stress_full/modes/agg/agg_enriched -> *_scan50.csv. Awaiting scan90 full sweep data; will produce new *_scan90 files.
+[2025-12-12 14:32 JST] Docs: data/1211 README updated to note scan50 archived (*_scan50) and scan90 forthcoming; root README now points to *_scan50 files for current stress fixed set.
+[2025-12-12 14:35 JST] Cleaned manifest for trial_040 (scan90 S1@100); renamed TX to trial_040_on. Re-ran analysis and regenerated *_scan50 outputs (full/modes/agg/agg_enriched). Pending: scan90 full sweep data to produce *_scan90.
+[2025-12-12 14:50 JST] Scan90 full sweep parsed: RX042-049 ↔ TX048-055 (S1/S4 x 100/500/1000/2000). Outputs: results/stress_causal_real_summary_1211_stress_full_scan90.csv + modes/agg/agg_enriched_scan90. PDR_unique: S1{100:0.80,500:1.0,1000:1.0,2000:1.0}, S4{100:0.81,500:1.0,1000:1.0,2000:1.0}. Pout/TL still high at 100ms (S1 Pout1s=0.1 TL_mean=12s; S4 Pout1s=0.305 TL_mean=13.57s). Await sim comparison/update when needed.
+[2025-12-12 14:55 JST] Added full_scan90/README.md (S1/S4 x 100/500/1000/2000, scan duty 90[2025-12-12 14:55 JST] Added full_scan90/README.md (S1/S4 x 100/500/1000/2000, scan duty 90%). Updated docs/TODO.md to mark scan90 as main and scan50 archived; noted compare_scan50_vs_scan90_stress_fixed.csv. Keeping scan90 results as primary going forward.
+[2025-12-12 15:05 JST] Gap stats computed (inter-packet gaps from RX ms): scan90 trials 042-049 gap_p95 ~0.216-0.217s, max ~0.53-0.64s; scan50: most trials gap_p95 ~0.215-0.217s, max ~0.43-0.73s; older 2000ms retakes (rx_trial_025/030/031) show long gaps p95~4.0s, max~6.0s. Files: results/gap_stats_scan90.csv, results/gap_stats_scan50.csv.
+[2025-12-12 15:15 JST] Added missed-state metric (did new label ever observed after each truth transition?) for scan90: results/missed_state_scan90.csv. S1: 100ms miss=0/60 (0[2025-12-12 15:15 JST] Added missed-state metric (observed new label after each truth transition) for scan90: results/missed_state_scan90.csv. S1: 100ms 0/60 miss, 500ms 45/60 (75%), 1000ms 53/60 (~88%), 2000ms 57/60 (95%). S4: 100ms 0/141, 500ms 116/141 (~82%), 1000ms 130/141 (~92%), 2000ms 135/141 (~95%). High miss at long intervals explains large Pout/TL tails.
+[2025-12-12 15:20 JST] AGENTS.md updated: added Agent Logging Rules (log to logs/worklog_YYYY-MM-DD_*.txt after important work, JST timestamps, include paths/key metrics).
+[2025-12-12 15:25 JST] Reorganized results/: moved stress fixed outputs into results/stress_fixed/{scan50,scan90,compare,misc}. Added compare_scan50_vs_scan90_pdr.txt and other compare files to compare/. Phase0 files left in place.
+[2025-12-12 15:30 JST] Added results/README.md as index (stress_fixed scan50/scan90/compare/misc; pointers to phase0-*).
+[2025-12-12 15:35 JST] Added index files under results/stress_fixed/{scan50,scan90,compare,misc} per logging rules; AGENTS.md updated to require per-dir index + worklog updates. Results index already present at results/README.md.
+[2025-12-12 15:40 JST] Moved legacy phase0-0/1m E2 100ms summaries and baseline_analysis_1130.md into results/phase0-0/. Now results/ top-level has README + phase0-0, phase0-1, stress_fixed only.
+[2025-12-12 15:45 JST] results/README.md updated to note phase0-0 summaries consolidated under results/phase0-0/ (1m/E2/100ms ΔE etc.).
+[2025-12-12 15:55 JST] Recomputed missed-state with stepCount mapping (seq*interval/100 -> idx): results/missed_state_scan90_v2.csv (miss rates now ~0-1.7% across intervals). Updated scan90 index to point to v2. Earlier v1 overestimated misses (0.75-0.95) due to missing seq→idx scaling. Gap stats unchanged.
+[2025-12-12 15:58 JST] Missed-state recalculated with seq->idx scaling (stepCount=interval/100). New: results/missed_state_scan90_v2.csv (miss rates ~0-2%). scan90 index updated to v2; v1 overestimated (0.75-0.95) due to missing scaling. Gap stats unchanged.
+[2025-12-12 16:10 JST] Added STEP_MS (=TRUTH_DT_MS=100 ms) constant to scripts/analyze_stress_causal_real.py to make truth resolution explicit and avoid NameError; further clamp/seq-alignment checks to follow.
+[2025-12-13 12:00 JST] analyze_stress_causal_real.py: fail-fast if interval_ms is not a multiple of TRUTH_DT_MS; interval_ms inferred from manifest (interval_ms) or mode FIXED_xx fallback. Added clamp_high count/rate output for TL/Pout (when rx events beyond truth length). Added interval_ms and clamp stats columns to summary CSV.
+[2025-12-13 12:25 JST] scan90再解析（truth_dir=Mode_C_2_シミュレート_causal/ccs, 新ロジック）: per-trial/modes/agg/enrichedをv3として出力。`stress_causal_real_summary_1211_stress_full_scan90_v3.csv` 等。clamp率=0、interval集合= {100,500,1000,2000}。missed_stateをv3再計算（interval推定+truth範囲外clampカウント）→ `results/stress_fixed/scan90/missed_state_scan90_v3.csv`。index/README更新（v3を最新版、旧版は参考扱い）。
+[2025-12-13 12:45 JST] scan90集約をv4に更新（v3ロジックに rx_dup_factor 追加）。per-trial/modes/agg/enriched を v4 で出力し、index を最新版として差し替え。full_v4 は v3のコピー（解析ロジック同一）だが dup_factor を modes/agg に追加。adv_countとrx_uniqueの+1差分は定義として明文化予定。
+[2025-12-13 13:00 JST] missed_state を v4 としてコピー（ロジック同一: seq→idx=interval/100, truth 範囲外は clamp カウントで除外）。scan90 index に adv_count vs rx_unique +1 になり得る定義（seq 0 始まり等）と pdr_unique 主指標/dup_factor の役割を明記。簡易チェック: 100ms より 500/1000/2000 の方が Pout(1s) が小さいケースは S1/S4 で各3本（PDR低下の可能性示唆）。
+[2025-12-12 16:05 JST] docs/TODO.md updated: scan90 set as main, scan50 archived; added gap/missed-state files (gap_stats_scan90.csv, missed_state_scan90_v2.csv).
+</file>
+
+<file path="worklog_2025-12-12_causal.txt">
+2025-12-12
+- [16:50 JST] mHealth 高遷移セッション仕様 v1.0 を追加: docs/フェーズ1/results/mhealth_synthetic_sessions_spec_v1.md。15s断片非重複抽出、類似度>0.95除外、0.5sクロスフェード＋境界±1s除外、U=正規化エントロピー/CCS=1-内積、出力・品質ゲートを固定。
+- [17:10 JST] 仕様ドキュメントを results 外に移動: docs/フェーズ1/mhealth_synthetic_sessions_spec_v1.md（格納場所を整理）。
+- [17:45 JST] mHealth 合成セッション生成: scripts/generate_mhealth_synthetic_sessions.py 追加し、.venv_mhealth310(python3.10)+tensorflow-macos 2.15 + pandas で実行。train=subjects1-8, test=9/10, 15s断片類似度>0.95除外、0.5sクロスフェード/境界±1sマスク、U=正規化エントロピー、CCS=1−内積。出力: data/mhealth_synthetic_sessions_v1/{summary.json,sessions/*}（seed0/1/2各1本、mean_U≈0.23-0.26, duration≈870.5s）。README: data/mhealth_synthetic_sessions_v1/README.md。
+- [18:10 JST] TFLite出力shape確認→(1,12)（nullなし）。generate_mhealth_synthetic_sessions.py の 4クラス集約をラベルIDベースに修正（1..12 → Stationary/Locomotion/Transition）。再生成（seed0/1/2各1本）で mean_U≈0.20-0.22, duration≈870.5s, summary.json 更新。
+- [18:30 JST] U 正規化を3クラス(log3)に修正し、品質指標出力（mask率、reuse、median U eval/boundary）を summary.json に追加。セッションを 3 seeds×3本（計9本）で再生成（duration≈870.5s, mean_U≈0.247-0.276, CCS≈0.192-0.212）。README 更新済み。
+</file>
+
+<file path="worklog_2025-12-12_uncertainty.txt">
+2025-12-12
+- [18:45 JST] mHealth合成セッション v1.0 再生成（3種修正反映）：U正規化を3クラスlog(3)に変更、4クラス集約をTFLite出力(1..12)準拠に修正、品質指標をsummary.jsonに追加。3 seeds×3本を再生成（duration≈870.5s、mean_U≈0.247-0.276、CCS≈0.192-0.212）。成果物: data/mhealth_synthetic_sessions_v1/{summary.json, sessions/*}。README更新済み。
+- [19:00 JST] オフライン方策比較を実施: scripts/build_policy_table.py 追加。評価セット: data/mhealth_synthetic_sessions_v1/sessions (mask_eval_window==1のみ)、固定メトリクス: scan90 agg v4。出力: results/mhealth_policy_eval/policy_table.md（Fixed 100/500/1000/2000, U-only, CCS-only, U+CCS）。U+CCSシェア=100:0.471/500:0.092/2000:0.437、期待値 pdr_unique≈0.909, pout_1s≈0.166, tl_mean≈10.49s, E_per_adv≈193,348 µJ, avg_power≈200.48 mW。CCS-onlyでは pdr_unique≈0.946, pout_1s≈0.152, tl_mean≈9.66s, E_per_adv≈259,444 µJ。
+- [19:10 JST] 表の可視化: scripts/plot_policy_table.py 追加し、policy_table.md をバーチャート化（pdr_unique / pout_1s / tl_mean_s / E_per_adv）。出力: results/mhealth_policy_eval/policy_table.png（matplotlib使用、フォントキャッシュ警告ありだが生成完了）。
+- [19:30 JST] 閾値・ヒステリシスのグリッドスイープ: scripts/sweep_policy_pareto.py 追加。グリッド 3×3×3×3×3=243通り（u_high>u_mid, c_high>c_mid）。出力: results/mhealth_policy_eval/pareto_front/{pareto_sweep.csv, pareto_summary.md}。δ=0.1 は該当なし、δ=0.2 で最良クラス: (u_mid=0.10, u_high=0.25, c_mid=0.10, c_high=0.25, hyst=0.08) → pout_1s≈0.197, E_per_adv≈33.1k µJ, share100≈0.891, share2000≈0.014, switch_rate≈0.023。
+- [19:50 JST] スイープ評価を avg_power 最適化に切替: sweep_policy_pareto.py を avg_power_mW 軸でのソート/サマリに修正し再実行。δ=0.1 なし、δ=0.2 上位は avg_power ≈200.38–200.39 mW（share100≈0.40–0.46, share2000≈0.52–0.58）。可視化を更新: plot_pareto_sweep.py を avg_power vs pout_1s 散布＋上位10 stacked barに変更、出力 results/mhealth_policy_eval/pareto_front/pareto_plots.png を再生成。README/summary 反映済み。
+- [20:05 JST] v2（power軸）の出力を別ディレクトリに作成: results/mhealth_policy_eval/pareto_front_v2/{pareto_sweep.csv, pareto_summary.md, pareto_plots.png}。plot_pareto_sweep.py を CSV_PATH/OUT_PATH/METRIC 環境変数でパス切替し、METRIC=power で生成。δ=0.1なし、δ=0.2は avg_power≈200.38–200.39 mW、share100≈0.40–0.46、switch_rate≈0.054–0.066。
+- [19:40 JST] スイープ結果を可視化: scripts/plot_pareto_sweep.py 追加（散布図 + δ=0.2 上位10のstacked bar）。出力: results/mhealth_policy_eval/pareto_front/pareto_plots.png（matplotlibフォント警告あり）。pareto_summary.md に δ=0.1該当なしを明記。
+- [20:25 JST] Pareto v3 作成（adv_rate追加・power軸継続）: sweep_policy_pareto.py に adv_rate/mean_interval_ms 計算を追加し、出力先を pareto_front_v3 に分離。243グリッドを再評価（METRIC=power）。δ=0.1は依然なし、δ=0.2の上位は avg_power≈200.38–200.39 mW とほぼフラットだが share100≈0.40–0.46 / share2000≈0.52–0.58 まで拡張。adv_rate ≈4.4–5.0 adv/s（固定100ms比で約50–56%減）。成果物: results/mhealth_policy_eval/pareto_front_v3/{pareto_sweep.csv, pareto_summary.md, pareto_plots.png, README.md}。補足可視化: plot_pareto_sweep_multi.py 追加（pout vs avg_power / adv_rate 散布図）。
+- [20:40 JST] Pareto v3 サマリ軸を再構成: pareto_summary.md をδ=0.2内での3視点(adv_rate最小/ switch_rate最小/ pout_1s最小 各Top10)に更新。δ=0.1は該当なしを明記。対象CSV: results/mhealth_policy_eval/pareto_front_v3/pareto_sweep.csv。
+- [21:15 JST] Step C 実装: eval_policy_offline/sweep_policy_pareto に stable/transition 切替（truth遷移 or CCS_ema>=0.3）を追加し、S1→stable / S4→transition で期待値合成する context_mixing を実装。shares_ctx_weighted を用いて全窓比率で線形合成するよう修正。新スイープ v4 を power軸・context_mixing で実行し成果物生成: results/mhealth_policy_eval/pareto_front_v4_context/{pareto_sweep.csv, pareto_summary.md, pareto_plots.png, README.md}。δ=0.1依然なし、δ=0.2で pout_1s≈0.126–0.129、share100≈0.40–0.46、share2000≈0.52–0.58、avg_power≈200.48–200.50 mW（フラット）。
+- [21:35 JST] 方針確定の記録: A/B/C解析結果を踏まえ、READMEに現状の結論と次アクションを追記。結論: δ=0.1はS4固定メトリクス(pout_1s≈0.177)の下限で不可能。コンテキスト混合でpout≈0.12台まで改善するが、固定計測がsleep無しのためavg_powerはフラット。意思決定: 省電力を主軸にし、睡眠可能設計を評価スコープに含める。次ステップ: (1) 固定100/2000msでsleep有無を計測し“寝ている”証拠を取得、(2) sleepあり固定テーブルを作成しeval/sweepを差し替え、(3) 実機はP_event/P_bal/P_stableとFixed100/2000の4条件で最小検証。ログ目的: 意思決定の根拠と次アクションを残す。
+- [21:55 JST] sleep_eval_scan90 TXを無音・ダミー広告モードに調整: sleep_eval_scan90/src/tx/TX_ModeC2prime_1210.ino に TX_DEBUG マクロを追加し Serial.begin/printf を全無効化、SD読み込みをデフォルトOFF (固定ラベル "DUMMY") に設定。目的: sleep ON/OFF × 100/2000ms の電力差を純粋に見るために余計な負荷/ログを排除。
+</file>
+
+<file path="worklog_2025-12-13_letter_route.txt">
+2025-12-13
+- [20:05 JST] レター最速ルートの意思決定: docs/TODO.md の主線（CCS_causal実機→self-UCB）と比較し、新規性優先で「U/CCS→interval（ルールベース）をPhase1主結果」に寄せる方針を確定。決定理由と次アクションを `docs/decision_log_2025-12-13_letter_route.md` に記録。
+- [20:10 JST] power table反映: `sleep_eval_scan90` の固定interval sweep（TXSD mean_p_mW, n=2）を `results/mhealth_policy_eval/power_table_sleep_eval_2025-12-13.csv` に固定し、オフライン評価のavg_powerを `--power-table` で上書き可能にした（scripts/eval_policy_offline.py, scripts/sweep_policy_pareto.py, scripts/build_policy_table.py）。
+- [20:20 JST] Pareto v5生成: power_table反映 + context mixing（stable→S1, transition→S4）でスイープを再実行し、δ境界（0.12不可/0.13から可）と、power-min/event-min/switch-min/QoS-minのTop10を `results/mhealth_policy_eval/pareto_front_v5_power_table/pareto_summary.md` に出力。図: `results/mhealth_policy_eval/pareto_front_v5_power_table/pareto_plots.png`。
+- [20:25 JST] 比較表更新: 固定vsルール（U-only/CCS-only/U+CCS）表を power table 反映で再生成（results/mhealth_policy_eval/policy_table.md, policy_table.png）。
+- [21:48 JST] 主張図を固定: δ帯（0.13/0.15/0.17）を1枚にまとめ、Fixed 100/500/1000/2000（stable→S1, transition→S4混合）とルールベース全点を同一図にプロット。採用候補3点（P_minPower@0.13, P_mid@0.15, P_safe@0.17）を自動選定して強調表示。出力: `results/mhealth_policy_eval/letter_v1/fig_delta_band.png`, `results/mhealth_policy_eval/letter_v1/selected_policies.csv`。スクリプト: `scripts/plot_letter_delta_band.py`。
+- [21:55 JST] 現時点の読みと主張案を整理: power table（100→500で約-18.5mW、500→2000は約-3.2mW）より「100ms滞在を減らすのが主効果」で、2値(100↔500)が合理的。Pareto v5（power table反映+context mixing）では δ=0.12 は本ポリシークラスで infeasible、δ=0.13 から feasible（165/243）となり“制約境界”が明確。レター主張としては「(i) 非理想スキャン下でQoS制約の境界が出る」「(ii) U/CCSルールで境界内の運用点（power/event/switchのトレードオフ）を選べる」「(iii) 実測power tableにより省電力寄与は主に“short(100ms)を避ける”ことにある」を中心に据えるのが安全。
+- [23:09 JST] v5反映で再評価: stress_fixed scan90 を v4→v5（TL/Poutの時間同期追加）へ更新した影響で、mHealth側のδ境界が変化。Paretoは v6（`results/mhealth_policy_eval/pareto_front_v6_power_table_scan90_v5/`）を最新とし、例として δ=0.10 feasible=90/243 を確認。関連ドキュメントも追記更新（`docs/decision_log_2025-12-13_letter_route.md`、`results/mhealth_policy_eval/README.md`）。固定vsルール表を v5基準で再生成（`results/mhealth_policy_eval/policy_table.md`/`policy_table.png`）し、デフォルト評価JSONも scan90 v5 + power table + context mixing で更新（`results/mhealth_policy_eval/policy_eval_default.json`）。
+</file>
+
+<file path="worklog_2025-12-13_sleep_eval.txt">
+2025-12-13
+- [15:40 JST] sleep_eval_scan90 firmware整備（Step1: sleep効果最大見積り用）: TX/RXを「単位の取り扱い」と「本当にその間隔で動いているか」の観点で修正。TXは controller に広告間隔を設定（0.625ms単位変換）し、CPU側の100ms周期ペイロード更新を廃止、trial開始/終了で adv->start/stop と SYNC を揃える最小ダミー広告版に刷新（LED/TICK/Serial/SDをデフォルト無効）。RXはscan interval/windowを0.625ms単位に明示変換してscan90%意図（100ms/90ms）を保証。更新ファイル: sleep_eval_scan90/src/tx/TX_ModeC2prime_1210.ino, sleep_eval_scan90/src/tx/TX_ModeC2prime_1210/TX_ModeC2prime_1210.ino, sleep_eval_scan90/src/rx/RX_ModeC2prime_1210/RX_ModeC2prime_1210.ino, sleep_eval_scan90/README.md。
+- [15:42 JST] 追加: .gitignore に repomix-output.* を追加（sleep_eval_scan90配下の生成物混入防止）。
+- [15:58 JST] 注意追記: TXで "[TX] SD init FAIL" が出る場合は sleep_eval 用TXではなく旧SD版TXをフラッシュしている可能性が高い。sleep_eval用TXはSD不使用・BLE名=TX_SLEEP_EVAL/ManufacturerData=0000_DUMMY で識別。
+- [16:45 JST] sleep_eval_scan90 取得データを集計: sleep_eval_scan90/data/{100,2000}/TX のTXSDログから mean_p_mW を抽出し、interval別の集計CSVと図を生成（sleep_eval_scan90/analysis/summarize_txsd_power.py）。結果: 100ms mean_p≈200.80mW(n=2)、2000ms mean_p≈178.74mW(n=5)、差分≈-22.06mW（約-11%）。途中終了ファイル（trial_064_on.csv）は除外。成果物: sleep_eval_scan90/metrics/{txsd_power_trials.csv,txsd_power_summary.csv,summary.md}, sleep_eval_scan90/plots/txsd_power_summary.png, sleep_eval_scan90/data/README.md。
+- [17:10 JST] sleep_eval_scan90 データ構造を ON/OFF 比較向けに整理: sleep_eval_scan90/data/{100,2000} を sleep_eval_scan90/data/sleep_on/{100,2000} に移動し、集計スクリプトを condition(sleep_on/sleep_off) 対応に拡張（sleep_eval_scan90/analysis/summarize_txsd_power.py）。以後 sleep_off は sleep_eval_scan90/data/sleep_off/ に追加して同一スクリプトで比較可能。
+- [17:25 JST] 取得データの解釈と比較方針: ユーザ申告により sleep_eval_scan90/data のセットは sleep ON として扱う。scan90 v4（従来: avg_powerが100/2000でほぼ不変=~200mW台）と比較すると、本セットは 2000msで mean_p≈178.74mWまで低下し、100msは≈200.8mWでほぼ同等。→ 2000msでsleep/idleが効いている可能性が高い。確定のため、同一計測系で sleep_off を同条件(100/2000ms)で取得し、sleep_eval_scan90/data/sleep_off/ に追加して同一集計でON/OFF差分を出す方針に決定。
+- [17:55 JST] sleep_eval_scan90/src の4条件連続取得に対応: TXを4条件(100/2000 × sleep OFF/ON)を1回の実行で順次実行し、trial境界で adv start/stop + SYNC を揃えるステートマシンに刷新。sleep OFFは esp_pm_lock(ESP_PM_NO_LIGHT_SLEEP) acquire、sleep ONはreleaseで切替。TXSDはSYNC立上り後PREAMBLE_WINDOW_MS内のTICKパルス数をcond_idとして解釈し、ファイル名(trial_*_c{cond}_i{interval}_{sleep}.csv)とmeta(cond_id/adv_interval_ms/sleep)に埋め込み。RXは受信labelを # condition_label としてファイル先頭に追記。README更新。
+- [17:58 JST] 解析スクリプト拡張: sleep_eval_scan90/analysis/summarize_txsd_power.py を sleep_on/sleep_off をディレクトリ名から判別し、txsd_power_diff.md に DoD（4条件が揃った場合）を出力するように更新。
+- [18:10 JST] ユーザ要望対応（ログ徹底）: sleep_eval_scan90 の4条件自動取得（TX/RX/TXSDの条件判別メタ付与、DoD出力）を実装し、意思決定と修正点を worklog に記録済み。以後、計測実施時は sleep_eval_scan90/logs/worklog_YYYY-MM-DD_sleep.txt に「sleep設定の具体内容」「配線（SYNC/TICK）」「実行時刻」「取得したtrial範囲」を必ず追記する運用とする。
+- [18:25 JST] on_off_test_100_2000 を解析: sleep_eval_scan90/data/on_off_test_100_2000 のTXSDログはファイル名/メタ(cond_id/adv_interval_ms/sleep)付き。集計は sleep_eval_scan90/analysis/summarize_txsd_power.py --run on_off_test_100_2000 --min-ms-total 50000 で実施。現状の有効試行は sleep_off:100ms≈202.65mW(n=2), sleep_on:100ms≈181.10mW(n=2), sleep_off:2000ms≈180.80mW(n=2)。sleep_on:2000ms が未取得のためDoD未確定。cond_id=0（sleep=unk）ファイルがあるので、TXのSYNC→TICK猶予(200ms)とTXSDのPREAMBLE_WINDOW_MS(800ms)を拡張して再取得推奨。
+- [18:30 JST] unk復元（on_off_test_100_2000）: RXログ先頭の `# condition_label=...` とシリアル時刻の対応から、TXSD側で `cond_id=0`（preamble先頭パルス欠落の疑い）やラベルずれが起きていることを確認。`sleep_eval_scan90/data/on_off_test_100_2000/condition_overrides.csv` を追加し、TXSDの rel_path に対して condition/interval/cond_id を補正する方式に変更。集計スクリプトも `--overrides`（または data/<run>/condition_overrides.csv 自動検出）に対応させて再集計し、DoDまで出力できる状態にした（sleep_eval_scan90/analysis/summarize_txsd_power.py）。再集計結果: P(100,OFF)=203.90mW, P(100,ON)=202.65mW, P(2000,OFF)=181.10mW, P(2000,ON)=180.80mW, DoD=-0.95mW（sleep切替の寄与が小さく、interval差が支配的）。
+- [18:23 JST] on_off_test_100_2000_2（2回目のみ抽出）: `sleep_eval_scan90/data/on_off_test_100_2000_2/TX` に1回目/2回目のTXSDログが混在していたため、ユーザ提示ログ（17:49-17:58 JST）に出ている2回目の8ファイルのみ `TX/` に残し、残り11ファイルを `sleep_eval_scan90/data/on_off_test_100_2000_2/TX/_excluded_first_run/` に退避。2回目用に `sleep_eval_scan90/data/on_off_test_100_2000_2/condition_overrides.csv` を更新し、集計（sleep_eval_scan90/analysis/summarize_txsd_power.py --run on_off_test_100_2000_2）を再生成。結果: P(100,OFF)=200.60mW, P(100,ON)=200.40mW, P(2000,OFF)=178.90mW, P(2000,ON)=179.05mW, DoD=-0.35mW。
+- [19:11 JST] 次の固定テーブル取得向けにファーム更新: intervalを {100,500,1000,2000}ms の4条件で回す sweep モードに切替（N_CYCLES=2で計8試行）。sleep ON/OFF次元は外し、`ALLOW_LIGHT_SLEEP=true/false` で固定する方式に変更。TXSDのcond_id→interval対応も 1..4→{100,500,1000,2000} に更新。更新ファイル: `sleep_eval_scan90/src/tx/TX_ModeC2prime_1210/TX_ModeC2prime_1210.ino`, `sleep_eval_scan90/src/txsd/TXSD_ModeC2prime_1210/TXSD_ModeC2prime_1210.ino`, `sleep_eval_scan90/README.md`。
+- [19:40 JST] interval sweep（on_off_test_100~2000）を集計: `sleep_eval_scan90/data/on_off_test_100~2000/`（interval={100,500,1000,2000}, N_CYCLES=2）のTXSDログを `sleep_eval_scan90/analysis/summarize_txsd_power.py --run 'on_off_test_100~2000' --min-ms-total 50000` で集計。結果（mean_p_mW, n=2）: 100ms=201.45, 500ms=182.95, 1000ms=180.50, 2000ms=179.75。100→500msで大きく低下し、その後は緩やか。出力: `sleep_eval_scan90/metrics/on_off_test_100~2000/txsd_power_summary.csv`, `sleep_eval_scan90/plots/on_off_test_100~2000/txsd_power_summary.png`。
+- [21:55 JST] レター向け反映: 上記power tableを `results/mhealth_policy_eval/power_table_sleep_eval_2025-12-13.csv` として固定し、オフライン評価（U/CCS→intervalルール）に power 軸として適用。δ帯（0.13/0.15/0.17）を1枚に固定した主張図を生成: `results/mhealth_policy_eval/letter_v1/fig_delta_band.png`。
+</file>
+
+<file path="worklog_2025-12-13_stress_fixed_metrics_v5.txt">
+2025-12-13 22:38 JST
+
+【目的】
+- stress_fixed（scan50/scan90）の TL/Pout 指標定義を「論文で説明できる形」に固定し、v5として再生成・図表化の土台を作る。
+
+【観察（問題）】
+- scan90 v4 の TL/Pout が理論と整合しない（例: FIXED_2000 の Pout(1s) が 0.5未満に見える等）。
+- 原因: RXログの `ms` と truth の開始位相ズレ（開始時刻オフセット）を補正していなかったため、TL/Pout が不自然に小さく算出されるケースがあった。
+
+【対応（実装/再生成）】
+- `scripts/analyze_stress_causal_real.py` を修正:
+  - TL/Pout 計算前に `seq×interval_ms` から定数オフセット `tl_time_offset_ms` を推定し、`ms_aligned = ms + offset` で時間同期。
+  - `session` / `tl_time_offset_ms` / `tl_time_offset_n` を出力に追加。
+  - manifest の `truth_file` を参照して truth を解決できるように修正。
+- 集約スクリプトを追加: `scripts/aggregate_stress_causal_real_summary.py`
+  - per-trial → modes/agg/agg_enriched を再現可能に生成。
+
+【生成物（v5）】
+- scan90:
+  - `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_full_scan90_v5.csv`
+  - `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_modes_scan90_v5.csv`
+  - `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_scan90_v5.csv`
+  - `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_enriched_scan90_v5.csv`
+  - `results/stress_fixed/scan90/index.md` を v5 追記（v4は時間同期なしとして注意喚起）。
+- scan50:
+  - `results/stress_fixed/scan50/stress_causal_real_summary_1211_stress_full_scan50_v5.csv`
+  - `results/stress_fixed/scan50/stress_causal_real_summary_1211_stress_modes_scan50_v5.csv`
+  - `results/stress_fixed/scan50/stress_causal_real_summary_1211_stress_agg_scan50_v5.csv`
+  - `results/stress_fixed/scan50/stress_causal_real_summary_1211_stress_agg_enriched_scan50_v5.csv`
+  - `results/stress_fixed/scan50/index.md` を v5 追記。
+- scan50 vs scan90 比較（v5）:
+  - `scripts/compare_scan50_vs_scan90_stress_fixed.py`
+  - `results/stress_fixed/compare/compare_scan50_vs_scan90_stress_fixed_v5.csv`
+  - `results/stress_fixed/compare/compare_scan50_vs_scan90_pdr_v5.txt`
+  - `results/stress_fixed/compare/index.md` を v5 追記。
+
+【主要な指標変化（例: scan90, v4→v5）】
+- FIXED_2000 の Pout(1s):
+  - S1: 0.0667 → 0.3833（時間同期の影響）
+  - S4: 0.1915 → 0.4965（時間同期の影響）
+- FIXED_100 の TL_mean:
+  - S1: 12.02s → 0.07s
+  - S4: 13.57s → 0.83s
+
+【図表（v5）】
+- `scripts/plot_stress_fixed_figures_v5.py` を追加し、以下を生成:
+  - `results/stress_fixed/figures_v5/fig1_scan90_metrics.png`
+  - `results/stress_fixed/figures_v5/fig3_scan50_vs_scan90_pdr_unique.png`
+  - `results/stress_fixed/figures_v5/README.md`（生成コマンド/入力のメモ）
+
+【ドキュメント更新】
+- `docs/metrics_definition.md` に TL/Pout の時間同期（seq-based offset）を追記し、scan90/scan50 v5 の参照パスを更新。
+- `docs/TODO.md` の P0「TL/Pout 真値定義確定」を v5としてDoneに更新。
+
+【注意】
+- downstream（例: mHealthのオフライン評価）で scan90 v4 を参照している箇所は、v5に差し替えると結果が変わる可能性がある。
+</file>
+
+<file path="worklog_2025-12-14_letter_route.txt">
+2025-12-14
+- [00:17 JST] δ帯を「Fixed500が落ちる帯」に寄せたレター図を作成（解析のみ）: scan90 v5 + power table + context mixing の Pareto（v6）を入力に、δ={0.02,0.03,0.04} のtight帯で `pout_1s vs avg_power_mW` 図を生成。出力: `results/mhealth_policy_eval/letter_v2_scan90_v5_delta_tight/fig_delta_band.png` と選定点 `selected_policies.csv/json`（各δのpower-min点）。生成コマンドは同ディレクトリの `README.md` に記載。
+- [00:17 JST] 図生成スクリプトを拡張: `scripts/plot_letter_delta_band.py` に `--select-deltas`/`--select-style` を追加し、δ帯が小さい場合でも図が見切れないよう y軸範囲を自動化（v1互換は維持）。
+- [00:17 JST] TODO更新: レター関連の参照を scan90 v5 / Pareto v6 / letter_v2 に更新（`docs/TODO.md`）。
+- [00:20 JST] δ tight の要点を1枚に固定: 固定点（Fixed100/500/1000/2000）と、各δのpower-min点（share100/adv_rate/switch_rate付き）を `results/mhealth_policy_eval/letter_v2_scan90_v5_delta_tight/summary.md` に整理。
+- [00:22 JST] 地雷チェック（欠損確認）: scan90 v5 固定メトリクス表 `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_enriched_scan90_v5.csv` に S1×{100,500,1000,2000} と S4×{100,500,1000,2000} が揃っていることを確認。δ tight の context mixing（stable→S1 / transition→S4）計算が「欠損で楽観側にズレる」懸念は scan90 v5 では無し。※ scan50 v5 で S1×100 が欠けて見えるのは session名にコメントが混ざっているため（旧/retakeの扱い）で、scan50を本流に使う場合は整理が必要。
+
+- [04:52 JST] power table をrobust版（sleep_on, n=9–10）に差し替えて、Pareto/δ tight/比較表を再生成。
+  - power table（主線）: `results/mhealth_policy_eval/power_table_sleep_eval_2025-12-14_interval_sweep_sleep_on_n9_10.csv`（生成元: `sleep_eval_scan90/metrics/on_off_test_100~2000_02/txsd_power_summary.csv`）
+    - 100/500/1000/2000ms = 198.56/180.80/178.62/177.47 mW
+  - Pareto v7: `results/mhealth_policy_eval/pareto_front_v7_power_table_scan90_v5_sleep_on_n9_10/pareto_sweep.csv`（δ={0.02,0.03,0.04}, context mixing + power最小化）
+  - δ tight 図 v3: `results/mhealth_policy_eval/letter_v3_scan90_v5_delta_tight_sleep_on_n9_10/fig_delta_band.png`
+    - δ=0.03（Fixed500の境界≈0.0322より厳しい帯）で power-min は avg_power≈195.09mW / pout_1s≈0.0297、Fixed100(198.56mW)より −3.47mW（≈−1.75%）
+  - デフォルト方策評価を更新: `results/mhealth_policy_eval/policy_eval_default.json`（avg_power≈187.71mW）
+  - 比較表を更新: `results/mhealth_policy_eval/policy_table.md`（avg_power列が新power table反映）
+
+- [05:15 JST] 決定（主線）: v7（robust power table: sleep_on n=9–10）をレター主線として採用し、この条件で実機の動的切替（100↔500）へ進む方針を確定。
+  - 採用理由: n=2のpower tableだと電力軸の揺れツッコミが入りやすい一方、sleep_on n=9–10で土台が固い（100→500の主効果 −17.76mW が明確、500→2000は −3.33mWと小さい）。
+  - δ tight（v3）: δ=0.03帯（Fixed500が落ちる帯）で「固定100msより低電力でδ達成」が成立（−3.47mW）。
+  - 次ステップ（最短ルート）:
+    - D0: 実機が100↔500だけになる場合、オフライン側も行動空間を{100,500}に限定したスイープ/代表ポリシー選定を追加（比較の整合性を保つ目的）。
+    - D1: 実機は最小セット（Fixed100 / Fixed500 / Policy）で成立確認。動的は同期破綻防止のため TX payload に `tx_elapsed_ms` or `step_idx`（＋`interval_ms_current`）を埋め込み、RX/TXSDと突合できる形にする。
+  - 実機候補（現状のδ=0.03 power-min; v7）:
+    - params=(u_mid=0.10,u_high=0.35,c_mid=0.15,c_high=0.35,hyst=0.08), share100=0.816, share500=0.121, share2000=0.063
+    - 予測: avg_power≈195.09mW / pout_1s≈0.0297（scan90 v5 + context mixing + robust power table）
+
+- [12:46 JST] TODO更新: `docs/TODO.md` を v7（robust power table）主線に合わせて更新。
+  - TL;DRの参照先を v7/v3 に差し替え（旧v6/v2は主線から外す）
+  - 新規TODO（P0-Letter）として D0（{100,500}限定の代表ポリシー再選定）/D1（実機100↔500最小セット）を追記
+
+- [13:02 JST] D0完了: 実機行動空間を **{100,500}** に揃えた2値版の Pareto/δ tight を再生成し、実機用の代表ポリシーを確定。
+  - スクリプト更新: `scripts/sweep_policy_pareto.py` に `--actions` を追加（allowed intervals のクランプ対応）。
+  - Pareto v8（actions={100,500}）: `results/mhealth_policy_eval/pareto_front_v8_power_table_scan90_v5_sleep_on_n9_10_actions_100_500/pareto_sweep.csv`
+  - δ tight v4（actions={100,500}）: `results/mhealth_policy_eval/letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/summary.md`
+  - 代表（δ=0.03 power-min, actions={100,500}）:
+    - params=(u_mid=0.20,u_high=0.35,c_mid=0.20,c_high=0.35,hyst=0.02)
+    - share100=0.369 / share500=0.631, 予測 avg_power≈187.36mW / pout_1s≈0.0226（Fixed100比 −11.20mW ≈ −5.6%）
+
+- [13:05 JST] D0完了を確認し、以降の実機比較は actions={100,500} の代表ポリシー（δ=0.03 power-min）を採用する方針で進行。
+
+- [13:30 JST] Step D1（実機：不確実性駆動/ルールベースの動的切替）用の専用ディレクトリとArduinoスケッチ（TX/RX/TXSD）を追加。
+  - 追加ディレクトリ: `uccs_d1_scan90/`（index: `uccs_d1_scan90/README.md`）
+  - TX: `uccs_d1_scan90/src/tx/TX_UCCS_D1_100_500/TX_UCCS_D1_100_500.ino`
+    - 1回の起動で `Fixed100 → Fixed500 → Policy(100↔500)` を自動実行（`N_CYCLES=3`, `TRIAL_DURATION_MS=60s`, `GAP_MS=5s`）
+    - TXSD向け cond_id を preamble TICK パルス数で通知（1=fixed100, 2=fixed500, 3=policy）
+    - payload: `<tx_elapsed_ms>_<label>`（fixed=F100/F500, policy=P100/P500）
+    - 代表ポリシー（actions={100,500}）: u_mid=0.20,u_high=0.35,c_mid=0.20,c_high=0.35,hyst=0.02（D0確定）
+    - U/CCS入力は暫定で synthetic（実機HARに差し替える前提）
+  - RX: `uccs_d1_scan90/src/rx/RX_UCCS_D1_SCAN90/RX_UCCS_D1_SCAN90.ino`（scan90, SYNC gate, SDへ `/logs/rx_trial_XXX.csv`）
+  - TXSD: `uccs_d1_scan90/src/txsd/TXSD_UCCS_D1_SCAN90/TXSD_UCCS_D1_SCAN90.ino`（INA219, SYNC start/stop, preambleでcond_id判別）
+  - 配線: TX GPIO25→RX/TXSD GPIO26（SYNC）, TX GPIO27→TXSD GPIO33（TICK）
+
+- [13:31 JST] バグ修正: `TX_UCCS_D1_100_500` で interval が切替わった後も旧intervalで次回更新を待ってしまう可能性があったため、`nextUpdateMs` を切替後の `currentIntervalMs` に基づいて再計算するよう修正（`uccs_d1_scan90/src/tx/TX_UCCS_D1_100_500/TX_UCCS_D1_100_500.ino`）。
+
+- [14:06 JST] Step D1（uccs_d1_scan90）を実機で1回実行して、ログ上の挙動が期待通りであることを確認（ユーザ取得ログの目視チェック）。
+  - RX（`RX_UCCS_D1_SCAN90`）: 9セッション（3条件×3回）が連続で取得でき、buf_overflow=0。
+    - fixed100相当: rate_hz≈7.8–8.1（scan90の受信率として妥当）
+    - fixed500相当: rate_hz≈1.5–1.7（期待2adv/s×受信率）
+    - policy: rate_hz≈3.6–3.8（固定より中間＝切替が動いている兆候）
+  - TXSD（`TXSD_UCCS_D1_SCAN90`）: preamble pulsesで cond_id=1/2/3 を正しく復号し、各trial ms≈589xx, parse_drop=0。
+    - fixed100 mean_p_mW: 203.8 / 208.3 / 203.2
+    - fixed500 mean_p_mW: 186.6 / 185.2 / 184.7
+    - policy mean_p_mW: 192.8 / 191.9 / 191.8（固定100/500の間に入り、成立確認としてOK）
+  - 次: SDの `/logs/` を `uccs_d1_scan90/data/<date>_runXX/{RX,TXSD}/` に吸い上げて、policyの `P100/P500` 比率（share100/share500）と Pout(τ) を解析で確定する。
+
+- [14:18 JST] Step D1 実測ログ（`uccs_d1_scan90/data/01`）を集計して、Power/RX rate/Policyの100ms比率を確定。
+  - 集計スクリプト: `uccs_d1_scan90/analysis/summarize_d1_run.py`（出力: `uccs_d1_scan90/metrics/01/`）
+  - 採用ログ: ms_total>=50s のみ（SDに旧ログが残っていたため）。run index: `uccs_d1_scan90/data/01/README.md`
+  - TXSD（mean_p_mW, n=3）:
+    - fixed100: 205.10 ± 2.79 mW
+    - fixed500: 185.50 ± 0.98 mW
+    - policy: 192.17 ± 0.55 mW
+    - 差分: fixed100-fixed500=19.60mW、policy-fixed100=-12.93mW、policy-fixed500=+6.67mW
+  - RX（rate_hz, n=3）:
+    - F100: 7.94 ± 0.21 Hz、F500: 1.63 ± 0.09 Hz、Policy: 3.71 ± 0.11 Hz
+  - Policyの100ms比率（time-weight推定）:
+    - power mix由来: share100≈0.340
+    - RXラベル由来（P100/P500カウント×interval重み）: share100≈0.294 ± 0.010
+  - これで D1 の成立条件（切替/電力/受信率の方向性）が実測ログで確認できた。次は D2（レター図に実測点を重ねる）か、U/CCS入力を実機HARへ置換して同枠組みで再計測する。
+
+- [15:02 JST] Step D2（動的QoS: TL/Pout）用の専用ディレクトリとArduinoスケッチ（TX/RX/TXSD）を追加し、取得準備を完了。
+  - 追加ディレクトリ: `uccs_d2_scan90/`（index: `uccs_d2_scan90/README.md`）
+  - truth（flash埋め込み, 100msグリッド180s）: `uccs_d2_scan90/src/tx/stress_causal_s1_s4_180s.h`（stress_causal S1/S4 の label/U/CCS を量子化して格納）
+  - TX: `uccs_d2_scan90/src/tx/TX_UCCS_D2_SCAN90/TX_UCCS_D2_SCAN90.ino`
+    - 1回の起動で S1/S4 × {Fixed100, Fixed500, Policy(100↔500)} を自動実行（`REPEAT=3`, `EFFECTIVE_LEN_STEPS=1800(=180s)`, `GAP_MS=5s`）
+    - payload: `<step_idx>_<tag>`（tag例: `P4-09-500`。動的でも time axis を `step_idx*100ms` で復元可能）
+    - TXSD向け cond_id: preamble TICKパルス数（1..6）で通知（READMEの表と一致）
+    - trial中 tick: payload更新ごとに1発（TXSD側で `adv_count=tick_count` の近似を取得）
+  - RX: `uccs_d2_scan90/src/rx/RX_UCCS_D2_SCAN90/RX_UCCS_D2_SCAN90.ino`（scan90, SYNC gate, SDへ `/logs/rx_trial_XXX.csv`）
+  - TXSD: `uccs_d2_scan90/src/txsd/TXSD_UCCS_D2_SCAN90/TXSD_UCCS_D2_SCAN90.ino`（INA219, SYNC start/stop, preambleでcond_id判別, summaryにadv_count出力）
+  - TODO更新: `docs/TODO.md` に D1完了（集計参照先）と D2準備完了/D2取得TODOを反映。
+</file>
+
+<file path="worklog_2025-12-14_sleep_eval.txt">
+2025-12-14 02:41 JST
+- sleep_eval_scan90: `sleep_eval_scan90/data/on_off_test_100~2000_02`（interval sweep: 100/500/1000/2000, sleep=on）をログ/実データで突合して「採用/除外」を確定。
+  - 除外を移動: `sleep_eval_scan90/data/on_off_test_100~2000_02/TX_excluded/`（unk/0byte/短時間）, `sleep_eval_scan90/data/on_off_test_100~2000_02/RX_excluded/`（短時間）
+  - 集計（TXSD）: `sleep_eval_scan90/analysis/summarize_txsd_power.py --run 'on_off_test_100~2000_02' --min-ms-total 50000`
+    - 出力: `sleep_eval_scan90/metrics/on_off_test_100~2000_02/txsd_power_summary.csv`, `sleep_eval_scan90/plots/on_off_test_100~2000_02/txsd_power_summary.png`
+    - 結果（mean_p_mW, sleep_on）: 100ms=198.56±1.27(n=10), 500ms=180.80±0.68(n=9), 1000ms=178.62±0.77(n=9), 2000ms=177.47±0.63(n=9)
+  - 集計（RX）: `sleep_eval_scan90/analysis/summarize_rx_trials.py --run 'on_off_test_100~2000_02' --min-ms-total 50000`
+    - 出力: `sleep_eval_scan90/metrics/on_off_test_100~2000_02/rx_rate_summary.csv`
+    - サニティ（rate_hz）: I100=7.93, I500=1.67, I1000=0.85, I2000=0.42
+  - 備考: このrunは meta 上 `sleep=on` のみ（sleep OFF未取得のためDoDは不可）。
+  - ドキュメント/スクリプト: `sleep_eval_scan90/data/on_off_test_100~2000_02/README.md` を追加、`sleep_eval_scan90/analysis/summarize_rx_trials.py` を追加、`sleep_eval_scan90/data/SHA256.txt` のREADME分を更新。
+  - gitignore: matplotlib生成物の混入防止で `.mplconfig/` を追加（`.gitignore`）。
+
+2025-12-14 03:12 JST
+- sleep_eval_scan90 firmware更新: sleep ON/OFF × interval(100/500/1000/2000) を1回の実行で取得できるように、TX/TXSDのcond_idマップを拡張。
+  - TX: `sleep_eval_scan90/src/tx/TX_ModeC2prime_1210/TX_ModeC2prime_1210.ino`（labelに `_ON/_OFF` を付与、cond_id=1..8、trialごとにesp_pm_lockでsleep切替）
+  - TXSD: `sleep_eval_scan90/src/txsd/TXSD_ModeC2prime_1210/TXSD_ModeC2prime_1210.ino`（PREAMBLE_MAX_ID=8、cond_id→(interval,sleep_tag)対応を追加）
+  - ドキュメント: `sleep_eval_scan90/README.md` を更新（cond_idマップと集計手順）
+
+2025-12-14 04:11 JST
+- sleep_eval_scan90: `sleep_eval_scan90/data/on_off_test_01`（sleep ON/OFF × 100/500/1000/2000, 各n=2）のデータを集計してDoDまで算出。
+  - 短時間ファイルを退避: `sleep_eval_scan90/data/on_off_test_01/TX_excluded/`（2本）, `sleep_eval_scan90/data/on_off_test_01/RX_excluded/`（3本）
+  - TXSD集計: `sleep_eval_scan90/analysis/summarize_txsd_power.py --run 'on_off_test_01' --min-ms-total 50000`
+    - 出力: `sleep_eval_scan90/metrics/on_off_test_01/txsd_power_summary.csv`, `sleep_eval_scan90/metrics/on_off_test_01/txsd_power_diff.md`, `sleep_eval_scan90/plots/on_off_test_01/txsd_power_summary.png`
+    - DoD（100ms基準）: DoD = −0.25 mW（sleep_effect@100ms=−0.10, @2000ms=−0.35）
+  - RXサニティ: `sleep_eval_scan90/analysis/summarize_rx_trials.py --run 'on_off_test_01' --min-ms-total 50000`
+    - 出力: `sleep_eval_scan90/metrics/on_off_test_01/rx_rate_summary.csv`
+  - run README: `sleep_eval_scan90/data/on_off_test_01/README.md` を追加、`sleep_eval_scan90/data/README.md` と `sleep_eval_scan90/data/SHA256.txt` を更新。
+</file>
+
+<file path="worklog_2025-12-15_letter_route.txt">
+2025-12-15
+- [13:45 JST] Step D2（uccs_d2_scan90）実測データを解析してTL/Poutを確定（step_idx起点）。
+  - データ: `uccs_d2_scan90/data/RX/`（選定: rx_trial_009..026, n=18）, `uccs_d2_scan90/data/TX/`
+  - 解析スクリプト追加: `uccs_d2_scan90/analysis/summarize_d2_run.py`
+  - 出力: `uccs_d2_scan90/metrics/01/summary.md` / `uccs_d2_scan90/metrics/01/per_trial.csv` / `uccs_d2_scan90/metrics/01/summary_by_condition.csv`
+  - 主結果（mean±std, n=3）:
+    - S1_fixed100: pout_1s=0.0833±0.0289, tl_mean=4.200±1.552s, avg_power=203.8±0.1mW
+    - S1_fixed500: pout_1s=0.1000±0.0000, tl_mean=5.276±0.054s, avg_power=183.8±0.2mW
+    - S1_policy: pout_1s=0.0667±0.0289, tl_mean=3.315±1.538s, avg_power=203.7±0.3mW（adv_count≈1787で100ms滞在が長い）
+    - S4_fixed100: pout_1s=0.0488±0.0000, tl_mean=1.238±0.006s, avg_power=203.7±0.3mW
+    - S4_fixed500: pout_1s=0.1301±0.0563, tl_mean=1.946±0.417s, avg_power=184.3±0.2mW
+    - S4_policy: pout_1s=0.0569±0.0141, tl_mean=1.316±0.145s, avg_power=204.3±0.5mW（adv_count≈1787でほぼ100ms）
+  - 注意: TXSDログはSD上の既存ログ混在のためファイル名/cond_idが一部不一致（例: c0_unk や fixed500名で adv_count=1787）。解析では adv_count とファイル名パターンで条件を復元してペアリング。
+- [13:50 JST] `uccs_d2_scan90/analysis/summarize_d2_run.py` を再実行し、`uccs_d2_scan90/metrics/01/summary.md` に generated/command 行を追記して再生成（per_trial/summary_by_condition も更新）。
+- [13:52 JST] `uccs_d2_scan90/README.md` と `uccs_d2_scan90/data/README.md` を更新し、D2の解析出力パスとデータ配置ルール（TX=TXSDログ）を明文化。
+- [14:31 JST] `uccs_d2_scan90/analysis/summarize_d2_run.py` を拡張し、RXタグから `share100_time_est`（sanity）を算出して `uccs_d2_scan90/metrics/01/summary.md` に追記。D2 policy は `share100_time_est≈0.99` で実質100ms張り付きであることを確認。
+- [14:40 JST] D2b（policy修正版）用のスケッチを追加（CCS反転＋preamble guard）し、次回取得用のrunディレクトリを作成。
+  - TX: `uccs_d2_scan90/src/tx/TX_UCCS_D2B_SCAN90/TX_UCCS_D2B_SCAN90.ino`
+  - RX: `uccs_d2_scan90/src/rx/RX_UCCS_D2B_SCAN90/RX_UCCS_D2B_SCAN90.ino`
+  - TXSD: `uccs_d2_scan90/src/txsd/TXSD_UCCS_D2B_SCAN90/TXSD_UCCS_D2B_SCAN90.ino`
+  - data: `uccs_d2_scan90/data/02/README.md`
+- [18:44 JST] D2b run B の解析で policy のTXSD指標（avg_power/adv_count/pdr）が空欄になる問題を修正して再集計。
+  - 修正: `uccs_d2_scan90/analysis/summarize_d2_run.py`（policyのadv_count中間帯をpolicy扱い + RX share100推定に基づくsession補正でペアリング復元）
+  - データ: `uccs_d2_scan90/data/B/README.md`
+  - 出力: `uccs_d2_scan90/metrics/B/summary.md`
+  - 主結果（mean±std, n=3）:
+    - S1_fixed100: avg_power=202.9±0.5mW / pout_1s=0.0833±0.0289
+    - S1_fixed500: avg_power=183.3±0.2mW / pout_1s=0.1500±0.0500
+    - S1_policy: share100_time_est=0.332±0.006 / adv_count=855 / avg_power=189.8±0.4mW / pout_1s=0.1167±0.0289
+    - S4_fixed100: avg_power=202.5±0.4mW / pout_1s=0.0569±0.0141
+    - S4_fixed500: avg_power=183.2±0.3mW / pout_1s=0.1545±0.0373
+    - S4_policy: share100_time_est=0.592±0.006 / adv_count=1227 / avg_power=195.2±0.4mW / pout_1s=0.0813±0.0373
+  - TODO更新: `docs/TODO.md`（D2bを完了に変更）
+</file>
+
+<file path="worklog_2025-12-15_thesis_setup.txt">
+2025-12-15
+- [21:35 JST] 修士論文（LaTeX）テンプレを研究テーマ（HAR不確実度に基づくBLE広告間隔制御）向けに整備: `修士論文/` の要旨・章構成を更新し、交通系の雛形文言を置換。`修士論文/meta.tex` に暫定タイトルを設定。
+- [21:35 JST] ビルド設定をsandbox対応: `修士論文/latexmkrc` で `TEXMFCACHE/TEXMFVAR/TEXMFCONFIG/LUATEXCACHE` を `修士論文/build/` 配下に固定し、`luaotfload` のキャッシュ書き込み失敗を回避。
+- [21:35 JST] 体裁の微修正: `修士論文/chubuthesis.sty` の段落字下げを `1zw` → `1\\zw` に変更（LuaLaTeX向け）。`修士論文/main.tex` で `pageanchor` を表紙・要旨の間は無効化してPDF警告を低減。
+- [21:35 JST] コンパイル確認: `cd 修士論文 && latexmk main.tex` が成功し、出力は `修士論文/build/main.pdf`。
+- [21:40 JST] 体裁ルールを文書化: 「守るべき型」（表紙/要旨/目次/番号なし章/図表キャプション/引用形式）とビルド手順を `修士論文/WRITING_RULES.md` に追記。
+- [22:05 JST] 修論本文を追記: 背景（非理想スキャン、QoS/電力指標、貢献）、提案手法（U/S/CCS定義、閾値写像、ヒステリシス、2値制御）、評価方法（同期/TICK、指標定義、オフライン評価手順）、結果（power table例、D1サマリ）、考察（端末内比較、Warm-Start、QoS高精度化）を `修士論文/chapters/` に反映。見出し内の数式を避けてhyperref警告を低減し、`cd 修士論文 && latexmk main.tex` で `修士論文/build/main.pdf` の生成を確認。
+- [14:38 JST] 修士論文本文を増補して60p到達: 第2章（目的関数・制約の定式化、評価系図の整理）、第3章（機材/ログスキーマ/処理要件の追記）、第4章（D2のQoS表、δ帯図の再掲）、第6章（実測vs簡易モデル図、指標定義の補足）、第7章（オフライン評価の定式化、Pareto図の追加）、第8〜10章/付録A〜Cの加筆。付録D（ログスキーマ長表）と付録E（Runbookチェックリスト）を追加。参考文献 `修士論文/references.bib` を最小セットで更新し、`cd 修士論文 && latexmk -lualatex main.tex` で `修士論文/build/main.pdf`（60 pages）を生成確認。
+- [15:17 JST] 他AI共有用にRepomixを生成: `repomix_thesis_bundle.xml` を作成（`修士論文/` + 主要docs/logsのみをinclude）。注: PDF/PNGなどバイナリはRepomixに含まれないため別送が必要。
+- [16:01 JST] 修士論文を80p超へ増補: `修士論文/chapters/ch8_measurement_system.tex` に実装トラブル節と要点表を追加し、`修士論文/chapters/ch5_publicroad.tex` にsleepの扱い・失敗/未完タスクの位置づけを追記。付録として `修士論文/chapters/appx_f_symbols.tex`（記号表・略語）と `修士論文/chapters/appx_g_troubleshooting.tex`（トラブルシューティング集）を追加し、`修士論文/main.tex` に組み込み。`修士論文/chubuthesis.sty` で `dBm` 用の単位（`\DeclareSIUnit{\decibelmilliwatt}{dBm}`）を定義。`cd 修士論文 && latexmk -lualatex main.tex` で `修士論文/build/main.pdf`（83 pages）を生成確認。
+- [16:02 JST] Repomix更新: `repomix_thesis_bundle.xml` を再生成し、追加した付録（F/G）や本文増補を反映。
+- [16:25 JST] Repomix用コマンドを整備: `repomix --output repomix_thesis_bundle.xml --style xml --parsable-style --include "修士論文/**,logs/worklog_2025-12-15_thesis_setup.txt,logs/worklog_2025-12-15_letter_route.txt,logs/worklog_2025-12-13_stress_fixed_metrics_v5.txt,docs/全体像.md,docs/metrics_definition.md,docs/decision_log_2025-12-13_letter_route.md"` を共有。
+- [17:13 JST] 修論アウトライン（80p級）に合わせて増補・整理: `修士論文/chapters/introduction.tex` を 0.1/0.2/0.3 相当の節構成に分割し、`修士論文/chapters/ch0_introduction.tex` に核となる主張（「単純な閾値ルールでも固定間隔より省電力…」）を明記。背景/関連研究/提案手法/装置/実験設計の節見出しと内容を追加・再配置（例: Android非理想スキャンの補足、観測性（reasonログ）、nRF Connect運用例、条件表の拡張）。一次KPIを `q_event`（μC/event）中心に統一し、定義を `修士論文/chapters/appx_a_metrics.tex` に追記。CCS写像・パラメータ一覧を `修士論文/chapters/appx_h_ccs_params.tex` として追加し `修士論文/main.tex` に組み込み。`cd 修士論文 && latexmk -lualatex main.tex` で `修士論文/build/main.pdf`（89 pages）を生成確認。
+- [17:14 JST] Repomix更新: `repomix_thesis_bundle.xml` を再生成し、上記修正（一次KPI統一と付録H追加など）を反映。
+- [18:31 JST] 章数圧縮＋付録吸収: `修士論文/main.tex` を6章構成に整理し、付録（`appx_*.tex`）を本文章内の節として吸収する方針へ変更。wrapper章（`修士論文/chapters/ch2_background_related.tex` / `ch3_system_and_method.tex` / `ch4_measurement_metrics_repro.tex` / `ch5_evaluation.tex`）に統合し、各章/付録ファイルの見出しを `\\chapter`→`\\section`（内部 `\\section`→`\\subsection`）へ降格。参照を「付録A/D/E/H」表記から `\\secref{}` へ更新し、節ラベル（`sec:metrics_detail` 等）を追加。不要になった `修士論文/chapters/introduction.tex` を削除。
+- [18:31 JST] ビルド確認: `cd 修士論文 && latexmk -lualatex main.tex` が成功し、出力は `修士論文/build/main.pdf`（71 pages）。※章の `\\chapter` を減らしたためページ数が減少（空白/改ページが減った）。
+- [18:59 JST] 体裁修正の追加: `修士論文/chubuthesis.sty` の章ラベルを `第\\thechapter\\relax 章` に修正（LuaLaTeX-jaで `\\thechapter章` が未定義になるのを回避）し、`\\urlprefix` 未定義エラーを避けるためURL整形設定を整理。`修士論文/main.tex` で `\\setcounter{tocdepth}{1}` を `\\tableofcontents` 直前に追加し、`修士論文/WRITING_RULES.md` の参照例を `\\figref{}` ベースへ更新。`cd 修士論文 && latexmk -lualatex main.tex` で `修士論文/build/main.pdf`（73 pages）の生成を確認。
+- [19:00 JST] Repomix更新: `repomix_thesis_bundle.xml` を再生成し、直近の体裁修正（`修士論文/chubuthesis.sty` / `修士論文/main.tex` / `修士論文/WRITING_RULES.md`）とworklog追記を反映。
+- [19:05 JST] README更新: 追加ルール（ページ番号下右、章扉、章見出し、図表番号、目次深さ、参照方針、参考文献URL表記）を `修士論文/README.md` に追記し、テンプレ運用ルールを明文化。
+- [20:53 JST] 目次と第4章の見え方を調整: 目次（`\\tableofcontents`）が章扉スタイルで縦中央になり空欄が出る問題に対し、`修士論文/main.tex` で目次の前後だけ `titlesec` の `name=\\chapter,numberless` の余白を0に上書き。第4章が長く見える問題に対し、`修士論文/chapters/ch4_measurement_metrics_repro.tex` で「評価準備」「再現性のための詳細資料」を追加し、実験設計/実装/詳細資料の見出し階層を一段落として圧縮。`cd 修士論文 && latexmk -g -lualatex main.tex` で `修士論文/build/main.pdf` を再生成。
+</file>
+
+<file path="worklog_2025-12-16_letter_route_continued.txt">
+2025-12-16
+- [18:30 JST] Step D4（U ablation / U-shuffle）データ取得 `uccs_d4_scan90/data/01/` の実行ログを確認（貼り付けログベース）。
+  - RX: `rx_trial_001..012.csv` 相当の12本が取得されており、各trialの長さは約180s、`buf_overflow=0`。rate_hzも4水準（≈7.7 / ≈1.6 / ≈5.3 / ≈7.4）に分かれており、固定・動的・ablationの挙動差が出ている。
+  - TXSD: 12本のログが出ているが、preamble（TICK）パルス数が一部 `cond_id=5` になる等、**cond_idのラベルは信用しにくい**（preamble window内に「trial開始直後のTICK」が混入して+1されている可能性が高い）。
+    - 固定100ms相当: adv_count≈1796, mean_p≈207–209mW（3本）
+    - 固定500ms相当: adv_count≈359, mean_p≈187–189mW（3本）
+    - 動的2条件: adv_count≈1227 (share100推定≈0.60, mean_p≈200–201mW) と adv_count≈1715 (share100推定≈0.94, mean_p≈208mW)
+  - 期待: U-shuffle側が100ms張り付き寄り（share100≈0.94）になって電力が上がり、policy側はshare100が下がって省電力になる、という「Uが効く」方向の差が見え始めている。
+  - 次: RXのstep_idxタグを使って TL/Pout を算出し、policy vs U-shuffle の点を `power vs pout` 図で比較して確定する（`uccs_d4_scan90/analysis/summarize_d4_run_v2.py` を使用）。
+  - 備考: 既存worklogへの追記ができない環境制約があったため、継続ファイルとして本ファイルに追記。
+
+- [18:37 JST] D4の実データ `uccs_d4_scan90/data/01/` を集計し、U-shuffle ablation の差を定量化（S4のみ, 4条件×n=3）。
+  - 集計: `uccs_d4_scan90/metrics/01/summary.md`（script: `uccs_d4_scan90/analysis/summarize_d4_run_v2.py`）
+  - 可視化: `uccs_d4_scan90/plots/d4_01_power_vs_pout.png`（script: `uccs_d4_scan90/analysis/plot_power_vs_pout.py`）
+  - 主要結果（mean±std, n=3）:
+    - S4_fixed100: avg_power=208.2±1.3 mW, pout_1s=0.0488±0.0000, share100≈1.000
+    - S4_fixed500: avg_power=187.9±0.8 mW, pout_1s=0.1301±0.0141, share100≈0.000
+    - S4_policy(U+CCS): avg_power=200.5±0.8 mW, pout_1s=0.0976±0.0244, share100≈0.593
+    - S4_ablation(U-shuffle): avg_power=208.1±0.3 mW, pout_1s=0.0488±0.0000, share100≈0.943
+  - 読み:
+    - U-shuffleは share100 が≈0.94まで上がり、電力が fixed100 相当に戻る（＝“必要時だけ100ms”が崩れて100ms張り付き寄り）。
+    - 一方policyは share100≈0.59 に抑えつつ、fixed500よりpoutを改善できており、U（時間相関）が500ms滞在を作るのに効いている可能性が高い。
+  - 実行コマンド:
+    - `python3 uccs_d4_scan90/analysis/summarize_d4_run_v2.py --rx-dir uccs_d4_scan90/data/01/RX --txsd-dir uccs_d4_scan90/data/01/TX --out-dir uccs_d4_scan90/metrics/01`
+    - `.venv_mhealth310/bin/python uccs_d4_scan90/analysis/plot_power_vs_pout.py --summary-csv uccs_d4_scan90/metrics/01/summary_by_condition.csv --out uccs_d4_scan90/plots/d4_01_power_vs_pout.png`
+
+- [18:42 JST] D4取得ログでTXSDのcond_idが+1ずれる（c5_unk混入）事象があったため、TX側で「preamble window(800ms)経過後に1回目のper-update TICKを出す」ガードを追加。
+  - 修正: `uccs_d4_scan90/src/tx/TX_UCCS_D4_SCAN90/TX_UCCS_D4_SCAN90.ino`
+  - 期待: 次回以降、TXSDの `cond_id` が安定し、ファイル名 `c?` の信頼性が上がる（ただし解析は引き続き mtime ペアリングを優先）。
+
+- [19:10 JST] D3（scan dutyを1段下げる）取得準備として `uccs_d3_scan70/` を追加（scan70%: interval=100ms, window=70ms）。
+  - 目的: scan90で強いFixed500が崩れる条件を作り、Policy(100↔500)が必要時だけ100msに寄って耐えることを確認（S4のみ）。
+  - スケッチ:
+    - TX: `uccs_d3_scan70/src/tx/TX_UCCS_D3_SCAN70/TX_UCCS_D3_SCAN70.ino`（S4のみ、Fixed100/Fixed500/Policy×n=3、payload=`<step_idx>_<tag>`、CCSは`1-CCS`で変化度化）
+    - RX: `uccs_d3_scan70/src/rx/RX_UCCS_D3_SCAN70/RX_UCCS_D3_SCAN70.ino`（scan70）
+    - TXSD: `uccs_d3_scan70/src/txsd/TXSD_UCCS_D3_SCAN70/TXSD_UCCS_D3_SCAN70.ino`（cond_id=1..3、preamble window=800ms）
+  - truthヘッダ: `uccs_d3_scan70/src/tx/stress_causal_s1_s4_180s.h`（D2のtruthヘッダを相対includeするラッパ）
+
+- [19:18 JST] D3 TXのTICK/step更新が「100ms固定で回ってadv_countが崩れる」実装になっていたため、D2bと同様に「広告間隔（100/500）ごとにstep_idxを進めてpayload更新→TICK」する方式へ修正。
+  - 修正: `uccs_d3_scan70/src/tx/TX_UCCS_D3_SCAN70/TX_UCCS_D3_SCAN70.ino`
+  - 期待: fixed500のadv_count≈359（180s/0.5s）になり、電力混合（share100）推定が成立する。
+
+- [19:40 JST] D4（U-shuffle ablation）の「知見（主張に変換できる内容）」をドキュメントへ固定。
+  - 追記: `docs/decision_log_2025-12-13_letter_route.md`（D4の主要結果と解釈）
+  - 追記: `uccs_d4_scan90/README.md`（D4で得られた知見セクション）
+
+- [19:48 JST] レター本文用の2〜3文（日本語/英語）ドラフトを作成（D4: U-shuffle ablation）。
+  - 目的: 「Uが効いている」主張を、構造固定・入力のみ破壊（U-shuffle）という因果っぽい切り分けで短文に落とす。
+  - 日本語案:
+    - 「U（不確実度）の分布は保ったまま、時間順序だけをシャッフルするアブレーションを行った。すると制御は100ms張り付き寄りに崩れ、share100が0.593→0.943、adv_countが1227→1715へ増加し、平均電力も200.5→208.1mWとFixed100級に戻った。これは“いつ不確実か”というUの時間的整合が、QoSを維持しつつ100ms滞在を減らす（=省電力化する）鍵であることを示す。」
+  - English draft:
+    - “We perform an ablation that preserves the marginal distribution of uncertainty U while destroying its temporal alignment by shuffling U over time. This collapse drives the controller toward near-100ms behavior (share100: 0.593→0.943, adv_count: 1227→1715), and raises the average power from 200.5 to 208.1 mW (close to Fixed-100). These results indicate that the temporal coherence of U—i.e., when the model is uncertain—is essential to reduce 100ms dwell time while maintaining QoS.”
+
+- [20:40 JST] D3（scan70%, S4のみ, Fixed100/Fixed500/Policy×n=3）取得データ `uccs_d3_scan70/data/01/` を集計。
+  - 集計: `uccs_d3_scan70/metrics/01/summary.md`（script: `python3 uccs_d3_scan70/analysis/summarize_d3_run_v2.py --rx-dir uccs_d3_scan70/data/01/RX --txsd-dir uccs_d3_scan70/data/01/TX --out-dir uccs_d3_scan70/metrics/01`）
+  - 図: `uccs_d3_scan70/plots/d3_01_power_vs_pout.png`（script: `.venv_mhealth310/bin/python uccs_d3_scan70/analysis/plot_power_vs_pout.py --summary-csv uccs_d3_scan70/metrics/01/summary_by_condition.csv --out uccs_d3_scan70/plots/d3_01_power_vs_pout.png`）
+  - 重要: SDコピーでmtimeが1980固定になりTXSDのmtimeペアリングが破綻するため、`summarize_d3_run_v2.py` を「adv_count（tick_count）でクラスタリングして3本ずつ割当」に変更。古いログ混在対策として `avg_power_mW>=150` をフィルタ。
+  - 結果（mean±std, n=3）:
+    - S4_fixed100: `avg_power=209.9±0.5 mW`, `pout_1s=0.0650±0.0282`, `adv_count=1796`, `pdr_unique=0.304±0.017`
+    - S4_fixed500: `avg_power=189.5±0.5 mW`, `pout_1s=0.2846±0.0614`, `adv_count=359`, `pdr_unique=0.652±0.007`
+    - S4_policy: `avg_power=202.1±0.1 mW`, `pout_1s=0.0894±0.0373`, `adv_count=1227`, `pdr_unique=0.343±0.017`
+  - 読み: scan70でFixed500はQoSが大きく崩れ（pout上昇）、PolicyはFixed100に近いQoSへ寄せつつ、Fixed100より平均電力が下がる方向（Fixed500よりは高電力）。
+
+- [20:58 JST] D3のshare100推定を強化（scan70ではRX tagsが過小評価しやすいので、power-mixで推定を追加）。
+  - 変更: `uccs_d3_scan70/analysis/summarize_d3_run_v2.py` に `share100_power_mix_mean` を追加（`(P_policy-P_500)/(P_100-P_500)`）。
+  - D3 run01（S4_policy）: `share100_power_mix≈0.618`（RX tags推定 `≈0.420` より大きい＝scan70の取りこぼし影響を示唆）。
+
+- [23:50 JST] D3（scan70 / S4）の結論を「レターで言い切れる形」に固定（追加実験より成果物固定を優先）。
+  - Fixed500 がQoSで崩れる: `pout_1s = 0.2846 ± 0.0614`
+  - Policy は Fixed500 より改善: `pout_1s = 0.0894 ± 0.0373`
+  - Policy は Fixed100 より省電力（ただし Fixed500 より高電力）:
+    - power: Fixed100 `209.9±0.5` → Policy `202.1±0.1`（`-7.8 mW`, 約 `-3.7%`）
+    - Fixed500 `189.5±0.5` → Policy（Fixed500比 `+12.6 mW`）
+  - 制約付き最小電力の読み（例: `δ=0.1` = `Pout(1s) ≤ 0.1`）:
+    - scan70では Fixed500 は `pout_1s>0.1` で **不適**、Fixed100 は **適**だが高電力、Policy は **適**かつ Fixed100 より低電力。
+  - share100は scan70で RX tags が過小評価しやすいので、`share100_power_mix`（power-mix推定, run01で≈0.618）を主に参照する。
+  - 反映: `uccs_d3_scan70/README.md` に結論・δ読み・share100注意を追記。
+
+- [21:20 JST] D4B（CCS ablation: U-only）用の専用ディレクトリ `uccs_d4b_scan90/` を追加（S4, scan90, 4条件×n=3）。
+  - 目的: 「CCSは要るか？」を切り分ける（Fixed100/Fixed500/Policy(U+CCS)/Ablation(CCS-off=U-only)）。
+  - スケッチ:
+    - TX: `uccs_d4b_scan90/src/tx/TX_UCCS_D4B_SCAN90/TX_UCCS_D4B_SCAN90.ino`
+    - RX: `uccs_d4b_scan90/src/rx/RX_UCCS_D4B_SCAN90/RX_UCCS_D4B_SCAN90.ino`
+    - TXSD: `uccs_d4b_scan90/src/txsd/TXSD_UCCS_D4B_SCAN90/TXSD_UCCS_D4B_SCAN90.ino`
+  - 解析:
+    - 集計: `uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py`（TXSDはadv_countクラスタリングで割当、mtime/cond_idに依存しない）
+    - 図: `uccs_d4b_scan90/analysis/plot_power_vs_pout.py`
+
+- [00:20 JST] D4B（CCS-off=U-only ablation, S4/scan90, 4条件×n=3）を集計して「CCSが効く」を定量化（run01）。
+  - データ: `uccs_d4b_scan90/data/01/`
+  - 集計: `uccs_d4b_scan90/metrics/01/summary.md`
+  - 図: `uccs_d4b_scan90/plots/d4b_01_power_vs_pout.svg`
+  - 主要結果（mean±std, n=3）:
+    - S4_policy(U+CCS): avg_power=200.6±0.1 mW, pout_1s=0.0488±0.0000, share100_power_mix≈0.620
+    - S4_ablation_ccs_off(U-only): avg_power=200.6±0.2 mW, pout_1s=0.0650±0.0141, share100_power_mix≈0.621
+  - 読み:
+    - 電力（share100）をほぼ同等に保ったまま、CCSを有効化するとpout_1sが改善（U-only→U+CCSで 0.065→0.049）。
+    - よって「Uは省電力（100ms滞在低減）」「CCSはQoSを守る（遷移検出/ブースト）」の2本立て設計が実機で正当化できる。
+</file>
+
+<file path="worklog_2025-12-16_letter_route.txt">
+2025-12-16
+- [13:48 JST] 実機D2の主結果として D2b run B を採用し、以降の主張/図表は B を基準に固定する方針を決定。
+  - 採用: `uccs_d2_scan90/metrics/B/summary.md`（データ: `uccs_d2_scan90/data/B/01/`）
+  - 不採用（主結果に不使用）: `uccs_d2_scan90/metrics/01/summary.md`（D2 run 01。CCS定義不整合によりpolicyが100ms張り付き）
+  - 主要所見（D2b run B, mean±std, n=3）:
+    - S1_policy: avg_power=189.8±0.4mW, pout_1s=0.1167±0.0289, TL_mean=5.247±0.053s, share100≈0.332（Fixed100より省電力・Fixed500よりQoS改善）
+    - S4_policy: avg_power=195.2±0.4mW, pout_1s=0.0813±0.0373, TL_mean=1.588±0.582s, share100≈0.592（遷移多め側で100ms滞在が増える挙動が確認できる）
+  - 考察メモ:
+    - 「不確実/遷移っぽい区間は100ms寄り、それ以外は500ms寄り」という期待挙動が share100 の差（S1≈0.33, S4≈0.59）として現れている。
+    - 電力は interval 滞在比率の混合で説明でき、sleep差分に依存しない主張（interval滞在比率が支配）に寄せられる。
+  - decision log更新: `docs/decision_log_2025-12-13_letter_route.md`（D2b(B)採用の意思決定と根拠を追記）
+- [14:22 JST] D2b run B の主張用図（power vs pout + share100注釈）を生成して配置。
+  - スクリプト: `uccs_d2_scan90/analysis/plot_power_vs_pout.py`
+  - 入力: `uccs_d2_scan90/metrics/B/summary_by_condition.csv`
+  - 出力: `uccs_d2_scan90/plots/d2b_B_power_vs_pout.png` / `uccs_d2_scan90/plots/d2b_B_power_vs_pout.pdf`
+  - 実行メモ: matplotlib は `.venv_mhealth310` を使用。fontconfig書き込み制限対策で `XDG_CACHE_HOME` と `MPLCONFIGDIR` を作業ディレクトリ配下に設定して生成。
+- [14:39 JST] D2b追加取得 `uccs_d2_scan90/data/B/02/` を品質確認し、使用可能と判定。
+  - 集計: `uccs_d2_scan90/metrics/B_02/summary.md`（selected RX trials: 084..101, n=18）
+  - 主結果（mean±std, n=3）:
+    - S1_policy: avg_power=193.2±0.2mW, pout_1s=0.1333±0.0289, share100≈0.329
+    - S4_policy: avg_power=198.0±0.8mW, pout_1s=0.0569±0.0141, share100≈0.597
+  - 備考: RX=102本/TXSD=101本（>=160s）あり、追加でnを増やす材料として利用可能。
+- [14:57 JST] D2bの主結果を n=6 に更新（run B + B/02 を統合）。
+  - 集約スクリプト: `uccs_d2_scan90/analysis/merge_metrics_runs.py`
+  - 入力: `uccs_d2_scan90/metrics/B/per_trial.csv` + `uccs_d2_scan90/metrics/B_02/per_trial.csv`
+  - 出力: `uccs_d2_scan90/metrics/B_n6/summary.md`（集計: `uccs_d2_scan90/metrics/B_n6/summary_by_condition.csv`）
+  - 図（主張図）: `uccs_d2_scan90/plots/d2b_B_n6_power_vs_pout.pdf` / `uccs_d2_scan90/plots/d2b_B_n6_power_vs_pout.png`
+  - 主結果（mean±std, n=6）:
+    - S1_policy: avg_power=191.5±1.9mW, pout_1s=0.1250±0.0274, TL_mean=5.239±0.049s, share100≈0.331
+    - S4_policy: avg_power=196.6±1.6mW, pout_1s=0.0691±0.0285, TL_mean=1.575±0.500s, share100≈0.595
+  - 言えること: 方策は Fixed100 より省電力、Fixed500 より低pout（QoS改善）の「程よい点」になり得る（n増加後も成立）。
+- [16:24 JST] Step D4（Uが効いている切り分け / Ablation）用の実機取得ディレクトリとスケッチ一式を追加し、取得を開始できる状態にした。
+  - 目的: D2bの「程よい点」が U（不確実度）に依存しているかを、S4のみでAblation比較して確定する。
+  - ディレクトリ: `uccs_d4_scan90/`
+    - index: `uccs_d4_scan90/README.md`
+    - data雛形: `uccs_d4_scan90/data/01/`（`RX/`, `TX/`, `README.md`）
+  - Arduinoスケッチ:
+    - TX: `uccs_d4_scan90/src/tx/TX_UCCS_D4_SCAN90/TX_UCCS_D4_SCAN90.ino`（S4×4条件×n=3を自動実行）
+    - RX: `uccs_d4_scan90/src/rx/RX_UCCS_D4_SCAN90/RX_UCCS_D4_SCAN90.ino`（scan90, SYNC gate）
+    - TXSD: `uccs_d4_scan90/src/txsd/TXSD_UCCS_D4_SCAN90/TXSD_UCCS_D4_SCAN90.ino`（cond_id/preamble + INA219ログ）
+  - 条件（S4のみ）:
+    - cond_id=1 fixed100 / 2 fixed500 / 3 policy(U+CCS) / 4 ablation(U-shuffle)
+    - Ablationは **U-shuffle**（seed=0xD4B40201、Uの分布は同じで時間相関のみ破壊）。CCSは `1-CCS_stable` に変換して「変化度」として利用。
+  - 集計スクリプト: `uccs_d4_scan90/analysis/summarize_d4_run.py`（4条件×3回のbalanced windowを自動抽出し、TL/Pout/power/share100を出力）
+  - 次の実施順: 先に D4（U ablation）→ 次に D3（scan duty 90→70/60で適応性）で進める。
+- [16:25 JST] `uccs_d4_scan90/analysis/summarize_d4_run.py` の f-string 文字列エスケープ不整合によるSyntaxErrorを修正し、`python3 -m py_compile` で通過を確認。
+- [16:26 JST] D4の結果可視化用に `uccs_d4_scan90/analysis/plot_power_vs_pout.py` を追加（policy vs ablation の power/pout を1枚で比較できる図を生成）。
+</file>
+
+<file path="worklog_2025-12-16_thesis_setup.txt">
+2025-12-16
+- [12:56 JST] メタ情報更新: `修士論文/meta.tex` で氏名を「萩原 圭島」、指導教授を「木村 秀明」に設定。`cd 修士論文 && latexmk -lualatex main.tex` で `修士論文/build/main.pdf` を再生成。
+- [14:28 JST] D2b主結果（run B）を論文に反映: `修士論文/chapters/ch4_rain.tex` のD2表を `uccs_d2_scan90/metrics/B/summary_by_condition.csv` に合わせて更新し、share100列を追加。主張図 `uccs_d2_scan90/plots/d2b_B_power_vs_pout.pdf` を図として挿入し、解釈を「Fixed100より省電力・Fixed500よりQoS良」「S4でshare100増」「電力は滞在比率の線形混合で説明」に寄せて追記。`修士論文/chapters/appx_b_assets.tex` のD2出力先もBへ更新。`cd 修士論文 && latexmk -lualatex main.tex` で `修士論文/build/main.pdf`（74 pages）を生成確認。
+- [14:30 JST] 表の体裁調整: `修士論文/chapters/ch4_rain.tex` のD2表が横に溢れないよう、条件名を短縮（S1-100等）し、列見出しと桁数を縮めた上で `\\small` + `\\tabcolsep` 調整を適用。`cd 修士論文 && latexmk -lualatex main.tex` で再生成確認。
+- [14:58 JST] D2b主結果を n=6（run B + B/02 統合）へ更新: `uccs_d2_scan90/metrics/B_n6/summary_by_condition.csv` に基づき、`修士論文/chapters/ch4_rain.tex` のD2表と図参照を更新（図: `uccs_d2_scan90/plots/d2b_B_n6_power_vs_pout.pdf`）。資産一覧 `修士論文/chapters/appx_b_assets.tex` も統合n=6の出力先へ更新。`cd 修士論文 && latexmk -g -lualatex main.tex` で `修士論文/build/main.pdf`（74 pages）を再生成確認。
+- [15:00 JST] 資産一覧のパス表記を改行可能に調整: `修士論文/chapters/appx_b_assets.tex` の一部を `\\texttt{\\detokenize{...}}` → `\\path{...}` に置換し、長いパスが本文幅から溢れにくいように修正。`cd 修士論文 && latexmk -lualatex main.tex` で `修士論文/build/main.pdf`（75 pages）を再生成確認。
+- [15:05 JST] D2 run B の入力パスを明確化: `修士論文/chapters/appx_b_assets.tex` の表記を `uccs_d2_scan90/data/B/01/`（run B）+ `uccs_d2_scan90/data/B/02/`（追加）に修正。`cd 修士論文 && latexmk -lualatex main.tex` で `修士論文/build/main.pdf`（75 pages）を再生成確認。
+- [16:08 JST] 計測装置の写真を論文へ追加: `image/` の写真を整形（auto-orient/strip/resize）して `修士論文/figures/` に配置し、`修士論文/chapters/ch8_measurement_system.tex` の「三ノード構成」直後に外観図を挿入。
+  - 追加図: `修士論文/figures/measurement_setup_overview_01.jpg`, `修士論文/figures/measurement_setup_overview_02.jpg`, `修士論文/figures/measurement_rx.jpg`, `修士論文/figures/measurement_tx_txsd.jpg`
+  - 参照箇所: `修士論文/chapters/ch8_measurement_system.tex`（図\ref{fig:measurement_setup_overview}, 図\ref{fig:measurement_nodes}）
+  - ビルド: `cd 修士論文 && latexmk -lualatex main.tex` で `修士論文/build/main.pdf`（76 pages）を生成確認。
+- [16:11 JST] 実験構成写真は重複のため整理: `修士論文/chapters/ch8_measurement_system.tex` の実験構成図を (b) のみ残すよう修正（`figures/measurement_setup_overview_02`のみ参照）。`cd 修士論文 && latexmk -lualatex main.tex` で `修士論文/build/main.pdf`（76 pages）を再生成確認。
+- [16:15 JST] 写真資産の整理: `修士論文/figures/measurement_setup_overview_01.jpg` を削除（未参照の重複）。`修士論文/figures/README.md` に計測装置写真の一覧と元ファイル（`image/`）を追記。
+- [16:30 JST] テンプレREADME更新: `修士論文/README.md` に「出力先は build/main.pdf」「写真の取り扱い（原本は image/、提出用派生物は figures/）」を追記。
+- [18:02 JST] 修論用アブスト（2ページ二段組）を作成: `修士論文アブスト/` に本文・体裁ルール・ビルド設定を追加し，`build/main.pdf`（2 pages）を生成。
+  - 本文: `修士論文アブスト/main.tex`（見出しは `1. ...` 形式，ページ番号なし，引用は `[1][2]` 形式）
+  - ルール/運用: `修士論文アブスト/README.md`
+  - 図: `修士論文アブスト/figures/fig_d2b_power_vs_pout_n6.pdf`（元: `uccs_d2_scan90/plots/d2b_B_n6_power_vs_pout.pdf`）
+  - ビルド: `cd 修士論文アブスト && latexmk -lualatex main.tex`
+- [18:10 JST] 修論用アブストの本文を増補: 2段組2ページの密度を上げるため，`修士論文アブスト/main.tex` の導入（課題/目的/貢献）・手法（フェイルセーフ/滞在制約）・考察（線形混合の式）を追記。`cd 修士論文アブスト && latexmk -g -lualatex main.tex` で `修士論文アブスト/build/main.pdf`（2 pages）を再生成確認。
+- [18:31 JST] 修論用アブストをさらに増補: `修士論文アブスト/main.tex` に主要指標の表（表\ref{tab:d2b_summary}）を追加し，背景（不確実度=エントロピー，calibration）を補強。文献を `修士論文アブスト/references.bib` に追加（`shannon1948`, `guo2017calibration`）。`cd 修士論文アブスト && latexmk -g -lualatex main.tex` で `修士論文アブスト/build/main.pdf`（2 pages）を再生成確認。
+- [19:13 JST] 修士論文本体の体裁を調整: 目次先頭の不要な空白を解消し，ページ番号を章扉含めて下右へ統一（`ltjsreport` の `plainhead/plainfoot` に対応）。第4章タイトルを「計測系と再現性」に短縮し，目次上でも読みやすくした。更新: `修士論文/chubuthesis.sty`, `修士論文/main.tex`, `修士論文/chapters/ch4_measurement_metrics_repro.tex`。`cd 修士論文 && latexmk -g -lualatex main.tex` で `修士論文/build/main.pdf`（76 pages）を再生成確認。
+- [19:24 JST] D4（U-shuffleアブレーション）を修論へ追加: `uccs_d4_scan90/metrics/01/summary_by_condition.csv` の集計に基づき，評価章の `修士論文/chapters/ch4_rain.tex` にD4節（表\ref{tab:d4_summary}・図\ref{fig:d4_power_vs_pout}・解釈）を追記。資産一覧 `修士論文/chapters/appx_b_assets.tex` にD4の入出力パスと解析/図生成スクリプトを追記。`cd 修士論文 && latexmk -g -lualatex main.tex` で `修士論文/build/main.pdf`（77 pages）を再生成確認。
+- [19:55 JST] ページ数目標を70に合わせて章3/章4を圧縮: `修士論文/chapters/ch4_measurement_metrics_repro.tex` から詳細資料（記号表/資産一覧/トラブルシューティング）を除外し，参照箇所を整理（`修士論文/chapters/ch3_oncampus.tex`, `修士論文/chapters/ch5_publicroad.tex`, `修士論文/chapters/appx_e_runbook.tex`）。章3は `修士論文/chapters/ch9_har_uncertainty.tex` の実装詳細（個別パス/ハッシュ・大きな表）を簡約化し，`修士論文/chapters/appx_h_ccs_params.tex` の冗長な写像表を削除して短縮。`cd 修士論文 && latexmk -g -lualatex main.tex` で `修士論文/build/main.pdf`（70 pages）を再生成確認。
+- [22:49 JST] D3（scan70）を修論へ追記: `uccs_d3_scan70/metrics/01/summary.md` に基づき，`修士論文/chapters/ch4_rain.tex` にD3節（表\ref{tab:d3_summary}）を追加し，「条件悪化でFixed500が崩れてもPolicyが踏ん張る（pout\_1s: 0.285→0.089, avg\_power: 202.1mW < Fixed100 209.9mW）」を本文へ反映。scan70ではRXタグ由来share100が過小評価されるため share100\_mix を併記し，TXSD割当は adv\_count クラスタリング（mtime不正）と明記。D3/D4の散布図はページ数維持のため1枚に統合（図\ref{fig:d3_d4_power_vs_pout}，元: `uccs_d3_scan70/plots/d3_01_power_vs_pout.pdf`, `uccs_d4_scan90/plots/d4_01_power_vs_pout.pdf`）。`cd 修士論文 && latexmk -g -lualatex main.tex` で `修士論文/build/main.pdf`（70 pages）を再生成確認。
+- [02:52 JST] D3の考察を補強: `修士論文/chapters/ch4_rain.tex` のD3節に「$\delta=0.1$例での可行/不可行（Fixed500は制約外，Policyは制約内でFixed100より低電力）」のストーリーを追記し，電力差分（−7.8\,mW / +12.6\,mW）と share100\_mix の定義式 `share100_{\mathrm{mix}}=(P_{\mathrm{policy}}-P_{500})/(P_{100}-P_{500})` を明記。`cd 修士論文 && latexmk -g -lualatex main.tex` で `修士論文/build/main.pdf`（70 pages）を再生成確認。
+</file>
+
+<file path="worklog_2025-12-17_letter_route.txt">
+2025-12-17 00:20 JST
+- D4B（CCS-off=U-only ablation, S4/scan90, 4条件×n=3）を集計・図化して結果を固定
+  - データ: `uccs_d4b_scan90/data/01/`
+  - 集計: `uccs_d4b_scan90/metrics/01/summary.md`（TXSDはcond_id不整合/古いログ混入のため adv_count でクラスタリングして割当、avg_power>=150mW & E_total>0 でフィルタ）
+  - 図: `uccs_d4b_scan90/plots/d4b_01_power_vs_pout.svg`（power vs pout + share100注釈）
+- 主要結果（mean±std, n=3）
+  - S4_fixed100: avg_power=208.3±0.5mW, pout_1s=0.0813±0.0141, adv_count=1796
+  - S4_fixed500: avg_power=188.1±0.3mW, pout_1s=0.1301±0.0282, adv_count=359
+  - S4_policy(U+CCS): avg_power=200.6±0.1mW, pout_1s=0.0488±0.0000, adv_count=1215, share100_power_mix≈0.620
+  - S4_ablation_ccs_off(U-only): avg_power=200.6±0.2mW, pout_1s=0.0650±0.0141, adv_count=1227, share100_power_mix≈0.621
+- 解釈
+  - 電力（share100）をほぼ同等に保ったまま、CCSを有効化するとpout_1sが改善（U-only→U+CCSで 0.065→0.049）。
+  - よって「Uは省電力（100ms滞在低減）」「CCSはQoSを守る（遷移検出/ブースト）」の2本立て設計が実機で正当化できる。
+
+2025-12-17 02:55 JST
+- D4Bのレター向け結論を文章化してREADME/worklogへ固定（“同電力でQoS改善”としてCCS寄与を明示）
+  - Policy(U+CCS) vs Ablation(CCS-off=U-only)（mean±std, n=3）
+    - avg_power_mW: 200.626 vs 200.649（差 -0.023 mW; ほぼ同一）
+    - adv_count: 1215 vs 1227（mix比率もほぼ同等）
+    - pout_1s: 0.0650 → 0.0488（絶対 -0.0163, 相対 -25%）
+    - tl_mean_s: 1.407 → 1.317（約 -0.089 s, 相対 -6.3%）
+    - pdr_unique: 0.434 → 0.448（小さいが改善）
+  - 主張: Uが“100ms滞在量（電力）”を決め、CCSが“同じ100ms予算のタイミング最適化”でQoS（Pout/TL）を改善する。
+
+2025-12-17 04:45 JST
+- D4B（run01）の「CCSが効く＝タイミングが良い」を可視化する追加解析（追加データ不要）を作成・実行
+  - スクリプト: `uccs_d4b_scan90/analysis/ccs_timing_analysis.py`（依存なし・SVG出力）
+  - 出力: `uccs_d4b_scan90/plots/ccs_timing_01/`
+    - `fig_event_triggered_p100.svg`（truth遷移中心のP(100ms)）
+    - `fig_lag_cdf.svg`（遷移→100msへのlag CDF）
+    - `fig_hit_cover.svg`（Hit/PreHit/Cover）
+    - `alloc_efficiency_summary.csv`（100ms割当の効率指標）
+  - 注意: run01では「truth遷移中心」の配置差が大きく出ない指標もあり、本文主軸はD4Bの主結果（同電力でpout/TL改善）に置くのが安全。
+
+2025-12-17 10:55 JST
+- 「U/CCSの役割分離＋頑健性」を1枚図に統合（追加データ不要）
+  - 図: `uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.svg`
+  - 含む点:
+    - scan90: fixed100/fixed500, policy(U+CCS), ablation(U-shuffle), ablation(CCS-off=U-only)
+    - scan70: fixed100/fixed500, policy(U+CCS)
+  - 矢印:
+    - U effect: U-shuffle → policy（100ms張り付き崩壊→省電力側へ）
+    - CCS effect: U-only → policy（同電力付近でQoS改善）
+    - robustness: scan90→scan70でfixed500が崩れる一方、policyは相対的に維持
+
+2025-12-17 11:05 JST
+- ブートストラップCI（差分＋不確かさ）をper-trialから算出し、レター向けに固定
+  - script: `scripts/bootstrap_effects.py`（percentile bootstrap, n_boot=20000）
+  - 出力:
+    - D4B: `uccs_d4b_scan90/metrics/01/effects_ci.md`
+    - D4: `uccs_d4_scan90/metrics/01/effects_ci.md`
+    - D3: `uccs_d3_scan70/metrics/01/effects_ci.md`
+  - 例（D4B, U+CCS − U-only）:
+    - Δpout_1s = -0.0163, 95%CI [-0.0244, 0.0000]
+    - Δpower_mW = -0.0235, 95%CI [-0.2332, 0.1886]（同電力の裏付け）
+
+2025-12-17 11:30 JST
+- “正規化電力（α）×QoS” の散布図を作成し、CCSの効きを1枚で説明できる形に整理
+  - α = (P − P500) / (P100 − P500)（runごとの fixed100/fixed500 で正規化）
+  - 図: `uccs_d4b_scan90/plots/alpha_vs_pout_overview.svg`
+  - 含む点: D4B(scan90: U-only vs U+CCS), D4(scan90: U-shuf), D3(scan70: fixed/policy)
+  - 狙い: “同じα（同エネルギー配分）でも、U+CCSの方がpoutが低い”を直感的に示す（ドリフトの影響を低減）。
+
+2025-12-17 11:41 JST
+- D4B（run01）の「Pout差は少数のアウトエイジ（TL>1s）イベント差」という内訳を、失敗イベント中心で可視化（追加データ不要）
+  - スクリプト: `uccs_d4b_scan90/analysis/outage_story_trace.py`
+    - TL/Pout定義は `uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py` と同一（100ms truth遷移、per-trial定数オフセット整列、遷移後の新ラベル初回受信でTL算出）
+  - 出力: `uccs_d4b_scan90/plots/outage_story_01/`
+    - `outage_ranking.csv`（U-onlyとPolicyのoutage率差で遷移をランキング）
+    - `per_transition.csv`（trial×遷移ごとのTLとoutage判定）
+    - `fig_outage_timeline.svg`（失敗イベント中心のタイムライン図）
+  - 一例（選択イベント）:
+    - transition_step=1128（label 2→9）で、U-onlyは TL≈9.889s（outage）だが Policy(U+CCS)は TL≈0.212s（正常）
+  - 検証: `per_transition.csv` から復元した `pout_est` は summaryと一致（Policy=0.04878, U-only=0.06504）。
+
+2025-12-17 12:10 JST
+- D4B（run01）の “尾（outage）” を追加解析（追加データ不要）
+  - Poutの寄与分解（上位少数遷移が支配することを可視化）
+    - script: `uccs_d4b_scan90/analysis/pout_tail_decomposition.py`
+    - 出力: `uccs_d4b_scan90/plots/pout_tail_01/`
+      - `fig_outage_count_hist.svg`（trialごとのoutage数分布）
+      - `fig_delta_pout_cum.svg`（上位K遷移がΔPoutをどれだけ説明するか）
+      - `pout_tail_decomposition.md`
+  - 条件付きタイミング（U-onlyで悪化している遷移 topK に条件付け）
+    - script: `uccs_d4b_scan90/analysis/ccs_timing_analysis_conditional.py`
+    - 出力: `uccs_d4b_scan90/plots/ccs_timing_conditional_01/fig_event_triggered_p100_conditional.svg`
+
+2025-12-17 12:20 JST
+- D4B-scan70（受信条件悪化下でCCS寄与を確認）用の専用ディレクトリを追加
+  - index: `uccs_d4b_scan70/README.md`
+  - TX/RX/TXSD（Arduino）:
+    - `uccs_d4b_scan70/src/tx/TX_UCCS_D4B_SCAN70/TX_UCCS_D4B_SCAN70.ino`
+    - `uccs_d4b_scan70/src/rx/RX_UCCS_D4B_SCAN70/RX_UCCS_D4B_SCAN70.ino`
+    - `uccs_d4b_scan70/src/txsd/TXSD_UCCS_D4B_SCAN70/TXSD_UCCS_D4B_SCAN70.ino`
+
+2025-12-17 12:45 JST
+- D4B-scan70の運用で困らないよう、data/metrics/plots/analysis の index を追加（runごとのディレクトリ構成を明文化）
+  - `uccs_d4b_scan70/data/README.md`
+  - `uccs_d4b_scan70/analysis/README.md`
+  - `uccs_d4b_scan70/metrics/README.md`
+  - `uccs_d4b_scan70/plots/README.md`
+
+2025-12-17 17:25 JST
+- D4B-scan70 run01（S4, scan70）データを確認・集計
+  - データ: `uccs_d4b_scan70/data/01/`
+    - RX: `uccs_d4b_scan70/data/01/RX/`（rx_trial_001..032。集計は 020..031 を採用）
+    - TXSD: `uccs_d4b_scan70/data/01/TX/`（ログ混在あり: cond_id c9..c13 など32/63ファイル）
+  - 集計: `python3 uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py --rx-dir uccs_d4b_scan70/data/01/RX --txsd-dir uccs_d4b_scan70/data/01/TX --out-dir uccs_d4b_scan70/metrics/01`
+    - `uccs_d4b_scan70/metrics/01/summary.md`
+    - `uccs_d4b_scan70/metrics/01/summary_by_condition.csv`
+  - 図: `uccs_d4b_scan70/plots/d4b_scan70_01_power_vs_pout.svg`
+  - 読み（mean±std, n=3）:
+    - S4_fixed100: avg_power≈207.1mW, pout_1s≈0.0244
+    - S4_fixed500: avg_power≈187.5mW, pout_1s≈0.0163
+    - S4_policy(U+CCS): avg_power≈199.0mW（α≈0.586）, pout_1s≈0.0000
+    - S4_ablation_ccs_off(U-only): avg_power≈205.4mW（α≈0.910）, pout_1s≈0.0081
+  - 注意: TXSDはファイル名のcond_id/タグがズレているものが混在しており、集計は adv_count クラスタリングで割当（runごとにSD /logs を空にして再取得すると管理が楽）。
+</file>
+
+<file path="worklog_2025-12-17_thesis_setup.txt">
+2025-12-17
+- [03:59 JST] D4B（CCS-offアブレーション）を修論へ反映: `uccs_d4b_scan90/metrics/01/summary.md` / `uccs_d4b_scan90/metrics/01/summary_by_condition.csv` に基づき，`修士論文/chapters/ch4_rain.tex` にD4B節（表\ref{tab:d4b_summary}）を追加。「U-only（CCS-off）とPolicy（U+CCS）は平均電力・adv_count・share100_mixがほぼ同等だが，CCS有効化で Pout(1s)/TL が改善」=「Uが電力（短間隔滞在量）を決め，CCSが同電力でQoSを改善」を本文の解釈（\ref{sec:d4b_ccs_off} / \ref{tab:d4b_summary} / \ref{fig:d4_d4b_power_vs_pout}）に反映。
+  - 図: `uccs_d4b_scan90/plots/d4b_01_power_vs_pout.svg` をPDF化して `uccs_d4b_scan90/plots/d4b_01_power_vs_pout.pdf` を作成し，修論図（図\ref{fig:d4_d4b_power_vs_pout}）に組み込み。
+  - 付随: `修士論文/chapters/appx_b_assets.tex` にD4Bの資産パスと解析スクリプト（`uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py`, `uccs_d4b_scan90/analysis/plot_power_vs_pout.py`）を追記。
+  - ページ調整: 70p維持のため `修士論文/chapters/appx_c_results.tex` から重複図（ストレス固定の再掲）を削除。
+  - ビルド: `cd 修士論文 && latexmk -g -lualatex main.tex` で `修士論文/build/main.pdf`（70 pages）を生成確認。
+- [11:18 JST] 追加検証（役割分離の統合図＋ブートストラップCI）を修論へ反映: `scripts/bootstrap_effects.py` の出力（`uccs_d3_scan70/metrics/01/effects_ci.*`, `uccs_d4_scan90/metrics/01/effects_ci.*`, `uccs_d4b_scan90/metrics/01/effects_ci.*`）を根拠に，`修士論文/chapters/ch4_rain.tex` に効果量CIの段落を追記。D3/D4/D4Bを1枚で示す統合図 `uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.svg` をPDF化して `uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.pdf` を作成し，修論図（図\ref{fig:role_separation_overview}）へ差し替え。`修士論文/chapters/appx_b_assets.tex` に統合図・CI出力・生成スクリプト（`uccs_d4b_scan90/analysis/plot_role_separation_overview.py`）を追記。ページ数維持のため `修士論文/chapters/appx_c_results.tex` のPareto再掲を削除。`cd 修士論文 && latexmk -g -lualatex main.tex` で `修士論文/build/main.pdf`（70 pages）を生成確認。
+- [11:49 JST] 章3/4の圧縮と、考察/結論/要旨の反映を実施:
+  - 考察: `修士論文/chapters/ch5_publicroad.tex` に「UとCCSの役割分離（実機アブレーション）」節を追記し、D4（U-shuffle）/D4B（CCS-off）/統合図（図\ref{fig:role_separation_overview}）への解釈を明文化。Threats to Validity に「n=3→CI補助」も追記。
+  - 結論/要旨: `修士論文/chapters/conclusion.tex` と `修士論文/frontmatter/abstract.tex` に、D2b/D3とD4/D4Bの位置づけ（Uが電力、CCSが同電力でQoS改善）を追記。
+  - 章3短縮: `修士論文/chapters/ch3_system_design.tex` からフェイルセーフ概念図を削除、`修士論文/chapters/ch9_har_uncertainty.tex` の冗長な表/未完タスク列挙を圧縮、`修士論文/chapters/ch2_proposed.tex` から重複定義と評価系概念図を削除（計測章/指標章へ参照統一）。
+  - 章4短縮: `修士論文/chapters/appx_a_metrics.tex` と `修士論文/chapters/ch8_measurement_system.tex` の重複説明を削減し、本文内は要点（監査観点）に圧縮。
+  - ビルド: `cd 修士論文 && latexmk -g -lualatex main.tex` → `修士論文/build/main.pdf`（65 pages）を生成確認。目次先頭の余白も確認。
+- [12:07 JST] 追加図（α–Pout俯瞰＋D4B outageストーリー）を修論へ反映:
+  - 図追加: `修士論文/chapters/ch4_rain.tex` に `fig:alpha_vs_pout_overview`（`uccs_d4b_scan90/plots/alpha_vs_pout_overview.*`）と `fig:outage_story_timeline`（`uccs_d4b_scan90/plots/outage_story_01/fig_outage_timeline.*`）を追記。D3/D4/D4Bを「α（mix）–Pout」で俯瞰し、D4B(run01)のpout差を生んだ代表イベント（transition_step=1128）のタイムラインを掲載。
+  - 変換: SVG→PDF（ImageMagick）で `uccs_d4b_scan90/plots/alpha_vs_pout_overview.pdf` と `uccs_d4b_scan90/plots/outage_story_01/fig_outage_timeline.pdf` を生成。
+  - 体裁: floatが次章へ流れないよう `修士論文/chapters/ch4_rain.tex` に `\clearpage` を追加してフラッシュ。
+  - 資産一覧: `修士論文/chapters/appx_b_assets.tex` に上記出力・スクリプト（`uccs_d4b_scan90/analysis/plot_alpha_vs_pout.py`, `uccs_d4b_scan90/analysis/outage_story_trace.py`）を追記。
+  - ビルド: `cd 修士論文 && latexmk -g -lualatex main.tex` → `修士論文/build/main.pdf`（67 pages）を生成確認。
+- [12:23 JST] D4B（run01）の追加解析（尾寄与分解＋条件付きタイミング）を修論へ反映:
+  - 変換: SVG→PDF（ImageMagick）で `uccs_d4b_scan90/plots/pout_tail_01/fig_outage_count_hist.pdf`, `uccs_d4b_scan90/plots/pout_tail_01/fig_delta_pout_cum.pdf`, `uccs_d4b_scan90/plots/ccs_timing_conditional_01/fig_event_triggered_p100_conditional.pdf` を生成。
+  - 本文追記: `修士論文/chapters/ch4_rain.tex` に尾寄与分解（少数遷移にΔPoutが集中）と条件付きタイミング（失敗遷移近傍の短間隔割当て差）を追記し，図\ref{fig:d4b_pout_tail_decomposition}・図\ref{fig:d4b_ccs_timing_conditional}として掲載。
+  - 資産一覧: `修士論文/chapters/appx_b_assets.tex` に上記出力・再現メモ（`uccs_d4b_scan90/metrics/01/extra_analysis.md`）・追試用 `uccs_d4b_scan70/` のスケッチパスを追記。
+  - ビルド: `cd 修士論文 && latexmk -g -lualatex main.tex` → `修士論文/build/main.pdf`（70 pages）を生成確認。
+- [12:35 JST] 計測系のシステムアーキテクチャ図（ESP32三ノード実験装置）を修論へ追加:
+  - 図追加: `image/ESP32三ノード実験装置.jpg` を `修士論文/figures/measurement_architecture_esp32_three_node.jpg` にコピーし，`修士論文/chapters/ch3_oncampus.tex` に図\ref{fig:measurement_architecture_esp32_three_node}として追加（配線例の直後）。
+  - 図一覧: `修士論文/figures/README.md` に当該図の派生物・原本パスを追記。
+  - ビルド: `cd 修士論文 && latexmk -g -lualatex main.tex` → `修士論文/build/main.pdf`（71 pages）を生成確認。
+- [13:40 JST] 他AI共有用のRepomixを更新:
+  - 出力: `repomix_thesis_bundle.xml`（修論LaTeX + 主要docs/logs + D2/D3/D4/D4Bのanalysis/metrics/plots/src をinclude。raw dataは除外）
+  - コマンド: `repomix --output repomix_thesis_bundle.xml --style xml --parsable-style --include "AGENTS.md,README.md,修士論文/**,docs/全体像.md,docs/metrics_definition.md,docs/TODO.md,docs/decision_log_2025-12-13_letter_route.md,logs/worklog_2025-12-17_thesis_setup.txt,logs/worklog_2025-12-17_letter_route.txt,logs/worklog_2025-12-16_letter_route.txt,logs/worklog_2025-12-16_letter_route_continued.txt,logs/worklog_2025-12-15_thesis_setup.txt,logs/worklog_2025-12-15_letter_route.txt,logs/worklog_2025-12-13_stress_fixed_metrics_v5.txt,scripts/bootstrap_effects.py,uccs_d2_scan90/README.md,uccs_d2_scan90/analysis/**,uccs_d2_scan90/metrics/**,uccs_d2_scan90/plots/**,uccs_d2_scan90/src/**,uccs_d2_scan90/truth/**,uccs_d3_scan70/README.md,uccs_d3_scan70/analysis/**,uccs_d3_scan70/metrics/**,uccs_d3_scan70/plots/**,uccs_d3_scan70/src/**,uccs_d4_scan90/README.md,uccs_d4_scan90/analysis/**,uccs_d4_scan90/metrics/**,uccs_d4_scan90/plots/**,uccs_d4_scan90/src/**,uccs_d4b_scan90/README.md,uccs_d4b_scan90/analysis/**,uccs_d4b_scan90/metrics/**,uccs_d4b_scan90/plots/**,uccs_d4b_scan90/src/**,uccs_d4b_scan70/README.md,uccs_d4b_scan70/src/**" --ignore "uccs_d2_scan90/data/**,uccs_d3_scan70/data/**,uccs_d4_scan90/data/**,uccs_d4b_scan90/data/**"`
+  - 付随: `修士論文/README.md` にRepomix生成コマンドを追記（ルールとして固定）。
+- [14:20 JST] Repomixを軽量化（src/docs/analysis/plots/dataを除外）:
+  - 出力: `repomix_thesis_bundle_light.xml`（約245KB, 86k tokens）
+  - 方針: 修論（LaTeX）＋主要worklog＋各実験のmetrics（summary/per_trial/effects_ci）だけに絞り、`--compress --remove-comments --remove-empty-lines` を有効化。
+  - コマンド: `repomix --output repomix_thesis_bundle_light.xml --style xml --parsable-style --compress --remove-comments --remove-empty-lines --include "修士論文/**,logs/worklog_2025-12-17_thesis_setup.txt,logs/worklog_2025-12-17_letter_route.txt,logs/worklog_2025-12-16_letter_route.txt,logs/worklog_2025-12-16_letter_route_continued.txt,logs/worklog_2025-12-15_thesis_setup.txt,uccs_d2_scan90/README.md,uccs_d2_scan90/metrics/**,uccs_d3_scan70/README.md,uccs_d3_scan70/metrics/**,uccs_d4_scan90/README.md,uccs_d4_scan90/metrics/**,uccs_d4b_scan90/README.md,uccs_d4b_scan90/metrics/**" --ignore "docs/**,**/src/**,**/analysis/**,**/plots/**,**/data/**"`
+  - 付随: `修士論文/README.md` のRepomixコマンドを軽量版に差し替え。
+- [17:58 JST] 記号衝突（δ/α）解消と図表可読性の改善:
+  - δ衝突: QoS制約の許容値は $\epsilon$ に統一（scan duty の $\delta$ は維持）。`修士論文/chapters/ch0_introduction.tex`, `修士論文/chapters/ch3_system_design.tex`, `修士論文/chapters/ch7_offline_eval.tex`, `修士論文/chapters/ch4_rain.tex`, `修士論文/chapters/ch5_publicroad.tex`, `修士論文/chapters/conclusion.tex`, `修士論文/chapters/appx_e_runbook.tex`, `修士論文/chapters/appx_b_assets.tex` を更新し，記号表 `修士論文/chapters/appx_f_symbols.tex` に $\epsilon$ を追加。
+  - α衝突: share100推定の $\alpha$ を $\hat{\rho}_{100}$ に改名し，`修士論文/chapters/ch4_rain.tex` の本文・表・キャプションと `修士論文/chapters/appx_f_symbols.tex` / `修士論文/chapters/appx_b_assets.tex` を更新。`uccs_d4b_scan90/analysis/plot_alpha_vs_pout.py` を更新して図中表記を ρ̂100 と ε=0.1 に修正し，`uccs_d4b_scan90/plots/alpha_vs_pout_overview.svg` / `uccs_d4b_scan90/plots/alpha_vs_pout_overview.pdf` を再生成。
+  - 表の画像貼りを廃止: `修士論文/chapters/appx_c_results.tex` の `../results/mhealth_policy_eval/policy_table.png` を LaTeX表に置換（幅は `\resizebox{\linewidth}{!}{...}` で収める）。
+  - ビルド: `cd 修士論文 && latexmk -lualatex main.tex` → `修士論文/build/main.pdf`（71 pages）を生成確認。
+- [18:25 JST] 第4章の圧縮（8p程度へ）:
+  - 第4章から詳細を分離: `修士論文/chapters/ch4_measurement_metrics_repro.tex` から「評価準備（実験設計と実装）」と「再現性のための詳細資料（ログスキーマ/指標定義/Runbook）」を削除し，計測系と計測健全化の要点に絞った。
+  - 移設: 上記の詳細は `修士論文/chapters/ch5_repro_appendix.tex` に移動し，`修士論文/chapters/ch5_evaluation.tex` 末尾で読み込む形に変更（参照ラベル `sec:eval_preparation` / `sec:repro_details` は維持）。
+  - 確認: `修士論文/build/main.toc` 上で第4章開始=21p、第5章開始=30p（=本文8p相当で第4章を圧縮）。`cd 修士論文 && latexmk -g -lualatex main.tex` → `修士論文/build/main.pdf`（71 pages）を生成確認。
+</file>
+
+<file path="worklog_2025-12-18_thesis_setup.txt">
+2025-12-18 14:10 JST
+- 修論アブストを修論更新（D3/D4/D4B）に追従：`修士論文アブスト/main.tex`
+  - 記号衝突回避：QoS制約 `\\epsilon`，短間隔比率 `\\hat{\\rho}_{100}`
+  - 図を統合俯瞰に更新：`修士論文アブスト/figures/fig_role_separation_overview.pdf`（元：`uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.pdf`）
+  - 旧：計測写真/ D2b図表は本文から外し，2ページ制約を維持
+- ビルド確認：`cd 修士論文アブスト && latexmk -lualatex main.tex` → `修士論文アブスト/build/main.pdf`（2 pages）
+
+2025-12-18 14:25 JST
+- 2ページ制約を維持したまま，理解補助のため簡易ブロック図を同一figureに追加：`修士論文アブスト/main.tex`
+  - 図（a）：TX/TXSD/RX + INA219 + 外部電源（BLE/UART/I2C/SYNC/TICK）
+  - 図（b）：D3/D4/D4B統合俯瞰（既存）
+- ビルド再確認：`修士論文アブスト/build/main.pdf`（2 pages）
+
+2025-12-18 15:55 JST
+- 図配置を調整（アブスト2ページ維持）：
+  - 図1（簡易ブロック図）を1ページ目の本文中に配置：`修士論文アブスト/main.tex`
+  - 図2（Role separation: D3/D4/D4B）を2ページ目で大きく表示（figure* 維持）
+- ビルド確認：`修士論文アブスト/build/main.pdf`（2 pages）
+
+2025-12-18 15:55 JST
+- D4B-scan70 run02（取り直し分）データ `uccs_d4b_scan70/data/02/` を健全性チェック
+  - RX: `uccs_d4b_scan70/data/02/RX/` は scan70 のメタ整合あり（`scan_window_ms=70.0` が複数ファイルで一致）
+  - TXSD: `uccs_d4b_scan70/data/02/TX/` が不整合
+    - `cond_id` が 9〜13 に偏り（本来は1〜4を想定）、ファイル名も `trial_*_c9..c13_unk.csv` に偏っていた
+    - `adv_count` が 178x 近傍に集中（固定100相当のクラスタ）し、D4B想定の複数クラスタ（例：359/≈1215/≈1227/≈1796）が揃わず
+    - `uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py` が「グループごとの試行数不足」で失敗（metrics生成不可）
+  - 結論：run02はこのままだと D4B-scan70 の比較実験データとして不成立。TXSD側の preamble/TICK 誤検出（配線/プルダウン/ログ混在）を疑い、再取得が必要。
+
+2025-12-18 16:15 JST
+- D4B-scan70 の cond_id 崩壊（10..13問題）を「コード側で潰す」修正を実施
+  - TX: preamble完了まで advertising と adv_count用TICKを開始しない + adv_count用TICKを「100msステップ毎」ではなく「現在intervalのイベント時刻のみ」に変更
+    - `uccs_d4b_scan70/src/tx/TX_UCCS_D4B_SCAN70/TX_UCCS_D4B_SCAN70.ino`
+  - TXSD: preamble window短縮 + 10..13→1..4の復元デコード（フォールバック） + `cond_id_raw` をmetaに保存
+    - `uccs_d4b_scan70/src/txsd/TXSD_UCCS_D4B_SCAN70/TXSD_UCCS_D4B_SCAN70.ino`
+  - ドキュメント: 症状/対策メモ追記
+    - `uccs_d4b_scan70/analysis/README.md`
+
+2025-12-18 18:25 JST
+- 追加修正（preamble window内への「余計な1パルス」混入対策）
+  - TX: `step_idx=0` の「adv-event TICK」がTXSD preamble windowに入らないよう、trial開始時刻を `SYNC立上り + PREAMBLE_WINDOW_MS + margin` に固定して遅延
+    - `uccs_d4b_scan70/src/tx/TX_UCCS_D4B_SCAN70/TX_UCCS_D4B_SCAN70.ino`
+  - TXSD: TICK入力に2msデバウンス（ノイズ/リンギングでpreambleパルスが+1されるのを抑制）
+    - `uccs_d4b_scan70/src/txsd/TXSD_UCCS_D4B_SCAN70/TXSD_UCCS_D4B_SCAN70.ino`
+
+2025-12-18 20:50 JST
+- D4B-scan70の再取得ログ（cond_id=1..4 + adv_countが期待どおりに分離）を確認し、解析が通る状態になったのを確認
+  - データ: `uccs_d4b_scan70/data/01/`（RX: rx_trial_014..025 を採用、TXSD: 4条件×3本を採用）
+  - 解析: `python3 uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py --rx-dir uccs_d4b_scan70/data/01/RX --txsd-dir uccs_d4b_scan70/data/01/TX --out-dir uccs_d4b_scan70/metrics/01_fixed`
+    - 出力: `uccs_d4b_scan70/metrics/01_fixed/summary.md`
+  - 解析スクリプト修正: policy と U-only の adv_count が同一になるケース（ユニーク値3つ）でも動くよう、TXSDの条件割当を cond_id 優先に変更
+    - `uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py`
+
+2025-12-18 21:15 JST
+- （追加データ無し）U-onlyの閾値を動かしてαを揃える必要があるかを確認
+  - 現状のD4B-scan70 runでは、policy と U-only の `adv_count` が同一（=1323）で、イベント密度の正規化（alpha_adv）も同一になるため「同mix条件での比較」は既に成立していると判断
+  - 閾値探索のための簡易スクリプトを追加（frozen U-seriesの再生によりU-only切替列を再現）
+    - `uccs_d4b_scan70/analysis/tune_u_only_alpha.py`
+  - まとめ（追加データ無しの結論）をメモ化
+    - `uccs_d4b_scan70/metrics/01_fixed/u_only_alpha_tuning_summary.md`
+2025-12-18 16:36 JST
+- 図（$\hat{\\rho}_{100}$ vs $P_{\\mathrm{out}}$）が見づらい問題に対応。生成スクリプト `uccs_d4b_scan90/analysis/plot_alpha_vs_pout.py` を改修して、軸の目盛りを固定（x: 0,0.25,0.5,0.75,1 / y: 0〜上限を0.05刻み）、凡例を簡略化、ラベルを重要点のみに限定しオフセットで衝突回避（白縁取り付き）に変更。
+- 再生成: `uccs_d4b_scan90/plots/alpha_vs_pout_overview.svg` / `uccs_d4b_scan90/plots/alpha_vs_pout_overview.pdf`
+- 修論ビルド確認: `修士論文/main.tex` を `latexmk -lualatex` で再ビルドし、図の差し替えを確認（PDF: `修士論文/build/main.pdf`）。
+
+2025-12-18 16:50 JST
+- 追加調整: ρ̂100 図の凡例を右上に移動し、x軸を[0,1]でクリップ（誤差棒のはみ出しを抑制）して見た目の余白を削減。右下のラベル密集が起きにくいように主要ラベルの位置（dx,dy）も調整。
+- 再生成: `uccs_d4b_scan90/plots/alpha_vs_pout_overview.svg` / `uccs_d4b_scan90/plots/alpha_vs_pout_overview.pdf`
+- 修論ビルド確認: `修士論文/main.tex` を `latexmk -lualatex` で再ビルドし、p.43（図5-8）に反映を確認（PDF: `修士論文/build/main.pdf`）。
+
+2025-12-18 18:06 JST
+- アブスト／修論で共用している「役割分離」図を可読性改善。`uccs_d4b_scan90/analysis/plot_role_separation_overview.py` を改修し、軸範囲と目盛りを固定（x: 186〜211, y: 0〜0.35 を0.05刻み）、凡例を右上へ移動、ラベルを主要点のみに限定して衝突回避（白縁取り＋オフセット）に変更。ε=0.1ガイド線も追加。
+- 再生成: `uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.svg` / `uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.pdf`
+- 反映:
+  - 修論: `修士論文/main.tex` を `latexmk -lualatex` で再ビルドし、図5-7に反映を確認（PDF: `修士論文/build/main.pdf`）。
+  - 修論アブスト: `修士論文アブスト/figures/fig_role_separation_overview.pdf` を差し替え、`修士論文アブスト/main.tex` を `latexmk -lualatex` で再ビルドして2ページ維持を確認（PDF: `修士論文アブスト/build/main.pdf`）。
+
+2025-12-18 18:33 JST
+- アブストの図番号表記を「図2（スペースなし）」に変更（`修士論文アブスト/main.tex` で caption の labelformat を nonspace 化）。
+- 図2キャプションで ε が単独改行されて空欄っぽく見える問題を回避するため、`\mbox{$\\epsout$を}` で改行抑制。
+- `修士論文アブスト/main.tex` を `latexmk -lualatex` で再ビルドし、2ページ維持と図2キャプション表示を確認（PDF: `修士論文アブスト/build/main.pdf`）。
+
+2025-12-18 18:38 JST
+- アブスト図2（role separation）のキャプションが長すぎる問題に対応し、内容を保ったまま短文化。2ページ制約に影響しないことを確認（PDF: `修士論文アブスト/build/main.pdf`）。
+
+2025-12-18 19:00 JST
+- アブスト図2キャプションをさらに短文化（1行で要点のみ）。`修士論文アブスト/main.tex` を再ビルドし、2ページ維持とキャプション表示を確認（PDF: `修士論文アブスト/build/main.pdf`）。
+
+2025-12-18 19:58 JST
+- アブスト図2（role separation）のキャプションを最小化（説明は本文で実施）:
+  - 修正: `修士論文アブスト/main.tex`（`\caption{U/CCSの役割分離（S4）}`）
+  - 再ビルド: `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+- 修論第4章を8ページ程度に圧縮:
+  - 受信端末運用/データ処理の詳細を第4章から削除し、Runbook/補足資料参照へ集約
+    - 修正: `修士論文/chapters/ch3_oncampus.tex`
+  - 再ビルド: `latexmk -lualatex main.tex`（PDF: `修士論文/build/main.pdf`、70 pages）
+
+2025-12-18 20:25 JST
+- 図表キャプションを「端的（名詞句）＋説明は本文」に統一（修論/アブスト）:
+  - 修論: 長い説明文をキャプションから撤去して短文化（役割分離図/追加解析図/オフライン評価など）
+    - `修士論文/chapters/ch4_rain.tex`
+    - `修士論文/chapters/ch7_offline_eval.tex`
+    - `修士論文/chapters/ch6_stress_fixed.tex`
+    - `修士論文/chapters/ch8_measurement_system.tex`
+    - `修士論文/chapters/ch3_oncampus.tex`
+    - `修士論文/chapters/ch8_experiment_design.tex`
+    - `修士論文/chapters/appx_d_log_schema.tex`
+    - `修士論文/chapters/appx_g_troubleshooting.tex`
+    - `修士論文/chapters/appx_h_ccs_params.tex`
+  - アブスト: 図2キャプションは最小表現を維持
+    - `修士論文アブスト/main.tex`
+- 参考文献の扉ページを追加（ページ数目標70p維持のため、謝辞と同形式に統一）:
+  - 修正: `修士論文/main.tex`（`\chapterwithtoc{参考文献・参考 URL}` + `\printbibliography[heading=none]`）
+- ビルド確認:
+  - `修士論文/build/main.pdf`（70 pages）
+  - `修士論文アブスト/build/main.pdf`（2 pages）
+
+2025-12-18 21:04 JST
+- アブスト先頭ブロックの氏名表記を「学生名 + 指導教員名（スペース区切り）」に変更（括弧および「指導教員：」を削除）:
+  - 修正: `修士論文アブスト/main.tex`
+- 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 21:11 JST
+- アブストの \section 見出しを「改行しない（run-in）」形式に変更し、見出し後はスペース相当（`1\zw`）を挿入:
+  - 修正: `修士論文アブスト/main.tex`（`\titleformat{\section}[runin]` / `\titlespacing*{\section}{...}{...}{1\zw}`）
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 21:18 JST
+- \section 見出し後の空きを「全角2つ相当」に調整:
+  - 修正: `修士論文アブスト/main.tex`（`\titlespacing*{\section}{...}{...}{2\zw}`）
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 21:20 JST
+- アブストの表示数式に式番号が付くよう、`\[ ... \]` を `equation` 環境へ変更（式番号を右側に表示）:
+  - 修正: `修士論文アブスト/main.tex`（`\label{eq:rho_from_power}` 追加）
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 21:35 JST
+- アブスト2ページ目下部の不自然な余白（列バランス調整による空き）を解消するため、末尾の `\balance` を削除:
+  - 修正: `修士論文アブスト/main.tex`
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 21:36 JST
+- アブストの章見出し（\section）フォントサイズを約+2pt相当として `\large` に変更（run-in 形式は維持）:
+  - 修正: `修士論文アブスト/main.tex`（`\titleformat{\section}[runin]{\normalfont\large}{...}`）
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 21:44 JST
+- 図2の上部に埋め込まれているタイトル（図内テキスト）を消すため、LaTeX側で上端をトリミングしてキャプションのみ残す:
+  - 修正: `修士論文アブスト/main.tex`（`\includegraphics[...,trim=0 0 0 12mm,clip]{...}`）
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 21:58 JST
+- ユーザーのロールバック後に修論を再ビルドしてPDF生成を確認:
+  - `修士論文/` で `latexmk -lualatex -interaction=nonstopmode main.tex`
+  - 出力: `修士論文/build/main.pdf`（71 pages）
+- アブストもビルド成果物を確認:
+  - `修士論文アブスト/build/main.pdf`（2 pages）
+
+2025-12-18 22:05 JST
+- 目次の章番号/インデントが崩れる問題を修正:
+  - 原因: `chubuthesis.sty` の独自 `\thesistableofcontents` が ltjsreport の目次幅計算（`\jsc@tocl@width`）を実行していなかった
+  - 修正: `修士論文/chubuthesis.sty`（`\thesistableofcontents` 内で幅計算を追加）
+  - 再ビルド: `修士論文/` で `latexmk -lualatex -interaction=nonstopmode main.tex`（PDF: `修士論文/build/main.pdf`、71 pages）
+
+2025-12-18 22:44 JST
+- 参考文献の上部余白（章扉の縦中央体裁が乗る）と、図だけのページの縦中央寄りを改善:
+  - 修正: `修士論文/chubuthesis.sty`
+    - float page を上寄せ: `\@fptop=0pt`, `\@fpbot=0pt`（図だけのページでの縦中央化を抑制）
+    - 参考文献は独自 `\thesisbibliography{...}` で上寄せ（`bibintoc` の `\chapter*` を避ける）
+  - 修正: `修士論文/main.tex`（`\thesisbibliography{参考文献・参考 URL}` に切替）
+  - 再ビルド: `修士論文/` で `latexmk -lualatex -interaction=nonstopmode main.tex`（PDF: `修士論文/build/main.pdf`、71 pages）
+
+2025-12-18 22:01 JST
+- アブスト図1を簡易TikZ図から配線図（ESP32三ノード）へ差し替え、写真3枚（RX / TX+TXSD / 測定環境）を小さく並べて追加し、はじめにを短文化して文献数を5件に拡張:
+  - 画像追加（派生ファイル）:
+    - `修士論文アブスト/figures/fig_signal_relationship.jpg`（元: `image/ESP32三ノード実験装置.jpg`）
+    - `修士論文アブスト/figures/fig_rx.jpg`（元: `image/RX.JPG`）
+    - `修士論文アブスト/figures/fig_txtxsd.png`（元: `image/TX&TXSD.png`）
+    - `修士論文アブスト/figures/fig_experiment_setup.jpg`（元: `image/実験構成01.JPG`）
+  - LaTeX修正: `修士論文アブスト/main.tex`（TikZ削除、図挿入・写真図追加、導入短文化、Shannon/Calibration引用追加）
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 22:03 JST
+- 図3（実験装置写真3枚）の表示サイズを微増（28mm→30mm）:
+  - 修正: `修士論文アブスト/main.tex`
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 22:04 JST
+- 図3（実験装置写真3枚）の表示サイズを 34mm へ拡大:
+  - 修正: `修士論文アブスト/main.tex`（`height=34mm`）
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 22:06 JST
+- 参考文献見出しを「文 献」→「参考文献」に変更:
+  - 修正: `修士論文アブスト/main.tex`
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 22:10 JST
+- 図番号調整: 実験装置写真（旧 図3）を1ページ目へ移動し図2に、役割分離図（旧 図2）を図3へ繰り下げ（LaTeX上の配置順を変更）:
+  - 修正: `修士論文アブスト/main.tex`
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 22:13 JST
+- 2.1 等の小節（\subsection）見出しサイズを約+2pt相当として `\large` に変更:
+  - 修正: `修士論文アブスト/main.tex`（`\titleformat{\subsection}{\normalfont\large}{...}`）
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 22:34 JST
+- 参考文献（ユーザ提示のBibTeX）を修論 `修士論文/references.bib` に追記。
+- アブストは重要8件に差し替え、本文側でも8件を引用するよう更新し、参考文献表示は2ページに収まるよう簡略化（URL/DOI省略・scriptsize）。
+  - 修正: `修士論文アブスト/references.bib`, `修士論文アブスト/main.tex`
+- ビルド確認:
+  - `修士論文/build/main.pdf`（71 pages）
+  - `修士論文アブスト/build/main.pdf`（2 pages）
+
+2025-12-18 22:43 JST
+- アブストの紙面が短い（空白が目立つ）問題に対し、結果節にアブレーションの定量記述（U-shuffle/CCS-offの数値）を追加して本文量を増やした。
+  - 修正: `修士論文アブスト/main.tex`
+  - 再ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（PDF: `修士論文アブスト/build/main.pdf`、2 pages）
+
+2025-12-18 23:05 JST
+- 主図（scan70/scan90を同一座標で比較、bootstrap CI付き）を確定:
+  - 図: `uccs_d4b_scan90/plots/mainfig_scan70_scan90.svg`
+  - 生成スクリプト: `uccs_d4b_scan90/analysis/plot_mainfig_scan70_scan90.py`
+- TODO更新（主図の追加）: `docs/TODO.md`
+
+2025-12-18 23:06 JST
+- ユーザーへ「主図は完了」「logも追記済み」を確認。
+
+2025-12-18 23:15 JST
+- 実験全体の「最終成果物」置き場と再現手順を整備（散らばり対策）:
+  - 追加: `results/final/README.md`, `results/final/manifest.md`
+  - 一括生成: `results/final/build.sh`（dependency-freeの図表生成 + 表統合）
+  - 表統合: `results/final/scripts/build_tables.py` → `results/final/tab/tab_summary_by_condition.csv`
+  - 更新: `results/README.md`（finalの参照を追加）
+  - ルール化: `docs/成果物管理ルール.md`
+
+2025-12-18 23:30 JST
+- 追加データ無しP0（5以外）を前進: 主張（主図）を守るための「同mix証拠」と「機構（outage TOP-k）」を整備
+  - 同mix証拠（adv_count/alpha_adv表）:
+    - script: `uccs_d4b_scan90/analysis/adv_count_alpha_table.py`
+    - 出力: `uccs_d4b_scan90/plots/adv_count_alpha_table.md`, `uccs_d4b_scan90/plots/adv_count_alpha_table.csv`
+  - Outage TOP-k（scan90/scan70, selected trials）:
+    - scan90: `uccs_d4b_scan90/plots/outage_story_01_selected/`
+    - scan70: `uccs_d4b_scan70/plots/outage_story_01_selected/`
+    - 比較表: `uccs_d4b_scan90/plots/outage_topk_scan90_scan70_selected.md`
+  - scan70側の統計（D4B, policy vs U-only差分CI）:
+    - `uccs_d4b_scan70/metrics/01_fixed/effects_ci.md`（bootstrap, per-trial）
+  - READMEリンク更新:
+    - `uccs_d4b_scan90/README.md`, `uccs_d4b_scan70/analysis/README.md`
+2025-12-18 23:09 JST
+- 修士論文の参考文献が6件しか出ない件を対応。biblatexは「引用されたものだけ出力」なので、`修士論文/main.tex` に \nocite{...}（ユーザ指定16件）を入れて強制的に一覧へ含めるようにした。
+- `修士論文/references.bib` にユーザ指定16件が登録済みであることを確認。
+- ビルドが古い状態だとPDFに反映されないため、`修士論文/` で `latexmk -C && latexmk main.tex` を実施してbiberまで回る状態に整理。
+- `修士論文/build/main.pdf` の「参考文献・参考URL」に [1]〜[22] を確認（既存6件 + 追加16件）。
+
+2025-12-18 23:13 JST
+- `修士論文/` で `latexmk -lualatex -interaction=nonstopmode main.tex` を再実行し、`修士論文/build/main.pdf` が up-to-date であることを確認。
+- `修士論文アブスト/` も同様に `latexmk -lualatex -interaction=nonstopmode main.tex` を再実行し、`修士論文アブスト/build/main.pdf` が up-to-date であることを確認。
+
+2025-12-18 23:41 JST
+- D4B-scan70（取り直し分, data/01）の結果を修論へ追記（Fixed500崩壊→policy/u-onlyが救う、ただし同mixでのCCS差は明確でない）:
+  - 追記先: `修士論文/chapters/ch4_rain.tex`（表: `tab:d4b_scan70_summary`, 節: `sec:d4b_scan70_followup`）
+  - 参照データ: `uccs_d4b_scan70/metrics/01_fixed/summary_by_condition.csv`
+- ビルド: `修士論文/` で `latexmk -lualatex main.tex` 実行時に biber の bcf malformed が一度発生したため、`biber build/main.bcf` → `latexmk -g -lualatex main.tex` で復旧し `修士論文/build/main.pdf` を更新（72 pages）。
+
+2025-12-18 23:59 JST
+- 修論更新分（D4B-scan70追試の存在）をアブストにも反映し、2ページ制約内で記述を調整:
+  - 修正: `修士論文アブスト/main.tex`（結果節のscan70説明に「CCS-off追試」を追記、数値羅列を削って短文化）
+  - ビルド: `修士論文アブスト/` で `latexmk -lualatex main.tex`（`修士論文アブスト/build/main.pdf`、2 pages）
+2025-12-18 23:14 JST
+- 参考文献16件のうち Rashid(AHAR) の詳細を反映：`修士論文/references.bib` の `Rashid2022AHAR` を Early Access (Aug. 2022) として整形し、タイトル表記をIEEE表記に合わせた。
+- `修士論文/` で `latexmk -g main.tex` を実行して `修士論文/build/main.pdf` へ反映、参考文献欄で AHAR の項目に Early Access と doi 表記を確認。
+2025-12-18 23:18 JST
+- Fujisawa(2024) の参考文献詳細を反映：`修士論文/references.bib` と `修士論文アブスト/references.bib` の `Fujisawa2024BLEBeaconing` を {Bluetooth Low Energy} の大文字保持、`eid=26`（article no.相当）、`month=apr` に更新。
+- `修士論文/latexmk -g main.tex` と `修士論文アブスト/latexmk -g main.tex` で再ビルドし、PDFの参考文献欄に `Discover Artificial Intelligence 4, 26 (Apr. 2024)` の表記で反映を確認。
+2025-12-18 23:51 JST
+- 修士論文の参考文献[22]（Rashid et al., AHAR）のdoiが `10.1109/JIOT.2022.xxxxxxx` のプレースホルダだったため、根拠のないDOIは削除し、与えられた情報に基づき `date={2022-08-01}` を設定して (Aug. 1, 2022) 表記に修正（`修士論文/references.bib`）。
+- `修士論文/latexmk -g main.tex` で再ビルドし、`修士論文/build/main.pdf` の[22]にプレースホルダが出ないことを確認。
+2025-12-19 01:20 JST
+- 修士論文の参考文献[22]（Rashid et al., AHAR）のDOIをCrossrefで照会し、正式な書誌情報（vol.9, no.15, pp.13041-13051, doi:10.1109/JIOT.2022.3140465）を `修士論文/references.bib` に反映。
+- `修士論文/latexmk -g main.tex` で再ビルドし、`修士論文/build/main.pdf` の[22]が `IEEE Internet of Things Journal 9.15 (Aug. 1, 2022), pp. 13041–13051. doi: 10.1109/JIOT.2022.3140465.` として出ることを確認。
+2025-12-19 02:30 JST
+- 謝辞を修正：`修士論文/chapters/acknowledgements.tex` を、冒頭に指導教授 木村 秀明教授、次に副査（鈴木 裕利教授・板井 陽俊講師）、次に木村研究室の皆様、最後に家族の順で謝辞文として整形。
+- `修士論文/latexmk -g main.tex` で再ビルドし、`修士論文/build/main.pdf` へ反映。
+2025-12-19 02:39 JST
+- 謝辞に生成AI（ChatGPT）への謝意を追記：`修士論文/chapters/acknowledgements.tex` 末尾に「文章表現の推敲でChatGPTの助言を参考にした」旨と、内容の最終責任が著者にある旨を明記。
+- `修士論文/latexmk -g main.tex` で再ビルドし、`修士論文/build/main.pdf` へ反映。
+2025-12-19 02:41 JST
+- 謝辞の家族への感謝文を削除：`修士論文/chapters/acknowledgements.tex` から家族段落を除去し、末尾は生成AI（ChatGPT）に関する付記で締める構成に調整。
+- `修士論文/latexmk -g main.tex` で再ビルドし、`修士論文/build/main.pdf` へ反映。
+2025-12-19 02:48 JST
+- ユーザ編集後の再ビルドを実施：`修士論文/latexmk main.tex` を実行し、`修士論文/build/main.pdf` を更新。
+2025-12-19 03:15 JST
+- 修士論文の参考文献が小さく詰まって見える件を調整：`修士論文/chubuthesis.sty` の biblatex 設定に `\renewcommand*{\bibfont}{\normalfont\normalsize}` を追加し、本文と同じ文字サイズ・行間（ベースライン）に揃えた。併せて `\bibitemsep`/`\bibparsep` を 0pt に固定。
+- `修士論文/latexmk -g main.tex` で再ビルドし、`修士論文/build/main.pdf` を更新。
+2025-12-19 03:20 JST
+- 修士論文の参考文献の文字サイズ/行間を本文と揃える調整を強化：`修士論文/chubuthesis.sty` に `\AtBeginBibliography{\normalfont\normalsize\normalbaselines ...}` を追加し、bbx側の上書きがあっても確実に反映されるようにした。
+- `修士論文/latexmk -g main.tex` で再ビルドし、`修士論文/build/main.pdf` を更新。
+2025-12-19 03:27 JST
+- 参考文献の行間（A: 文献内の行と行の間）が本文より詰まって見える問題に対し、本文の `\baselineskip` を起動時に保存して参考文献開始時に同値を適用するよう修正：`修士論文/chubuthesis.sty` に `\AtBeginDocument` + `\AtBeginBibliography` を追加（`\baselineskip` を `\thesisbodybaselineskip` に統一）。
+- `修士論文/latexmk -g main.tex` で再ビルドし、`修士論文/build/main.pdf` を更新。
+2025-12-19 03:33 JST
+- アブストの参考文献を本文と同じ文字サイズ・行間へ変更：`修士論文アブスト/main.tex` の `\bibfont` を `\normalsize` に戻し、行間詰め設定を撤廃する方向に調整。
+- `修士論文アブスト/latexmk -g main.tex` を実行し、`修士論文アブスト/build/main.pdf` が 3 pages になることを確認（2ページ制約からは溢れるため、次に収め方を再検討予定）。
+2025-12-19 03:41 JST
+- アブストの参考文献を[3]までに縮約：ユーザ指示により `修士論文アブスト/main.tex` の引用を Bluetooth仕様・近隣発見サーベイ・広告電力の3件に限定し、`修士論文アブスト/references.bib` も3件だけ残して[4]以降を削除。
+- 参考文献を本文サイズに戻したままでも `修士論文アブスト/build/main.pdf` が 2 pages に収まることを確認（`latexmk -C && latexmk -g main.tex`）。
+</file>
+
+<file path="worklog_2025-12-19_b2_rx_spec.txt">
+2025-12-19 02:20 JST
+- B2（受信機差）向けに、既存解析互換のRXログ仕様を固定（別リポジトリ実装のための仕様書）。
+  - 追加: `results/final/meta/rx_log_schema.md`
+  - 参照追記: `results/final/README.md`, `results/final/manifest.md`
+</file>
+
+<file path="worklog_2025-12-19_thesis_setup.txt">
+2025-12-19 02:00 JST
+- 修論アブストにD4B-scan70追試の数値（scan70/S4, n=3: Fixed500/Policy/U-onlyのPout(1s)とP[mW]）を追記（`修士論文アブスト/main.tex`）。
+- 2ページ制約を維持するため、追記部は `\\footnotesize` でコンパクトに挿入。
+- ビルド更新：`修士論文アブスト/build/main.pdf`（`latexmk main.tex`、2 pages）。
+
+2025-12-19 02:10 JST
+- 修論アブストの考察を約2文だけ追記（scan70では$\hat{\\rho}_{100}$差でCCS寄与が見えにくい場合がある旨）し、ページ溢れを避けるため周辺文を圧縮して2ページ維持（`修士論文アブスト/main.tex`）。
+- ビルド更新：`修士論文アブスト/build/main.pdf`（`latexmk main.tex`、2 pages）。
+
+2025-12-19 02:16 JST
+- 修論アブストの「結果」節を1段落に統合し、短い段落終端（例：「…悪化した．」で行末が大きく空く）を減らして組版を安定化（`修士論文アブスト/main.tex`）。
+- ビルド更新：`修士論文アブスト/build/main.pdf`（`latexmk main.tex`、2 pages）。
+
+2025-12-19 02:34 JST
+- 参考文献にTsai+Liu (IEEE Access 2025, doi:10.1109/ACCESS.2025.3601116) を追加（`修士論文アブスト/references.bib`）。アブスト側では本文に影響を出さず参照一覧へ含めるため `\\nocite{Tsai2025BLEDelaySensitive}` を追加（`修士論文アブスト/main.tex`）。
+- ビルド更新：`修士論文アブスト/build/main.pdf`（`latexmk main.tex`、2 pages）。
+
+2025-12-19 13:35 JST
+- 修論本文の表記揺れ・冗長表現を整理（初出定義の明確化、接続詞「一方で」の多用抑制、単位表記の統一など）：`修士論文/chapters/ch0_introduction.tex`、`修士論文/chapters/ch1_background.tex`、`修士論文/chapters/ch2_related_work.tex`、`修士論文/chapters/ch2_proposed.tex`、`修士論文/chapters/ch4_rain.tex`、`修士論文/chapters/ch5_publicroad.tex`、`修士論文/chapters/ch6_stress_fixed.tex`、`修士論文/chapters/ch7_offline_eval.tex`、`修士論文/chapters/ch8_experiment_design.tex`。
+- 指標定義（EFFECTIVE_LEN）を明文化し、参照先を明確化：`修士論文/chapters/appx_a_metrics.tex`、`修士論文/chapters/ch3_oncampus.tex`。
+- Repomixの説明を明確化（バイナリ非対応・npx実行の注記など）：`修士論文/README.md`。
+- ビルド確認：`修士論文/build/main.pdf`（`latexmk main.tex`、72 pages）。
+
+2025-12-19 14:06 JST
+- 要旨の時制を未来形→過去形へ統一し、完成済み研究として読めるよう調整：`修士論文/frontmatter/abstract.tex`。
+- 要旨内の初出定義を明確化（HAR/QoS/CCS）：`修士論文/frontmatter/abstract.tex`。
+- ビルド確認：`修士論文/build/main.pdf`（`latexmk -quiet main.tex`、72 pages）。
+
+2025-12-19 14:24 JST
+- 序論末尾の誤字を修正（「最後に『おわりに』では…」の表現に統一）：`修士論文/chapters/ch0_introduction.tex`。
+- ビルド確認：`修士論文/build/main.pdf`（`latexmk -quiet main.tex`）。
+
+2025-12-19 14:25 JST
+- 探索的な図案を追加（S4 固定間隔・UCCS 条件の累積エネルギー線図、平均電力 vs Pout(1s) 散布図、avg power × Pout 指標など）: `results/idea_plots_20251219/` 配下（各 `plot.svg` / `plot.py` / `README.md`）。
+- 生成スクリプトは標準ライブラリのみで SVG 生成（共通: `results/idea_plots_20251219/_shared/plot_utils.py`）。
+- results index 更新: `results/README.md`。
+
+2025-12-19 14:46 JST
+- 追加図を作成（Pout(tau) 曲線、遷移アライン P(100ms) 波形、Policy vs U-only のペア差分図）: `results/idea_plots_20251219/uccs_s4_pout_tau_curves/`, `results/idea_plots_20251219/uccs_transition_aligned_p100/`, `results/idea_plots_20251219/uccs_policy_vs_uonly_paired_delta_pout/`。
+- 各図の `plot.svg` を生成し、入力CSVの SHA256 を README に追記。
+
+2025-12-19 16:45 JST
+- 要旨にscan70の数値を追記し、固定500msのPout悪化と方策の改善を明記：`修士論文/frontmatter/abstract.tex`。
+- 評価章の一次KPIの扱いを明記し、D2bのshare100注記を本文側に移動。図キャプションを短く整理：`修士論文/chapters/ch5_evaluation.tex`、`修士論文/chapters/ch4_rain.tex`、`修士論文/chapters/ch7_offline_eval.tex`。
+- 計測系/装置図のキャプションを簡潔化：`修士論文/chapters/ch8_measurement_system.tex`、`修士論文/chapters/ch3_oncampus.tex`。
+- 関連研究にBLE遅延サービスの文献を追加し、参考文献に追記：`修士論文/chapters/ch2_related_work.tex`、`修士論文/references.bib`。
+- 章構成の変更に合わせてファイル先頭コメントを整理し、章参照を更新：`修士論文/chapters/ch9_har_uncertainty.tex` ほか。
+- 謝辞の表記をOpenAI表記に統一し、AI支援の位置づけを明確化：`修士論文/chapters/acknowledgements.tex`。
+2025-12-19 19:17 JST
+- SVG描画の見栄え調整（フォント/軸/グリッド/legend背景/series-line/point style/y軸目盛のbaseline）：`results/idea_plots_20251219/_shared/plot_utils.py`。
+- 散布図の点ラベルを凡例に統一：`results/idea_plots_20251219/stress_fixed_s4_tradeoff_power_vs_pout/plot.py`、`results/idea_plots_20251219/stress_fixed_s4_eperadv_vs_pout/plot.py`、`results/idea_plots_20251219/uccs_s4_tradeoff_power_vs_pout/plot.py`。
+- polylineの色指定とタイトルのクラス化を整理：`results/idea_plots_20251219/stress_fixed_s4_energy_vs_time/plot.py`、`results/idea_plots_20251219/uccs_s4_energy_vs_time/plot.py`、`results/idea_plots_20251219/uccs_s4_pout_tau_curves/plot.py`、`results/idea_plots_20251219/uccs_transition_aligned_p100/plot.py` ほか。
+2025-12-19 19:42 JST
+- SVGヘッダの改行を実改行へ変更し、CSSがPNG変換時に効くよう修正（\n文字の混入を解消）：`results/idea_plots_20251219/_shared/plot_utils.py`。
+2025-12-19 19:58 JST
+- `修士論文/main.tex` を `latexmk -lualatex` で再確認（更新なし・参照は最新のまま）。
+</file>
+
+<file path="worklog_2026-01-12_status_summary.txt">
+2026-01-12 17:16 JST
+- 0ベース向けの現状整理ドキュメントを作成し、Phase0-0〜D4B/finalまでの進捗と未完を整理: `docs/フェーズ1/現状整理_2026-01-12.md`。
+- フェーズ1配下の索引を追加し、参照入口を明確化: `docs/フェーズ1/README.md`。
+</file>
+
+<file path="worklog_2026-01-13_status_summary.txt">
+2026-01-13 16:12 JST
+- 実験結果統合サマリの欠損欄を n/a で明示し、表を整備: `docs/フェーズ1/実験結果_統合サマリ_2026-01-12.md`.
+- フェーズ1索引に実験結果統合サマリを追加: `docs/フェーズ1/README.md`.
+
+2026-01-13 16:50 JST
+- repomixのinclude挙動を確認し、指定ファイルの存在を検証後にパッケージ試行: `results/phase1_bundle_2026-01-13.xml`.
+
+2026-01-13 18:00 JST
+- docsの旧版/生成物を `_archive` に退避し、索引READMEを追加: `docs/_archive/`.
+- 対象: `docs/全体像.md`, `docs/フェーズ0-0/実験装置仕様書_v2.md`, `docs/フェーズ1/results/phase1_summary.md`, `docs/フェーズ1/results/delta_energy_row1120_row1123_off.md`, `docs/フェーズ1/results/pdr_row1120_txsd_rx.md`, `docs/フェーズ1/現状整理_2026-01-12.html`, `docs/フェーズ1/現状整理_2026-01-12_files/`.
+
+2026-01-13 18:32 JST
+- 旧定義のmHealthラベル在庫とCSS感度分析の草稿をアーカイブへ退避: `docs/_archive/mhealth_label_inventory_1203.md`, `docs/_archive/レター下書き.md`.
+- `_archive` README に退避理由を追記: `docs/_archive/README.md`.
+</file>
+
+</files>

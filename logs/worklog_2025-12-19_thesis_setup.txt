@@ -50,3 +50,7 @@
 - SVG描画の見栄え調整（フォント/軸/グリッド/legend背景/series-line/point style/y軸目盛のbaseline）：`results/idea_plots_20251219/_shared/plot_utils.py`。
 - 散布図の点ラベルを凡例に統一：`results/idea_plots_20251219/stress_fixed_s4_tradeoff_power_vs_pout/plot.py`、`results/idea_plots_20251219/stress_fixed_s4_eperadv_vs_pout/plot.py`、`results/idea_plots_20251219/uccs_s4_tradeoff_power_vs_pout/plot.py`。
 - polylineの色指定とタイトルのクラス化を整理：`results/idea_plots_20251219/stress_fixed_s4_energy_vs_time/plot.py`、`results/idea_plots_20251219/uccs_s4_energy_vs_time/plot.py`、`results/idea_plots_20251219/uccs_s4_pout_tau_curves/plot.py`、`results/idea_plots_20251219/uccs_transition_aligned_p100/plot.py` ほか。
+2025-12-19 19:42 JST
+- SVGヘッダの改行を実改行へ変更し、CSSがPNG変換時に効くよう修正（\n文字の混入を解消）：`results/idea_plots_20251219/_shared/plot_utils.py`。
+2025-12-19 19:58 JST
+- `修士論文/main.tex` を `latexmk -lualatex` で再確認（更新なし・参照は最新のまま）。

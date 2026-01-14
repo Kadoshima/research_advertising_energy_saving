@@ -36,7 +36,7 @@
 本研究では，受信品質をPDRだけでなく，遅延分布と期限超過率$P_{\mathrm{out}}(\tau)$で評価する．特に，非理想スキャン環境では平均受信率が同程度でも，遅延の裾が悪化する場合があるため，$P_{\mathrm{out}}(\tau)$が重要となる（\secref{sec:metrics_detail}）．
 
 \subsubsection{実測例（D2b，scan90）}
-表\ref{tab:d2_summary}に，D2b（scan90）における実測例を示す．本表は，S1/S4の2条件について，固定\SI{100}{\milli\second}，固定\SI{500}{\milli\second}，および方策（2値切替）の比較をまとめたものである．ここでは run B（n=3）と追加取得 B/02（n=3）を統合し，各条件n=6として集計した．
+表\ref{tab:d2_summary}に，D2b（scan90）における実測例を示す．本表は，S1/S4の2条件について，固定\SI{100}{\milli\second}，固定\SI{500}{\milli\second}，および方策（2値切替）の比較をまとめたものである．ここでは run B（n=3）と追加取得 B/02（n=3）を統合し，各条件n=6として集計した．以降の表では$q_{\mathrm{event}}$を$10^3\,\si{\micro\coulomb}/\text{event}$単位で併記する．
 
 \begin{table}[tb]
   \centering
@@ -44,17 +44,17 @@
   \label{tab:d2_summary}
   {\small
   \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{lrrrrr}
+  \begin{tabular}{lrrrrrr}
     \toprule
-    条件 & Pout(1s) & TL\_mean[s] & PDR\_u & P[mW] & share100 \\
+    条件 & Pout(1s) & TL\_mean[s] & PDR\_u & P[mW] & $q_{\mathrm{event}}$ & share100 \\
     \midrule
-    S1-100   & 0.075$\pm$0.027 & 3.76$\pm$1.46 & 0.789$\pm$0.016 & 204.1$\pm$1.4 & 1.000$\pm$0.000 \\
-    S1-500   & 0.142$\pm$0.049 & 5.29$\pm$0.02 & 0.816$\pm$0.018 & 184.7$\pm$1.5 & 0.000$\pm$0.000 \\
-    S1-policy & 0.125$\pm$0.027 & 5.24$\pm$0.05 & 0.803$\pm$0.022 & 191.5$\pm$1.9 & 0.331$\pm$0.004 \\
+    S1-100   & 0.075$\pm$0.027 & 3.76$\pm$1.46 & 0.789$\pm$0.016 & 204.1$\pm$1.4 & 561.1$\pm$3.8 & 1.000$\pm$0.000 \\
+    S1-500   & 0.142$\pm$0.049 & 5.29$\pm$0.02 & 0.816$\pm$0.018 & 184.7$\pm$1.5 & 502.6$\pm$4.1 & 0.000$\pm$0.000 \\
+    S1-policy & 0.125$\pm$0.027 & 5.24$\pm$0.05 & 0.803$\pm$0.022 & 191.5$\pm$1.9 & 523.8$\pm$5.3 & 0.331$\pm$0.004 \\
     \midrule
-    S4-100   & 0.053$\pm$0.010 & 1.25$\pm$0.01 & 0.792$\pm$0.009 & 204.4$\pm$2.1 & 0.998$\pm$0.002 \\
-    S4-500   & 0.146$\pm$0.031 & 2.48$\pm$1.11 & 0.817$\pm$0.020 & 184.5$\pm$1.5 & 0.000$\pm$0.000 \\
-    S4-policy & 0.069$\pm$0.029 & 1.58$\pm$0.50 & 0.793$\pm$0.021 & 196.6$\pm$1.6 & 0.595$\pm$0.008 \\
+    S4-100   & 0.053$\pm$0.010 & 1.25$\pm$0.01 & 0.792$\pm$0.009 & 204.4$\pm$2.1 & 274.2$\pm$2.8 & 0.998$\pm$0.002 \\
+    S4-500   & 0.146$\pm$0.031 & 2.48$\pm$1.11 & 0.817$\pm$0.020 & 184.5$\pm$1.5 & 245.0$\pm$2.0 & 0.000$\pm$0.000 \\
+    S4-policy & 0.069$\pm$0.029 & 1.58$\pm$0.50 & 0.793$\pm$0.021 & 196.6$\pm$1.6 & 262.8$\pm$2.1 & 0.595$\pm$0.008 \\
     \bottomrule
   \end{tabular}
   }
@@ -87,13 +87,13 @@
   \label{tab:d3_summary}
   {\small
   \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{lrrrr}
+  \begin{tabular}{lrrrrr}
     \toprule
-    条件 & Pout(1s) & TL\_mean[s] & P[mW] & $\hat{\rho}_{100}$ \\
+    条件 & Pout(1s) & TL\_mean[s] & P[mW] & $q_{\mathrm{event}}$ & $\hat{\rho}_{100}$ \\
     \midrule
-    S4-100   & 0.065$\pm$0.028 & 1.34$\pm$0.02 & 209.9$\pm$0.5 & 1.000 \\
-    S4-500   & 0.285$\pm$0.061 & 2.93$\pm$1.07 & 189.5$\pm$0.5 & 0.000 \\
-    S4-policy & 0.089$\pm$0.037 & 1.40$\pm$0.07 & 202.1$\pm$0.1 & 0.618 \\
+    S4-100   & 0.065$\pm$0.028 & 1.34$\pm$0.02 & 209.9$\pm$0.5 & 281.4$\pm$0.7 & 1.000 \\
+    S4-500   & 0.285$\pm$0.061 & 2.93$\pm$1.07 & 189.5$\pm$0.5 & 251.6$\pm$0.6 & 0.000 \\
+    S4-policy & 0.089$\pm$0.037 & 1.40$\pm$0.07 & 202.1$\pm$0.1 & 270.2$\pm$0.1 & 0.618 \\
     \bottomrule
   \end{tabular}
   }
@@ -111,14 +111,14 @@ D2bの主結果に対して，「不確実度$U$は本当に効いているか�
   \label{tab:d4_summary}
   {\small
   \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{lrrrrr}
+  \begin{tabular}{lrrrrrr}
     \toprule
-    条件 & Pout(1s) & TL\_mean[s] & P[mW] & adv\_count & share100 \\
+    条件 & Pout(1s) & TL\_mean[s] & P[mW] & $q_{\mathrm{event}}$ & adv\_count & share100 \\
     \midrule
-    Fixed100 & 0.049$\pm$0.000 & 1.24$\pm$0.01 & 208.2$\pm$1.3 & 1796$\pm$0 & 1.000$\pm$0.000 \\
-    Fixed500 & 0.130$\pm$0.014 & 1.59$\pm$0.06 & 187.9$\pm$0.8 & 359$\pm$0 & 0.000$\pm$0.000 \\
-    Policy（U+CCS） & 0.098$\pm$0.024 & 1.28$\pm$0.01 & 200.5$\pm$0.8 & 1227$\pm$0 & 0.593$\pm$0.009 \\
-    Ablation（U-shuf） & 0.049$\pm$0.000 & 1.23$\pm$0.01 & 208.1$\pm$0.3 & 1715$\pm$0 & 0.943$\pm$0.000 \\
+    Fixed100 & 0.049$\pm$0.000 & 1.24$\pm$0.01 & 208.2$\pm$1.3 & 279.2$\pm$1.7 & 1796$\pm$0 & 1.000$\pm$0.000 \\
+    Fixed500 & 0.130$\pm$0.014 & 1.59$\pm$0.06 & 187.9$\pm$0.8 & 249.5$\pm$1.0 & 359$\pm$0 & 0.000$\pm$0.000 \\
+    Policy（U+CCS） & 0.098$\pm$0.024 & 1.28$\pm$0.01 & 200.5$\pm$0.8 & 268.1$\pm$1.0 & 1227$\pm$0 & 0.593$\pm$0.009 \\
+    Ablation（U-shuf） & 0.049$\pm$0.000 & 1.23$\pm$0.01 & 208.1$\pm$0.3 & 279.0$\pm$0.4 & 1715$\pm$0 & 0.943$\pm$0.000 \\
     \bottomrule
   \end{tabular}
   }
@@ -135,14 +135,14 @@ CCSの寄与を切り分けるため，制御則の構造は固定したままCC
   \label{tab:d4b_summary}
   {\small
   \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{lrrrrr}
+  \begin{tabular}{lrrrrrr}
     \toprule
-    条件 & Pout(1s) & TL\_mean[s] & P[mW] & adv\_count & $\hat{\rho}_{100}$ \\
+    条件 & Pout(1s) & TL\_mean[s] & P[mW] & $q_{\mathrm{event}}$ & adv\_count & $\hat{\rho}_{100}$ \\
     \midrule
-    Fixed100 & 0.081$\pm$0.014 & 1.49$\pm$0.11 & 208.3$\pm$0.5 & 1796$\pm$0 & 1.000 \\
-    Fixed500 & 0.130$\pm$0.028 & 1.21$\pm$0.26 & 188.1$\pm$0.3 & 359$\pm$0 & 0.000 \\
-    U-only（CCS-off） & 0.065$\pm$0.014 & 1.41$\pm$0.15 & 200.6$\pm$0.2 & 1227$\pm$0 & 0.621 \\
-    Policy（U+CCS） & 0.049$\pm$0.000 & 1.32$\pm$0.03 & 200.6$\pm$0.1 & 1215$\pm$0 & 0.620 \\
+    Fixed100 & 0.081$\pm$0.014 & 1.49$\pm$0.11 & 208.3$\pm$0.5 & 279.3$\pm$0.7 & 1796$\pm$0 & 1.000 \\
+    Fixed500 & 0.130$\pm$0.028 & 1.21$\pm$0.26 & 188.1$\pm$0.3 & 249.8$\pm$0.4 & 359$\pm$0 & 0.000 \\
+    U-only（CCS-off） & 0.065$\pm$0.014 & 1.41$\pm$0.15 & 200.6$\pm$0.2 & 268.3$\pm$0.2 & 1227$\pm$0 & 0.621 \\
+    Policy（U+CCS） & 0.049$\pm$0.000 & 1.32$\pm$0.03 & 200.6$\pm$0.1 & 268.2$\pm$0.2 & 1215$\pm$0 & 0.620 \\
     \bottomrule
   \end{tabular}
   }
@@ -170,14 +170,14 @@ CCSの寄与を切り分けるため，制御則の構造は固定したままCC
   \label{tab:d4b_scan70_summary}
   {\small
   \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{lrrrrr}
+  \begin{tabular}{lrrrrrr}
     \toprule
-    条件 & Pout(1s) & TL\_mean[s] & P[mW] & adv\_count & $\hat{\rho}_{100}$ \\
+    条件 & Pout(1s) & TL\_mean[s] & P[mW] & $q_{\mathrm{event}}$ & adv\_count & $\hat{\rho}_{100}$ \\
     \midrule
-    Fixed100 & 0.024$\pm$0.024 & 0.43$\pm$0.32 & 206.4$\pm$0.5 & 1800$\pm$0 & 1.000 \\
-    Fixed500 & 0.228$\pm$0.037 & 1.44$\pm$0.51 & 187.6$\pm$0.4 & 360$\pm$0 & 0.000 \\
-    U-only（CCS-off） & 0.008$\pm$0.014 & 0.24$\pm$0.13 & 202.2$\pm$1.2 & 1323$\pm$0 & 0.780 \\
-    Policy（U+CCS） & 0.016$\pm$0.014 & 0.30$\pm$0.14 & 201.4$\pm$1.0 & 1323$\pm$0 & 0.735 \\
+    Fixed100 & 0.024$\pm$0.024 & 0.43$\pm$0.32 & 206.4$\pm$0.5 & 275.0$\pm$0.6 & 1800$\pm$0 & 1.000 \\
+    Fixed500 & 0.228$\pm$0.037 & 1.44$\pm$0.51 & 187.6$\pm$0.4 & 249.9$\pm$0.5 & 360$\pm$0 & 0.000 \\
+    U-only（CCS-off） & 0.008$\pm$0.014 & 0.24$\pm$0.13 & 202.2$\pm$1.2 & 269.4$\pm$1.6 & 1323$\pm$0 & 0.780 \\
+    Policy（U+CCS） & 0.016$\pm$0.014 & 0.30$\pm$0.14 & 201.4$\pm$1.0 & 268.3$\pm$1.3 & 1323$\pm$0 & 0.735 \\
     \bottomrule
   \end{tabular}
   }

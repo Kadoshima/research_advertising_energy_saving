@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>quarto-input3ca439426d9d4b6</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="現状整理_2026-01-12_files/libs/clipboard/clipboard.min.js"></script>
+<script src="現状整理_2026-01-12_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="現状整理_2026-01-12_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="現状整理_2026-01-12_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="現状整理_2026-01-12_files/libs/quarto-html/popper.min.js"></script>
+<script src="現状整理_2026-01-12_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="現状整理_2026-01-12_files/libs/quarto-html/anchor.min.js"></script>
+<link href="現状整理_2026-01-12_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="現状整理_2026-01-12_files/libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="現状整理_2026-01-12_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="現状整理_2026-01-12_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="現状整理_2026-01-12_files/libs/bootstrap/bootstrap-d6a003b94517c951b2d65075d42fb01b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+
+<section id="現状整理0ベース向け" class="level1">
+<h1>現状整理（0ベース向け）</h1>
+<ul>
+<li>更新日: 2026-01-12</li>
+<li>対象範囲: Phase0-0, stress_fixed, mHealth合成オフライン評価, UCCS D1-D4b, final成果物</li>
+<li>目的: 初見の人が「どこまで終わっていて、何が主張できて、何が未完か」を把握する</li>
+</ul>
+<section id="読み方" class="level2">
+<h2 class="anchored" data-anchor-id="読み方">1. 読み方</h2>
+<ul>
+<li>本文は「進捗→根拠→残課題」の順で読む</li>
+<li>数値は単位付きで併記し、必ず参照ファイルを添える</li>
+<li>迷ったら <code>results/</code> と <code>logs/</code> を先に確認する</li>
+</ul>
+</section>
+<section id="用語最小セット" class="level2">
+<h2 class="anchored" data-anchor-id="用語最小セット">2. 用語（最小セット）</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>用語</th>
+<th>意味</th>
+<th>単位/範囲</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>不確実度 (U)</td>
+<td>HARの不確かさ</td>
+<td>[0,1]</td>
+</tr>
+<tr class="even">
+<td>安定度 (S)</td>
+<td>時間的一貫性</td>
+<td>[0,1]</td>
+</tr>
+<tr class="odd">
+<td>複合スコア (CCS)</td>
+<td>0.7×(1−U)+0.3×S</td>
+<td>[0,1]</td>
+</tr>
+<tr class="even">
+<td>初回受信遅延 (TL)</td>
+<td>遷移→初回受信の時間</td>
+<td>s</td>
+</tr>
+<tr class="odd">
+<td>期限超過率 (Pout)</td>
+<td>TLがτを超える確率</td>
+<td>[0,1]</td>
+</tr>
+<tr class="even">
+<td>1広告あたり電荷 (μC/event)</td>
+<td>電荷コストの主指標</td>
+<td>μC</td>
+</tr>
+<tr class="odd">
+<td>平均電力 (avg_power)</td>
+<td>送信中の平均消費</td>
+<td>mW</td>
+</tr>
+<tr class="even">
+<td>受信率 (PDR)</td>
+<td>受信カバレッジ</td>
+<td>[0,1]</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="フェーズ別の到達点事実ベース" class="level2">
+<h2 class="anchored" data-anchor-id="フェーズ別の到達点事実ベース">3. フェーズ別の到達点（事実ベース）</h2>
+<section id="phase0-0ベースライン" class="level3">
+<h3 class="anchored" data-anchor-id="phase0-0ベースライン">3.1 Phase0-0（ベースライン）</h3>
+<ul>
+<li>状態: 取得完了、ΔE符号の異常が未解決</li>
+<li>データ: <code>data/実験データ/研究室/1m_ad/</code>, <code>data/実験データ/研究室/1m_off/</code></li>
+<li>主要指標: E_total=1933.47 mJ, E_per_adv=3222.45 μJ, PDR=0.858, RSSI≈−35 dBm（<code>results/phase0-0/フェーズ0-0_E2_1m_100ms_2025-11-09.md</code>）</li>
+<li>異常: ΔE=E_on−E_off が負（OFFが高い）で再試行でも継続（<code>results/phase0-0/summary_1m_E2_100ms_deltaE_retry_latest.md</code>）</li>
+</ul>
+</section>
+<section id="stress_fixedmode-c2-s1s4" class="level3">
+<h3 class="anchored" data-anchor-id="stress_fixedmode-c2-s1s4">3.2 stress_fixed（Mode C2′ / S1,S4）</h3>
+<ul>
+<li>状態: scan90 v5 を主結果として固定、scan50は旧アーカイブ</li>
+<li>データ: <code>data/1211_modeC2prime_stress_fixed/full_scan90/</code></li>
+<li>出力: v5集計一式（per-trial/modes/agg/enriched）（<code>results/stress_fixed/scan90/index.md</code>）</li>
+<li>重要: TL/Pout は時間同期ありの v5 が正（<code>results/stress_fixed/scan90/index.md</code>）</li>
+</ul>
+</section>
+<section id="mhealth合成オフライン評価" class="level3">
+<h3 class="anchored" data-anchor-id="mhealth合成オフライン評価">3.3 mHealth合成オフライン評価</h3>
+<ul>
+<li>状態: scan90 v5 + robust power table の評価を凍結済み</li>
+<li>出力: Pareto sweep と δ帯（<code>results/mhealth_policy_eval/README.md</code>）</li>
+<li>主線の電力表: 100=198.56 mW, 500=180.80 mW, 1000=178.62 mW, 2000=177.47 mW（<code>results/mhealth_policy_eval/README.md</code>）</li>
+<li>actions={100,500} の代表点: δ=0.03 で avg_power=187.36 mW, pout_1s=0.023（<code>results/mhealth_policy_eval/letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/summary.md</code>）</li>
+</ul>
+</section>
+<section id="uccs-実機d1d4b" class="level3">
+<h3 class="anchored" data-anchor-id="uccs-実機d1d4b">3.4 UCCS 実機（D1〜D4b）</h3>
+<ul>
+<li>D1（100↔︎500成立確認）: policyの平均電力は固定100/500の中間に着地（<code>uccs_d1_scan90/metrics/01/summary.md</code>）</li>
+<li>D2（動的QoS）: 初回D2はpolicyが100ms張り付き、D2bで修正済み（<code>uccs_d2_scan90/metrics/01/summary.md</code>, <code>uccs_d2_scan90/metrics/B_n6/summary.md</code>）</li>
+<li>D3（scan70）: Fixed500がQoS崩壊し、Policyが中間解として成立（<code>uccs_d3_scan70/metrics/01/summary.md</code>）</li>
+<li>D4（U-shuffle）: Uの時間整合を壊すと100ms張り付きへ崩れる（<code>uccs_d4_scan90/metrics/01/summary.md</code>）</li>
+<li>D4b（scan90, U-only）: 同電力でU+CCSがQoS改善（<code>uccs_d4b_scan90/metrics/01/summary.md</code>）</li>
+<li>D4b（scan70）: run02は不成立、run01_fixedで成立（<code>uccs_d4b_scan70/metrics/01_fixed/summary.md</code>, <code>logs/worklog_2025-12-18_thesis_setup.txt</code>）</li>
+</ul>
+</section>
+<section id="final成果物" class="level3">
+<h3 class="anchored" data-anchor-id="final成果物">3.5 final成果物</h3>
+<ul>
+<li>状態: 最終参照用の図表が台帳化済み</li>
+<li>台帳: <code>results/final/manifest.md</code></li>
+<li>一括生成: <code>bash results/final/build.sh</code></li>
+</ul>
+</section>
+</section>
+<section id="主張できること現時点" class="level2">
+<h2 class="anchored" data-anchor-id="主張できること現時点">4. 主張できること（現時点）</h2>
+<ul>
+<li>scan70環境では Fixed500 がQoS制約に耐えず、Policyが「QoS維持しつつFixed100より低電力」を実機で示した（<code>uccs_d3_scan70/metrics/01/summary.md</code>）</li>
+<li>Uを時間シャッフルすると policy が100ms張り付きに崩れるため、Uの時間整合が効いている（<code>uccs_d4_scan90/metrics/01/summary.md</code>）</li>
+<li>同じ電力水準でも CCS を使うと Pout/TL が改善する（U-only vs U+CCS）（<code>uccs_d4b_scan90/metrics/01/summary.md</code>）</li>
+<li>オフライン評価では δ=0.03 で Fixed100 より低電力かつQoS達成の点が存在する（<code>results/mhealth_policy_eval/letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/summary.md</code>）</li>
+</ul>
+</section>
+<section id="重要な未解決とリスク" class="level2">
+<h2 class="anchored" data-anchor-id="重要な未解決とリスク">5. 重要な未解決とリスク</h2>
+<ul>
+<li>Phase0-0 の ΔE が負で再現しており、電力系の基線解釈が未確定</li>
+<li>stress_fixed の「実測がシミュより悪い」理由説明が未整備</li>
+<li>CCS_causal と self-UCB の実機比較は未実施（設計のみ）</li>
+<li>図表の最終確定（論文配置）と実測点の重ね合わせが未完</li>
+</ul>
+</section>
+<section id="次のアクション最短順" class="level2">
+<h2 class="anchored" data-anchor-id="次のアクション最短順">6. 次のアクション（最短順）</h2>
+<ol type="1">
+<li>stress_fixed の実測点を予測図に重ねて差分を記述（<code>docs/TODO.md</code>）</li>
+<li>scan90 固定フルセット図表を論文用に固定（<code>docs/TODO.md</code>）</li>
+<li>CCS_causal 実機と固定比較を最小本数で実施（<code>docs/TODO.md</code>）</li>
+<li>self-UCB の設計1ページ化→実装→最小比較（<code>docs/TODO.md</code>）</li>
+</ol>
+</section>
+<section id="参照パス最初に見る場所" class="level2">
+<h2 class="anchored" data-anchor-id="参照パス最初に見る場所">7. 参照パス（最初に見る場所）</h2>
+<ul>
+<li>研究の現状: <code>docs/TODO.md</code></li>
+<li>主要指標定義: <code>docs/metrics_definition.md</code></li>
+<li>stress_fixed v5: <code>results/stress_fixed/scan90/index.md</code></li>
+<li>mHealthオフライン評価: <code>results/mhealth_policy_eval/README.md</code></li>
+<li>D1〜D4b実測: <code>uccs_d1_scan90/metrics/01/summary.md</code>, <code>uccs_d2_scan90/metrics/B_n6/summary.md</code>, <code>uccs_d3_scan70/metrics/01/summary.md</code>, <code>uccs_d4_scan90/metrics/01/summary.md</code>, <code>uccs_d4b_scan90/metrics/01/summary.md</code></li>
+<li>final成果物台帳: <code>results/final/manifest.md</code></li>
+</ul>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

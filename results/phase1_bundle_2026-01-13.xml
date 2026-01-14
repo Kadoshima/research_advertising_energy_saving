@@ -1,0 +1,1004 @@
+<repomix><file_summary>This file is a merged representation of a subset of the codebase, containing specifically included files and files not matching ignore patterns, combined into a single document by Repomix.
+The content has been processed where content has been formatted for parsing in xml style.<purpose>This file contains a packed representation of a subset of the repository&apos;s contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.</purpose><file_format>The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Repository files, each consisting of:
+  - File path as an attribute
+  - Full contents of the file</file_format><usage_guidelines>- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.</usage_guidelines><notes>- Some files may have been excluded based on .gitignore rules and Repomix&apos;s configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: docs/フェーズ1/現状整理_2026-01-12.md, docs/フェーズ1/実験結果_統合サマリ_2026-01-12.md, docs/TODO.md, results/phase0-0/フェーズ0-0_E2_1m_100ms_2025-11-09.md, results/phase0-0/summary_1m_E2_100ms_deltaE_retry_latest.md, results/stress_fixed/scan90/index.md, results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_scan90_v5.csv, results/mhealth_policy_eval/README.md, results/mhealth_policy_eval/letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/summary.md, uccs_d1_scan90/metrics/01/summary.md, uccs_d2_scan90/metrics/B_n6/summary.md, uccs_d3_scan70/metrics/01/summary.md, uccs_d4_scan90/metrics/01/summary.md, uccs_d4b_scan90/metrics/01/summary.md, uccs_d4b_scan70/metrics/01_fixed/summary.md, results/final/manifest.md
+- Files matching these patterns are excluded: **/*.svg, **/*.png, **/*.pdf
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Content has been formatted for parsing in xml style
+- Files are sorted by Git change count (files with more changes are at the bottom)</notes></file_summary><directory_structure>docs/
+  フェーズ1/
+    現状整理_2026-01-12.md
+    実験結果_統合サマリ_2026-01-12.md
+  TODO.md
+results/
+  final/
+    manifest.md
+  mhealth_policy_eval/
+    letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/
+      summary.md
+    README.md
+  phase0-0/
+    summary_1m_E2_100ms_deltaE_retry_latest.md
+    フェーズ0-0_E2_1m_100ms_2025-11-09.md
+  stress_fixed/
+    scan90/
+      index.md
+      stress_causal_real_summary_1211_stress_agg_scan90_v5.csv
+uccs_d1_scan90/
+  metrics/
+    01/
+      summary.md
+uccs_d2_scan90/
+  metrics/
+    B_n6/
+      summary.md
+uccs_d3_scan70/
+  metrics/
+    01/
+      summary.md
+uccs_d4_scan90/
+  metrics/
+    01/
+      summary.md
+uccs_d4b_scan70/
+  metrics/
+    01_fixed/
+      summary.md
+uccs_d4b_scan90/
+  metrics/
+    01/
+      summary.md</directory_structure><files>This section contains the contents of the repository&apos;s files.<file path="docs/フェーズ1/現状整理_2026-01-12.md"># 現状整理（0ベース向け）
+
+- 更新日: 2026-01-12
+- 対象範囲: Phase0-0, stress_fixed, mHealth合成オフライン評価, UCCS D1-D4b, final成果物
+- 目的: 初見の人が「どこまで終わっていて、何が主張できて、何が未完か」を把握する
+
+## 1. 読み方
+
+- 本文は「進捗→根拠→残課題」の順で読む
+- 数値は単位付きで併記し、必ず参照ファイルを添える
+- 迷ったら `results/` と `logs/` を先に確認する
+
+## 2. 用語（最小セット）
+
+| 用語 | 意味 | 単位/範囲 |
+| --- | --- | --- |
+| 不確実度 (U) | HARの不確かさ | [0,1] |
+| 安定度 (S) | 時間的一貫性 | [0,1] |
+| 複合スコア (CCS) | 0.7×(1−U)+0.3×S | [0,1] |
+| 初回受信遅延 (TL) | 遷移→初回受信の時間 | s |
+| 期限超過率 (Pout) | TLがτを超える確率 | [0,1] |
+| 1広告あたり電荷 (μC/event) | 電荷コストの主指標 | μC |
+| 平均電力 (avg_power) | 送信中の平均消費 | mW |
+| 受信率 (PDR) | 受信カバレッジ | [0,1] |
+
+## 3. フェーズ別の到達点（事実ベース）
+
+### 3.1 Phase0-0（ベースライン）
+
+- 状態: 取得完了、ΔE符号の異常が未解決
+- データ: `data/実験データ/研究室/1m_ad/`, `data/実験データ/研究室/1m_off/`
+- 主要指標: E_total=1933.47 mJ, E_per_adv=3222.45 μJ, PDR=0.858, RSSI≈−35 dBm（`results/phase0-0/フェーズ0-0_E2_1m_100ms_2025-11-09.md`）
+- 異常: ΔE=E_on−E_off が負（OFFが高い）で再試行でも継続（`results/phase0-0/summary_1m_E2_100ms_deltaE_retry_latest.md`）
+
+### 3.2 stress_fixed（Mode C2′ / S1,S4）
+
+- 状態: scan90 v5 を主結果として固定、scan50は旧アーカイブ
+- データ: `data/1211_modeC2prime_stress_fixed/full_scan90/`
+- 出力: v5集計一式（per-trial/modes/agg/enriched）（`results/stress_fixed/scan90/index.md`）
+- 重要: TL/Pout は時間同期ありの v5 が正（`results/stress_fixed/scan90/index.md`）
+
+### 3.3 mHealth合成オフライン評価
+
+- 状態: scan90 v5 + robust power table の評価を凍結済み
+- 出力: Pareto sweep と δ帯（`results/mhealth_policy_eval/README.md`）
+- 主線の電力表: 100=198.56 mW, 500=180.80 mW, 1000=178.62 mW, 2000=177.47 mW（`results/mhealth_policy_eval/README.md`）
+- actions={100,500} の代表点: δ=0.03 で avg_power=187.36 mW, pout_1s=0.023（`results/mhealth_policy_eval/letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/summary.md`）
+
+### 3.4 UCCS 実機（D1〜D4b）
+
+- D1（100↔500成立確認）: policyの平均電力は固定100/500の中間に着地（`uccs_d1_scan90/metrics/01/summary.md`）
+- D2（動的QoS）: 初回D2はpolicyが100ms張り付き、D2bで修正済み（`uccs_d2_scan90/metrics/01/summary.md`, `uccs_d2_scan90/metrics/B_n6/summary.md`）
+- D3（scan70）: Fixed500がQoS崩壊し、Policyが中間解として成立（`uccs_d3_scan70/metrics/01/summary.md`）
+- D4（U-shuffle）: Uの時間整合を壊すと100ms張り付きへ崩れる（`uccs_d4_scan90/metrics/01/summary.md`）
+- D4b（scan90, U-only）: 同電力でU+CCSがQoS改善（`uccs_d4b_scan90/metrics/01/summary.md`）
+- D4b（scan70）: run02は不成立、run01_fixedで成立（`uccs_d4b_scan70/metrics/01_fixed/summary.md`, `logs/worklog_2025-12-18_thesis_setup.txt`）
+
+### 3.5 final成果物
+
+- 状態: 最終参照用の図表が台帳化済み
+- 台帳: `results/final/manifest.md`
+- 一括生成: `bash results/final/build.sh`
+
+## 4. 主張できること（現時点）
+
+- scan70環境では Fixed500 がQoS制約に耐えず、Policyが「QoS維持しつつFixed100より低電力」を実機で示した（`uccs_d3_scan70/metrics/01/summary.md`）
+- Uを時間シャッフルすると policy が100ms張り付きに崩れるため、Uの時間整合が効いている（`uccs_d4_scan90/metrics/01/summary.md`）
+- 同じ電力水準でも CCS を使うと Pout/TL が改善する（U-only vs U+CCS）（`uccs_d4b_scan90/metrics/01/summary.md`）
+- オフライン評価では δ=0.03 で Fixed100 より低電力かつQoS達成の点が存在する（`results/mhealth_policy_eval/letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/summary.md`）
+
+## 5. 重要な未解決とリスク
+
+- Phase0-0 の ΔE が負で再現しており、電力系の基線解釈が未確定
+- stress_fixed の「実測がシミュより悪い」理由説明が未整備
+- CCS_causal と self-UCB の実機比較は未実施（設計のみ）
+- 図表の最終確定（論文配置）と実測点の重ね合わせが未完
+
+## 6. 次のアクション（最短順）
+
+1. stress_fixed の実測点を予測図に重ねて差分を記述（`docs/TODO.md`）
+2. scan90 固定フルセット図表を論文用に固定（`docs/TODO.md`）
+3. CCS_causal 実機と固定比較を最小本数で実施（`docs/TODO.md`）
+4. self-UCB の設計1ページ化→実装→最小比較（`docs/TODO.md`）
+
+## 7. 参照パス（最初に見る場所）
+
+- 研究の現状: `docs/TODO.md`
+- 主要指標定義: `docs/metrics_definition.md`
+- stress_fixed v5: `results/stress_fixed/scan90/index.md`
+- mHealthオフライン評価: `results/mhealth_policy_eval/README.md`
+- D1〜D4b実測: `uccs_d1_scan90/metrics/01/summary.md`, `uccs_d2_scan90/metrics/B_n6/summary.md`, `uccs_d3_scan70/metrics/01/summary.md`, `uccs_d4_scan90/metrics/01/summary.md`, `uccs_d4b_scan90/metrics/01/summary.md`
+- final成果物台帳: `results/final/manifest.md`</file><file path="docs/フェーズ1/実験結果_統合サマリ_2026-01-12.md"># 実験結果_統合サマリ（0ベース向け）
+
+- 更新日: 2026-01-12
+- 対象: Phase0-0, stress_fixed, mHealth合成オフライン評価, UCCS D1〜D4b
+- 目的: 実験結果を1ファイルで確認できるように集約する
+
+## 0. 参照ルール
+
+- 数値は原則 `summary.md` や `*_agg_*.csv` から引用する
+- 詳細ログは各 experiment の `metrics/` と `results/` を参照する
+
+## 1. Phase0-0（ベースライン）
+
+- 条件: E2 / 1m / adv_interval=100ms / 60s×6
+- 結果（ONのみ）:
+  - E_total=1933.47 mJ, E_per_adv=3222.45 μJ, PDR=0.858, RSSI≈−35 dBm
+  - 参照: `results/phase0-0/フェーズ0-0_E2_1m_100ms_2025-11-09.md`
+- ΔE再試行（ON−OFF）:
+  - ΔE=−3846.035 mJ（OFFが高い）
+  - 参照: `results/phase0-0/summary_1m_E2_100ms_deltaE_retry_latest.md`
+
+## 2. stress_fixed（scan90 v5, S1/S4 × 100/500/1000/2000）
+
+- 指標は TL/Pout の時間同期付き v5 を採用する
+- n=1（scan90 v5集約の現状値）
+- 参照: `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_scan90_v5.csv`
+
+### S1（scan90 v5）
+
+| interval | pdr_unique | pout_1s | tl_mean_s | E_per_adv_uJ | avg_power_mW |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 100 | 0.800189 | 0.000000 | 0.069733 | 20076.9 | 200.767 |
+| 500 | 1.000000 | 0.033333 | 5.444783 | 101334.7 | 202.675 |
+| 1000 | 1.000000 | 0.050000 | 6.535283 | 200939.4 | 200.955 |
+| 2000 | 1.000000 | 0.383333 | 8.416233 | 400149.4 | 200.414 |
+
+### S4（scan90 v5）
+
+| interval | pdr_unique | pout_1s | tl_mean_s | E_per_adv_uJ | avg_power_mW |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 100 | 0.814166 | 0.007092 | 0.828007 | 20031.3 | 200.283 |
+| 500 | 1.000000 | 0.028369 | 1.348851 | 100001.5 | 200.048 |
+| 1000 | 1.000000 | 0.063830 | 2.422043 | 200484.1 | 200.538 |
+| 2000 | 1.000000 | 0.496454 | 9.352191 | 399423.9 | 200.090 |
+
+## 3. mHealth合成オフライン評価（scan90 v5 + power table）
+
+- 固定intervalの電力テーブル（sleep_on, n=9–10）:
+  - 100=198.56 mW, 500=180.80 mW, 1000=178.62 mW, 2000=177.47 mW
+  - 参照: `results/mhealth_policy_eval/README.md`
+- actions={100,500} の δ=0.03 代表点:
+  - avg_power=187.36 mW, pout_1s=0.023, share100=0.369
+  - 参照: `results/mhealth_policy_eval/letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/summary.md`
+
+## 4. UCCS 実機（D1〜D4b）
+
+### 4.1 D1（100↔500 成立確認）
+
+- Power（mean）: fixed100=205.10 mW, fixed500=185.50 mW, policy=192.17 mW
+- share100:
+  - power mix: 0.340
+  - RX tags: 0.294 ± 0.010
+- 参照: `uccs_d1_scan90/metrics/01/summary.md`
+
+### 4.2 D2b（動的QoS確定, n=6）
+
+- 参照: `uccs_d2_scan90/metrics/B_n6/summary.md`
+
+| condition | n | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | adv_count | share100 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| S1_fixed100 | 6 | 0.0750 | 3.762 | 0.789 | 204.1 | 1795.5 | 1.000 |
+| S1_fixed500 | 6 | 0.1417 | 5.292 | 0.816 | 184.7 | 359.0 | 0.000 |
+| S1_policy | 6 | 0.1250 | 5.239 | 0.803 | 191.5 | 855.0 | 0.331 |
+| S4_fixed100 | 6 | 0.0528 | 1.248 | 0.792 | 204.4 | 1796.0 | 0.998 |
+| S4_fixed500 | 6 | 0.1463 | 2.484 | 0.817 | 184.5 | 359.0 | 0.000 |
+| S4_policy | 6 | 0.0691 | 1.575 | 0.793 | 196.6 | 1227.0 | 0.595 |
+
+### 4.3 D3（scan70, S4のみ）
+
+- 参照: `uccs_d3_scan70/metrics/01/summary.md`
+
+| condition | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | share100_power_mix |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| S4_fixed100 | 0.0650 | 1.342 | 0.304 | 209.9 | n/a |
+| S4_fixed500 | 0.2846 | 2.928 | 0.652 | 189.5 | n/a |
+| S4_policy | 0.0894 | 1.400 | 0.343 | 202.1 | 0.618 |
+
+### 4.4 D4（scan90, U-shuffle）
+
+- 参照: `uccs_d4_scan90/metrics/01/summary.md`
+
+| condition | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | adv_count | share100 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| S4_ablation_u_shuf | 0.0488 | 1.234 | 0.788 | 208.1 | 1715.0 | 0.943 |
+| S4_fixed100 | 0.0488 | 1.240 | 0.787 | 208.2 | 1796.0 | 1.000 |
+| S4_fixed500 | 0.1301 | 1.587 | 0.813 | 187.9 | 359.0 | 0.000 |
+| S4_policy | 0.0976 | 1.278 | 0.789 | 200.5 | 1227.0 | 0.593 |
+
+### 4.5 D4b（scan90, U-only）
+
+- 参照: `uccs_d4b_scan90/metrics/01/summary.md`
+
+| condition | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | adv_count | share100_power_mix |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| S4_ablation_ccs_off | 0.0650 | 1.407 | 0.434 | 200.6 | 1227.0 | 0.621 |
+| S4_fixed100 | 0.0813 | 1.487 | 0.377 | 208.3 | 1796.0 | n/a |
+| S4_fixed500 | 0.1301 | 1.210 | 0.823 | 188.1 | 359.0 | n/a |
+| S4_policy | 0.0488 | 1.317 | 0.448 | 200.6 | 1215.0 | 0.620 |
+
+### 4.6 D4b（scan70, run01_fixed）
+
+- 参照: `uccs_d4b_scan70/metrics/01_fixed/summary.md`
+
+| condition | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | adv_count | share100_power_mix |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| S4_ablation_ccs_off | 0.0081 | 0.237 | 0.355 | 202.2 | 1323.0 | 0.780 |
+| S4_fixed100 | 0.0244 | 0.431 | 0.333 | 206.4 | 1800.0 | n/a |
+| S4_fixed500 | 0.2276 | 1.443 | 0.613 | 187.6 | 360.0 | n/a |
+| S4_policy | 0.0163 | 0.301 | 0.367 | 201.4 | 1323.0 | 0.735 |
+
+## 5. 未完・注意点
+
+- Phase0-0 の ΔE が負で継続しており、電力系の基線整理が必要
+- stress_fixed は n=1 のため統計的には弱い。scan90 v5の再取得や追試が必要
+- CCS_causal と self-UCB は設計のみで実機比較は未完
+
+## 6. 参照リンク（最短）
+
+- stress_fixed v5: `results/stress_fixed/scan90/index.md`
+- mHealth評価: `results/mhealth_policy_eval/README.md`
+- D1: `uccs_d1_scan90/metrics/01/summary.md`
+- D2b: `uccs_d2_scan90/metrics/B_n6/summary.md`
+- D3: `uccs_d3_scan70/metrics/01/summary.md`
+- D4: `uccs_d4_scan90/metrics/01/summary.md`
+- D4b scan90: `uccs_d4b_scan90/metrics/01/summary.md`
+- D4b scan70: `uccs_d4b_scan70/metrics/01_fixed/summary.md`</file><file path="results/phase0-0/フェーズ0-0_E2_1m_100ms_2025-11-09.md"># フェーズ0-0 ベースライン結果（E2, 1m, 100 ms）
+
+- 生成日: 2025-11-09
+- 対応フェーズ: フェーズ0-0（ベースライン確立）
+- データ: `data/実験データ/研究室/1m_ad/`（ON/OFF非分離コードで取得）
+- 使用コード:
+  - TX+計測: `esp32/TX_BLE_Adv_Meter_blocking.ino`（旧 `Combined_TX_Meter_UART_B.ino`）
+  - 電力ロガ: `esp32/TXSD_PowerLogger_PASS_THRU_ON_v2.ino`（旧 `PowerLogger_UART_to_SD_SYNC_TICK_B.ino`）
+  - 受信ロガ: `esp32/RX_BLE_to_SD_SYNC_B.ino`（旧 `RxLogger_BLE_to_SD_SYNC_B.ino`）
+- 条件: 距離 1 m / 環境 E2 / adv_interval=100 ms / TxPower=0 dBm / 60 s×6本
+
+## 集計サマリ
+- 電力（V×I積分）
+  - `E_total_mJ` 平均 1933.47 mJ（±10.06 mJ）
+  - `E_per_adv_uJ` 平均 3222.45 μJ（±16.75 μJ）
+  - 備考: `adv_count` は t/100ms の近似（=600）
+- 受信品質（RXログ）
+  - `PDR` 平均 0.858（±0.009）
+  - `RSSI` 中央値 −35 dBm（全試行合算）
+
+## 所見
+- E_total/E_per_adv のばらつきは ≈±0.6% と小さく、計測安定性は良好。
+- PDR≈0.86 は E2（干渉強, 1 m）として妥当。
+- 本セットはΔEではなく ON のみの測定。広告OFFのベースライン取得後に ΔE = E_on − E_off を算出予定。
+
+## 再現情報（メタ）
+- SYNC: 送信側GPIO25（100 ms High）→ ロガ側SYNC_IN=26
+- 受信: ρ=1（scan_window=scan_interval）でMFD `MFxxxx` を抽出
+- チェックサム: `data/実験データ/SHA256.txt` に統合記録</file><file path="results/mhealth_policy_eval/letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/summary.md"># まとめ（scan90 v5 / δ tight / actions={100,500}）
+
+- 生成日: 2025-12-14 (JST)
+- コンテキスト重み（mHealth合成, 有効窓のみ）: stable=0.7714 / transition=0.2286（`selected_policies.json`）
+- 図: `fig_delta_band.png`
+
+## 固定（基準点）
+
+powerは `power_table_sleep_eval_2025-12-14_interval_sweep_sleep_on_n9_10.csv`、QoSは scan90 v5（stable→S1 / transition→S4）で合成。
+
+| policy | avg_power_mW | pout_1s |
+| --- | ---: | ---: |
+| Fixed 100 | 198.56 | 0.0016 |
+| Fixed 500 | 180.80 | 0.0322 |
+| Fixed 1000 | 178.62 | 0.0532 |
+| Fixed 2000 | 177.47 | 0.4092 |
+
+## ルール（U+CCS, power-min, actions={100,500}）
+
+`pareto_front_v8_power_table_scan90_v5_sleep_on_n9_10_actions_100_500/pareto_sweep.csv` から、各δで `avg_power_mW` 最小の点を選定。
+
+| δ | avg_power_mW | pout_1s | share100 | share500 | adv_rate | switch_rate | params(u_mid,u_high,c_mid,c_high,hyst) |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| 0.02 | 188.78 | 0.020 | 0.449 | 0.551 | 5.59 | 0.037 | (0.15,0.30,0.15,0.35,0.02) |
+| 0.03 | 187.36 | 0.023 | 0.369 | 0.631 | 4.96 | 0.040 | (0.20,0.35,0.20,0.35,0.02) |
+| 0.04 | 187.36 | 0.023 | 0.369 | 0.631 | 4.96 | 0.040 | (0.20,0.35,0.20,0.35,0.02) |
+
+## 読み（結論）
+
+- `Fixed 500ms` の `pout_1s≈0.0322` が境界になる（δ&lt;0.0322 だと Fixed500 は不可能）。
+- actions={100,500} でも δ=0.03 を満たす点が存在し、power-min は `avg_power≈187.36mW` / `pout_1s≈0.0226`。
+- δ=0.03（Fixed500が落ちる帯）では、ルールは `Fixed100(198.56mW)` より **約−11.20mW（約−5.6%）** 低い（かつ δ達成）。
+- δ=0.04 では（本スイープ範囲では）選定点がδ=0.03と一致する（0.03以上が全点feasibleのため）。</file><file path="results/phase0-0/summary_1m_E2_100ms_deltaE_retry_latest.md"># Summary
+
+- Data dir: `data/実験データ/研究室/1m_ad_retry`
+- OFF dir: `data/実験データ/研究室/1m_off`
+- Trials:
+  - power files: 2
+  - rx files: 2
+
+- E_total_mJ mean 1664.986 (±240.255)
+- E_per_adv_uJ mean 2775.00 (±400.40)
+- PDR mean 0.865 (±0.000)
+- RSSI median -28 dBm
+- ΔE (mean on − mean off) -3846.035 mJ (on=1664.986, off=5511.021)</file><file path="results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_scan90_v5.csv">session,interval_ms,n,pdr_raw_mean,pdr_raw_median,pdr_raw_std,pdr_unique_mean,pdr_unique_median,pdr_unique_std,pout_1s_mean,pout_1s_median,pout_1s_std,pout_2s_mean,pout_2s_median,pout_2s_std,pout_3s_mean,pout_3s_median,pout_3s_std,tl_mean_s_mean,tl_mean_s_median,tl_mean_s_std,tl_p95_s_mean,tl_p95_s_median,tl_p95_s_std,E_per_adv_uJ_mean,E_per_adv_uJ_median,E_per_adv_uJ_std,avg_power_mW_mean,avg_power_mW_median,avg_power_mW_std,tl_clamp_high_rate_mean,tl_clamp_high_rate_median,tl_clamp_high_rate_std,rx_dup_factor_mean,rx_dup_factor_median,rx_dup_factor_std,tl_time_offset_ms_mean,tl_time_offset_ms_median,tl_time_offset_ms_std
+S1,100,1,0.800189,0.800189,0.0,0.800189,0.800189,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.069733,0.069733,0.0,0.20965,0.20965,0.0,20076.9,20076.9,0.0,200.7673133513955,200.7673133513955,0.0,0.0,0.0,0.0,1.0,1.0,0.0,1098.0,1098.0,0.0
+S1,500,1,1.0,1.0,0.0,1.0,1.0,0.0,0.033333,0.033333,0.0,0.033333,0.033333,0.0,0.033333,0.033333,0.0,5.444783,5.444783,0.0,0.5127,0.5127,0.0,101334.7,101334.7,0.0,202.67522421772227,202.67522421772227,0.0,0.0,0.0,0.0,4.00394,4.00394,0.0,1112.0,1112.0,0.0
+S1,1000,1,1.0,1.0,0.0,1.0,1.0,0.0,0.05,0.05,0.0,0.05,0.05,0.0,0.05,0.05,0.0,6.535283,6.535283,0.0,43.47965,43.47965,0.0,200939.4,200939.4,0.0,200.9551999369035,200.9551999369035,0.0,0.0,0.0,0.0,8.15142,8.15142,0.0,1141.0,1141.0,0.0
+S1,2000,1,1.0,1.0,0.0,1.0,1.0,0.0,0.383333,0.383333,0.0,0.066667,0.066667,0.0,0.066667,0.066667,0.0,8.416233,8.416233,0.0,49.6437,49.6437,0.0,400149.4,400149.4,0.0,200.41421114000687,200.41421114000687,0.0,0.0,0.0,0.0,16.091195,16.091195,0.0,1168.0,1168.0,0.0
+S4,100,1,0.814166,0.814166,0.0,0.814166,0.814166,0.0,0.007092,0.007092,0.0,0.007092,0.007092,0.0,0.007092,0.007092,0.0,0.828007,0.828007,0.0,0.2099,0.2099,0.0,20031.3,20031.3,0.0,200.28257005181428,200.28257005181428,0.0,0.0,0.0,0.0,1.0,1.0,0.0,1215.0,1215.0,0.0
+S4,500,1,1.0,1.0,0.0,1.0,1.0,0.0,0.028369,0.028369,0.0,0.028369,0.028369,0.0,0.028369,0.028369,0.0,1.348851,1.348851,0.0,0.5288,0.5288,0.0,100001.5,100001.5,0.0,200.04756736119546,200.04756736119546,0.0,0.0,0.0,0.0,4.082019,4.082019,0.0,1231.0,1231.0,0.0
+S4,1000,1,1.0,1.0,0.0,1.0,1.0,0.0,0.06383,0.06383,0.0,0.056738,0.056738,0.0,0.056738,0.056738,0.0,2.422043,2.422043,0.0,9.5882,9.5882,0.0,200484.1,200484.1,0.0,200.53753603089783,200.53753603089783,0.0,0.0,0.0,0.0,8.092913,8.092913,0.0,1272.0,1272.0,0.0
+S4,2000,1,1.0,1.0,0.0,1.0,1.0,0.0,0.496454,0.496454,0.0,0.191489,0.191489,0.0,0.184397,0.184397,0.0,9.352191,9.352191,0.0,66.3563,66.3563,0.0,399423.9,399423.9,0.0,200.08969774163523,200.08969774163523,0.0,0.0,0.0,0.0,16.009434,16.009434,0.0,1294.0,1294.0,0.0</file><file path="uccs_d1_scan90/metrics/01/summary.md"># uccs_d1_scan90 metrics (01)
+
+## Input
+
+- RX: `/Users/kadoshima/Documents/research_advertising-energy_saving/uccs_d1_scan90/data/01/RX`
+- TXSD: `/Users/kadoshima/Documents/research_advertising-energy_saving/uccs_d1_scan90/data/01/TX`
+- Filter: `ms_total &gt;= 50000`
+
+## Power (TXSD)
+
+| tag | n | mean_p_mW | std_p_mW |
+| --- | ---: | ---: | ---: |
+| fixed100 | 3 | 205.10 | 2.79 |
+| fixed500 | 3 | 185.50 | 0.98 |
+| policy | 3 | 192.17 | 0.55 |
+
+- ΔP (fixed100 - fixed500) = **19.60 mW**
+- ΔP (policy - fixed100) = **-12.93 mW**
+- ΔP (policy - fixed500) = **6.67 mW**
+- share100 (time-weight, from power mix) ≈ **0.340**
+
+## RX rate
+
+| condition_label | n | rate_hz_mean | rate_hz_std |
+| --- | ---: | ---: | ---: |
+| F100 | 3 | 7.94 | 0.21 |
+| F500 | 3 | 1.63 | 0.09 |
+| P500 | 3 | 3.71 | 0.11 |
+
+## Policy mix (from RX labels)
+
+- Policy RX files are labeled `P100`/`P500` (current interval).
+- share100 (time-weight, from RX counts) ≈ **0.294 ± 0.010**</file><file path="uccs_d2_scan90/metrics/B_n6/summary.md"># uccs_d2_scan90 merged metrics summary
+
+- purpose: merge summarized runs (per_trial.csv) and increase n without re-parsing raw logs.
+- source: `uccs_d2_scan90/metrics/B`
+- source: `uccs_d2_scan90/metrics/B_02`
+- generated: 2025-12-16 14:52 (local)
+- command: `python3 uccs_d2_scan90/analysis/merge_metrics_runs.py --out-dir uccs_d2_scan90/metrics/B_n6 --input-dir uccs_d2_scan90/metrics/B --input-dir uccs_d2_scan90/metrics/B_02`
+
+## Summary (mean ± std)
+| condition | n | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | adv_count | share100_time_est (RX tags) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| S1_fixed100 | 6 | 0.0750±0.0274 | 3.762±1.461 | 0.789±0.016 | 204.1±1.4 | 1795.5±1.2 | 1.000±0.000 |
+| S1_fixed500 | 6 | 0.1417±0.0492 | 5.292±0.018 | 0.816±0.018 | 184.7±1.5 | 359.0±0.0 | 0.000±0.000 |
+| S1_policy | 6 | 0.1250±0.0274 | 5.239±0.049 | 0.803±0.022 | 191.5±1.9 | 855.0±0.0 | 0.331±0.004 |
+| S4_fixed100 | 6 | 0.0528±0.0100 | 1.248±0.008 | 0.792±0.009 | 204.4±2.1 | 1796.0±0.0 | 0.998±0.002 |
+| S4_fixed500 | 6 | 0.1463±0.0309 | 2.484±1.108 | 0.817±0.020 | 184.5±1.5 | 359.0±0.0 | 0.000±0.000 |
+| S4_policy | 6 | 0.0691±0.0285 | 1.575±0.500 | 0.793±0.021 | 196.6±1.6 | 1227.0±0.0 | 0.595±0.008 |
+
+## Notes
+- This script does not recompute TL/Pout; it re-aggregates existing per-trial metrics.
+- Rounding follows summarize_d2_run.py (pout/TL/PDR/share: 6 decimals, power/adv: 3 decimals).</file><file path="uccs_d4_scan90/metrics/01/summary.md"># uccs_d4_scan90 metrics summary (v2)
+
+- source RX: `uccs_d4_scan90/data/01/RX`
+- source TXSD: `uccs_d4_scan90/data/01/TX`
+- truth: `Mode_C_2_シミュレート_causal/ccs/stress_causal_S4.csv` (n_steps=1800, dt=100ms)
+- selected RX trials: 001..012 (n=12)
+- selected TXSD trials (by mtime): trial_003_c1_s4_fixed100.csv .. trial_003_c5_unk.csv (n=12)
+- generated: 2025-12-16 18:40 (local)
+- command: `python3 uccs_d4_scan90/analysis/summarize_d4_run_v2.py --rx-dir uccs_d4_scan90/data/01/RX --txsd-dir uccs_d4_scan90/data/01/TX --out-dir uccs_d4_scan90/metrics/01`
+
+## Summary (mean ± std)
+| condition | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | adv_count | share100_time_est (RX tags) |
+|---|---:|---:|---:|---:|---:|---:|
+| S4_ablation_u_shuf | 0.0488±0.0000 | 1.234±0.005 | 0.788±0.007 | 208.1±0.3 | 1715.0±0.0 | 0.943±0.000 |
+| S4_fixed100 | 0.0488±0.0000 | 1.240±0.008 | 0.787±0.007 | 208.2±1.3 | 1796.0±0.0 | 1.000±0.000 |
+| S4_fixed500 | 0.1301±0.0141 | 1.587±0.057 | 0.813±0.005 | 187.9±0.8 | 359.0±0.0 | 0.000±0.000 |
+| S4_policy | 0.0976±0.0244 | 1.278±0.014 | 0.789±0.004 | 200.5±0.8 | 1227.0±0.0 | 0.593±0.009 |
+
+## Notes
+- RX window: latest 12 trials that form 4 conditions × 3 repeats (duration&gt;=160s).
+- TXSD pairing: last 12 TXSD trials by file modification time; zipped in order with RX window.
+- TL/Pout alignment: per-trial constant offset estimated from (step_idx*100ms - first_rx_ms(step_idx)).
+- TXSD adv_count is tick_count (1 tick per payload update); used as denominator for pdr_unique.
+- share100_time_est: estimated from RX tags (unique step_idx by interval); sanity only (RX has drops).</file><file path="uccs_d4b_scan70/metrics/01_fixed/summary.md"># uccs_d4b_scan90 metrics summary (v2)
+
+- source RX: `uccs_d4b_scan70/data/01/RX`
+- source TXSD: `uccs_d4b_scan70/data/01/TX`
+- truth: `Mode_C_2_シミュレート_causal/ccs/stress_causal_S4.csv` (n_steps=1800, dt=100ms)
+- selected RX trials: 014..025 (n=12)
+- selected TXSD trials: grouped by adv_count=[360, 1323, 1800] (3 trials each)
+- generated: 2025-12-18 20:46 (local)
+- command: `python3 uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py --rx-dir uccs_d4b_scan70/data/01/RX --txsd-dir uccs_d4b_scan70/data/01/TX --out-dir uccs_d4b_scan70/metrics/01_fixed`
+
+## Summary (mean ± std)
+| condition | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | adv_count | share100_time_est (RX tags) | share100_power_mix |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| S4_ablation_ccs_off | 0.0081±0.0141 | 0.237±0.134 | 0.355±0.002 | 202.2±1.2 | 1323.0±0.0 | 0.533±0.002 | 0.780 |
+| S4_fixed100 | 0.0244±0.0244 | 0.431±0.316 | 0.333±0.002 | 206.4±0.5 | 1800.0±0.0 | 1.000±0.000 |  |
+| S4_fixed500 | 0.2276±0.0373 | 1.443±0.513 | 0.613±0.013 | 187.6±0.4 | 360.0±0.0 | 0.000±0.000 |  |
+| S4_policy | 0.0163±0.0141 | 0.301±0.143 | 0.367±0.007 | 201.4±1.0 | 1323.0±0.0 | 0.514±0.021 | 0.735 |
+
+## Notes
+- RX window: latest 12 trials that form 4 conditions × 3 repeats (duration&gt;=160s).
+- TXSD pairing: cond_idがズレる/mtimeが壊れる可能性があるため、adv_count（tick_count）でクラスタリングして割り当て。
+  - filter: avg_power_mW &gt;= 150.0 かつ E_total_mJ&gt;0（古いログ混在/逆符号を除外）
+- TL/Pout alignment: per-trial constant offset estimated from (step_idx*100ms - first_rx_ms(step_idx)).
+- TXSD adv_count is tick_count (1 tick per payload update); used as denominator for pdr_unique.
+- share100_time_est: estimated from RX tags (unique step_idx by interval); sanity only (RX has drops).</file><file path="uccs_d4b_scan90/metrics/01/summary.md"># uccs_d4b_scan90 metrics summary (v2)
+
+- source RX: `uccs_d4b_scan90/data/01/RX`
+- source TXSD: `uccs_d4b_scan90/data/01/TX`
+- truth: `Mode_C_2_シミュレート_causal/ccs/stress_causal_S4.csv` (n_steps=1800, dt=100ms)
+- selected RX trials: 002..013 (n=12)
+- selected TXSD trials: grouped by adv_count=[359, 1215, 1227, 1796] (3 trials each)
+- generated: 2025-12-17 00:10 (local)
+- command: `python3 uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py --rx-dir uccs_d4b_scan90/data/01/RX --txsd-dir uccs_d4b_scan90/data/01/TX --out-dir uccs_d4b_scan90/metrics/01`
+
+## Summary (mean ± std)
+| condition | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | adv_count | share100_time_est (RX tags) | share100_power_mix |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| S4_ablation_ccs_off | 0.0650±0.0141 | 1.407±0.148 | 0.434±0.016 | 200.6±0.2 | 1227.0±0.0 | 0.429±0.009 | 0.621 |
+| S4_fixed100 | 0.0813±0.0141 | 1.487±0.115 | 0.377±0.043 | 208.3±0.5 | 1796.0±0.0 | 1.000±0.000 |  |
+| S4_fixed500 | 0.1301±0.0282 | 1.210±0.263 | 0.823±0.015 | 188.1±0.3 | 359.0±0.0 | 0.000±0.000 |  |
+| S4_policy | 0.0488±0.0000 | 1.317±0.025 | 0.448±0.005 | 200.6±0.1 | 1215.0±0.0 | 0.434±0.005 | 0.620 |
+
+## Notes
+- RX window: latest 12 trials that form 4 conditions × 3 repeats (duration&gt;=160s).
+- TXSD pairing: cond_idがズレる/mtimeが壊れる可能性があるため、adv_count（tick_count）でクラスタリングして割り当て。
+  - filter: avg_power_mW &gt;= 150.0 かつ E_total_mJ&gt;0（古いログ混在/逆符号を除外）
+- TL/Pout alignment: per-trial constant offset estimated from (step_idx*100ms - first_rx_ms(step_idx)).
+- TXSD adv_count is tick_count (1 tick per payload update); used as denominator for pdr_unique.
+- share100_time_est: estimated from RX tags (unique step_idx by interval); sanity only (RX has drops).</file><file path="results/final/manifest.md"># results/final manifest
+
+更新日: 2025-12-18
+
+このファイルは `results/final/` 配下の「最終成果物」が、どの入力/スクリプト/実験runに基づくかを追跡する台帳。
+
+## 図（fig）
+
+### 主図（scan70/scan90同一座標、bootstrap CI）
+
+- 出力: `results/final/fig/fig_main_scan70_scan90.svg`
+- 元: `uccs_d4b_scan90/plots/mainfig_scan70_scan90.svg`
+- 生成:
+  - `python3 uccs_d4b_scan90/analysis/plot_mainfig_scan70_scan90.py --scan90 uccs_d4b_scan90/metrics/01/per_trial.csv --scan70 uccs_d4b_scan70/metrics/01_fixed/per_trial.csv --out results/final/fig/fig_main_scan70_scan90.svg`
+
+### 役割分離（D3/D4/D4B統合）
+
+- 出力: `results/final/fig/fig_role_separation_d3_d4_d4b.svg`
+- 元: `uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.svg`
+- 生成:
+  - `python3 uccs_d4b_scan90/analysis/plot_role_separation_overview.py --out results/final/fig/fig_role_separation_d3_d4_d4b.svg`
+
+### α（正規化電力）×QoS
+
+- 出力: `results/final/fig/fig_alpha_vs_pout_overview.svg`
+- 元: `uccs_d4b_scan90/plots/alpha_vs_pout_overview.svg`
+- 生成:
+  - `python3 uccs_d4b_scan90/analysis/plot_alpha_vs_pout.py --out results/final/fig/fig_alpha_vs_pout_overview.svg`
+
+### 失敗イベント中心（outage story）
+
+- 出力: `results/final/fig/fig_outage_story_01.svg`
+- 元: `uccs_d4b_scan90/plots/outage_story_01/fig_outage_timeline.svg`
+- 生成:
+  - `python3 uccs_d4b_scan90/analysis/outage_story_trace.py ...`（詳細は `uccs_d4b_scan90/plots/outage_story_01/README.md` を参照）
+
+## 表（tab）
+
+### D3/D4/D4B/D4B-scan70の集約（条件別）
+
+- 出力: `results/final/tab/tab_summary_by_condition.csv`
+- 元（入力）:
+  - `uccs_d3_scan70/metrics/01/summary_by_condition.csv`
+  - `uccs_d4_scan90/metrics/01/summary_by_condition.csv`
+  - `uccs_d4b_scan90/metrics/01/summary_by_condition.csv`
+  - `uccs_d4b_scan70/metrics/01_fixed/summary_by_condition.csv`
+- 生成:
+  - `python3 results/final/scripts/build_tables.py --out results/final/tab/tab_summary_by_condition.csv`
+
+## メタ（meta）
+
+### RXログ仕様（アプリ向け）
+
+- `results/final/meta/rx_log_schema.md`</file><file path="results/stress_fixed/scan90/index.md"># scan90 index (S1/S4 × 100/500/1000/2000, scan duty 90%)
+- 最新 (v5: TL/Pout の **時間同期** を追加)
+  - 生成:
+    - `python3 scripts/analyze_stress_causal_real.py ... --out ..._full_scan90_v5.csv`
+    - `python3 scripts/aggregate_stress_causal_real_summary.py --in ..._full_scan90_v5.csv --out-* ..._v5.csv`
+  - `stress_causal_real_summary_1211_stress_full_scan90_v5.csv` : per-trial (pdr_raw/unique, TL/Pout/clamp率, E/Power, `tl_time_offset_ms`)
+  - `stress_causal_real_summary_1211_stress_modes_scan90_v5.csv` : per-trial trimmed + rx_dup_factor + `tl_time_offset_ms`
+  - `stress_causal_real_summary_1211_stress_agg_scan90_v5.csv` : (session, interval) mean/median/std
+  - `stress_causal_real_summary_1211_stress_agg_enriched_scan90_v5.csv` : agg + pout1s_excess, tl_mean_norm
+  - `missed_state_scan90_v4.csv` : missed-state（v5でもロジック同一。seq→idx=interval/100、truth範囲外はclampで除外）
+
+- 旧版 (v4: v3ロジック＋rx_dup_factor追加、**時間同期なし**)
+  - TL/Pout は RX ms と truth の開始位相ズレにより **不自然に小さく見える**ことがあるため、原則 v5 を参照。
+  - `stress_causal_real_summary_1211_stress_full_scan90_v4.csv` : per-trial
+  - `stress_causal_real_summary_1211_stress_modes_scan90_v4.csv` : per-trial trimmed + rx_dup_factor
+  - `stress_causal_real_summary_1211_stress_agg_scan90_v4.csv` : (session, interval) mean/median/std
+  - `stress_causal_real_summary_1211_stress_agg_enriched_scan90_v4.csv` : agg + pout1s_excess, tl_mean_norm
+  - `missed_state_scan90_v4.csv` : missed-state
+- 参考: `gap_stats_scan90.csv` : inter-packet gap p95/max per trial
+- 旧版: `_scan90.csv` / `_v2.csv` / `_v3.csv` は解析ロジック前 or dup_factor無しの出力。v2はseq→idxスケーリング不足を修正済みだが、v3でinterval倍数チェック＋clamp可視化、v4でdup_factor追加。
+
+補足定義メモ:
+- adv_count と rx_unique が +1 になる場合がある（seqは0始まり・inclusiveカウント／TXSDとRXの端点差異）。PDR比較は pdr_unique を主指標とし、pdr_raw・rx_dup_factor は重複/負荷の参考指標として扱う。
+- 参考: `gap_stats_scan90.csv` : inter-packet gap p95/max per trial
+- 旧版: `_scan90.csv` / `_v2.csv` などは解析ロジック前の出力。v2はseq→idxスケーリング不足を修正済みだが、v3でinterval倍数チェック＋clamp可視化を追加。</file><file path="uccs_d3_scan70/metrics/01/summary.md"># uccs_d3_scan70 metrics summary (v2)
+
+- source RX: `uccs_d3_scan70/data/01/RX`
+- source TXSD: `uccs_d3_scan70/data/01/TX`
+- truth: `Mode_C_2_シミュレート_causal/ccs/stress_causal_S4.csv` (n_steps=1800, dt=100ms)
+- selected RX trials: 010..018 (n=9)
+- selected TXSD trials: grouped by adv_count=[359, 1227, 1796] (n=9)
+- generated: 2025-12-16 20:57 (local)
+- command: `python3 uccs_d3_scan70/analysis/summarize_d3_run_v2.py --rx-dir uccs_d3_scan70/data/01/RX --txsd-dir uccs_d3_scan70/data/01/TX --out-dir uccs_d3_scan70/metrics/01`
+
+## Summary (mean ± std)
+| condition | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | adv_count | share100_time_est (RX tags) | share100_power_mix |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| S4_fixed100 | 0.0650±0.0282 | 1.342±0.025 | 0.304±0.017 | 209.9±0.5 | 1796.0±0.0 | 1.000±0.000 |  |
+| S4_fixed500 | 0.2846±0.0614 | 2.928±1.066 | 0.652±0.007 | 189.5±0.5 | 359.0±0.0 | 0.001±0.000 |  |
+| S4_policy | 0.0894±0.0373 | 1.400±0.071 | 0.343±0.017 | 202.1±0.1 | 1227.0±0.0 | 0.420±0.018 | 0.618 |
+
+## Notes
+- RX window: latest 9 trials that form 3 conditions × 3 repeats (duration&gt;=160s).
+- TXSD pairing: mtimeが信頼できないため、adv_count（tick_count）でクラスタリングして各条件3本を割り当て。
+  - filter: avg_power_mW &gt;= 150.0（古いログ混在を除外）
+- TL/Pout alignment: per-trial constant offset estimated from (step_idx*100ms - first_rx_ms(step_idx)).
+- TXSD adv_count is tick_count (1 tick per payload update); used as denominator for pdr_unique.
+- share100_time_est: estimated from RX tags (unique step_idx by interval); sanity only (RX has drops).</file><file path="results/mhealth_policy_eval/README.md"># mHealth 合成セッション オフライン方策評価
+- 生成データ: `data/mhealth_synthetic_sessions_v1/`（3 seeds×3本、U/CCS付き HAR 窓ログ）
+- 固定間隔メトリクス: `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_enriched_scan90_v5.csv`（TL/Pout の時間同期込み）
+- 評価スクリプト: `scripts/eval_policy_offline.py`
+  - 入力: HARログディレクトリ、固定メトリクスCSV
+  - 出力: 方策別の interval 割合 + 固定メトリクスとの期待値合成（pdr_unique, pout_1s, tl_mean_s, E_per_adv_uJ, avg_power_mW）
+  - デフォルト方策: U_ema / CCS_ema 閾値 (u_mid=0.15, u_high=0.30, c_mid=0.20, c_high=0.35, hysteresis=0.05, 初期500ms)
+  - 評価は `mask_eval_window==1` の窓のみ使用（境界±1s除外）。有効窓率 ≈ 0.762 を前提。
+- グリッドスイープ: `scripts/sweep_policy_pareto.py`（結果: `pareto_front/pareto_sweep.csv`, `pareto_front/pareto_summary.md`）
+  - グリッド: u_mid∈{0.10,0.15,0.20}, u_high∈{0.25,0.30,0.35}, c_mid∈{0.10,0.15,0.20}, c_high∈{0.25,0.30,0.35}, hysteresis∈{0.02,0.05,0.08}（u_high&gt;u_mid, c_high&gt;c_mid のみ）
+  - v5（時間同期あり）に差し替えると、pout_1s の水準や feasible 境界が変わりうる（下記の v6 を参照）。
+- スイープ可視化: `scripts/plot_pareto_sweep.py` → `pareto_front/pareto_plots.png`（左: pout_1s vs E_per_adv 散布図、右: δ=0.2 上位10のintervalシェア stacked bar）
+
+## コンテキスト混合版（stable→S1, transition→S4）
+- スクリプト: `eval_policy_offline.py` / `sweep_policy_pareto.py` に `--context-mixing` を追加。truth窓内遷移あり or `CCS_ema&gt;=0.30` を transition としてS4メトリクス、その他をS1メトリクスで合成。
+- 出力: `results/mhealth_policy_eval/pareto_front_v4_context/`（CSV/summary/plot/README）。δ=0.1なし。δ=0.2で pout_1s≈0.126–0.129、share100≈0.40–0.46、share2000≈0.52–0.58、avg_power≈200.48–200.50 mW（依然フラット）。
+- 解釈: 「いつ短くしたか」を入れるとQoSは改善する。電力軸は、固定メトリクスの avg_power をそのまま使うとフラットになりやすいので、必要に応じて外部 power table で上書きする。
+
+## Power table（sleep_evalからの上書き）
+- 目的: `avg_power_mW_mean` を「固定intervalの実測テーブル」で置き換え、share100削減がそのまま省電力に効く形で評価する。
+- 主線テーブル: `results/mhealth_policy_eval/power_table_sleep_eval_2025-12-14_interval_sweep_sleep_on_n9_10.csv`
+  - 生成元: `sleep_eval_scan90/metrics/on_off_test_100~2000_02/txsd_power_summary.csv`（TXSD mean_p_mW, sleep_onのみ, n=9–10, 2025-12-14）
+  - 値（mW）: 100=198.56, 500=180.80, 1000=178.62, 2000=177.47
+  - 適用: `scripts/eval_policy_offline.py` / `scripts/sweep_policy_pareto.py` / `scripts/build_policy_table.py` の `--power-table` で上書き。
+  - 補助（sleep効果の切り分け）: `sleep_eval_scan90/metrics/on_off_test_01/txsd_power_diff.md`（DoD=-0.25mW, n=2）
+
+## 再現コマンド（デフォルト方策）
+```bash
+.venv_mhealth310/bin/python scripts/eval_policy_offline.py \
+  --har-dir data/mhealth_synthetic_sessions_v1/sessions \
+  --metrics results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_enriched_scan90_v5.csv \
+  --power-table results/mhealth_policy_eval/power_table_sleep_eval_2025-12-14_interval_sweep_sleep_on_n9_10.csv \
+  --context-mixing \
+  --out-json results/mhealth_policy_eval/policy_eval_default.json
+```
+
+## 結果サマリ（policy_eval_default.json）
+- intervalシェア: 100ms 47.1%, 500ms 9.2%, 2000ms 43.7%（1000msは未使用）
+- 期待値（context mixing: stable→S1 / transition→S4 + power table 反映）
+  - pdr_unique ≈ 0.909
+  - pout_1s ≈ 0.172
+  - tl_mean_s ≈ 4.38
+  - E_per_adv_uJ ≈ 193,566
+  - avg_power_mW ≈ 187.71
+
+## 図表
+- 比較表: `policy_table.md`
+- バーチャート: `policy_table.png`（pdr_unique / pout_1s / tl_mean_s / E_per_adv を可視化）
+- レター用δ帯（tight, scan90 v5, power table=robust）: `letter_v3_scan90_v5_delta_tight_sleep_on_n9_10/fig_delta_band.png`
+- 実機100↔500用 δ帯（tight, actions={100,500}）: `letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/fig_delta_band.png`
+
+## メモ
+- 有効窓のみで評価しているため、mask_window_zero_ratio≈0.238（境界重畳による無効化）が考慮済み。
+- 1000msが選ばれないのは閾値設定による。閾値/ヒステリシスを調整し、500↔2000 だけでなく 1000ms を使う設定も試行可能。
+
+## 現在の結論と次アクション（2025-12-14）
+- 事実（v5）: TL/Pout は開始位相ズレ（RX `ms` と truth）を補正しないと歪むため、以後は scan90 v5 を基準にする（`docs/metrics_definition.md` の「時間同期」参照）。
+- 更新（v7）: scan90 v5 + power table(robust) + context mixing の Pareto sweep を `results/mhealth_policy_eval/pareto_front_v7_power_table_scan90_v5_sleep_on_n9_10/` に出力（例: δ=0.03 feasible 36/243）。
+- 更新（v8, actions={100,500}）: 実機の行動空間に揃えた2値版の Pareto sweep を `results/mhealth_policy_eval/pareto_front_v8_power_table_scan90_v5_sleep_on_n9_10_actions_100_500/` に出力（δ=0.03 feasible 243/243）。
+- 次にやること:
+  1) δ tight（0.02/0.03/0.04）をレター主線として凍結し、候補点（特に δ=0.03のpower-min）を実機で成立確認する。  
+  2) 実機の動的検証は「100↔500（2値）」から開始し、Fixed 100/500 と最小本数で比較する（動的はTX payloadに時刻/状態を入れて同期を担保）。
+     - 実機用の代表点（例, δ=0.03 power-min, actions={100,500}）: `letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/summary.md` を参照。</file><file path="docs/TODO.md"># エッジHAR TODO（Mode C2′ / ストレス固定 / 因果CCS・self-UCB 実機検証）
+
+- 最終更新: 2025-12-16
+- 対象スコープ:
+  - **Mode C2′（ラベル再生）**を用いた「広告間隔制御」の評価（固定 vs 因果CCS vs self-UCB）。
+  - まずは **ストレスラベル S1/S4** を主ケースとして、実測とシミュを整合させて論文化に耐える形にする。
+
+- このファイルの役割:
+  - **次に何をするか**（優先度付きTODO）を管理する。
+  - **凍結した仕様/パラメータ**と、再検討トリガを残す。
+  - 実験ログは `logs/worklog_*.txt`、決定理由は `docs/decision_log_*.md` に残す。
+
+---
+
+## 0. TL;DR（いま何が言えるか）
+
+### 0.1 2次情報（他AIに渡してもよい粒度）
+
+- **因果CCS（stress causal）シミュレーション**は完了。
+  - 生成: `scripts/generate_modec2_stress_causal.py`
+  - ラベル/真値: `Mode_C_2_シミュレート_causal/ccs/stress_causal_S1..S6.csv` と `manifest_stress_causal.json`
+  - シミュ集計: `Mode_C_2_シミュレート_causal/sim_timeline_metrics_causal_agg.csv`
+    - FIXED_100: acc=1.0
+    - FIXED_500: acc≈0.972, TL_mean≈2.9s
+    - FIXED_1000: acc≈0.935, TL_mean≈5.3s
+    - FIXED_2000: acc≈0.870, TL_mean≈9.4s
+    - CCS_causal: acc≈0.916, TL_mean≈6.8s
+  - PDRスイープ: `Mode_C_2_シミュレート_causal/sim_timeline_metrics_causal_pdr_sweep.csv`（順位が崩れないことを確認）
+
+- **固定間隔の電力基準（ΔE/adv）**は Mode_C の実測を参照する方針で固定。
+  - 参照: `data/1202配線変更後/Mode_C_2_03/pdr_energy_summary.csv`
+  - 例（E_per_adv_uJ_mean）: 100ms ≈ 19,872µJ / 500ms ≈ 96,739µJ / 1000ms ≈ 197,036µJ / 2000ms ≈ 394,850µJ
+
+- **実機：ストレス固定（scan90%）フルセット（S1/S4×100/500/1000/2000）**が揃っており、解析も完了。
+  - データ: `data/1211_modeC2prime_stress_fixed/full_scan90/`
+  - per-trial: `results/stress_causal_real_summary_1211_stress_full_scan90.csv`
+  - 集約: `..._modes_scan90.csv`, `..._agg_scan90.csv`, `..._agg_enriched_scan90.csv`
+  - 現状の読みどころ:
+    - 100ms の `pdr_unique` が **0.80前後まで改善**（scan duty 90% が効いた）
+    - 500/1000/2000 は `pdr_unique` がほぼ 1.0（TXSD adv_count 基準でクランプしている前提）
+    - ただし **TL/Pout が想定より大きい**（ストレス列の遷移の扱い／真値定義／サブサンプルの有無の確認が必要）
+
+### 0.2 2025-12-14 追記（レター主線: v7 / robust power table）
+
+- レター最速ルートは「**U/CCS→interval（ルールベース）を主結果**」に寄せる（Safe-MABはFuture Work）。
+  - 決定ログ: `docs/decision_log_2025-12-13_letter_route.md`
+- 固定intervalの電力テーブルを robust 版（sleep_on, n=9–10）で凍結し、オフライン評価の power 軸を置換（v7を主線）。
+  - power table（主線）: `results/mhealth_policy_eval/power_table_sleep_eval_2025-12-14_interval_sweep_sleep_on_n9_10.csv`
+  - Pareto（power table反映 + context mixing, scan90 v5）: `results/mhealth_policy_eval/pareto_front_v7_power_table_scan90_v5_sleep_on_n9_10/pareto_summary.md`
+  - レター用δ帯（tight, 0.02/0.03/0.04）: `results/mhealth_policy_eval/letter_v3_scan90_v5_delta_tight_sleep_on_n9_10/fig_delta_band.png`
+  - 候補（δ=0.03 power-min）: params=(0.10,0.35,0.15,0.35,0.08) → avg_power≈195.09mW / pout_1s≈0.0297（Fixed100比 −3.47mW）
+  - 補助（sleep ON/OFF差分）: `sleep_eval_scan90/metrics/on_off_test_01/txsd_power_diff.md`（DoD=-0.25mW, n=2）
+  - 重要: 電力低下の主効果は 100→500ms（≈−17.76mW）。500→2000msは小さい（≈−3.33mW）。
+
+### 0.3 いま残っている一番重要な論点
+
+- **TL/Pout の「定義」と「実装」が論文で説明できる形に固定されているか**
+  - 例: 2000ms で `Pout(1s)` に理論下限が出るかどうかは、
+    - 「遷移を 100ms 真値で取る（連続時間に近い評価）」なのか
+    - 「TXが実際に送ったサブサンプル列で遷移を取る（可観測遷移のみ評価）」なのか
+    で結論が変わる。
+  - ここを曖昧にすると、**scan90 の改善や CCS/self-UCB の優位性を主張できない**。
+
+### 0.4 次のゲート（ここを超えると後半が楽）
+
+- Gate-0（図表の土台）: 
+  - scan90 固定フルセットを **「定義が固定された指標」**で集約し、
+  - 実測 vs シミュの差（桁差）が **説明可能な仮説**（burst loss / 可観測性 / 真値の粒度）で書ける。
+
+---
+
+## 1. 凍結仕様（再現性のために明文化）
+
+### 1.1 解析指標（PDR/TL/Pout）
+
+- `adv_count` は **TXSD の summary** を真値とする（RX側で再推定しない）。
+- `pdr_raw` / `pdr_unique` を併記する。
+  - `pdr_raw = min(rx_count, adv_count) / adv_count`（重複込みの受信量。&gt;1 を避けるためクランプ）
+  - `pdr_unique = min(rx_unique_seq, adv_count) / adv_count`（seqユニークのカバレッジ指標）
+- TL/Pout は「どの真値の遷移」を対象にしているかが本質。
+  - **現行実装の定義を `docs/metrics_definition.md` に固定**し、
+  - もし実装が「サブサンプル真値」になっているなら、その意図を明記する。
+
+&gt; TODO（重要）: `scripts/analyze_stress_causal_real.py` が遷移抽出に使う truth が
+&gt; - 100msの完全列なのか
+&gt; - interval stepCount で間引いた列なのか
+&gt; を 1回確認して、ドキュメント定義と一致させる。
+
+### 1.2 truth 長さ（末端遷移）
+
+- TX は `EFFECTIVE_LEN=6352`（100msステップ）で再生範囲をクランプ。
+- truth も同じ長さにクリップする（末端遷移が TX 範囲外に出て TL が暴れるのを防ぐ）。
+
+### 1.3 因果CCS（A-3 凍結）
+
+- CCS 形: `CCS = 0.7*(1−U) + 0.3*S`
+- `S_causal = clip(time_since_last_transition / 5.0, 0, 1)`
+- `U_causal = clip(1 − S_causal + N(0, 0.05^2), 0, 1)`
+- `T_adv` 写像（stress凍結）:
+  - CCS &lt; 0.30 → 100ms
+  - 0.30 ≤ CCS &lt; 0.70 → 500ms
+  - CCS ≥ 0.70 → 2000ms
+- stressケースでは **ヒステリシス無し**（まずは評価を簡単にするため）
+
+### 1.4 RX スキャン設定（scan90 を主）
+
+- `RX_ModeC2prime_1210`:
+  - `SCAN_INTERVAL_MS=100, SCAN_WINDOW_MS=90`（duty 90%）
+  - `ActiveScan=false`, duplicate filter OFF
+- scan50 のデータは「改善前の参考」として残し、主張は scan90 で行う。
+
+### 1.5 再検討トリガ（値を変えるべき時）
+
+- CCSパラメータ（閾値/重み）
+  - **固定フルセット（scan90）と同じ定義の TL/Pout** で CCS_causal が FIXED_500/1000 に勝てない場合
+  - 2000ms 偏重で missed-state が増えすぎる場合
+- RX設定
+  - scan90 でも 100ms の `pdr_unique &lt; 0.7` が再発する場合（環境起因 vs 設定起因を切り分け）
+- 指標定義
+  - `Pout(1s)` の下限議論が食い違う場合 → まず定義/実装を揃える（パラメータ調整ではなく）
+
+---
+
+## 2. 成果物インデックス（場所が分かることが最優先）
+
+### 2.1 実機データ
+
+- scan90 固定フルセット: `data/1211_modeC2prime_stress_fixed/full_scan90/`
+  - RX: `RX/rx_trial_042..049.csv`
+  - TXSD: `TX/trial_048_on..055_on.csv`
+  - manifest: `manifest.csv`（S1/S4 × 100/500/1000/2000 の対応）
+
+### 2.2 実機解析出力
+
+- per-trial: `results/stress_causal_real_summary_1211_stress_full_scan90.csv`
+- 集約（modes/agg/enriched）:
+  - `results/stress_causal_real_summary_1211_stress_modes_scan90.csv`
+  - `results/stress_causal_real_summary_1211_stress_agg_scan90.csv`
+  - `results/stress_causal_real_summary_1211_stress_agg_enriched_scan90.csv`
+- gap 統計: `results/gap_stats_scan90.csv`
+- missed-state（定義を固定した版）: `results/missed_state_scan90_v2.csv`
+
+### 2.3 シミュレーション
+
+- `Mode_C_2_シミュレート_causal/`
+  - `ccs/stress_causal_S*.csv`
+  - `sim_timeline_metrics_causal_agg.csv`
+  - `sim_timeline_metrics_causal_pdr_sweep.csv`
+
+### 2.4 スクリプト
+
+- `scripts/generate_modec2_stress_causal.py`（因果CCS生成）
+- `scripts/analyze_stress_causal_real.py`（RX/TXSD→PDR/TL/Pout/E/Power）
+- `scripts/plot_stress_causal_real_vs_sim.py`（実測vsシミュ図表、matplotlib）
+- `scripts/export_labels_all_to_csv.py`（labels_all.h→truth CSV; EFFECTIVE_LEN でclip）
+
+---
+
+## 3. 優先度付き TODO（最短で論文化できる順）
+
+&gt; 記法: (ME)=実機/配線/取得が必要、(AI)=ローカル処理・解析のみ、(ME+AI)=両方
+
+### P0-Letter: U/CCS→interval（mHealth合成, scan90 v5）
+
+- [x] (AI) v7（robust power table: sleep_on n=9–10）で Pareto/δ tight を再生成して凍結
+  - Pareto v7: `results/mhealth_policy_eval/pareto_front_v7_power_table_scan90_v5_sleep_on_n9_10/pareto_summary.md`
+  - δ tight v3: `results/mhealth_policy_eval/letter_v3_scan90_v5_delta_tight_sleep_on_n9_10/summary.md`
+
+- [x] (AI) D0: 行動空間を **{100,500}** に限定して δ=0.03 の代表ポリシーを再選定（実機比較の整合性）
+  - Pareto v8（actions={100,500}）: `results/mhealth_policy_eval/pareto_front_v8_power_table_scan90_v5_sleep_on_n9_10_actions_100_500/pareto_summary.md`
+  - δ tight v4（actions={100,500}）: `results/mhealth_policy_eval/letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/summary.md`
+
+- [x] (ME+AI) D1: 実機（100↔500）最小セットで成立確認（Fixed100 / Fixed500 / Policy, 各n=3）
+  - データ: `uccs_d1_scan90/data/01/`
+  - 集計: `uccs_d1_scan90/metrics/01/summary.md`
+  - 動的payload: `&lt;tx_elapsed_ms&gt;_&lt;label&gt;`（fixed=F100/F500, policy=P100/P500）
+
+- [x] (AI) D2準備（最優先）: 動的QoS（TL/Pout）を評価できる D2 専用ディレクトリ＋スケッチを追加
+  - index: `uccs_d2_scan90/README.md`
+  - truth（flash埋め込み）: `uccs_d2_scan90/src/tx/stress_causal_s1_s4_180s.h`（S1/S4, 100msグリッド）
+  - TX/RX/TXSD（Arduino）:
+    - `uccs_d2_scan90/src/tx/TX_UCCS_D2_SCAN90/TX_UCCS_D2_SCAN90.ino`
+    - `uccs_d2_scan90/src/rx/RX_UCCS_D2_SCAN90/RX_UCCS_D2_SCAN90.ino`
+    - `uccs_d2_scan90/src/txsd/TXSD_UCCS_D2_SCAN90/TXSD_UCCS_D2_SCAN90.ino`
+  - D2 payload: `&lt;step_idx&gt;_&lt;tag&gt;`（動的でも time axis が復元できる形）
+
+- [x] (ME+AI) D2: 実機で動的QoS（TL/Pout）を `step_idx` 起点で確定（S1/S4 × Fixed100/Fixed500/Policy）
+  - データ（今回の取得分）:
+    - RX: `uccs_d2_scan90/data/RX/`（選定: rx_trial_009..026, n=18）
+    - TXSD: `uccs_d2_scan90/data/TX/`（SD `/logs/` をコピー。混在あり）
+  - 解析:
+    - スクリプト: `uccs_d2_scan90/analysis/summarize_d2_run.py`
+    - 出力: `uccs_d2_scan90/metrics/01/summary.md` / `uccs_d2_scan90/metrics/01/per_trial.csv`
+  - 観測（要注意）:
+    - policy が `share100_time_est≈0.99`（RXタグ由来sanity）かつ `adv_count≈1787` で、実質 **100ms張り付き**（省電力が出ない）。
+    - 原因候補: D2で使っている `stress_causal_*` の `CCS` は「変化」ではなく「安定度（高いほどstable）」なので、実機実装側で **CCSを反転（CCS&apos;=1-CCS）** する等、定義整合が必要。
+
+- [ ] (AI) 実測点を `pout_1s vs avg_power_mW` 図に重ね、予測↔実測の差分を `summary.md` に追記
+
+- [x] (ME+AI) D2b: CCS反転でpolicy張り付き解消（S1/S4 × Fixed100/Fixed500/Policy, 各n=3）
+  - データ: `uccs_d2_scan90/data/B/`
+  - 集計: `uccs_d2_scan90/metrics/B/summary.md`
+  - 図: `uccs_d2_scan90/plots/d2b_B_power_vs_pout.png`（power vs pout + share100注釈）
+  - 備考: policyの `avg_power_mW/adv_count/pdr_unique` が空欄になる問題は `uccs_d2_scan90/analysis/summarize_d2_run.py` 側でペアリング復元を修正して解消。
+
+- [x] (ME+AI) D2b 追加取得を統合して n=6 に拡張（run B + B/02）
+  - 集計: `uccs_d2_scan90/metrics/B_n6/summary.md`
+  - 図: `uccs_d2_scan90/plots/d2b_B_n6_power_vs_pout.png`
+
+- [x] (AI) D4準備: U ablation（S4, scan90）の専用ディレクトリ＋スケッチ＋集計スクリプトを追加
+  - index: `uccs_d4_scan90/README.md`
+  - TX/RX/TXSD（Arduino）:
+    - `uccs_d4_scan90/src/tx/TX_UCCS_D4_SCAN90/TX_UCCS_D4_SCAN90.ino`
+    - `uccs_d4_scan90/src/rx/RX_UCCS_D4_SCAN90/RX_UCCS_D4_SCAN90.ino`
+    - `uccs_d4_scan90/src/txsd/TXSD_UCCS_D4_SCAN90/TXSD_UCCS_D4_SCAN90.ino`
+  - 集計: `uccs_d4_scan90/analysis/summarize_d4_run_v2.py`
+  - Ablation: U-shuffle（seed=0xD4B40201、CCSは `1-CCS` で変化度化）
+
+- [x] (ME+AI) D4: U ablation（S4, scan90, 4条件×n=3）を取得して集計
+  - データ: `uccs_d4_scan90/data/01/`
+  - 出力: `uccs_d4_scan90/metrics/01/summary.md`
+
+- [x] (ME+AI) D4: Uあり/なし（U-shuffle）の差を1枚図にする（power vs pout + share100）
+  - 図: `uccs_d4_scan90/plots/d4_01_power_vs_pout.png`
+
+- [x] (AI) D4B準備: CCS ablation（S4, scan90）の専用ディレクトリ＋スケッチ＋集計スクリプトを追加
+  - index: `uccs_d4b_scan90/README.md`
+  - TX/RX/TXSD（Arduino）:
+    - `uccs_d4b_scan90/src/tx/TX_UCCS_D4B_SCAN90/TX_UCCS_D4B_SCAN90.ino`
+    - `uccs_d4b_scan90/src/rx/RX_UCCS_D4B_SCAN90/RX_UCCS_D4B_SCAN90.ino`
+    - `uccs_d4b_scan90/src/txsd/TXSD_UCCS_D4B_SCAN90/TXSD_UCCS_D4B_SCAN90.ino`
+  - 集計: `uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py`
+  - Ablation: CCS-off（U-only, 100↔500）
+
+- [x] (ME+AI) D4B: CCS-off（U-only）で「CCSが効く」を切り分け（S4, scan90, 4条件×n=3）
+  - データ: `uccs_d4b_scan90/data/01/`
+  - 出力: `uccs_d4b_scan90/metrics/01/summary.md`
+  - 図: `uccs_d4b_scan90/plots/d4b_01_power_vs_pout.svg`
+  - 追加解析: `uccs_d4b_scan90/plots/ccs_timing_01/`（遷移近傍への100ms割当て可視化）
+  - 差分CI: `uccs_d4b_scan90/metrics/01/effects_ci.md`（bootstrap, per-trial）
+
+- [x] (AI) 役割分離の統合図（D3/D4/D4Bを1枚に統合）
+  - 図: `uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.svg`
+
+- [x] (AI) 主図を1枚に固定（scan70/scan90を同一座標に重ねる：x=avg_power, y=pout_1s, bootstrap CI）
+  - 図: `uccs_d4b_scan90/plots/mainfig_scan70_scan90.svg`
+  - script: `uccs_d4b_scan90/analysis/plot_mainfig_scan70_scan90.py`
+
+- [x] (AI) 効果量の差分+不確かさ（bootstrap CI）を算出（D3/D4/D4B）
+  - script: `scripts/bootstrap_effects.py`
+  - D4B: `uccs_d4b_scan90/metrics/01/effects_ci.md`
+  - D4: `uccs_d4_scan90/metrics/01/effects_ci.md`
+  - D3: `uccs_d3_scan70/metrics/01/effects_ci.md`
+
+- [x] (AI) α正規化（fixed100/500で正規化した電力配分）×QoS の図を作成（CCS寄与を刺す）
+  - 図: `uccs_d4b_scan90/plots/alpha_vs_pout_overview.svg`
+
+- [x] (AI) D4B: Poutを生んだ少数イベント（TL&gt;1s）を特定し、失敗イベント中心のストーリー図を作成
+  - script: `uccs_d4b_scan90/analysis/outage_story_trace.py`
+  - 出力: `uccs_d4b_scan90/plots/outage_story_01/fig_outage_timeline.svg`
+  - 付随: `uccs_d4b_scan90/plots/outage_story_01/outage_ranking.csv`, `uccs_d4b_scan90/plots/outage_story_01/per_transition.csv`
+
+- [x] (AI) D4B: Poutの寄与分解（尾の集中度）と条件付きタイミング（失敗遷移に条件付け）を追加
+  - script: `uccs_d4b_scan90/analysis/pout_tail_decomposition.py`
+  - 出力: `uccs_d4b_scan90/plots/pout_tail_01/`
+  - script: `uccs_d4b_scan90/analysis/ccs_timing_analysis_conditional.py`
+  - 出力: `uccs_d4b_scan90/plots/ccs_timing_conditional_01/fig_event_triggered_p100_conditional.svg`
+
+- [x] (AI) D3準備: scan70%（interval=100ms, window=70ms）の専用ディレクトリ＋スケッチを追加
+  - index: `uccs_d3_scan70/README.md`
+  - TX/RX/TXSD（Arduino）:
+    - `uccs_d3_scan70/src/tx/TX_UCCS_D3_SCAN70/TX_UCCS_D3_SCAN70.ino`
+    - `uccs_d3_scan70/src/rx/RX_UCCS_D3_SCAN70/RX_UCCS_D3_SCAN70.ino`
+    - `uccs_d3_scan70/src/txsd/TXSD_UCCS_D3_SCAN70/TXSD_UCCS_D3_SCAN70.ino`
+
+- [x] (ME) D3: scan duty を 90→70% に落として適応性を確認（S4, fixed100/fixed500/policy, 各n=3）
+  - データ: `uccs_d3_scan70/data/01/`
+
+- [x] (AI) D3: 集計（pout/TL/power/share）と図（power vs pout）を生成
+  - 集計: `uccs_d3_scan70/metrics/01/summary.md`
+  - 図: `uccs_d3_scan70/plots/d3_01_power_vs_pout.png`
+  - 備考: scan70では `share100_time_est (RX tags)` が過小評価しやすいため、`share100_power_mix`（power-mix推定）を主に参照する。
+
+### P0: 定義固定 + 図表化（最優先）
+
+- [x] (AI) **TL/Pout の真値定義を確定（v5）**
+  - truth 遷移は **100ms真値**（`truth[idx,label]`）から抽出。
+  - RXログの `ms` は開始位相ズレが入り得るため、`seq×interval_ms` から **定数オフセット**を推定して時間同期してから TL/Pout を計算（`tl_time_offset_ms`）。
+  - 出力: `results/stress_fixed/scan90/*_scan90_v5.csv`（v4は時間同期なしのため原則参照しない）。
+
+- [ ] (AI) scan90 固定フルセットの図表（論文用）を確定
+  - 図1: intervalごとの `pdr_unique`, `Pout(1s)`, `TL_mean`, `E_per_adv`, `avg_power`
+  - 図2: 実測 vs シミュ（pdr_sweep から最接近でマッチ）比較（`results/compare_*` を再生成）
+  - 図3: scan50→scan90 の改善（特に 100ms の pdr_unique）
+
+- [ ] (AI) 「実測がシミュより悪い」説明の文章骨子を作る
+  - 候補: burst loss（時間相関ロス）、可観測遷移の欠落（間引き）、干渉・スキャン窓
+  - どれが効いているかは gap_stats / missed-state / 実測の重尾（p95/max）で裏付ける
+
+### P1: CCS_causal 実機（ストレス S1/S4）
+
+- [ ] (ME+AI) TX に CCS_causal モードを追加（固定100/500/2000と同じI/Oでログが取れる形）
+  - 実装方式: まずは **T_adv 列再生（オフライン決定）**が安全
+  - 解析側は manifest に mode=`CCS_causal` を足すだけで回るようにする
+
+- [ ] (ME) CCS_causal を S1/S4 で実行（E1）
+  - 推奨: 1 trialずつ（10.6分×2本）→ まずは動作確認
+  - その後、外れが大きい条件（2000偏重など）は追加1本
+
+- [ ] (AI) 固定（scan90）と CCS_causal の比較表/図（同指標・同定義）
+  - 主張の形: 「同電力でQoS↑」or「同QoSで電力↓」のどちらかに寄せる
+
+### P2: self-UCB（不確実性駆動）
+
+- [ ] (AI) self-UCB の設計（状態・報酬・制約）を 1ページで固定
+  - 状態候補: (S,U,CCS,直近遷移からの時間, gap統計)
+  - 報酬候補: −λ·E + QoS（遅延/アウトエイジ）
+  - まずはシミュで λ をスイープして Pareto を出す
+
+- [ ] (ME+AI) self-UCB の TX 実装（まずはオフラインpolicy再生でも可）
+
+### P3: チャネル劣化（E2/E3）
+
+- [ ] (ME) PDR を意図的に落とす環境を 1種類だけ固定（距離/遮蔽/干渉）
+- [ ] (ME) 固定100 と CCS_causal と self-UCB を最小本数で比較（各1本）
+
+### P4: 論文・スライド
+
+- [ ] (AI) 章立てに合わせて図表を配置（少なくとも「固定 vs CCS_causal」を主結果に）
+- [ ] (AI) 実装詳細（指標定義/凍結パラメータ/配線）を Appendix に逃がす
+
+---
+
+## 4. Done（主要な完了項目）
+
+- [x] 因果CCSのストレス生成（A-1）
+- [x] 因果CCSシミュ（PDR=1）＋集約（A-1/A-2）
+- [x] A-3（CCS形/しきい値/重み）凍結
+- [x] A-4（PDRスイープ）で順位安定性チェック
+- [x] 実機解析スクリプト `analyze_stress_causal_real.py` の整備（pdr_raw/pdr_unique対応、manifest対応）
+- [x] ストレス固定フルセット（scan90）取得・解析（S1/S4×100/500/1000/2000）
+
+---
+
+## 5. 付記（運用ルール）
+
+- **データ命名**: 解析が走る最小情報を `manifest.csv` に持たせる（trial_id/セッション/interval/真値/モード）。
+- **短いabort試行**は `manifest` から除外（残す場合は `mode=ABORT` 等で明示）。
+- **1本増やす前に**: 指標定義と解析の一致を優先（同じバグを増幅させない）。</file></files></repomix>

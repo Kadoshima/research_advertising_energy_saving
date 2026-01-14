@@ -1,86 +1,100 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">\n<style>\n  text { font-family: "Times New Roman", serif; fill: #111; }\n  .axis { stroke: #111; stroke-width: 1; }\n  .grid { stroke: #ddd; stroke-width: 1; }\n  .tick { stroke: #111; stroke-width: 1; }\n</style>\n<text x="480.0" y="22" font-size="16" text-anchor="middle">Policy vs U-only (paired): Pout(1s)</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+<rect x="0" y="0" width="100%" height="100%" fill="#fff"/>
+<style>
+  text { font-family: "Helvetica", "Arial", sans-serif; fill: #111; }
+  .title { font-size: 16px; font-weight: 600; }
+  .axis { stroke: #111; stroke-width: 1.2; shape-rendering: crispEdges; }
+  .grid { stroke: #e6e6e6; stroke-width: 1; shape-rendering: crispEdges; }
+  .tick { stroke: #111; stroke-width: 1.2; shape-rendering: crispEdges; }
+  .tick-label { font-size: 12px; fill: #222; }
+  .axis-label { font-size: 14px; font-weight: 500; }
+  .series-line { fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .pt { stroke: #111; stroke-width: 0.6; }
+  .legend-bg { fill: #fff; fill-opacity: 0.85; stroke: #cfcfcf; stroke-width: 1; }
+</style>
+<text class="title" x="480.0" y="22" text-anchor="middle">Policy vs U-only (paired): Pout(1s)</text>
 <line class="axis" x1="80" y1="460" x2="475.0" y2="460" />
 <line class="axis" x1="80" y1="40" x2="80" y2="460" />
 <line class="grid" x1="80.0" y1="40" x2="80.0" y2="460" />
 <line class="tick" x1="80.0" y1="460" x2="80.0" y2="466" />
-<text x="80.0" y="480" font-size="12" text-anchor="middle">1.00</text>
+<text class="tick-label" x="80.0" y="480" text-anchor="middle">1.00</text>
 <line class="grid" x1="475.0" y1="40" x2="475.0" y2="460" />
 <line class="tick" x1="475.0" y1="460" x2="475.0" y2="466" />
-<text x="475.0" y="480" font-size="12" text-anchor="middle">2.00</text>
+<text class="tick-label" x="475.0" y="480" text-anchor="middle">2.00</text>
 <line class="grid" x1="80" y1="460.0" x2="475.0" y2="460.0" />
 <line class="tick" x1="74" y1="460.0" x2="80" y2="460.0" />
-<text x="70" y="464.0" font-size="12" text-anchor="end">0.000</text>
+<text class="tick-label" x="70" y="460.0" text-anchor="end" dominant-baseline="middle">0.000</text>
 <line class="grid" x1="80" y1="407.8183731508136" x2="475.0" y2="407.8183731508136" />
 <line class="tick" x1="74" y1="407.8183731508136" x2="80" y2="407.8183731508136" />
-<text x="70" y="411.8183731508136" font-size="12" text-anchor="end">0.010</text>
+<text class="tick-label" x="70" y="407.8183731508136" text-anchor="end" dominant-baseline="middle">0.010</text>
 <line class="grid" x1="80" y1="355.6367463016272" x2="475.0" y2="355.6367463016272" />
 <line class="tick" x1="74" y1="355.6367463016272" x2="80" y2="355.6367463016272" />
-<text x="70" y="359.6367463016272" font-size="12" text-anchor="end">0.020</text>
+<text class="tick-label" x="70" y="355.6367463016272" text-anchor="end" dominant-baseline="middle">0.020</text>
 <line class="grid" x1="80" y1="303.45511945244084" x2="475.0" y2="303.45511945244084" />
 <line class="tick" x1="74" y1="303.45511945244084" x2="80" y2="303.45511945244084" />
-<text x="70" y="307.45511945244084" font-size="12" text-anchor="end">0.030</text>
+<text class="tick-label" x="70" y="303.45511945244084" text-anchor="end" dominant-baseline="middle">0.030</text>
 <line class="grid" x1="80" y1="251.2734926032544" x2="475.0" y2="251.2734926032544" />
 <line class="tick" x1="74" y1="251.2734926032544" x2="80" y2="251.2734926032544" />
-<text x="70" y="255.2734926032544" font-size="12" text-anchor="end">0.040</text>
+<text class="tick-label" x="70" y="251.2734926032544" text-anchor="end" dominant-baseline="middle">0.040</text>
 <line class="grid" x1="80" y1="199.091865754068" x2="475.0" y2="199.091865754068" />
 <line class="tick" x1="74" y1="199.091865754068" x2="80" y2="199.091865754068" />
-<text x="70" y="203.091865754068" font-size="12" text-anchor="end">0.050</text>
+<text class="tick-label" x="70" y="199.091865754068" text-anchor="end" dominant-baseline="middle">0.050</text>
 <line class="grid" x1="80" y1="146.91023890488157" x2="475.0" y2="146.91023890488157" />
 <line class="tick" x1="74" y1="146.91023890488157" x2="80" y2="146.91023890488157" />
-<text x="70" y="150.91023890488157" font-size="12" text-anchor="end">0.060</text>
+<text class="tick-label" x="70" y="146.91023890488157" text-anchor="end" dominant-baseline="middle">0.060</text>
 <line class="grid" x1="80" y1="94.72861205569518" x2="475.0" y2="94.72861205569518" />
 <line class="tick" x1="74" y1="94.72861205569518" x2="80" y2="94.72861205569518" />
-<text x="70" y="98.72861205569518" font-size="12" text-anchor="end">0.070</text>
+<text class="tick-label" x="70" y="94.72861205569518" text-anchor="end" dominant-baseline="middle">0.070</text>
 <line class="grid" x1="80" y1="42.54698520650879" x2="475.0" y2="42.54698520650879" />
 <line class="tick" x1="74" y1="42.54698520650879" x2="80" y2="42.54698520650879" />
-<text x="70" y="46.54698520650879" font-size="12" text-anchor="end">0.080</text>
+<text class="tick-label" x="70" y="42.54698520650879" text-anchor="end" dominant-baseline="middle">0.080</text>
 <line class="grid" x1="80" y1="-9.634641642677536" x2="475.0" y2="-9.634641642677536" />
 <line class="tick" x1="74" y1="-9.634641642677536" x2="80" y2="-9.634641642677536" />
-<text x="70" y="-5.634641642677536" font-size="12" text-anchor="end">0.090</text>
-<text x="277.5" y="500" font-size="14" text-anchor="middle">Condition</text>
-<text x="30" y="250.0" font-size="14" text-anchor="middle" transform="rotate(-90 30,250.0)">Pout(1s)</text>
+<text class="tick-label" x="70" y="-9.634641642677536" text-anchor="end" dominant-baseline="middle">0.090</text>
+<text x="277.5" y="500" class="axis-label" text-anchor="middle">Condition</text>
+<text x="30" y="250.0" class="axis-label" text-anchor="middle" transform="rotate(-90 30,250.0)">Pout(1s)</text>
 <line x1="80.0" y1="205.45802422966875" x2="475.0" y2="205.45802422966875" stroke="#999" stroke-width="1" />
-<circle cx="80.0" cy="205.45802422966875" r="4" fill="#d62728" stroke="#111" stroke-width="0.5" />
-<circle cx="475.0" cy="205.45802422966875" r="4" fill="#ff7f0e" stroke="#111" stroke-width="0.5" />
+<circle class="pt" cx="80.0" cy="205.45802422966875" r="4" fill="#d62728" />
+<circle class="pt" cx="475.0" cy="205.45802422966875" r="4" fill="#ff7f0e" />
 <line x1="80.0" y1="78.18181818181824" x2="475.0" y2="205.45802422966875" stroke="#999" stroke-width="1" />
-<circle cx="80.0" cy="78.18181818181824" r="4" fill="#d62728" stroke="#111" stroke-width="0.5" />
-<circle cx="475.0" cy="205.45802422966875" r="4" fill="#ff7f0e" stroke="#111" stroke-width="0.5" />
+<circle class="pt" cx="80.0" cy="78.18181818181824" r="4" fill="#d62728" />
+<circle class="pt" cx="475.0" cy="205.45802422966875" r="4" fill="#ff7f0e" />
 <line x1="80.0" y1="78.18181818181824" x2="475.0" y2="205.45802422966875" stroke="#999" stroke-width="1" />
-<circle cx="80.0" cy="78.18181818181824" r="4" fill="#d62728" stroke="#111" stroke-width="0.5" />
-<circle cx="475.0" cy="205.45802422966875" r="4" fill="#ff7f0e" stroke="#111" stroke-width="0.5" />
+<circle class="pt" cx="80.0" cy="78.18181818181824" r="4" fill="#d62728" />
+<circle class="pt" cx="475.0" cy="205.45802422966875" r="4" fill="#ff7f0e" />
 <text x="80.0" y="484" font-size="12" text-anchor="middle">U-only</text>
 <text x="475.0" y="484" font-size="12" text-anchor="middle">Policy</text>
 <line class="axis" x1="535.0" y1="460" x2="930.0" y2="460" />
 <line class="axis" x1="535.0" y1="40" x2="535.0" y2="460" />
 <line class="grid" x1="535.0" y1="470.48665491369763" x2="930.0" y2="470.48665491369763" />
 <line class="tick" x1="529.0" y1="470.48665491369763" x2="535.0" y2="470.48665491369763" />
-<text x="525.0" y="474.48665491369763" font-size="12" text-anchor="end">-0.030</text>
+<text class="tick-label" x="525.0" y="470.48665491369763" text-anchor="end" dominant-baseline="middle">-0.030</text>
 <line class="grid" x1="535.0" y1="398.73887909474803" x2="930.0" y2="398.73887909474803" />
 <line class="tick" x1="529.0" y1="398.73887909474803" x2="535.0" y2="398.73887909474803" />
-<text x="525.0" y="402.73887909474803" font-size="12" text-anchor="end">-0.025</text>
+<text class="tick-label" x="525.0" y="398.73887909474803" text-anchor="end" dominant-baseline="middle">-0.025</text>
 <line class="grid" x1="535.0" y1="326.9911032757984" x2="930.0" y2="326.9911032757984" />
 <line class="tick" x1="529.0" y1="326.9911032757984" x2="535.0" y2="326.9911032757984" />
-<text x="525.0" y="330.9911032757984" font-size="12" text-anchor="end">-0.020</text>
+<text class="tick-label" x="525.0" y="326.9911032757984" text-anchor="end" dominant-baseline="middle">-0.020</text>
 <line class="grid" x1="535.0" y1="255.2433274568488" x2="930.0" y2="255.2433274568488" />
 <line class="tick" x1="529.0" y1="255.2433274568488" x2="535.0" y2="255.2433274568488" />
-<text x="525.0" y="259.24332745684876" font-size="12" text-anchor="end">-0.015</text>
+<text class="tick-label" x="525.0" y="255.2433274568488" text-anchor="end" dominant-baseline="middle">-0.015</text>
 <line class="grid" x1="535.0" y1="183.4955516378991" x2="930.0" y2="183.4955516378991" />
 <line class="tick" x1="529.0" y1="183.4955516378991" x2="535.0" y2="183.4955516378991" />
-<text x="525.0" y="187.4955516378991" font-size="12" text-anchor="end">-0.010</text>
+<text class="tick-label" x="525.0" y="183.4955516378991" text-anchor="end" dominant-baseline="middle">-0.010</text>
 <line class="grid" x1="535.0" y1="111.74777581894955" x2="930.0" y2="111.74777581894955" />
 <line class="tick" x1="529.0" y1="111.74777581894955" x2="535.0" y2="111.74777581894955" />
-<text x="525.0" y="115.74777581894955" font-size="12" text-anchor="end">-0.005</text>
+<text class="tick-label" x="525.0" y="111.74777581894955" text-anchor="end" dominant-baseline="middle">-0.005</text>
 <line class="grid" x1="535.0" y1="39.999999999999886" x2="930.0" y2="39.999999999999886" />
 <line class="tick" x1="529.0" y1="39.999999999999886" x2="535.0" y2="39.999999999999886" />
-<text x="525.0" y="43.999999999999886" font-size="12" text-anchor="end">0.000</text>
-<text x="732.5" y="500" font-size="14" text-anchor="middle">Delta (Policy - U-only)</text>
-<text x="485.0" y="250.0" font-size="14" text-anchor="middle" transform="rotate(-90 485.0,250.0)">Delta Pout(1s)</text>
+<text class="tick-label" x="525.0" y="39.999999999999886" text-anchor="end" dominant-baseline="middle">0.000</text>
+<text x="732.5" y="500" class="axis-label" text-anchor="middle">Delta (Policy - U-only)</text>
+<text x="485.0" y="250.0" class="axis-label" text-anchor="middle" transform="rotate(-90 485.0,250.0)">Delta Pout(1s)</text>
 <line x1="535.0" y1="40.0" x2="930.0" y2="40.0" stroke="#444" stroke-width="1" stroke-dasharray="4,4" />
 <line x1="732.5" y1="390.00000000000006" x2="732.5" y2="40.0" stroke="#111" stroke-width="2" />
 <line x1="724.5" y1="390.00000000000006" x2="740.5" y2="390.00000000000006" stroke="#111" stroke-width="2" />
 <line x1="724.5" y1="40.0" x2="740.5" y2="40.0" stroke="#111" stroke-width="2" />
-<circle cx="732.5" cy="273.33333333333337" r="4" fill="#111" stroke="#111" stroke-width="0.5" />
-<circle cx="708.8" cy="40.0" r="4" fill="#555" stroke="#111" stroke-width="0.5" />
-<circle cx="732.5" cy="390.0" r="4" fill="#555" stroke="#111" stroke-width="0.5" />
-<circle cx="756.2" cy="390.0" r="4" fill="#555" stroke="#111" stroke-width="0.5" />
+<circle class="pt" cx="732.5" cy="273.33333333333337" r="4" fill="#111" />
+<circle class="pt" cx="708.8" cy="40.0" r="4" fill="#555" />
+<circle class="pt" cx="732.5" cy="390.0" r="4" fill="#555" />
+<circle class="pt" cx="756.2" cy="390.0" r="4" fill="#555" />
 </svg>
