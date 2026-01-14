@@ -12,4 +12,3 @@
 2026-01-13 18:32 JST
 - 旧定義のmHealthラベル在庫とCSS感度分析の草稿をアーカイブへ退避: `docs/_archive/mhealth_label_inventory_1203.md`, `docs/_archive/レター下書き.md`.
 - `_archive` README に退避理由を追記: `docs/_archive/README.md`.
-

@@ -35,6 +35,9 @@
 - Add new material to the appropriate phase directory and store supporting assets beside the referencing document with slugged filenames (e.g., `要件定義_図1.png`).
 - Avoid introducing new tooling or build systems unless coordinated with maintainers.
 - ESP32スケッチとログ収集コードのファイル名は役割ごとに `RX_*`（受信ロガ）, `TX_*`（送信/DUT）, `TXSD_*`（送信側の電力ロガ）で始めること。既存名を変更する際は文書内の参照（README, Runbook など）も併せて更新する。
+- ドキュメントは `docs/フェーズN/<task_slug>/` に集約する（勝手にフェーズは作らない）。既存トップレベル文書の移動は指示がない限り行わない。
+- 各タスクディレクトリに必ず `README.md` を置き、コード/データ/結果/設定への参照パスを明記する。
+- READMEの必須項目: 目的/範囲, 入力データ（出所/版/行数/SHA256）, 出力物（生成日/生成スクリプト）, 再現手順（コマンド）, 状態（draft/frozen/obsolete）, 関連リンク, 更新履歴（YYYY-MM-DD）。
 
 ## Recent experiment snapshot (Phase 0-0)
 - Phase: 0-0 baseline. Conditions: E2 (high interference), distance 1 m, adv_interval=100 ms, TxPower=0 dBm, 60 s × 6 runs.

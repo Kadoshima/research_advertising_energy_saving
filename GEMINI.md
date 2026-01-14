@@ -46,6 +46,12 @@ This repository is intended for research and development. The primary workflow i
     -   The `docs/` directory is used for general project documentation.
     -   The `修士論文/` and `修士論文アブスト/` directories are used to write the master's thesis and its abstract.
 
+## Documentation Rules (追加)
+
+- New documents should live under `docs/フェーズN/<task_slug>/` (do not create new phases without agreement).
+- Each task directory must include a `README.md` that indexes code/data/results/config paths.
+- README required fields: purpose/scope, input data (source/version/row count/SHA256), outputs (generation date/script), reproduction commands, status (draft/frozen/obsolete), related links, update history (YYYY-MM-DD).
+
 ### Building the Thesis
 
 To build the PDF for the master's thesis, you can use the `latexmk` command in the `修士論文` directory:

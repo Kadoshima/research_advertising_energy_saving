@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>todo</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="TODO_files/libs/clipboard/clipboard.min.js"></script>
+<script src="TODO_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="TODO_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="TODO_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="TODO_files/libs/quarto-html/popper.min.js"></script>
+<script src="TODO_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="TODO_files/libs/quarto-html/anchor.min.js"></script>
+<link href="TODO_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="TODO_files/libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="TODO_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="TODO_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="TODO_files/libs/bootstrap/bootstrap-d6a003b94517c951b2d65075d42fb01b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+
+<section id="統合todophase-1-phase-2" class="level1">
+<h1>統合TODO（Phase 1 / Phase 2）</h1>
+<ul>
+<li>最終更新: 2026-01-14</li>
+<li>対象スコープ:
+<ul>
+<li>Phase 2（モデルベース適応制御）の綿密計画と論文化</li>
+<li><strong>Mode C2′（ラベル再生）</strong>を用いた「広告間隔制御」の評価（固定 vs 因果CCS vs self-UCB）</li>
+<li><strong>ストレスラベル S1/S4</strong> を主ケースとして、実測とシミュを整合させて論文化に耐える形にする</li>
+</ul></li>
+<li>このファイルの役割:
+<ul>
+<li><strong>次に何をするか</strong>（優先度付きTODO）を管理する。</li>
+<li><strong>凍結した仕様/パラメータ</strong>と、再検討トリガを残す。</li>
+<li>実験ログは <code>logs/worklog_*.txt</code>、決定理由は <code>docs/decision_log_*.md</code> に残す。</li>
+</ul></li>
+</ul>
+<hr>
+<section id="phase-2-todo統合" class="level2">
+<h2 class="anchored" data-anchor-id="phase-2-todo統合">Phase 2 TODO（統合）</h2>
+<ul>
+<li><p>詳細計画は <code>docs/フェーズ2/Phase2_TODO_2026-01-14.md</code> を正とする</p></li>
+<li><p>ここではPhase 2のゲートのみ列挙し、Phase 1系と同じ入口に統合する</p></li>
+<li><p><label><input type="checkbox">QoS指標仕様を凍結する（Pout(1s)の算出仕様）</label></p></li>
+<li><p><label><input type="checkbox">Hold-out分割とリーク監査を確定する（trainのみで境界を固定）</label></p></li>
+<li><p><label><input type="checkbox">空セルの扱いを固定する（prior/バックオフ/分割縮退）</label></p></li>
+<li><p><label><input type="checkbox">Safe Setパラメータの初期値を決める（ε_hard, confidence）</label></p></li>
+<li><p><label><input type="checkbox">ログスコアリングと主要指標の集計を実行する</label></p></li>
+</ul>
+</section>
+<section id="tldrいま何が言えるか" class="level2">
+<h2 class="anchored" data-anchor-id="tldrいま何が言えるか">0. TL;DR（いま何が言えるか）</h2>
+<section id="次情報他aiに渡してもよい粒度" class="level3">
+<h3 class="anchored" data-anchor-id="次情報他aiに渡してもよい粒度">0.1 2次情報（他AIに渡してもよい粒度）</h3>
+<ul>
+<li><strong>因果CCS（stress causal）シミュレーション</strong>は完了。
+<ul>
+<li>生成: <code>scripts/generate_modec2_stress_causal.py</code></li>
+<li>ラベル/真値: <code>Mode_C_2_シミュレート_causal/ccs/stress_causal_S1..S6.csv</code> と <code>manifest_stress_causal.json</code></li>
+<li>シミュ集計: <code>Mode_C_2_シミュレート_causal/sim_timeline_metrics_causal_agg.csv</code>
+<ul>
+<li>FIXED_100: acc=1.0</li>
+<li>FIXED_500: acc≈0.972, TL_mean≈2.9s</li>
+<li>FIXED_1000: acc≈0.935, TL_mean≈5.3s</li>
+<li>FIXED_2000: acc≈0.870, TL_mean≈9.4s</li>
+<li>CCS_causal: acc≈0.916, TL_mean≈6.8s</li>
+</ul></li>
+<li>PDRスイープ: <code>Mode_C_2_シミュレート_causal/sim_timeline_metrics_causal_pdr_sweep.csv</code>（順位が崩れないことを確認）</li>
+</ul></li>
+<li><strong>固定間隔の電力基準（ΔE/adv）</strong>は Mode_C の実測を参照する方針で固定。
+<ul>
+<li>参照: <code>data/1202配線変更後/Mode_C_2_03/pdr_energy_summary.csv</code></li>
+<li>例（E_per_adv_uJ_mean）: 100ms ≈ 19,872µJ / 500ms ≈ 96,739µJ / 1000ms ≈ 197,036µJ / 2000ms ≈ 394,850µJ</li>
+</ul></li>
+<li><strong>実機：ストレス固定（scan90%）フルセット（S1/S4×100/500/1000/2000）</strong>が揃っており、解析も完了。
+<ul>
+<li>データ: <code>data/1211_modeC2prime_stress_fixed/full_scan90/</code></li>
+<li>per-trial: <code>results/stress_causal_real_summary_1211_stress_full_scan90.csv</code></li>
+<li>集約: <code>..._modes_scan90.csv</code>, <code>..._agg_scan90.csv</code>, <code>..._agg_enriched_scan90.csv</code></li>
+<li>現状の読みどころ:
+<ul>
+<li>100ms の <code>pdr_unique</code> が <strong>0.80前後まで改善</strong>（scan duty 90% が効いた）</li>
+<li>500/1000/2000 は <code>pdr_unique</code> がほぼ 1.0（TXSD adv_count 基準でクランプしている前提）</li>
+<li>ただし <strong>TL/Pout が想定より大きい</strong>（ストレス列の遷移の扱い／真値定義／サブサンプルの有無の確認が必要）</li>
+</ul></li>
+</ul></li>
+</ul>
+</section>
+<section id="追記レター主線-v7-robust-power-table" class="level3">
+<h3 class="anchored" data-anchor-id="追記レター主線-v7-robust-power-table">0.2 2025-12-14 追記（レター主線: v7 / robust power table）</h3>
+<ul>
+<li>レター最速ルートは「<strong>U/CCS→interval（ルールベース）を主結果</strong>」に寄せる（Safe-MABはFuture Work）。
+<ul>
+<li>決定ログ: <code>docs/decision_log_2025-12-13_letter_route.md</code></li>
+</ul></li>
+<li>固定intervalの電力テーブルを robust 版（sleep_on, n=9–10）で凍結し、オフライン評価の power 軸を置換（v7を主線）。
+<ul>
+<li>power table（主線）: <code>results/mhealth_policy_eval/power_table_sleep_eval_2025-12-14_interval_sweep_sleep_on_n9_10.csv</code></li>
+<li>Pareto（power table反映 + context mixing, scan90 v5）: <code>results/mhealth_policy_eval/pareto_front_v7_power_table_scan90_v5_sleep_on_n9_10/pareto_summary.md</code></li>
+<li>レター用δ帯（tight, 0.02/0.03/0.04）: <code>results/mhealth_policy_eval/letter_v3_scan90_v5_delta_tight_sleep_on_n9_10/fig_delta_band.png</code></li>
+<li>候補（δ=0.03 power-min）: params=(0.10,0.35,0.15,0.35,0.08) → avg_power≈195.09mW / pout_1s≈0.0297（Fixed100比 −3.47mW）</li>
+<li>補助（sleep ON/OFF差分）: <code>sleep_eval_scan90/metrics/on_off_test_01/txsd_power_diff.md</code>（DoD=-0.25mW, n=2）</li>
+<li>重要: 電力低下の主効果は 100→500ms（≈−17.76mW）。500→2000msは小さい（≈−3.33mW）。</li>
+</ul></li>
+</ul>
+</section>
+<section id="いま残っている一番重要な論点" class="level3">
+<h3 class="anchored" data-anchor-id="いま残っている一番重要な論点">0.3 いま残っている一番重要な論点</h3>
+<ul>
+<li><strong>TL/Pout の「定義」と「実装」が論文で説明できる形に固定されているか</strong>
+<ul>
+<li>例: 2000ms で <code>Pout(1s)</code> に理論下限が出るかどうかは、
+<ul>
+<li>「遷移を 100ms 真値で取る（連続時間に近い評価）」なのか</li>
+<li>「TXが実際に送ったサブサンプル列で遷移を取る（可観測遷移のみ評価）」なのか で結論が変わる。</li>
+</ul></li>
+<li>ここを曖昧にすると、<strong>scan90 の改善や CCS/self-UCB の優位性を主張できない</strong>。</li>
+</ul></li>
+</ul>
+</section>
+<section id="次のゲートここを超えると後半が楽" class="level3">
+<h3 class="anchored" data-anchor-id="次のゲートここを超えると後半が楽">0.4 次のゲート（ここを超えると後半が楽）</h3>
+<ul>
+<li>Gate-0（図表の土台）:
+<ul>
+<li>scan90 固定フルセットを <strong>「定義が固定された指標」</strong>で集約し、</li>
+<li>実測 vs シミュの差（桁差）が <strong>説明可能な仮説</strong>（burst loss / 可観測性 / 真値の粒度）で書ける。</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="凍結仕様再現性のために明文化" class="level2">
+<h2 class="anchored" data-anchor-id="凍結仕様再現性のために明文化">1. 凍結仕様（再現性のために明文化）</h2>
+<section id="解析指標pdrtlpout" class="level3">
+<h3 class="anchored" data-anchor-id="解析指標pdrtlpout">1.1 解析指標（PDR/TL/Pout）</h3>
+<ul>
+<li><code>adv_count</code> は <strong>TXSD の summary</strong> を真値とする（RX側で再推定しない）。</li>
+<li><code>pdr_raw</code> / <code>pdr_unique</code> を併記する。
+<ul>
+<li><code>pdr_raw = min(rx_count, adv_count) / adv_count</code>（重複込みの受信量。&gt;1 を避けるためクランプ）</li>
+<li><code>pdr_unique = min(rx_unique_seq, adv_count) / adv_count</code>（seqユニークのカバレッジ指標）</li>
+</ul></li>
+<li>TL/Pout は「どの真値の遷移」を対象にしているかが本質。
+<ul>
+<li><strong>現行実装の定義を <code>docs/metrics_definition.md</code> に固定</strong>し、</li>
+<li>もし実装が「サブサンプル真値」になっているなら、その意図を明記する。</li>
+</ul></li>
+</ul>
+<blockquote class="blockquote">
+<p>TODO（重要）: <code>scripts/analyze_stress_causal_real.py</code> が遷移抽出に使う truth が - 100msの完全列なのか - interval stepCount で間引いた列なのか を 1回確認して、ドキュメント定義と一致させる。</p>
+</blockquote>
+</section>
+<section id="truth-長さ末端遷移" class="level3">
+<h3 class="anchored" data-anchor-id="truth-長さ末端遷移">1.2 truth 長さ（末端遷移）</h3>
+<ul>
+<li>TX は <code>EFFECTIVE_LEN=6352</code>（100msステップ）で再生範囲をクランプ。</li>
+<li>truth も同じ長さにクリップする（末端遷移が TX 範囲外に出て TL が暴れるのを防ぐ）。</li>
+</ul>
+</section>
+<section id="因果ccsa-3-凍結" class="level3">
+<h3 class="anchored" data-anchor-id="因果ccsa-3-凍結">1.3 因果CCS（A-3 凍結）</h3>
+<ul>
+<li>CCS 形: <code>CCS = 0.7*(1−U) + 0.3*S</code></li>
+<li><code>S_causal = clip(time_since_last_transition / 5.0, 0, 1)</code></li>
+<li><code>U_causal = clip(1 − S_causal + N(0, 0.05^2), 0, 1)</code></li>
+<li><code>T_adv</code> 写像（stress凍結）:
+<ul>
+<li>CCS &lt; 0.30 → 100ms</li>
+<li>0.30 ≤ CCS &lt; 0.70 → 500ms</li>
+<li>CCS ≥ 0.70 → 2000ms</li>
+</ul></li>
+<li>stressケースでは <strong>ヒステリシス無し</strong>（まずは評価を簡単にするため）</li>
+</ul>
+</section>
+<section id="rx-スキャン設定scan90-を主" class="level3">
+<h3 class="anchored" data-anchor-id="rx-スキャン設定scan90-を主">1.4 RX スキャン設定（scan90 を主）</h3>
+<ul>
+<li><code>RX_ModeC2prime_1210</code>:
+<ul>
+<li><code>SCAN_INTERVAL_MS=100, SCAN_WINDOW_MS=90</code>（duty 90%）</li>
+<li><code>ActiveScan=false</code>, duplicate filter OFF</li>
+</ul></li>
+<li>scan50 のデータは「改善前の参考」として残し、主張は scan90 で行う。</li>
+</ul>
+</section>
+<section id="再検討トリガ値を変えるべき時" class="level3">
+<h3 class="anchored" data-anchor-id="再検討トリガ値を変えるべき時">1.5 再検討トリガ（値を変えるべき時）</h3>
+<ul>
+<li>CCSパラメータ（閾値/重み）
+<ul>
+<li><strong>固定フルセット（scan90）と同じ定義の TL/Pout</strong> で CCS_causal が FIXED_500/1000 に勝てない場合</li>
+<li>2000ms 偏重で missed-state が増えすぎる場合</li>
+</ul></li>
+<li>RX設定
+<ul>
+<li>scan90 でも 100ms の <code>pdr_unique &lt; 0.7</code> が再発する場合（環境起因 vs 設定起因を切り分け）</li>
+</ul></li>
+<li>指標定義
+<ul>
+<li><code>Pout(1s)</code> の下限議論が食い違う場合 → まず定義/実装を揃える（パラメータ調整ではなく）</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="成果物インデックス場所が分かることが最優先" class="level2">
+<h2 class="anchored" data-anchor-id="成果物インデックス場所が分かることが最優先">2. 成果物インデックス（場所が分かることが最優先）</h2>
+<section id="実機データ" class="level3">
+<h3 class="anchored" data-anchor-id="実機データ">2.1 実機データ</h3>
+<ul>
+<li>scan90 固定フルセット: <code>data/1211_modeC2prime_stress_fixed/full_scan90/</code>
+<ul>
+<li>RX: <code>RX/rx_trial_042..049.csv</code></li>
+<li>TXSD: <code>TX/trial_048_on..055_on.csv</code></li>
+<li>manifest: <code>manifest.csv</code>（S1/S4 × 100/500/1000/2000 の対応）</li>
+</ul></li>
+</ul>
+</section>
+<section id="実機解析出力" class="level3">
+<h3 class="anchored" data-anchor-id="実機解析出力">2.2 実機解析出力</h3>
+<ul>
+<li>per-trial: <code>results/stress_causal_real_summary_1211_stress_full_scan90.csv</code></li>
+<li>集約（modes/agg/enriched）:
+<ul>
+<li><code>results/stress_causal_real_summary_1211_stress_modes_scan90.csv</code></li>
+<li><code>results/stress_causal_real_summary_1211_stress_agg_scan90.csv</code></li>
+<li><code>results/stress_causal_real_summary_1211_stress_agg_enriched_scan90.csv</code></li>
+</ul></li>
+<li>gap 統計: <code>results/gap_stats_scan90.csv</code></li>
+<li>missed-state（定義を固定した版）: <code>results/missed_state_scan90_v2.csv</code></li>
+</ul>
+</section>
+<section id="シミュレーション" class="level3">
+<h3 class="anchored" data-anchor-id="シミュレーション">2.3 シミュレーション</h3>
+<ul>
+<li><code>Mode_C_2_シミュレート_causal/</code>
+<ul>
+<li><code>ccs/stress_causal_S*.csv</code></li>
+<li><code>sim_timeline_metrics_causal_agg.csv</code></li>
+<li><code>sim_timeline_metrics_causal_pdr_sweep.csv</code></li>
+</ul></li>
+</ul>
+</section>
+<section id="スクリプト" class="level3">
+<h3 class="anchored" data-anchor-id="スクリプト">2.4 スクリプト</h3>
+<ul>
+<li><code>scripts/generate_modec2_stress_causal.py</code>（因果CCS生成）</li>
+<li><code>scripts/analyze_stress_causal_real.py</code>（RX/TXSD→PDR/TL/Pout/E/Power）</li>
+<li><code>scripts/plot_stress_causal_real_vs_sim.py</code>（実測vsシミュ図表、matplotlib）</li>
+<li><code>scripts/export_labels_all_to_csv.py</code>（labels_all.h→truth CSV; EFFECTIVE_LEN でclip）</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="優先度付き-todo最短で論文化できる順" class="level2">
+<h2 class="anchored" data-anchor-id="優先度付き-todo最短で論文化できる順">3. 優先度付き TODO（最短で論文化できる順）</h2>
+<blockquote class="blockquote">
+<p>記法: (ME)=実機/配線/取得が必要、(AI)=ローカル処理・解析のみ、(ME+AI)=両方</p>
+</blockquote>
+<section id="p0-letter-uccsintervalmhealth合成-scan90-v5" class="level3">
+<h3 class="anchored" data-anchor-id="p0-letter-uccsintervalmhealth合成-scan90-v5">P0-Letter: U/CCS→interval（mHealth合成, scan90 v5）</h3>
+<ul class="task-list">
+<li><p><label><input type="checkbox" checked="">(AI) v7（robust power table: sleep_on n=9–10）で Pareto/δ tight を再生成して凍結</label></p>
+<ul>
+<li>Pareto v7: <code>results/mhealth_policy_eval/pareto_front_v7_power_table_scan90_v5_sleep_on_n9_10/pareto_summary.md</code></li>
+<li>δ tight v3: <code>results/mhealth_policy_eval/letter_v3_scan90_v5_delta_tight_sleep_on_n9_10/summary.md</code></li>
+</ul></li>
+<li><p><label><input type="checkbox" checked="">(AI) D0: 行動空間を <strong>{100,500}</strong> に限定して δ=0.03 の代表ポリシーを再選定（実機比較の整合性）</label></p>
+<ul>
+<li>Pareto v8（actions={100,500}）: <code>results/mhealth_policy_eval/pareto_front_v8_power_table_scan90_v5_sleep_on_n9_10_actions_100_500/pareto_summary.md</code></li>
+<li>δ tight v4（actions={100,500}）: <code>results/mhealth_policy_eval/letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/summary.md</code></li>
+</ul></li>
+<li><p><label><input type="checkbox" checked="">(ME+AI) D1: 実機（100↔︎500）最小セットで成立確認（Fixed100 / Fixed500 / Policy, 各n=3）</label></p>
+<ul>
+<li>データ: <code>uccs_d1_scan90/data/01/</code></li>
+<li>集計: <code>uccs_d1_scan90/metrics/01/summary.md</code></li>
+<li>動的payload: <code>&lt;tx_elapsed_ms&gt;_&lt;label&gt;</code>（fixed=F100/F500, policy=P100/P500）</li>
+</ul></li>
+<li><p><label><input type="checkbox" checked="">(AI) D2準備（最優先）: 動的QoS（TL/Pout）を評価できる D2 専用ディレクトリ＋スケッチを追加</label></p>
+<ul>
+<li>index: <code>uccs_d2_scan90/README.md</code></li>
+<li>truth（flash埋め込み）: <code>uccs_d2_scan90/src/tx/stress_causal_s1_s4_180s.h</code>（S1/S4, 100msグリッド）</li>
+<li>TX/RX/TXSD（Arduino）:
+<ul>
+<li><code>uccs_d2_scan90/src/tx/TX_UCCS_D2_SCAN90/TX_UCCS_D2_SCAN90.ino</code></li>
+<li><code>uccs_d2_scan90/src/rx/RX_UCCS_D2_SCAN90/RX_UCCS_D2_SCAN90.ino</code></li>
+<li><code>uccs_d2_scan90/src/txsd/TXSD_UCCS_D2_SCAN90/TXSD_UCCS_D2_SCAN90.ino</code></li>
+</ul></li>
+<li>D2 payload: <code>&lt;step_idx&gt;_&lt;tag&gt;</code>（動的でも time axis が復元できる形）</li>
+</ul></li>
+<li><p><label><input type="checkbox" checked="">(ME+AI) D2: 実機で動的QoS（TL/Pout）を <code>step_idx</code> 起点で確定（S1/S4 × Fixed100/Fixed500/Policy）</label></p>
+<ul>
+<li>データ（今回の取得分）:
+<ul>
+<li>RX: <code>uccs_d2_scan90/data/RX/</code>（選定: rx_trial_009..026, n=18）</li>
+<li>TXSD: <code>uccs_d2_scan90/data/TX/</code>（SD <code>/logs/</code> をコピー。混在あり）</li>
+</ul></li>
+<li>解析:
+<ul>
+<li>スクリプト: <code>uccs_d2_scan90/analysis/summarize_d2_run.py</code></li>
+<li>出力: <code>uccs_d2_scan90/metrics/01/summary.md</code> / <code>uccs_d2_scan90/metrics/01/per_trial.csv</code></li>
+</ul></li>
+<li>観測（要注意）:
+<ul>
+<li>policy が <code>share100_time_est≈0.99</code>（RXタグ由来sanity）かつ <code>adv_count≈1787</code> で、実質 <strong>100ms張り付き</strong>（省電力が出ない）。</li>
+<li>原因候補: D2で使っている <code>stress_causal_*</code> の <code>CCS</code> は「変化」ではなく「安定度（高いほどstable）」なので、実機実装側で <strong>CCSを反転（CCS’=1-CCS）</strong> する等、定義整合が必要。</li>
+</ul></li>
+</ul></li>
+<li><p><label><input type="checkbox">(AI) 実測点を <code>pout_1s vs avg_power_mW</code> 図に重ね、予測↔︎実測の差分を <code>summary.md</code> に追記</label></p></li>
+<li><p><label><input type="checkbox" checked="">(ME+AI) D2b: CCS反転でpolicy張り付き解消（S1/S4 × Fixed100/Fixed500/Policy, 各n=3）</label></p>
+<ul>
+<li>データ: <code>uccs_d2_scan90/data/B/</code></li>
+<li>集計: <code>uccs_d2_scan90/metrics/B/summary.md</code></li>
+<li>図: <code>uccs_d2_scan90/plots/d2b_B_power_vs_pout.png</code>（power vs pout + share100注釈）</li>
+<li>備考: policyの <code>avg_power_mW/adv_count/pdr_unique</code> が空欄になる問題は <code>uccs_d2_scan90/analysis/summarize_d2_run.py</code> 側でペアリング復元を修正して解消。</li>
+</ul></li>
+<li><p><label><input type="checkbox" checked="">(ME+AI) D2b 追加取得を統合して n=6 に拡張（run B + B/02）</label></p>
+<ul>
+<li>集計: <code>uccs_d2_scan90/metrics/B_n6/summary.md</code></li>
+<li>図: <code>uccs_d2_scan90/plots/d2b_B_n6_power_vs_pout.png</code></li>
+</ul></li>
+<li><p><label><input type="checkbox" checked="">(AI) D4準備: U ablation（S4, scan90）の専用ディレクトリ＋スケッチ＋集計スクリプトを追加</label></p>
+<ul>
+<li>index: <code>uccs_d4_scan90/README.md</code></li>
+<li>TX/RX/TXSD（Arduino）:
+<ul>
+<li><code>uccs_d4_scan90/src/tx/TX_UCCS_D4_SCAN90/TX_UCCS_D4_SCAN90.ino</code></li>
+<li><code>uccs_d4_scan90/src/rx/RX_UCCS_D4_SCAN90/RX_UCCS_D4_SCAN90.ino</code></li>
+<li><code>uccs_d4_scan90/src/txsd/TXSD_UCCS_D4_SCAN90/TXSD_UCCS_D4_SCAN90.ino</code></li>
+</ul></li>
+<li>集計: <code>uccs_d4_scan90/analysis/summarize_d4_run_v2.py</code></li>
+<li>Ablation: U-shuffle（seed=0xD4B40201、CCSは <code>1-CCS</code> で変化度化）</li>
+</ul></li>
+<li><p><label><input type="checkbox" checked="">(ME+AI) D4: U ablation（S4, scan90, 4条件×n=3）を取得して集計</label></p>
+<ul>
+<li>データ: <code>uccs_d4_scan90/data/01/</code></li>
+<li>出力: <code>uccs_d4_scan90/metrics/01/summary.md</code></li>
+</ul></li>
+<li><p><label><input type="checkbox" checked="">(ME+AI) D4: Uあり/なし（U-shuffle）の差を1枚図にする（power vs pout + share100）</label></p>
+<ul>
+<li>図: <code>uccs_d4_scan90/plots/d4_01_power_vs_pout.png</code></li>
+</ul></li>
+<li><p><label><input type="checkbox" checked="">(AI) D4B準備: CCS ablation（S4, scan90）の専用ディレクトリ＋スケッチ＋集計スクリプトを追加</label></p>
+<ul>
+<li>index: <code>uccs_d4b_scan90/README.md</code></li>
+<li>TX/RX/TXSD（Arduino）:
+<ul>
+<li><code>uccs_d4b_scan90/src/tx/TX_UCCS_D4B_SCAN90/TX_UCCS_D4B_SCAN90.ino</code></li>
+<li><code>uccs_d4b_scan90/src/rx/RX_UCCS_D4B_SCAN90/RX_UCCS_D4B_SCAN90.ino</code></li>
+<li><code>uccs_d4b_scan90/src/txsd/TXSD_UCCS_D4B_SCAN90/TXSD_UCCS_D4B_SCAN90.ino</code></li>
+</ul></li>
+<li>集計: <code>uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py</code></li>
+<li>Ablation: CCS-off（U-only, 100↔︎500）</li>
+</ul></li>
+<li><p><label><input type="checkbox" checked="">(ME+AI) D4B: CCS-off（U-only）で「CCSが効く」を切り分け（S4, scan90, 4条件×n=3）</label></p>
+<ul>
+<li>データ: <code>uccs_d4b_scan90/data/01/</code></li>
+<li>出力: <code>uccs_d4b_scan90/metrics/01/summary.md</code></li>
+<li>図: <code>uccs_d4b_scan90/plots/d4b_01_power_vs_pout.svg</code></li>
+<li>追加解析: <code>uccs_d4b_scan90/plots/ccs_timing_01/</code>（遷移近傍への100ms割当て可視化）</li>
+<li>差分CI: <code>uccs_d4b_scan90/metrics/01/effects_ci.md</code>（bootstrap, per-trial）</li>
+</ul></li>
+<li><p><label><input type="checkbox" checked="">(AI) 役割分離の統合図（D3/D4/D4Bを1枚に統合）</label></p>
+<ul>
+<li>図: <code>uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.svg</code></li>
+</ul></li>
+<li><p><label><input type="checkbox" checked="">(AI) 主図を1枚に固定（scan70/scan90を同一座標に重ねる：x=avg_power, y=pout_1s, bootstrap CI）</label></p>
+<ul>
+<li>図: <code>uccs_d4b_scan90/plots/mainfig_scan70_scan90.svg</code></li>
+<li>script: <code>uccs_d4b_scan90/analysis/plot_mainfig_scan70_scan90.py</code></li>
+</ul></li>
+<li><p><label><input type="checkbox" checked="">(AI) 効果量の差分+不確かさ（bootstrap CI）を算出（D3/D4/D4B）</label></p>
+<ul>
+<li>script: <code>scripts/bootstrap_effects.py</code></li>
+<li>D4B: <code>uccs_d4b_scan90/metrics/01/effects_ci.md</code></li>
+<li>D4: <code>uccs_d4_scan90/metrics/01/effects_ci.md</code></li>
+<li>D3: <code>uccs_d3_scan70/metrics/01/effects_ci.md</code></li>
+</ul></li>
+<li><p><label><input type="checkbox" checked="">(AI) α正規化（fixed100/500で正規化した電力配分）×QoS の図を作成（CCS寄与を刺す）</label></p>
+<ul>
+<li>図: <code>uccs_d4b_scan90/plots/alpha_vs_pout_overview.svg</code></li>
+</ul></li>
+<li><p><label><input type="checkbox" checked="">(AI) D4B: Poutを生んだ少数イベント（TL&gt;1s）を特定し、失敗イベント中心のストーリー図を作成</label></p>
+<ul>
+<li>script: <code>uccs_d4b_scan90/analysis/outage_story_trace.py</code></li>
+<li>出力: <code>uccs_d4b_scan90/plots/outage_story_01/fig_outage_timeline.svg</code></li>
+<li>付随: <code>uccs_d4b_scan90/plots/outage_story_01/outage_ranking.csv</code>, <code>uccs_d4b_scan90/plots/outage_story_01/per_transition.csv</code></li>
+</ul></li>
+<li><p><label><input type="checkbox" checked="">(AI) D4B: Poutの寄与分解（尾の集中度）と条件付きタイミング（失敗遷移に条件付け）を追加</label></p>
+<ul>
+<li>script: <code>uccs_d4b_scan90/analysis/pout_tail_decomposition.py</code></li>
+<li>出力: <code>uccs_d4b_scan90/plots/pout_tail_01/</code></li>
+<li>script: <code>uccs_d4b_scan90/analysis/ccs_timing_analysis_conditional.py</code></li>
+<li>出力: <code>uccs_d4b_scan90/plots/ccs_timing_conditional_01/fig_event_triggered_p100_conditional.svg</code></li>
+</ul></li>
+<li><p><label><input type="checkbox" checked="">(AI) D3準備: scan70%（interval=100ms, window=70ms）の専用ディレクトリ＋スケッチを追加</label></p>
+<ul>
+<li>index: <code>uccs_d3_scan70/README.md</code></li>
+<li>TX/RX/TXSD（Arduino）:
+<ul>
+<li><code>uccs_d3_scan70/src/tx/TX_UCCS_D3_SCAN70/TX_UCCS_D3_SCAN70.ino</code></li>
+<li><code>uccs_d3_scan70/src/rx/RX_UCCS_D3_SCAN70/RX_UCCS_D3_SCAN70.ino</code></li>
+<li><code>uccs_d3_scan70/src/txsd/TXSD_UCCS_D3_SCAN70/TXSD_UCCS_D3_SCAN70.ino</code></li>
+</ul></li>
+</ul></li>
+<li><p><label><input type="checkbox" checked="">(ME) D3: scan duty を 90→70% に落として適応性を確認（S4, fixed100/fixed500/policy, 各n=3）</label></p>
+<ul>
+<li>データ: <code>uccs_d3_scan70/data/01/</code></li>
+</ul></li>
+<li><p><label><input type="checkbox" checked="">(AI) D3: 集計（pout/TL/power/share）と図（power vs pout）を生成</label></p>
+<ul>
+<li>集計: <code>uccs_d3_scan70/metrics/01/summary.md</code></li>
+<li>図: <code>uccs_d3_scan70/plots/d3_01_power_vs_pout.png</code></li>
+<li>備考: scan70では <code>share100_time_est (RX tags)</code> が過小評価しやすいため、<code>share100_power_mix</code>（power-mix推定）を主に参照する。</li>
+</ul></li>
+</ul>
+</section>
+<section id="p0-定義固定-図表化最優先" class="level3">
+<h3 class="anchored" data-anchor-id="p0-定義固定-図表化最優先">P0: 定義固定 + 図表化（最優先）</h3>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="">(AI) <strong>TL/Pout の真値定義を確定（v5）</strong></label>
+<ul>
+<li>truth 遷移は <strong>100ms真値</strong>（<code>truth[idx,label]</code>）から抽出。</li>
+<li>RXログの <code>ms</code> は開始位相ズレが入り得るため、<code>seq×interval_ms</code> から <strong>定数オフセット</strong>を推定して時間同期してから TL/Pout を計算（<code>tl_time_offset_ms</code>）。</li>
+<li>出力: <code>results/stress_fixed/scan90/*_scan90_v5.csv</code>（v4は時間同期なしのため原則参照しない）。</li>
+</ul></li>
+<li><label><input type="checkbox">(AI) scan90 固定フルセットの図表（論文用）を確定</label>
+<ul>
+<li>図1: intervalごとの <code>pdr_unique</code>, <code>Pout(1s)</code>, <code>TL_mean</code>, <code>E_per_adv</code>, <code>avg_power</code></li>
+<li>図2: 実測 vs シミュ（pdr_sweep から最接近でマッチ）比較（<code>results/compare_*</code> を再生成）</li>
+<li>図3: scan50→scan90 の改善（特に 100ms の pdr_unique）</li>
+</ul></li>
+<li><label><input type="checkbox">(AI) 「実測がシミュより悪い」説明の文章骨子を作る</label>
+<ul>
+<li>候補: burst loss（時間相関ロス）、可観測遷移の欠落（間引き）、干渉・スキャン窓</li>
+<li>どれが効いているかは gap_stats / missed-state / 実測の重尾（p95/max）で裏付ける</li>
+</ul></li>
+</ul>
+</section>
+<section id="p1-ccs_causal-実機ストレス-s1s4" class="level3">
+<h3 class="anchored" data-anchor-id="p1-ccs_causal-実機ストレス-s1s4">P1: CCS_causal 実機（ストレス S1/S4）</h3>
+<ul class="task-list">
+<li><label><input type="checkbox">(ME+AI) TX に CCS_causal モードを追加（固定100/500/2000と同じI/Oでログが取れる形）</label>
+<ul>
+<li>実装方式: まずは <strong>T_adv 列再生（オフライン決定）</strong>が安全</li>
+<li>解析側は manifest に mode=<code>CCS_causal</code> を足すだけで回るようにする</li>
+</ul></li>
+<li><label><input type="checkbox">(ME) CCS_causal を S1/S4 で実行（E1）</label>
+<ul>
+<li>推奨: 1 trialずつ（10.6分×2本）→ まずは動作確認</li>
+<li>その後、外れが大きい条件（2000偏重など）は追加1本</li>
+</ul></li>
+<li><label><input type="checkbox">(AI) 固定（scan90）と CCS_causal の比較表/図（同指標・同定義）</label>
+<ul>
+<li>主張の形: 「同電力でQoS↑」or「同QoSで電力↓」のどちらかに寄せる</li>
+</ul></li>
+</ul>
+</section>
+<section id="p2-self-ucb不確実性駆動" class="level3">
+<h3 class="anchored" data-anchor-id="p2-self-ucb不確実性駆動">P2: self-UCB（不確実性駆動）</h3>
+<ul class="task-list">
+<li><label><input type="checkbox">(AI) self-UCB の設計（状態・報酬・制約）を 1ページで固定</label>
+<ul>
+<li>状態候補: (S,U,CCS,直近遷移からの時間, gap統計)</li>
+<li>報酬候補: −λ·E + QoS（遅延/アウトエイジ）</li>
+<li>まずはシミュで λ をスイープして Pareto を出す</li>
+</ul></li>
+<li><label><input type="checkbox">(ME+AI) self-UCB の TX 実装（まずはオフラインpolicy再生でも可）</label></li>
+</ul>
+</section>
+<section id="p3-チャネル劣化e2e3" class="level3">
+<h3 class="anchored" data-anchor-id="p3-チャネル劣化e2e3">P3: チャネル劣化（E2/E3）</h3>
+<ul class="task-list">
+<li><label><input type="checkbox">(ME) PDR を意図的に落とす環境を 1種類だけ固定（距離/遮蔽/干渉）</label></li>
+<li><label><input type="checkbox">(ME) 固定100 と CCS_causal と self-UCB を最小本数で比較（各1本）</label></li>
+</ul>
+</section>
+<section id="p4-論文スライド" class="level3">
+<h3 class="anchored" data-anchor-id="p4-論文スライド">P4: 論文・スライド</h3>
+<ul class="task-list">
+<li><label><input type="checkbox">(AI) 章立てに合わせて図表を配置（少なくとも「固定 vs CCS_causal」を主結果に）</label></li>
+<li><label><input type="checkbox">(AI) 実装詳細（指標定義/凍結パラメータ/配線）を Appendix に逃がす</label></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="done主要な完了項目" class="level2">
+<h2 class="anchored" data-anchor-id="done主要な完了項目">4. Done（主要な完了項目）</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" checked="">因果CCSのストレス生成（A-1）</label></li>
+<li><label><input type="checkbox" checked="">因果CCSシミュ（PDR=1）＋集約（A-1/A-2）</label></li>
+<li><label><input type="checkbox" checked="">A-3（CCS形/しきい値/重み）凍結</label></li>
+<li><label><input type="checkbox" checked="">A-4（PDRスイープ）で順位安定性チェック</label></li>
+<li><label><input type="checkbox" checked="">実機解析スクリプト <code>analyze_stress_causal_real.py</code> の整備（pdr_raw/pdr_unique対応、manifest対応）</label></li>
+<li><label><input type="checkbox" checked="">ストレス固定フルセット（scan90）取得・解析（S1/S4×100/500/1000/2000）</label></li>
+</ul>
+<hr>
+</section>
+<section id="付記運用ルール" class="level2">
+<h2 class="anchored" data-anchor-id="付記運用ルール">5. 付記（運用ルール）</h2>
+<ul>
+<li><strong>データ命名</strong>: 解析が走る最小情報を <code>manifest.csv</code> に持たせる（trial_id/セッション/interval/真値/モード）。</li>
+<li><strong>短いabort試行</strong>は <code>manifest</code> から除外（残す場合は <code>mode=ABORT</code> 等で明示）。</li>
+<li><strong>1本増やす前に</strong>: 指標定義と解析の一致を優先（同じバグを増幅させない）。</li>
+</ul>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

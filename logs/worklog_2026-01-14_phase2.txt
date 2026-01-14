@@ -1,0 +1,44 @@
+2026-01-14 14:48 JST
+- Phase2要件/実験設計にデータ特性・分割方針・段階的アクション/コンテキスト設計を追記し、更新日を更新: `docs/フェーズ2/要件定義.md`, `docs/フェーズ2/実験設計書.md`.
+
+2026-01-14 15:11 JST
+- Phase2要件定義をモデルベース適応制御の記述に刷新し、データ在庫・分割方針・Safe Set・ログスキーマ・指標を反映: `docs/フェーズ2/要件定義.md`.
+- Phase2実験設計書にSafe Set方式、ログスコアリング、統合ログスキーマ、指標更新を反映: `docs/フェーズ2/実験設計書.md`.
+
+2026-01-14 17:47 JST
+- Phase2の綿密計画TODOを作成し、成果物と順序を定義: `docs/フェーズ2/Phase2_TODO_2026-01-14.md`.
+- フェーズ2の索引READMEを追加: `docs/フェーズ2/README.md`.
+
+2026-01-14 18:10 JST
+- Phase2 TODOにQoS指標仕様の凍結、リーク監査、空セル対応の項目を追加: `docs/フェーズ2/Phase2_TODO_2026-01-14.md`.
+
+2026-01-14 18:55 JST
+- 統合TODOにPhase2のゲート項目を追加し、Phase1/Phase2の入口を統合: `docs/TODO.md`.
+
+2026-01-14 22:04 JST
+- Phase0-0のΔE再検証用ディレクトリを作成し、READMEで目的と成果物を定義: `docs/フェーズ0-0/ΔE再検証_2026-01-14/README.md`.
+
+2026-01-14 22:37 JST
+- Phase0-0 ΔE再検証の計画と配置決定を文書化: `docs/フェーズ0-0/ΔE再検証_2026-01-14/Phase0-0_deltaE_plan_2026-01-14.md`.
+- ΔE再検証READMEに計画ドキュメントへのリンクを追加: `docs/フェーズ0-0/ΔE再検証_2026-01-14/README.md`.
+
+2026-01-14 22:44 JST
+- docs運用ルールを新規作成し、配置ルールとREADME必須項目を固定: `docs/README.md`.
+
+2026-01-14 22:48 JST
+- docs配置とREADME必須項目のルールをAGENTS/GEMINIに追記: `AGENTS.md`, `GEMINI.md`.
+
+2026-01-14 22:52 JST
+- docs配置とREADME必須項目のルールをCLAUDEに追記: `CLAUDE.md`.
+
+2026-01-14 22:55 JST
+- v3 rig ΔE再検証の参照スケッチ一覧を整理: `esp32_firmware/20260114_deltae_v3rig/README.md`.
+
+
+2026-01-15 01:10 JST
+- v3 rig ΔE再検証の計画をn=10に更新し、確定スケッチ一覧と次アクションを整理: `docs/フェーズ0-0/ΔE再検証_2026-01-14/Phase0-0_deltaE_plan_2026-01-14.md`.
+- v3 rig用スケッチ一覧と配線メモを更新: `esp32_firmware/20260114_deltae_v3rig/README.md`.
+- ΔE再検証の解析スクリプトを追加し、READMEから参照: `scripts/compute_delta_energy_v3rig.py`, `docs/フェーズ0-0/ΔE再検証_2026-01-14/README.md`.
+
+2026-01-15 01:11 JST
+- ΔE再検証のデータ配置先を作成: `data/実験データ/研究室/phase0-0_deltae_v3rig_20260114/`.
