@@ -175,12 +175,12 @@ class CB : public BLEAdvertisedDeviceCallbacks {
     String mfd = d.getManufacturerData().c_str();
     uint16_t seq;
     if (!parseMFD(mfd, seq)) return;
-    std::string addrStd = d.getAddress().toString();
+    String addr = d.getAddress().toString();
     if (txLockAddr[0] == '\0') {
-      strncpy(txLockAddr, addrStd.c_str(), sizeof(txLockAddr) - 1);
+      strncpy(txLockAddr, addr.c_str(), sizeof(txLockAddr) - 1);
       txLockAddr[sizeof(txLockAddr) - 1] = '\0';
     }
-    if (strncmp(txLockAddr, addrStd.c_str(), sizeof(txLockAddr)) != 0) return;
+    if (strncmp(txLockAddr, addr.c_str(), sizeof(txLockAddr)) != 0) return;
     uint16_t nextHead = (rxBufHead + 1) % RX_BUF_SIZE;
     if (nextHead == rxBufTail) {
       bufOverflow++;
@@ -189,7 +189,7 @@ class CB : public BLEAdvertisedDeviceCallbacks {
     RxEntry& e = rxBuf[rxBufHead];
     e.ms = millis() - t0Ms;
     e.rssi = (int8_t)d.getRSSI();
-    strncpy(e.addr, addrStd.c_str(), sizeof(e.addr) - 1);
+    strncpy(e.addr, addr.c_str(), sizeof(e.addr) - 1);
     e.addr[sizeof(e.addr) - 1] = '\0';
     strncpy(e.mfd, mfd.c_str(), sizeof(e.mfd) - 1);
     e.mfd[sizeof(e.mfd) - 1] = '\0';
