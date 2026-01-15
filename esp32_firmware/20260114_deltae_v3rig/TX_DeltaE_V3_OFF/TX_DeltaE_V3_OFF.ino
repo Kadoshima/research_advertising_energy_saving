@@ -5,11 +5,16 @@
 #include <Arduino.h>
 #include <WiFi.h>
 
+static const char FW_TAG[] = "TX_DeltaE_V3_OFF";
+static const char PROGRAM_ID[] = "TX_DELTAE_V3_OFF_20260114";
+
 static const uint32_t TRIAL_MS = 60000;
 static const uint8_t N_TRIALS = 10;
 static const uint32_t GAP_BETWEEN_TRIALS_MS = 5000;
 
 static const int SYNC_OUT_PIN = 25;
+static const int SYNC_ALT_OUT_PIN = 26; // optional mirror of SYNC_OUT
+static const bool USE_SYNC_ALT_OUT = true;
 static const int LED_PIN = 2;
 
 uint32_t trialStartMs = 0;
@@ -20,10 +25,12 @@ bool trialRunning = false;
 static inline void syncStart() {
   digitalWrite(LED_PIN, HIGH);
   digitalWrite(SYNC_OUT_PIN, HIGH);
+  if (USE_SYNC_ALT_OUT) digitalWrite(SYNC_ALT_OUT_PIN, HIGH);
 }
 
 static inline void syncEnd() {
   digitalWrite(SYNC_OUT_PIN, LOW);
+  if (USE_SYNC_ALT_OUT) digitalWrite(SYNC_ALT_OUT_PIN, LOW);
   digitalWrite(LED_PIN, LOW);
 }
 
@@ -43,10 +50,15 @@ static void endTrial() {
 
 void setup() {
   Serial.begin(115200);
+  Serial.printf("[FW] %s program_id=%s\n", FW_TAG, PROGRAM_ID);
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, LOW);
   pinMode(SYNC_OUT_PIN, OUTPUT);
   digitalWrite(SYNC_OUT_PIN, LOW);
+  if (USE_SYNC_ALT_OUT) {
+    pinMode(SYNC_ALT_OUT_PIN, OUTPUT);
+    digitalWrite(SYNC_ALT_OUT_PIN, LOW);
+  }
 
   WiFi.persistent(false);
   WiFi.mode(WIFI_OFF);

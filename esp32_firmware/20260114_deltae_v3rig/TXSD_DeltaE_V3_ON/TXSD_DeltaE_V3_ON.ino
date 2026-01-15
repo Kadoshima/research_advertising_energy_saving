@@ -7,6 +7,8 @@
 #include <SPI.h>
 #include <SD.h>
 #include <Adafruit_INA219.h>
+// esp_random()
+#include <esp_system.h>
 
 static const int SD_CS = 5;
 static const int SD_SCK = 18;
@@ -24,7 +26,12 @@ static const uint32_t MIN_TRIAL_MS = 1000;
 static const uint32_t ADV_INTERVAL_MS = 100;
 static const bool USE_TICK_INPUT = true;
 static const char FW_TAG[] = "TXSD_DeltaE_V3_ON";
+static const char FW_BUILD[] = "TXSD_DeltaE_V3_ON_syncdebounce_2026-01-15_v2";
 static const char PROGRAM_ID[] = "TXSD_DELTAE_V3_ON_20260114";
+// Debug verbosity: 0=min, 1=edges+agent, 2=more agent detail, 3=periodic verbose
+#ifndef DBG_LEVEL
+#define DBG_LEVEL 1
+#endif
 
 Adafruit_INA219 ina;
 File f;
@@ -45,18 +52,24 @@ void IRAM_ATTR onTickRaw() { tickCountRaw++; }
 
 String nextPath() {
   SD.mkdir("/logs");
-  char p[64];
-  for (uint32_t id = 1;; ++id) {
-    snprintf(p, sizeof(p), "/logs/trial_%03lu_on.csv", (unsigned long)id);
-    if (!SD.exists(p)) return String(p);
-  }
+  // Deprecated: avoid O(N) SD.exists() scan from 1.
+  return String("/logs/_deprecated.csv");
+}
+
+static void makeNextPath(char* out, size_t out_sz) {
+  SD.mkdir("/logs");
+  // Avoid O(N) SD.exists() scan from 1; generate a unique-ish filename immediately.
+  uint32_t ms = millis();
+  uint32_t r = (uint32_t)esp_random();
+  snprintf(out, out_sz, "/logs/pwr_%08lu_%08lx_on.csv", (unsigned long)ms, (unsigned long)r);
 }
 
 static void startTrial() {
-  String path = nextPath();
+  char path[64];
+  makeNextPath(path, sizeof(path));
   f = SD.open(path, FILE_WRITE);
   if (!f) {
-    Serial.println("[SD] open FAIL");
+    Serial.printf("[SD] open FAIL path=%s\n", path);
     return;
   }
   f.println("prog_id,ms,mV,uA,p_mW");
@@ -73,12 +86,24 @@ static void startTrial() {
   sampN = 0;
   badLines = 0;
   syncLowSince = 0;
-  Serial.printf("[PWR] start %s\n", path.c_str());
+  // #region agent log
+  Serial.printf("[AGENT] TXSD startTrial nowMs=%lu t0_ms=%lu sync=%d alt=%d\n",
+                (unsigned long)millis(), (unsigned long)t0_ms,
+                digitalRead(SYNC_IN), digitalRead(SYNC_ALT_IN));
+  // #endregion
+  Serial.printf("[PWR] start %s\n", path);
 }
 
 static void endTrial() {
   if (!logging) return;
   logging = false;
+  // #region agent log
+  Serial.printf("[AGENT] TXSD endTrial nowMs=%lu t0_ms=%lu dt=%lu sync=%d alt=%d syncLowSince=%lu\n",
+                (unsigned long)millis(), (unsigned long)t0_ms,
+                (unsigned long)(millis() - t0_ms),
+                digitalRead(SYNC_IN), digitalRead(SYNC_ALT_IN),
+                (unsigned long)syncLowSince);
+  // #endregion
 
   uint32_t now_ms = millis();
   uint32_t ms_total = now_ms - t0_ms;
@@ -111,6 +136,14 @@ static void endTrial() {
 
 void setup() {
   Serial.begin(115200);
+  Serial.printf("[FW] %s\n", FW_BUILD);
+  // #region agent log
+  Serial.printf("[AGENT] TXSD_ON build_file=%s dbg_level=%d periodic_dbg=%d use_tick=%d\n",
+                __FILE__, (int)DBG_LEVEL, (DBG_LEVEL >= 3) ? 1 : 0,
+                USE_TICK_INPUT ? 1 : 0);
+  Serial.printf("[AGENT_PROBE] TXSD_ON build_datetime=%s %s fw_build=%s\n",
+                __DATE__, __TIME__, FW_BUILD);
+  // #endregion
   SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
   if (!SD.begin(SD_CS)) {
     Serial.println("[SD] init FAIL");
@@ -136,15 +169,13 @@ void loop() {
   uint32_t nowMs = millis();
   int syncIn = digitalRead(SYNC_IN);
   int syncAlt = digitalRead(SYNC_ALT_IN);
+  int syncAnyHigh = (syncIn == HIGH) || (syncAlt == HIGH);
+  int syncAllLow = (syncIn == LOW) && (syncAlt == LOW);
 
-  static uint32_t lastDebugMs = 0;
+  // DEBUG: reduce log volume (default: only edge changes)
   static int lastSyncIn = -1;
   static int lastSyncAlt = -1;
-  if (nowMs - lastDebugMs >= 1000) {
-    Serial.printf("[DBG] SYNC_IN=%d SYNC_ALT=%d logging=%d syncLowSince=%lu\n",
-                  syncIn, syncAlt, logging ? 1 : 0, (unsigned long)syncLowSince);
-    lastDebugMs = nowMs;
-  }
+#if DBG_LEVEL >= 1
   if (syncIn != lastSyncIn) {
     Serial.printf("[DBG] SYNC_PIN=%d level=%d nowMs=%lu\n",
                   SYNC_IN, syncIn, (unsigned long)nowMs);
@@ -155,21 +186,63 @@ void loop() {
                   SYNC_ALT_IN, syncAlt, (unsigned long)nowMs);
     lastSyncAlt = syncAlt;
   }
+#else
+  lastSyncIn = syncIn;
+  lastSyncAlt = syncAlt;
+#endif
+#if DBG_LEVEL >= 3
+  static uint32_t lastDebugMs = 0;
+  if (nowMs - lastDebugMs >= 5000) {
+    Serial.printf("[DBG] SYNC_IN=%d SYNC_ALT=%d logging=%d syncLowSince=%lu\n",
+                  syncIn, syncAlt, logging ? 1 : 0, (unsigned long)syncLowSince);
+    lastDebugMs = nowMs;
+  }
+#endif
 
-  if (!logging && syncIn == HIGH) {
-    startTrial();
+  // Start only if SYNC stays HIGH for a short time (avoid floating/noise triggers)
+  static uint32_t syncHighSince = 0;
+  static const uint32_t START_DEBOUNCE_MS = 100;
+  if (!logging) {
+    if (syncAnyHigh) {
+      if (syncHighSince == 0) syncHighSince = nowMs;
+      if ((nowMs - syncHighSince) >= START_DEBOUNCE_MS) {
+        // #region agent log
+#if DBG_LEVEL >= 2
+        Serial.printf("[AGENT] TXSD start condition met (HIGH stable) nowMs=%lu highSince=%lu\n",
+                      (unsigned long)nowMs, (unsigned long)syncHighSince);
+#endif
+        // #endregion
+        startTrial();
+        syncHighSince = 0;
+        return;  // Exit loop to avoid same-iteration issues
+      }
+    } else {
+      syncHighSince = 0;
+    }
   }
 
   if (logging) {
-    if (syncIn == LOW) {
+    if (syncAllLow) {
       if (syncLowSince == 0) syncLowSince = nowMs;
       if ((nowMs - syncLowSince) >= 100) {
+        // #region agent log
+#if DBG_LEVEL >= 2
+        Serial.printf("[AGENT] TXSD end condition met (LOW stable) nowMs=%lu lowSince=%lu\n",
+                      (unsigned long)nowMs, (unsigned long)syncLowSince);
+#endif
+        // #endregion
         endTrial();
         syncLowSince = 0;
       }
     } else {
       syncLowSince = 0;
       if ((nowMs - t0_ms) >= FALLBACK_MS) {
+        // #region agent log
+#if DBG_LEVEL >= 2
+        Serial.printf("[AGENT] TXSD end condition met (FALLBACK) nowMs=%lu t0_ms=%lu\n",
+                      (unsigned long)nowMs, (unsigned long)t0_ms);
+#endif
+        // #endregion
         endTrial();
       }
     }

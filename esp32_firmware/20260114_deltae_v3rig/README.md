@@ -7,6 +7,7 @@
 ## 配線メモ
 
 - SYNC: TX(25) → TXSD(26) / RX(26)
+  - 追記: TX側スケッチで `USE_SYNC_ALT_OUT=true` の場合、GPIO26にもSYNCをミラー出力する（配線の自由度/冗長化）
 - TICK: TX(27) → TXSD(33)（USE_TICK_INPUT=true）
 
 ## スケッチ（v3 rig基準）
@@ -27,6 +28,7 @@
 - `esp32_firmware/20260114_deltae_v3rig/TXSD_DeltaE_V3_ON/TXSD_DeltaE_V3_ON.ino`
   - `ADV_INTERVAL_MS` はメタ情報用。必要なら interval に合わせて更新する
   - CSV先頭列に `prog_id` を付与
+  - 追記: 開始側デバウンス（HIGH 100ms）/ユニークファイル名/DBG_LEVEL/`SYNC_IN || SYNC_ALT_IN` 対応
 - `esp32_firmware/20260114_deltae_v3rig/TXSD_DeltaE_V3_OFF/TXSD_DeltaE_V3_OFF.ino`
   - CSV先頭列に `prog_id` を付与
 

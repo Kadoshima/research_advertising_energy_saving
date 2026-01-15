@@ -10,3 +10,20 @@
   - 修正: repo側RX原本 (`esp32_firmware/20260114_deltae_v3rig/RX_DeltaE_V3/RX_DeltaE_V3.ino`)
     - Arduino RX と同等のポーリング＋開始/終了デバウンスを反映
 
+- 2026-01-15 JST 追記
+  - ログ抑制: DBG出力をエッジ中心に削減（`DBG_LEVEL`導入、既定=1）
+    - 対象: Arduino側 `C:\Users\tp240\Documents\Arduino\RX\RX.ino`, `C:\Users\tp240\Documents\Arduino\TXSD\TXSD.ino`
+    - 対象: repo側 `esp32_firmware/20260114_deltae_v3rig/RX_DeltaE_V3/RX_DeltaE_V3.ino`, `esp32_firmware/20260114_deltae_v3rig/TXSD_DeltaE_V3_OFF/TXSD_DeltaE_V3_OFF.ino`
+    - `DBG_LEVEL=2` で5秒周期の詳細ログを復活可能
+
+- 2026-01-15 JST 追記
+  - v3 rig スケッチ横展開（`esp32_firmware/20260114_deltae_v3rig/`）
+    - TXSD（ON/OFF）: `DBG_LEVEL>=2` の時だけ開始/終了条件ログを出すように調整（通常はエッジ＋start/endのみ）
+      - `esp32_firmware/20260114_deltae_v3rig/TXSD_DeltaE_V3_OFF/TXSD_DeltaE_V3_OFF.ino`
+      - `esp32_firmware/20260114_deltae_v3rig/TXSD_DeltaE_V3_ON/TXSD_DeltaE_V3_ON.ino`
+    - TX（ON/OFF, 100/500/1000/2000ms）: どのバイナリか識別しやすいよう `[FW] ... program_id=...` を起動時に出力
+      - `esp32_firmware/20260114_deltae_v3rig/TX_DeltaE_V3_OFF/TX_DeltaE_V3_OFF.ino`
+      - `esp32_firmware/20260114_deltae_v3rig/TX_DeltaE_V3_ON_100ms/TX_DeltaE_V3_ON_100ms.ino`
+      - `esp32_firmware/20260114_deltae_v3rig/TX_DeltaE_V3_ON_500ms/TX_DeltaE_V3_ON_500ms.ino`
+      - `esp32_firmware/20260114_deltae_v3rig/TX_DeltaE_V3_ON_1000ms/TX_DeltaE_V3_ON_1000ms.ino`
+      - `esp32_firmware/20260114_deltae_v3rig/TX_DeltaE_V3_ON_2000ms/TX_DeltaE_V3_ON_2000ms.ino`

@@ -36,6 +36,10 @@ static const char PROGRAM_ID[] = "RX_DELTAE_V3_SYNC_PROBE_20260115";
 static const uint16_t RX_BUF_SIZE = 512;
 static const uint32_t FLUSH_INTERVAL_MS = 500;
 static const char FW_BUILD[] = "RX_DeltaE_V3_syncdebounce_2026-01-15_v2";
+// Debug verbosity: 0=min, 1=edges+agent, 2=more agent detail, 3=periodic verbose
+#ifndef DBG_LEVEL
+#define DBG_LEVEL 1
+#endif
 
 struct RxEntry {
   uint32_t ms;
@@ -105,17 +109,20 @@ void startTrial() {
   char path[64];
   makeNextPath(path, sizeof(path));
   f = SD.open(path, FILE_WRITE);
-  if (f) {
-    f.println("prog_id,ms,event,rssi,addr,mfd");
-    trialIndex++;
-    f.printf("# meta, firmware=%s, program_id=%s, trial_index=%lu, adv_interval_ms=%u, buf_size=%u\r\n",
-             FW_TAG, PROGRAM_ID, (unsigned long)trialIndex, (unsigned)ADV_INTERVAL_MS, (unsigned)RX_BUF_SIZE);
+  if (!f) {
+    Serial.printf("[SD] open FAIL path=%s\n", path);
+    return;
   }
+  f.println("prog_id,ms,event,rssi,addr,mfd");
+  trialIndex++;
+  f.printf("# meta, firmware=%s, program_id=%s, trial_index=%lu, adv_interval_ms=%u, buf_size=%u\r\n",
+           FW_TAG, PROGRAM_ID, (unsigned long)trialIndex, (unsigned)ADV_INTERVAL_MS, (unsigned)RX_BUF_SIZE);
   t0Ms = millis();
   trial = true;
   // #region agent log
-  Serial.printf("[AGENT] RX startTrial nowMs=%lu t0Ms=%lu syncIn_now=%d\n",
-                (unsigned long)millis(), (unsigned long)t0Ms, digitalRead(SYNC_IN));
+  Serial.printf("[AGENT] RX startTrial nowMs=%lu t0Ms=%lu sync=%d alt=%d\n",
+                (unsigned long)millis(), (unsigned long)t0Ms,
+                digitalRead(SYNC_IN), digitalRead(SYNC_ALT_IN));
   // #endregion
   txLockAddr[0] = '\0';
   rxCount = 0;
@@ -130,10 +137,11 @@ static void endTrialWithReason(const char* reason) {
   if (!trial) return;
   trial = false;
   // #region agent log
-  Serial.printf("[AGENT] RX endTrial reason=%s nowMs=%lu t0Ms=%lu dt=%lu syncIn_now=%d\n",
+  Serial.printf("[AGENT] RX endTrial reason=%s nowMs=%lu t0Ms=%lu dt=%lu sync=%d alt=%d\n",
                 reason,
                 (unsigned long)millis(), (unsigned long)t0Ms,
-                (unsigned long)(millis() - t0Ms), digitalRead(SYNC_IN));
+                (unsigned long)(millis() - t0Ms),
+                digitalRead(SYNC_IN), digitalRead(SYNC_ALT_IN));
   // #endregion
   flushBuffer();
   if (f) {
@@ -218,6 +226,12 @@ CB cb;
 void setup() {
   Serial.begin(115200);
   Serial.printf("[FW] %s\n", FW_BUILD);
+  // #region agent log
+  Serial.printf("[AGENT] RX build_file=%s dbg_level=%d periodic_dbg=%d\n",
+                __FILE__, (int)DBG_LEVEL, (DBG_LEVEL >= 3) ? 1 : 0);
+  Serial.printf("[AGENT_PROBE] RX build_datetime=%s %s fw_build=%s\n",
+                __DATE__, __TIME__, FW_BUILD);
+  // #endregion
   SPI.begin(18, 19, 23, SD_CS);
   if (!SD.begin(SD_CS)) {
     Serial.println("[SD] init FAIL");
@@ -254,6 +268,8 @@ void loop() {
   // Use polling instead of interrupt (more stable)
   int syncIn = digitalRead(SYNC_IN);
   int syncAlt = digitalRead(SYNC_ALT_IN);
+  int syncAnyHigh = (syncIn == HIGH) || (syncAlt == HIGH);
+  int syncAllLow = (syncIn == LOW) && (syncAlt == LOW);
   
   // Debounce for SYNC HIGH/LOW detection (avoid floating/noise triggers)
   static uint32_t syncHighSince = 0;
@@ -261,16 +277,10 @@ void loop() {
   static const uint32_t START_DEBOUNCE_MS = 100;
   static const uint32_t END_DEBOUNCE_MS = 100;
   
-  // DEBUG: Print SYNC pin state every second
-  static uint32_t lastDebugMs = 0;
-  if (nowMs - lastDebugMs >= 1000) {
-    Serial.printf("[DBG] SYNC_IN=%d SYNC_ALT=%d trial=%d highSince=%lu lowSince=%lu\n",
-                  syncIn, syncAlt, (int)trial, (unsigned long)syncHighSince, (unsigned long)syncLowSince);
-    lastDebugMs = nowMs;
-  }
-
+  // DEBUG: reduce log volume (default: only edge changes)
   static int lastSyncIn = -1;
   static int lastSyncAlt = -1;
+#if DBG_LEVEL >= 1
   if (syncIn != lastSyncIn) {
     Serial.printf("[DBG] SYNC_PIN=%d level=%d nowMs=%lu\n",
                   SYNC_IN, syncIn, (unsigned long)nowMs);
@@ -281,14 +291,28 @@ void loop() {
                   SYNC_ALT_IN, syncAlt, (unsigned long)nowMs);
     lastSyncAlt = syncAlt;
   }
+#else
+  lastSyncIn = syncIn;
+  lastSyncAlt = syncAlt;
+#endif
+#if DBG_LEVEL >= 3
+  static uint32_t lastDebugMs = 0;
+  if (nowMs - lastDebugMs >= 5000) {
+    Serial.printf("[DBG] SYNC_IN=%d SYNC_ALT=%d trial=%d highSince=%lu lowSince=%lu\n",
+                  syncIn, syncAlt, (int)trial, (unsigned long)syncHighSince, (unsigned long)syncLowSince);
+    lastDebugMs = nowMs;
+  }
+#endif
   
   if (!trial) {
-    if (syncIn == HIGH) {
+    if (syncAnyHigh) {
       if (syncHighSince == 0) syncHighSince = nowMs;
       if ((nowMs - syncHighSince) >= START_DEBOUNCE_MS) {
         // #region agent log
+#if DBG_LEVEL >= 2
         Serial.printf("[AGENT] RX start condition met (HIGH stable) nowMs=%lu highSince=%lu\n",
                       (unsigned long)nowMs, (unsigned long)syncHighSince);
+#endif
         // #endregion
         startTrial();
         syncLowSince = 0;
@@ -301,7 +325,7 @@ void loop() {
   }
   
   if (trial && USE_SYNC_END) {
-    if (syncIn == LOW) {
+    if (syncAllLow) {
       if (syncLowSince == 0) syncLowSince = nowMs;
       if ((nowMs - syncLowSince) >= END_DEBOUNCE_MS) {
         endTrialWithReason("SYNC_LOW_STABLE");
