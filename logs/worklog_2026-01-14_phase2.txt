@@ -53,3 +53,6 @@
 
 2026-01-15 14:33 JST
 - TXSD側にもSYNC(25/26)監視ログを追加し、エッジ検出で配線判定できるように更新: `esp32_firmware/20260114_deltae_v3rig/TXSD_DeltaE_V3_ON/TXSD_DeltaE_V3_ON.ino`, `esp32_firmware/20260114_deltae_v3rig/TXSD_DeltaE_V3_OFF/TXSD_DeltaE_V3_OFF.ino`.
+
+2026-01-15 19:34 JST
+- TX_DeltaE_V3_ON_*でManufacturerDataの型不一致を解消（std::string→String）: `esp32_firmware/20260114_deltae_v3rig/TX_DeltaE_V3_ON_100ms/TX_DeltaE_V3_ON_100ms.ino`, `esp32_firmware/20260114_deltae_v3rig/TX_DeltaE_V3_ON_500ms/TX_DeltaE_V3_ON_500ms.ino`, `esp32_firmware/20260114_deltae_v3rig/TX_DeltaE_V3_ON_1000ms/TX_DeltaE_V3_ON_1000ms.ino`, `esp32_firmware/20260114_deltae_v3rig/TX_DeltaE_V3_ON_2000ms/TX_DeltaE_V3_ON_2000ms.ino`.
