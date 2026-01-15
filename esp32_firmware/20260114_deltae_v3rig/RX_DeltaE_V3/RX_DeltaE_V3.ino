@@ -82,14 +82,12 @@ void IRAM_ATTR onSync() {
   }
 }
 
-String nextPath() {
+static void makeNextPath(char* out, size_t out_sz) {
   SD.mkdir("/logs");
   // Avoid O(N) SD.exists() scan from 1; generate a unique-ish filename immediately.
   uint32_t ms = millis();
   uint32_t r = (uint32_t)esp_random();
-  char p[64];
-  snprintf(p, sizeof(p), "/logs/rx_%08lu_%08lx.csv", (unsigned long)ms, (unsigned long)r);
-  return String(p);
+  snprintf(out, out_sz, "/logs/rx_%08lu_%08lx.csv", (unsigned long)ms, (unsigned long)r);
 }
 
 void flushBuffer() {
@@ -104,7 +102,8 @@ void flushBuffer() {
 }
 
 void startTrial() {
-  String path = nextPath();
+  char path[64];
+  makeNextPath(path, sizeof(path));
   f = SD.open(path, FILE_WRITE);
   if (f) {
     f.println("prog_id,ms,event,rssi,addr,mfd");
@@ -124,7 +123,7 @@ void startTrial() {
   rxBufTail = 0;
   bufOverflow = 0;
   lastFlushMs = millis();
-  Serial.printf("[RX] start %s (trial=%lu)\n", path.c_str(), (unsigned long)trialIndex);
+  Serial.printf("[RX] start %s (trial=%lu)\n", path, (unsigned long)trialIndex);
 }
 
 static void endTrialWithReason(const char* reason) {

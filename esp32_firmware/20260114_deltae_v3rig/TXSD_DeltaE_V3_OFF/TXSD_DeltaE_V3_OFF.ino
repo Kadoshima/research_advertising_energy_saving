@@ -46,18 +46,17 @@ uint32_t syncLowSince = 0;
 
 void IRAM_ATTR onTickRaw() { tickCountRaw++; }
 
-String nextPath() {
+static void makeNextPath(char* out, size_t out_sz) {
   SD.mkdir("/logs");
   // Avoid O(N) SD.exists() scan from 1; generate a unique-ish filename immediately.
   uint32_t ms = millis();
   uint32_t r = (uint32_t)esp_random();
-  char p[64];
-  snprintf(p, sizeof(p), "/logs/pwr_%08lu_%08lx_off.csv", (unsigned long)ms, (unsigned long)r);
-  return String(p);
+  snprintf(out, out_sz, "/logs/pwr_%08lu_%08lx_off.csv", (unsigned long)ms, (unsigned long)r);
 }
 
 static void startTrial() {
-  String path = nextPath();
+  char path[64];
+  makeNextPath(path, sizeof(path));
   f = SD.open(path, FILE_WRITE);
   if (!f) {
     Serial.println("[SD] open FAIL");
@@ -81,7 +80,7 @@ static void startTrial() {
   Serial.printf("[AGENT] TXSD startTrial nowMs=%lu t0_ms=%lu syncIn_now=%d\n",
                 (unsigned long)millis(), (unsigned long)t0_ms, digitalRead(SYNC_IN));
   // #endregion
-  Serial.printf("[PWR] start %s\n", path.c_str());
+  Serial.printf("[PWR] start %s\n", path);
 }
 
 static void endTrial() {
