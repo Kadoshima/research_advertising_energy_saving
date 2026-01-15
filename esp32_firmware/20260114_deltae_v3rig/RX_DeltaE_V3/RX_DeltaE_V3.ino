@@ -21,9 +21,11 @@
 
 static const int SD_CS = 5;
 static const int SYNC_IN = 26;
+static const int SYNC_ALT_IN = 25;
 static const uint16_t ADV_INTERVAL_MS = 100;
 static const uint32_t TRIAL_MS = 70000;
 static const bool USE_SYNC_END = true;
+static const char PROGRAM_ID[] = "RX_DELTAE_V3_SYNC_PROBE_20260115";
 
 #ifndef SCAN_MS
   #define SCAN_MS 50
@@ -92,8 +94,8 @@ void flushBuffer() {
   uint16_t head = rxBufHead;
   while (rxBufTail != head) {
     RxEntry& e = rxBuf[rxBufTail];
-    f.printf("%lu,ADV,%d,%s,%s\r\n",
-             (unsigned long)e.ms, (int)e.rssi, e.addr, e.mfd);
+    f.printf("%s,%lu,ADV,%d,%s,%s\r\n",
+             PROGRAM_ID, (unsigned long)e.ms, (int)e.rssi, e.addr, e.mfd);
     rxBufTail = (rxBufTail + 1) % RX_BUF_SIZE;
   }
 }
@@ -102,10 +104,10 @@ void startTrial() {
   String path = nextPath();
   f = SD.open(path, FILE_WRITE);
   if (f) {
-    f.println("ms,event,rssi,addr,mfd");
+    f.println("prog_id,ms,event,rssi,addr,mfd");
     trialIndex++;
-    f.printf("# meta, firmware=%s, trial_index=%lu, adv_interval_ms=%u, buf_size=%u\r\n",
-             FW_TAG, (unsigned long)trialIndex, (unsigned)ADV_INTERVAL_MS, (unsigned)RX_BUF_SIZE);
+    f.printf("# meta, firmware=%s, program_id=%s, trial_index=%lu, adv_interval_ms=%u, buf_size=%u\r\n",
+             FW_TAG, PROGRAM_ID, (unsigned long)trialIndex, (unsigned)ADV_INTERVAL_MS, (unsigned)RX_BUF_SIZE);
   }
   t0Ms = millis();
   trial = true;
@@ -220,6 +222,7 @@ void setup() {
     while (1) delay(1000);
   }
   pinMode(SYNC_IN, INPUT_PULLDOWN);
+  pinMode(SYNC_ALT_IN, INPUT_PULLDOWN);
   // Removed interrupt - using polling instead for stability
 
 #if USE_NIMBLE
@@ -248,6 +251,7 @@ void loop() {
   
   // Use polling instead of interrupt (more stable)
   int syncIn = digitalRead(SYNC_IN);
+  int syncAlt = digitalRead(SYNC_ALT_IN);
   
   // Debounce for SYNC HIGH/LOW detection (avoid floating/noise triggers)
   static uint32_t syncHighSince = 0;
@@ -258,9 +262,22 @@ void loop() {
   // DEBUG: Print SYNC pin state every second
   static uint32_t lastDebugMs = 0;
   if (nowMs - lastDebugMs >= 1000) {
-    Serial.printf("[DBG] SYNC_IN=%d trial=%d highSince=%lu lowSince=%lu\n",
-                  syncIn, (int)trial, (unsigned long)syncHighSince, (unsigned long)syncLowSince);
+    Serial.printf("[DBG] SYNC_IN=%d SYNC_ALT=%d trial=%d highSince=%lu lowSince=%lu\n",
+                  syncIn, syncAlt, (int)trial, (unsigned long)syncHighSince, (unsigned long)syncLowSince);
     lastDebugMs = nowMs;
+  }
+
+  static int lastSyncIn = -1;
+  static int lastSyncAlt = -1;
+  if (syncIn != lastSyncIn) {
+    Serial.printf("[DBG] SYNC_PIN=%d level=%d nowMs=%lu\n",
+                  SYNC_IN, syncIn, (unsigned long)nowMs);
+    lastSyncIn = syncIn;
+  }
+  if (syncAlt != lastSyncAlt) {
+    Serial.printf("[DBG] SYNC_PIN=%d level=%d nowMs=%lu\n",
+                  SYNC_ALT_IN, syncAlt, (unsigned long)nowMs);
+    lastSyncAlt = syncAlt;
   }
   
   if (!trial) {

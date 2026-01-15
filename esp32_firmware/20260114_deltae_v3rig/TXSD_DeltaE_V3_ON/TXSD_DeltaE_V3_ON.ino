@@ -13,6 +13,7 @@ static const int SD_SCK = 18;
 static const int SD_MISO = 19;
 static const int SD_MOSI = 23;
 static const int SYNC_IN = 26;
+static const int SYNC_ALT_IN = 25;
 static const int TICK_IN = 33;
 static const int I2C_SDA = 21;
 static const int I2C_SCL = 22;
@@ -117,6 +118,7 @@ void setup() {
   }
 
   pinMode(SYNC_IN, INPUT_PULLDOWN);
+  pinMode(SYNC_ALT_IN, INPUT_PULLDOWN);
   pinMode(TICK_IN, INPUT_PULLDOWN);
   if (USE_TICK_INPUT) {
     attachInterrupt(digitalPinToInterrupt(TICK_IN), onTickRaw, RISING);
@@ -133,6 +135,26 @@ void setup() {
 void loop() {
   uint32_t nowMs = millis();
   int syncIn = digitalRead(SYNC_IN);
+  int syncAlt = digitalRead(SYNC_ALT_IN);
+
+  static uint32_t lastDebugMs = 0;
+  static int lastSyncIn = -1;
+  static int lastSyncAlt = -1;
+  if (nowMs - lastDebugMs >= 1000) {
+    Serial.printf("[DBG] SYNC_IN=%d SYNC_ALT=%d logging=%d syncLowSince=%lu\n",
+                  syncIn, syncAlt, logging ? 1 : 0, (unsigned long)syncLowSince);
+    lastDebugMs = nowMs;
+  }
+  if (syncIn != lastSyncIn) {
+    Serial.printf("[DBG] SYNC_PIN=%d level=%d nowMs=%lu\n",
+                  SYNC_IN, syncIn, (unsigned long)nowMs);
+    lastSyncIn = syncIn;
+  }
+  if (syncAlt != lastSyncAlt) {
+    Serial.printf("[DBG] SYNC_PIN=%d level=%d nowMs=%lu\n",
+                  SYNC_ALT_IN, syncAlt, (unsigned long)nowMs);
+    lastSyncAlt = syncAlt;
+  }
 
   if (!logging && syncIn == HIGH) {
     startTrial();
