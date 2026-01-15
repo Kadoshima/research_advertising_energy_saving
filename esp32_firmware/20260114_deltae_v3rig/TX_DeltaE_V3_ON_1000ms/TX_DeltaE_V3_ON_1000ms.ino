@@ -4,7 +4,6 @@
 
 #include <Arduino.h>
 #include <BLEDevice.h>
-#include <string>
 
 static const char FW_TAG[] = "TX_DeltaE_V3_ON_1000ms";
 static const char PROGRAM_ID[] = "TX_DELTAE_V3_ON_1000MS_20260114";
@@ -23,7 +22,7 @@ static const int TICK_OUT_PIN = 27;
 static const int LED_PIN = 2;
 
 BLEAdvertising* adv = nullptr;
-static std::string g_mfd;
+static String g_mfd;
 static char g_mfd_buf[7];
 
 uint16_t seq = 0;
@@ -35,9 +34,9 @@ bool trialRunning = false;
 uint32_t advCount = 0;
 uint32_t trialEndMs = 0;
 
-static inline const std::string& makeMFD(uint16_t s) {
+static inline String makeMFD(uint16_t s) {
   snprintf(g_mfd_buf, sizeof(g_mfd_buf), "MF%04X", (unsigned)s);
-  g_mfd.assign(g_mfd_buf, 6);
+  g_mfd = g_mfd_buf;
   return g_mfd;
 }
 
