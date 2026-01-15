@@ -5,6 +5,8 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <SD.h>
+// esp_random()
+#include <esp_system.h>
 
 #ifndef __has_include
   #define __has_include(x) 0
@@ -82,11 +84,12 @@ void IRAM_ATTR onSync() {
 
 String nextPath() {
   SD.mkdir("/logs");
+  // Avoid O(N) SD.exists() scan from 1; generate a unique-ish filename immediately.
+  uint32_t ms = millis();
+  uint32_t r = (uint32_t)esp_random();
   char p[64];
-  for (uint32_t id = 1;; ++id) {
-    snprintf(p, sizeof(p), "/logs/rx_trial_%03lu.csv", (unsigned long)id);
-    if (!SD.exists(p)) return String(p);
-  }
+  snprintf(p, sizeof(p), "/logs/rx_%08lu_%08lx.csv", (unsigned long)ms, (unsigned long)r);
+  return String(p);
 }
 
 void flushBuffer() {

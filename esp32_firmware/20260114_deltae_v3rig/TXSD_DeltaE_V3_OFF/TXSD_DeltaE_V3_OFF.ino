@@ -7,6 +7,8 @@
 #include <SPI.h>
 #include <SD.h>
 #include <Adafruit_INA219.h>
+// esp_random()
+#include <esp_system.h>
 
 static const int SD_CS = 5;
 static const int SD_SCK = 18;
@@ -46,11 +48,12 @@ void IRAM_ATTR onTickRaw() { tickCountRaw++; }
 
 String nextPath() {
   SD.mkdir("/logs");
+  // Avoid O(N) SD.exists() scan from 1; generate a unique-ish filename immediately.
+  uint32_t ms = millis();
+  uint32_t r = (uint32_t)esp_random();
   char p[64];
-  for (uint32_t id = 1;; ++id) {
-    snprintf(p, sizeof(p), "/logs/trial_%03lu_off.csv", (unsigned long)id);
-    if (!SD.exists(p)) return String(p);
-  }
+  snprintf(p, sizeof(p), "/logs/pwr_%08lu_%08lx_off.csv", (unsigned long)ms, (unsigned long)r);
+  return String(p);
 }
 
 static void startTrial() {
