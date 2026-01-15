@@ -24,6 +24,7 @@ static const int SYNC_IN = 26;
 static const uint16_t ADV_INTERVAL_MS = 100;
 static const uint32_t TRIAL_MS = 70000;
 static const bool USE_SYNC_END = true;
+static const char PROGRAM_ID[] = "RX_DELTAE_V3_20260114";
 
 #ifndef SCAN_MS
   #define SCAN_MS 50
@@ -91,8 +92,8 @@ void flushBuffer() {
   uint16_t head = rxBufHead;
   while (rxBufTail != head) {
     RxEntry& e = rxBuf[rxBufTail];
-    f.printf("%lu,ADV,%d,%s,%s\r\n",
-             (unsigned long)e.ms, (int)e.rssi, e.addr, e.mfd);
+    f.printf("%s,%lu,ADV,%d,%s,%s\r\n",
+             PROGRAM_ID, (unsigned long)e.ms, (int)e.rssi, e.addr, e.mfd);
     rxBufTail = (rxBufTail + 1) % RX_BUF_SIZE;
   }
 }
@@ -101,10 +102,10 @@ void startTrial() {
   String path = nextPath();
   f = SD.open(path, FILE_WRITE);
   if (f) {
-    f.println("ms,event,rssi,addr,mfd");
+    f.println("prog_id,ms,event,rssi,addr,mfd");
     trialIndex++;
-    f.printf("# meta, firmware=%s, trial_index=%lu, adv_interval_ms=%u, buf_size=%u\r\n",
-             FW_TAG, (unsigned long)trialIndex, (unsigned)ADV_INTERVAL_MS, (unsigned)RX_BUF_SIZE);
+    f.printf("# meta, firmware=%s, program_id=%s, trial_index=%lu, adv_interval_ms=%u, buf_size=%u\r\n",
+             FW_TAG, PROGRAM_ID, (unsigned long)trialIndex, (unsigned)ADV_INTERVAL_MS, (unsigned)RX_BUF_SIZE);
   }
   t0Ms = millis();
   trial = true;

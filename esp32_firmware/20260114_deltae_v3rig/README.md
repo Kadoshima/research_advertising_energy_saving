@@ -26,12 +26,15 @@
 
 - `esp32_firmware/20260114_deltae_v3rig/TXSD_DeltaE_V3_ON/TXSD_DeltaE_V3_ON.ino`
   - `ADV_INTERVAL_MS` はメタ情報用。必要なら interval に合わせて更新する
+  - CSV先頭列に `prog_id` を付与
 - `esp32_firmware/20260114_deltae_v3rig/TXSD_DeltaE_V3_OFF/TXSD_DeltaE_V3_OFF.ino`
+  - CSV先頭列に `prog_id` を付与
 
 ### RX（必要時のみ）
 
 - `esp32_firmware/20260114_deltae_v3rig/RX_DeltaE_V3/RX_DeltaE_V3.ino`
   - `ADV_INTERVAL_MS` はPDR目安用。intervalと一致させる
+  - CSV先頭列に `prog_id` を付与
 
 ## 関連ドキュメント
 

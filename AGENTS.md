@@ -38,6 +38,7 @@
 - ドキュメントは `docs/フェーズN/<task_slug>/` に集約する（勝手にフェーズは作らない）。既存トップレベル文書の移動は指示がない限り行わない。
 - 各タスクディレクトリに必ず `README.md` を置き、コード/データ/結果/設定への参照パスを明記する。
 - READMEの必須項目: 目的/範囲, 入力データ（出所/版/行数/SHA256）, 出力物（生成日/生成スクリプト）, 再現手順（コマンド）, 状態（draft/frozen/obsolete）, 関連リンク, 更新履歴（YYYY-MM-DD）。
+- TXSD/RXの`.ino`でCSVを書き出す場合は、プログラム固有の`program_id`をCSV列として全行に含める（TXは対象外）。
 
 ## Recent experiment snapshot (Phase 0-0)
 - Phase: 0-0 baseline. Conditions: E2 (high interference), distance 1 m, adv_interval=100 ms, TxPower=0 dBm, 60 s × 6 runs.

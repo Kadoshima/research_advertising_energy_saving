@@ -73,6 +73,7 @@ npx markdown-link-check docs/フェーズ1/要件定義.md
 - New documents should live under `docs/フェーズN/<task_slug>/` (do not create new phases without agreement).
 - Each task directory must include a `README.md` that indexes code/data/results/config paths.
 - README required fields: purpose/scope, input data (source/version/row count/SHA256), outputs (generation date/script), reproduction commands, status (draft/frozen/obsolete), related links, update history (YYYY-MM-DD).
+- For TXSD/RX `.ino` sketches that write CSV logs, include a unique `program_id` column in every row (TX excluded).
 
 ## Code Architecture
 

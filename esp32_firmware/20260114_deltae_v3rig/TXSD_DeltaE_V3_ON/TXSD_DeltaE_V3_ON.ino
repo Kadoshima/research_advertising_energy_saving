@@ -23,6 +23,7 @@ static const uint32_t MIN_TRIAL_MS = 1000;
 static const uint32_t ADV_INTERVAL_MS = 100;
 static const bool USE_TICK_INPUT = true;
 static const char FW_TAG[] = "TXSD_DeltaE_V3_ON";
+static const char PROGRAM_ID[] = "TXSD_DELTAE_V3_ON_20260114";
 
 Adafruit_INA219 ina;
 File f;
@@ -57,9 +58,9 @@ static void startTrial() {
     Serial.println("[SD] open FAIL");
     return;
   }
-  f.println("ms,mV,uA,p_mW");
-  f.printf("# meta, firmware=%s, trial_index=auto, adv_interval_ms=%lu\r\n",
-           FW_TAG, (unsigned long)ADV_INTERVAL_MS);
+  f.println("prog_id,ms,mV,uA,p_mW");
+  f.printf("# meta, firmware=%s, program_id=%s, trial_index=auto, adv_interval_ms=%lu\r\n",
+           FW_TAG, PROGRAM_ID, (unsigned long)ADV_INTERVAL_MS);
 
   logging = true;
   t0_ms = millis();
@@ -166,9 +167,9 @@ void loop() {
       sumI += i;
       sampN++;
 
-      char buf[64];
-      int n = snprintf(buf, sizeof(buf), "%lu,%ld,%ld,%.1f\r\n",
-                       (unsigned long)relMs, (long)mv, (long)uA, p_mW);
+      char buf[96];
+      int n = snprintf(buf, sizeof(buf), "%s,%lu,%ld,%ld,%.1f\r\n",
+                       PROGRAM_ID, (unsigned long)relMs, (long)mv, (long)uA, p_mW);
       if (n > 0) {
         f.write((uint8_t*)buf, n);
       } else {
