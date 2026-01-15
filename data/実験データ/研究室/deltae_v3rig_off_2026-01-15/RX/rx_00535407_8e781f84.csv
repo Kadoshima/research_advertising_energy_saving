@@ -1,0 +1,2 @@
+prog_id,ms,event,rssi,addr,mfd
+# meta, firmware=RX_DeltaE_V3, program_id=RX_DELTAE_V3_SYNC_PROBE_20260115, trial_index=9, adv_interval_ms=100, buf_size=512

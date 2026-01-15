@@ -1,0 +1,21 @@
+role,trial_index,src_sd_filename,dst_relpath,sha256,rows,notes
+RX,1,rx_00015411_e21bf1ee.csv,RX/rx_trial_001.csv,,,from SD:/logs/
+RX,2,rx_00080410_d3973011.csv,RX/rx_trial_002.csv,,,from SD:/logs/
+RX,3,rx_00145409_1a89b6c2.csv,RX/rx_trial_003.csv,,,from SD:/logs/
+RX,4,rx_00210409_71782163.csv,RX/rx_trial_004.csv,,,from SD:/logs/
+RX,5,rx_00275408_1d4fa553.csv,RX/rx_trial_005.csv,,,from SD:/logs/
+RX,6,rx_00340408_6e4276ae.csv,RX/rx_trial_006.csv,,,from SD:/logs/
+RX,7,rx_00405408_5f973a25.csv,RX/rx_trial_007.csv,,,from SD:/logs/
+RX,8,rx_00470407_30f20e2b.csv,RX/rx_trial_008.csv,,,from SD:/logs/
+RX,9,rx_00535407_8e781f84.csv,RX/rx_trial_009.csv,,,from SD:/logs/
+RX,10,rx_00600406_94dd694d.csv,RX/rx_trial_010.csv,,,from SD:/logs/
+TXSD,1,pwr_00012010_d4ac93a5_off.csv,TXSD/trial_001_off.csv,,,from SD:/logs/
+TXSD,2,pwr_00077010_a369a898_off.csv,TXSD/trial_002_off.csv,,,from SD:/logs/
+TXSD,3,pwr_00142010_4560858a_off.csv,TXSD/trial_003_off.csv,,,from SD:/logs/
+TXSD,4,pwr_00207009_819f076a_off.csv,TXSD/trial_004_off.csv,,,from SD:/logs/
+TXSD,5,pwr_00272009_384e5658_off.csv,TXSD/trial_005_off.csv,,,from SD:/logs/
+TXSD,6,pwr_00337009_80a2399a_off.csv,TXSD/trial_006_off.csv,,,from SD:/logs/
+TXSD,7,pwr_00402009_b8186b63_off.csv,TXSD/trial_007_off.csv,,,from SD:/logs/
+TXSD,8,pwr_00467009_c3e3ad2c_off.csv,TXSD/trial_008_off.csv,,,from SD:/logs/
+TXSD,9,pwr_00532008_9866bb46_off.csv,TXSD/trial_009_off.csv,,,from SD:/logs/
+TXSD,10,pwr_00597008_3ba58277_off.csv,TXSD/trial_010_off.csv,,,from SD:/logs/
