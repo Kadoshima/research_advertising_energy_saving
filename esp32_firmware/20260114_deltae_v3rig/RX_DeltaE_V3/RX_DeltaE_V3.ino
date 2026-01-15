@@ -78,6 +78,15 @@ char txLockAddr[18] = "";
 uint32_t t0Ms = 0;
 bool trial = false;
 uint32_t rxCount = 0;
+// #region agent log
+// RX callback diagnostics (to distinguish "no packets seen" vs "filtered out")
+static uint32_t cbTotal = 0;
+static uint32_t cbMfdParseFail = 0;
+static uint32_t cbAddrMismatch = 0;
+static uint32_t cbBufDrop = 0;
+static char cbFirstMfd[16] = "";
+static char cbFirstAddr[18] = "";
+// #endregion
 
 void IRAM_ATTR onSync() {
   bool s = digitalRead(SYNC_IN);
@@ -126,6 +135,12 @@ void startTrial() {
   // #endregion
   txLockAddr[0] = '\0';
   rxCount = 0;
+  cbTotal = 0;
+  cbMfdParseFail = 0;
+  cbAddrMismatch = 0;
+  cbBufDrop = 0;
+  cbFirstMfd[0] = '\0';
+  cbFirstAddr[0] = '\0';
   rxBufHead = 0;
   rxBufTail = 0;
   bufOverflow = 0;
@@ -156,6 +171,16 @@ static void endTrialWithReason(const char* reason) {
   Serial.printf("[RX] summary trial=%lu ms_total=%lu, rx=%lu, rate_hz=%.2f, est_pdr=%.3f, buf_overflow=%lu\n",
                 (unsigned long)trialIndex, (unsigned long)t_ms, (unsigned long)rxCount,
                 rate_hz, pdr, (unsigned long)bufOverflow);
+  // #region agent log
+  Serial.printf("[AGENT] RX diag trial=%lu cbTotal=%lu mfdFail=%lu addrMis=%lu bufDrop=%lu firstAddr=%s firstMfd=%s\n",
+                (unsigned long)trialIndex,
+                (unsigned long)cbTotal,
+                (unsigned long)cbMfdParseFail,
+                (unsigned long)cbAddrMismatch,
+                (unsigned long)cbBufDrop,
+                cbFirstAddr[0] ? cbFirstAddr : "-",
+                cbFirstMfd[0] ? cbFirstMfd : "-");
+  // #endregion
   Serial.println("[RX] end");
 }
 
@@ -195,18 +220,34 @@ BLEScan* gScan = nullptr;
 class CB : public BLEAdvertisedDeviceCallbacks {
   void onResult(BLEAdvertisedDevice d) override {
     if (!trial) return;
+    cbTotal++;
     String mfd = d.getManufacturerData().c_str();
     uint16_t seq;
-    if (!parseMFD(mfd, seq)) return;
+    if (cbFirstMfd[0] == '\0') {
+      strncpy(cbFirstMfd, mfd.c_str(), sizeof(cbFirstMfd) - 1);
+      cbFirstMfd[sizeof(cbFirstMfd) - 1] = '\0';
+    }
+    if (!parseMFD(mfd, seq)) {
+      cbMfdParseFail++;
+      return;
+    }
     String addr = d.getAddress().toString();
+    if (cbFirstAddr[0] == '\0') {
+      strncpy(cbFirstAddr, addr.c_str(), sizeof(cbFirstAddr) - 1);
+      cbFirstAddr[sizeof(cbFirstAddr) - 1] = '\0';
+    }
     if (txLockAddr[0] == '\0') {
       strncpy(txLockAddr, addr.c_str(), sizeof(txLockAddr) - 1);
       txLockAddr[sizeof(txLockAddr) - 1] = '\0';
     }
-    if (strncmp(txLockAddr, addr.c_str(), sizeof(txLockAddr)) != 0) return;
+    if (strncmp(txLockAddr, addr.c_str(), sizeof(txLockAddr)) != 0) {
+      cbAddrMismatch++;
+      return;
+    }
     uint16_t nextHead = (rxBufHead + 1) % RX_BUF_SIZE;
     if (nextHead == rxBufTail) {
       bufOverflow++;
+      cbBufDrop++;
       return;
     }
     RxEntry& e = rxBuf[rxBufHead];
