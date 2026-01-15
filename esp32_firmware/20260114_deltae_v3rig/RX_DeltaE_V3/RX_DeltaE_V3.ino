@@ -24,7 +24,6 @@ static const int SYNC_IN = 26;
 static const uint16_t ADV_INTERVAL_MS = 100;
 static const uint32_t TRIAL_MS = 70000;
 static const bool USE_SYNC_END = true;
-static const char PROGRAM_ID[] = "RX_DELTAE_V3_20260114";
 
 #ifndef SCAN_MS
   #define SCAN_MS 50
@@ -32,6 +31,7 @@ static const char PROGRAM_ID[] = "RX_DELTAE_V3_20260114";
 
 static const uint16_t RX_BUF_SIZE = 512;
 static const uint32_t FLUSH_INTERVAL_MS = 500;
+static const char FW_BUILD[] = "RX_DeltaE_V3_syncdebounce_2026-01-15_v2";
 
 struct RxEntry {
   uint32_t ms;
@@ -92,8 +92,8 @@ void flushBuffer() {
   uint16_t head = rxBufHead;
   while (rxBufTail != head) {
     RxEntry& e = rxBuf[rxBufTail];
-    f.printf("%s,%lu,ADV,%d,%s,%s\r\n",
-             PROGRAM_ID, (unsigned long)e.ms, (int)e.rssi, e.addr, e.mfd);
+    f.printf("%lu,ADV,%d,%s,%s\r\n",
+             (unsigned long)e.ms, (int)e.rssi, e.addr, e.mfd);
     rxBufTail = (rxBufTail + 1) % RX_BUF_SIZE;
   }
 }
@@ -102,13 +102,17 @@ void startTrial() {
   String path = nextPath();
   f = SD.open(path, FILE_WRITE);
   if (f) {
-    f.println("prog_id,ms,event,rssi,addr,mfd");
+    f.println("ms,event,rssi,addr,mfd");
     trialIndex++;
-    f.printf("# meta, firmware=%s, program_id=%s, trial_index=%lu, adv_interval_ms=%u, buf_size=%u\r\n",
-             FW_TAG, PROGRAM_ID, (unsigned long)trialIndex, (unsigned)ADV_INTERVAL_MS, (unsigned)RX_BUF_SIZE);
+    f.printf("# meta, firmware=%s, trial_index=%lu, adv_interval_ms=%u, buf_size=%u\r\n",
+             FW_TAG, (unsigned long)trialIndex, (unsigned)ADV_INTERVAL_MS, (unsigned)RX_BUF_SIZE);
   }
   t0Ms = millis();
   trial = true;
+  // #region agent log
+  Serial.printf("[AGENT] RX startTrial nowMs=%lu t0Ms=%lu syncIn_now=%d\n",
+                (unsigned long)millis(), (unsigned long)t0Ms, digitalRead(SYNC_IN));
+  // #endregion
   txLockAddr[0] = '\0';
   rxCount = 0;
   rxBufHead = 0;
@@ -118,9 +122,15 @@ void startTrial() {
   Serial.printf("[RX] start %s (trial=%lu)\n", path.c_str(), (unsigned long)trialIndex);
 }
 
-void endTrial() {
+static void endTrialWithReason(const char* reason) {
   if (!trial) return;
   trial = false;
+  // #region agent log
+  Serial.printf("[AGENT] RX endTrial reason=%s nowMs=%lu t0Ms=%lu dt=%lu syncIn_now=%d\n",
+                reason,
+                (unsigned long)millis(), (unsigned long)t0Ms,
+                (unsigned long)(millis() - t0Ms), digitalRead(SYNC_IN));
+  // #endregion
   flushBuffer();
   if (f) {
     f.flush();
@@ -203,13 +213,14 @@ CB cb;
 
 void setup() {
   Serial.begin(115200);
+  Serial.printf("[FW] %s\n", FW_BUILD);
   SPI.begin(18, 19, 23, SD_CS);
   if (!SD.begin(SD_CS)) {
     Serial.println("[SD] init FAIL");
     while (1) delay(1000);
   }
   pinMode(SYNC_IN, INPUT_PULLDOWN);
-  attachInterrupt(digitalPinToInterrupt(SYNC_IN), onSync, CHANGE);
+  // Removed interrupt - using polling instead for stability
 
 #if USE_NIMBLE
   NimBLEDevice::init("RX_DELTAE_V3");
@@ -234,39 +245,56 @@ void setup() {
 
 void loop() {
   uint32_t nowMs = millis();
-  // NOTE: Keep behavior aligned with Arduino sketch version: poll SYNC_IN and debounce start/end.
+  
+  // Use polling instead of interrupt (more stable)
   int syncIn = digitalRead(SYNC_IN);
+  
+  // Debounce for SYNC HIGH/LOW detection (avoid floating/noise triggers)
   static uint32_t syncHighSince = 0;
   static uint32_t syncLowSince = 0;
   static const uint32_t START_DEBOUNCE_MS = 100;
   static const uint32_t END_DEBOUNCE_MS = 100;
-
+  
+  // DEBUG: Print SYNC pin state every second
+  static uint32_t lastDebugMs = 0;
+  if (nowMs - lastDebugMs >= 1000) {
+    Serial.printf("[DBG] SYNC_IN=%d trial=%d highSince=%lu lowSince=%lu\n",
+                  syncIn, (int)trial, (unsigned long)syncHighSince, (unsigned long)syncLowSince);
+    lastDebugMs = nowMs;
+  }
+  
   if (!trial) {
     if (syncIn == HIGH) {
       if (syncHighSince == 0) syncHighSince = nowMs;
       if ((nowMs - syncHighSince) >= START_DEBOUNCE_MS) {
+        // #region agent log
+        Serial.printf("[AGENT] RX start condition met (HIGH stable) nowMs=%lu highSince=%lu\n",
+                      (unsigned long)nowMs, (unsigned long)syncHighSince);
+        // #endregion
         startTrial();
-        syncHighSince = 0;
         syncLowSince = 0;
+        syncHighSince = 0; // reset for next cycle
+        return;  // Exit loop to avoid same-iteration timeout check
       }
     } else {
       syncHighSince = 0;
     }
   }
-
+  
   if (trial && USE_SYNC_END) {
     if (syncIn == LOW) {
       if (syncLowSince == 0) syncLowSince = nowMs;
       if ((nowMs - syncLowSince) >= END_DEBOUNCE_MS) {
-        endTrial();
+        endTrialWithReason("SYNC_LOW_STABLE");
         syncLowSince = 0;
       }
     } else {
       syncLowSince = 0;
     }
   }
+  
   if (trial && (nowMs - t0Ms) >= TRIAL_MS) {
-    endTrial();
+    endTrialWithReason("TRIAL_TIMEOUT");
   }
   if (trial && (nowMs - lastFlushMs) >= FLUSH_INTERVAL_MS) {
     flushBuffer();
