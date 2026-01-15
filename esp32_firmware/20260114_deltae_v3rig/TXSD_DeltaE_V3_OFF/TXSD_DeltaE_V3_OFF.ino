@@ -23,6 +23,7 @@ static const uint32_t MIN_TRIAL_MS = 1000;
 static const uint32_t ADV_INTERVAL_MS = 0;
 static const bool USE_TICK_INPUT = false;
 static const char FW_TAG[] = "TXSD_DeltaE_V3_OFF";
+static const char FW_BUILD[] = "TXSD_DeltaE_V3_OFF_syncdebounce_2026-01-15_v2";
 static const char PROGRAM_ID[] = "TXSD_DELTAE_V3_OFF_20260114";
 
 Adafruit_INA219 ina;
@@ -72,12 +73,22 @@ static void startTrial() {
   sampN = 0;
   badLines = 0;
   syncLowSince = 0;
+  // #region agent log
+  Serial.printf("[AGENT] TXSD startTrial nowMs=%lu t0_ms=%lu syncIn_now=%d\n",
+                (unsigned long)millis(), (unsigned long)t0_ms, digitalRead(SYNC_IN));
+  // #endregion
   Serial.printf("[PWR] start %s\n", path.c_str());
 }
 
 static void endTrial() {
   if (!logging) return;
   logging = false;
+  // #region agent log
+  Serial.printf("[AGENT] TXSD endTrial nowMs=%lu t0_ms=%lu dt=%lu syncIn_now=%d syncLowSince=%lu\n",
+                (unsigned long)millis(), (unsigned long)t0_ms,
+                (unsigned long)(millis() - t0_ms), digitalRead(SYNC_IN),
+                (unsigned long)syncLowSince);
+  // #endregion
 
   uint32_t now_ms = millis();
   uint32_t ms_total = now_ms - t0_ms;
@@ -110,6 +121,7 @@ static void endTrial() {
 
 void setup() {
   Serial.begin(115200);
+  Serial.printf("[FW] %s\n", FW_BUILD);
   SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
   if (!SD.begin(SD_CS)) {
     Serial.println("[SD] init FAIL");
@@ -134,20 +146,44 @@ void loop() {
   uint32_t nowMs = millis();
   int syncIn = digitalRead(SYNC_IN);
 
-  if (!logging && syncIn == HIGH) {
-    startTrial();
+  // Start only if SYNC stays HIGH for a short time (avoid floating/noise triggers)
+  static uint32_t syncHighSince = 0;
+  static const uint32_t START_DEBOUNCE_MS = 100;
+  if (!logging) {
+    if (syncIn == HIGH) {
+      if (syncHighSince == 0) syncHighSince = nowMs;
+      if ((nowMs - syncHighSince) >= START_DEBOUNCE_MS) {
+        // #region agent log
+        Serial.printf("[AGENT] TXSD start condition met (HIGH stable) nowMs=%lu highSince=%lu\n",
+                      (unsigned long)nowMs, (unsigned long)syncHighSince);
+        // #endregion
+        startTrial();
+        syncHighSince = 0;
+        return;  // Exit loop to avoid same-iteration issues
+      }
+    } else {
+      syncHighSince = 0;
+    }
   }
 
   if (logging) {
     if (syncIn == LOW) {
       if (syncLowSince == 0) syncLowSince = nowMs;
       if ((nowMs - syncLowSince) >= 100) {
+        // #region agent log
+        Serial.printf("[AGENT] TXSD end condition met (LOW stable) nowMs=%lu lowSince=%lu\n",
+                      (unsigned long)nowMs, (unsigned long)syncLowSince);
+        // #endregion
         endTrial();
         syncLowSince = 0;
       }
     } else {
       syncLowSince = 0;
       if ((nowMs - t0_ms) >= FALLBACK_MS) {
+        // #region agent log
+        Serial.printf("[AGENT] TXSD end condition met (FALLBACK) nowMs=%lu t0_ms=%lu\n",
+                      (unsigned long)nowMs, (unsigned long)t0_ms);
+        // #endregion
         endTrial();
       }
     }

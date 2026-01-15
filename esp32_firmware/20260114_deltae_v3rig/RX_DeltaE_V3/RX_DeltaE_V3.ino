@@ -176,12 +176,12 @@ class CB : public BLEAdvertisedDeviceCallbacks {
     String mfd = d.getManufacturerData().c_str();
     uint16_t seq;
     if (!parseMFD(mfd, seq)) return;
-    std::string addrStd = d.getAddress().toString();
+    String addr = d.getAddress().toString();
     if (txLockAddr[0] == '\0') {
-      strncpy(txLockAddr, addrStd.c_str(), sizeof(txLockAddr) - 1);
+      strncpy(txLockAddr, addr.c_str(), sizeof(txLockAddr) - 1);
       txLockAddr[sizeof(txLockAddr) - 1] = '\0';
     }
-    if (strncmp(txLockAddr, addrStd.c_str(), sizeof(txLockAddr)) != 0) return;
+    if (strncmp(txLockAddr, addr.c_str(), sizeof(txLockAddr)) != 0) return;
     uint16_t nextHead = (rxBufHead + 1) % RX_BUF_SIZE;
     if (nextHead == rxBufTail) {
       bufOverflow++;
@@ -190,7 +190,7 @@ class CB : public BLEAdvertisedDeviceCallbacks {
     RxEntry& e = rxBuf[rxBufHead];
     e.ms = millis() - t0Ms;
     e.rssi = (int8_t)d.getRSSI();
-    strncpy(e.addr, addrStd.c_str(), sizeof(e.addr) - 1);
+    strncpy(e.addr, addr.c_str(), sizeof(e.addr) - 1);
     e.addr[sizeof(e.addr) - 1] = '\0';
     strncpy(e.mfd, mfd.c_str(), sizeof(e.mfd) - 1);
     e.mfd[sizeof(e.mfd) - 1] = '\0';
@@ -234,11 +234,36 @@ void setup() {
 
 void loop() {
   uint32_t nowMs = millis();
-  if (!trial && syncLvl) {
-    startTrial();
+  // NOTE: Keep behavior aligned with Arduino sketch version: poll SYNC_IN and debounce start/end.
+  int syncIn = digitalRead(SYNC_IN);
+  static uint32_t syncHighSince = 0;
+  static uint32_t syncLowSince = 0;
+  static const uint32_t START_DEBOUNCE_MS = 100;
+  static const uint32_t END_DEBOUNCE_MS = 100;
+
+  if (!trial) {
+    if (syncIn == HIGH) {
+      if (syncHighSince == 0) syncHighSince = nowMs;
+      if ((nowMs - syncHighSince) >= START_DEBOUNCE_MS) {
+        startTrial();
+        syncHighSince = 0;
+        syncLowSince = 0;
+      }
+    } else {
+      syncHighSince = 0;
+    }
   }
-  if (trial && USE_SYNC_END && !syncLvl) {
-    endTrial();
+
+  if (trial && USE_SYNC_END) {
+    if (syncIn == LOW) {
+      if (syncLowSince == 0) syncLowSince = nowMs;
+      if ((nowMs - syncLowSince) >= END_DEBOUNCE_MS) {
+        endTrial();
+        syncLowSince = 0;
+      }
+    } else {
+      syncLowSince = 0;
+    }
   }
   if (trial && (nowMs - t0Ms) >= TRIAL_MS) {
     endTrial();
