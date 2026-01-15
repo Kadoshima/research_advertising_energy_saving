@@ -1,0 +1,12 @@
+2026-01-15 JST
+- RX/TXSD同期の不安定（SYNC誤トリガー/短時間トライアル）調査・対策
+  - 修正: Arduino RX (`C:\Users\tp240\Documents\Arduino\RX\RX.ino`)
+    - SYNC入力を割り込み→ポーリングへ移行
+    - 開始/終了ともにデバウンス（HIGH/LOW 100ms安定で判定）
+    - 追加ログ: `[DBG]`（状態）/`[AGENT]`（開始・終了理由/時刻）
+  - 修正: TXSD logger (`esp32_firmware/20260114_deltae_v3rig/TXSD_DeltaE_V3_OFF/TXSD_DeltaE_V3_OFF.ino`)
+    - 開始側にもHIGHデバウンス（100ms）を追加
+    - 追加ログ: `[AGENT]`（開始・終了条件成立の記録）
+  - 修正: repo側RX原本 (`esp32_firmware/20260114_deltae_v3rig/RX_DeltaE_V3/RX_DeltaE_V3.ino`)
+    - Arduino RX と同等のポーリング＋開始/終了デバウンスを反映
+

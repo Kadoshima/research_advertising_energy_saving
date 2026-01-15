@@ -233,11 +233,36 @@ void setup() {
 
 void loop() {
   uint32_t nowMs = millis();
-  if (!trial && syncLvl) {
-    startTrial();
+  // NOTE: Keep behavior aligned with Arduino sketch version: poll SYNC_IN and debounce start/end.
+  int syncIn = digitalRead(SYNC_IN);
+  static uint32_t syncHighSince = 0;
+  static uint32_t syncLowSince = 0;
+  static const uint32_t START_DEBOUNCE_MS = 100;
+  static const uint32_t END_DEBOUNCE_MS = 100;
+
+  if (!trial) {
+    if (syncIn == HIGH) {
+      if (syncHighSince == 0) syncHighSince = nowMs;
+      if ((nowMs - syncHighSince) >= START_DEBOUNCE_MS) {
+        startTrial();
+        syncHighSince = 0;
+        syncLowSince = 0;
+      }
+    } else {
+      syncHighSince = 0;
+    }
   }
-  if (trial && USE_SYNC_END && !syncLvl) {
-    endTrial();
+
+  if (trial && USE_SYNC_END) {
+    if (syncIn == LOW) {
+      if (syncLowSince == 0) syncLowSince = nowMs;
+      if ((nowMs - syncLowSince) >= END_DEBOUNCE_MS) {
+        endTrial();
+        syncLowSince = 0;
+      }
+    } else {
+      syncLowSince = 0;
+    }
   }
   if (trial && (nowMs - t0Ms) >= TRIAL_MS) {
     endTrial();
