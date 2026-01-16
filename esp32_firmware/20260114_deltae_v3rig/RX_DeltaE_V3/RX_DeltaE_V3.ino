@@ -74,19 +74,26 @@ static inline void bytesToHex(const uint8_t* p, size_t n, char* out, size_t out_
 }
 
 static bool parseMfdAsciiMFxxxx(const uint8_t* data, size_t len, char out6[7], uint16_t& seq) {
-  if (len < 6) return false;
-  if (data[0] != 'M' || data[1] != 'F') return false;
-  int n0 = nib((char)data[2]), n1 = nib((char)data[3]), n2 = nib((char)data[4]), n3 = nib((char)data[5]);
-  if (n0 < 0 || n1 < 0 || n2 < 0 || n3 < 0) return false;
-  out6[0] = 'M';
-  out6[1] = 'F';
-  out6[2] = (char)data[2];
-  out6[3] = (char)data[3];
-  out6[4] = (char)data[4];
-  out6[5] = (char)data[5];
-  out6[6] = '\0';
-  seq = (uint16_t)((n0 << 12) | (n1 << 8) | (n2 << 4) | n3);
-  return true;
+  // Note: Manufacturer data may start with 2-byte Company ID, so "MFxxxx" may not be at offset 0.
+  if (!data || len < 6) return false;
+  for (size_t i = 0; (i + 6) <= len; i++) {
+    if (data[i] != 'M' || data[i + 1] != 'F') continue;
+    int n0 = nib((char)data[i + 2]);
+    int n1 = nib((char)data[i + 3]);
+    int n2 = nib((char)data[i + 4]);
+    int n3 = nib((char)data[i + 5]);
+    if (n0 < 0 || n1 < 0 || n2 < 0 || n3 < 0) continue;
+    out6[0] = 'M';
+    out6[1] = 'F';
+    out6[2] = (char)data[i + 2];
+    out6[3] = (char)data[i + 3];
+    out6[4] = (char)data[i + 4];
+    out6[5] = (char)data[i + 5];
+    out6[6] = '\0';
+    seq = (uint16_t)((n0 << 12) | (n1 << 8) | (n2 << 4) | n3);
+    return true;
+  }
+  return false;
 }
 
 char txLockAddr[18] = "";

@@ -93,18 +93,32 @@ static inline void bytesToHex(const uint8_t* p, size_t n, char* out, size_t out_
   out[j] = '\0';
 }
 
+static inline int nib(char c) {
+  if (c >= '0' && c <= '9') return c - '0';
+  if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+  if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+  return -1;
+}
 static bool parseMfdAsciiMFxxxx(const uint8_t* data, size_t len, char out6[7]) {
-  if (len < 6) return false;
-  if (data[0] != 'M' || data[1] != 'F') return false;
-  // Copy 6 bytes and null terminate
-  out6[0] = (char)data[0];
-  out6[1] = (char)data[1];
-  out6[2] = (char)data[2];
-  out6[3] = (char)data[3];
-  out6[4] = (char)data[4];
-  out6[5] = (char)data[5];
-  out6[6] = '\0';
-  return true;
+  // Manufacturer data may include 2-byte Company ID prefix; search within payload.
+  if (!data || len < 6) return false;
+  for (size_t i = 0; (i + 6) <= len; i++) {
+    if (data[i] != 'M' || data[i + 1] != 'F') continue;
+    int n0 = nib((char)data[i + 2]);
+    int n1 = nib((char)data[i + 3]);
+    int n2 = nib((char)data[i + 4]);
+    int n3 = nib((char)data[i + 5]);
+    if (n0 < 0 || n1 < 0 || n2 < 0 || n3 < 0) continue;
+    out6[0] = 'M';
+    out6[1] = 'F';
+    out6[2] = (char)data[i + 2];
+    out6[3] = (char)data[i + 3];
+    out6[4] = (char)data[i + 4];
+    out6[5] = (char)data[i + 5];
+    out6[6] = '\0';
+    return true;
+  }
+  return false;
 }
 
 static void flushBuffer() {
@@ -359,11 +373,18 @@ void loop() {
 #endif
 #if DBG_LEVEL >= 3
   static uint32_t lastDbg = 0;
-  if (nowMs - lastDbg >= 5000) {
+  static int lastRptSyncIn = -1;
+  static int lastRptSyncAlt = -1;
+  static int lastRptTrial = -1;
+  bool changed = (syncIn != lastRptSyncIn) || (syncAlt != lastRptSyncAlt) || ((trial ? 1 : 0) != lastRptTrial);
+  if (changed || (nowMs - lastDbg >= 10000)) {
     Serial.printf("[DBG] sync=%d alt=%d trial=%d cbTotal=%lu rx=%lu\n",
                   syncIn, syncAlt, trial ? 1 : 0,
                   (unsigned long)cbTotal, (unsigned long)rxCount);
     lastDbg = nowMs;
+    lastRptSyncIn = syncIn;
+    lastRptSyncAlt = syncAlt;
+    lastRptTrial = (trial ? 1 : 0);
   }
 #endif
 
