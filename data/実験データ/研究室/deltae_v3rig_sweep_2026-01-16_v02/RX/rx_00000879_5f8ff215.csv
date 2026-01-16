@@ -1,0 +1,3 @@
+prog_id,ms,event,rssi,addr,mfd
+# meta, firmware=RX_DeltaE_Sweep, program_id=RX_DELTAE_SWEEP_20260115, trial_index=1, scan_ms=50, buf_size=512, build=Jan 16 2026 16:10:19
+RX_DELTAE_SWEEP_20260115,235,ADV,-37,e0:5a:1b:15:c4:ca,MF0000

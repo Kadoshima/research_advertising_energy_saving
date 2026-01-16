@@ -217,14 +217,37 @@ def _monotonicity(trials_start_ms: list[int]) -> dict:
 def main(argv: list[str]) -> int:
     # argv:
     #   python scripts/sweep_status.py <run_dir> [run_id]
+    #   python scripts/sweep_status.py --find <dir_name> [run_id]
     global RUN_ID
-    if len(argv) not in (2, 3):
+    if len(argv) not in (2, 3, 4):
         print("usage: python scripts/sweep_status.py <run_dir> [run_id]")
+        print("   or: python scripts/sweep_status.py --find <dir_name> [run_id]")
         return 2
 
-    run_dir = Path(argv[1])
-    if len(argv) == 3:
-        RUN_ID = argv[2]
+    if argv[1] == "--find":
+        if len(argv) not in (3, 4):
+            print("usage: python scripts/sweep_status.py --find <dir_name> [run_id]")
+            return 2
+        dir_name = argv[2]
+        if len(argv) == 4:
+            RUN_ID = argv[3]
+        # Search under data/ only to keep it fast.
+        base = Path("data")
+        matches = [p for p in base.rglob(dir_name) if p.is_dir()]
+        _ndjson("H0", "scripts/sweep_status.py:main", "find run_dir", {"dir_name": dir_name, "matches": [str(m) for m in matches[:10]], "match_n": len(matches)})
+        if len(matches) == 0:
+            print(f"[ERR] could not find directory named: {dir_name} under {base}")
+            return 2
+        if len(matches) > 1:
+            print(f"[ERR] multiple matches for {dir_name}; please pass full path instead.")
+            for m in matches[:20]:
+                print(" -", m)
+            return 2
+        run_dir = matches[0]
+    else:
+        run_dir = Path(argv[1])
+        if len(argv) == 3:
+            RUN_ID = argv[2]
     rx_dir = run_dir / "RX"
     txsd_dir = run_dir / "TXSD"
 

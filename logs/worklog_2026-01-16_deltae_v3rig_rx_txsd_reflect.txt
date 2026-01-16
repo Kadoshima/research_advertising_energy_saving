@@ -30,3 +30,21 @@
 - 変更: `esp32/TXSD_PowerLogger_SYNC_TICK_OFF.ino`, `esp32/TXSD_PowerLogger_SYNC_TICK_ON.ino`
   - dual SYNC入力で開始を安定化（polling+debounce）。終了は従来互換の固定窓（fallback）を維持。
   - CSVに`prog_id`列を追加し、行にも`prog_id`を付与（後段のデータ整理を容易化）。
+
+- 変更: `esp32_firmware/20260115_deltae_v3rig_sweep/RX_DeltaE_Sweep/RX_DeltaE_Sweep.ino`, `esp32_firmware/20260114_deltae_v3rig/RX_DeltaE_V3/RX_DeltaE_V3.ino`, `esp32/RX_BLE_to_SD_SYNC_B.ino`
+  - RX診断を強化：`cbNoMfd`（メーカー情報なし）カウンタを追加し、rx=0時に「そもそも広告が見えていないのか / MFDが空なのか / パース失敗なのか」を切り分け可能に。
+  - `cbFirstAddr`（最初に見えたアドレス）を MFD パース前に確保するよう変更（パース失敗が続いても“見えてる端末”が分かる）。
+  - `MFxxxx` 抽出は offset 0/2 のみに限定（バイナリpayload内の偶然一致で誤ロックする確率を低減）。
+
+- 追加/変更: `scripts/collect_sweep_run.py`, `scripts/sweep_status.py`
+  - `D:\\logs` 等の雑多な置き場から、シリアルログに現れたファイル名のみを抽出して v01/v02… ディレクトリに回収・manifest化するスクリプトを追加。
+  - `sweep_status.py` は `--find <dir_name>` を追加し、日本語パスをコマンドラインで渡せない環境でも解析できるように。
+
+- 解析: `data/実験データ/研究室/deltae_v3rig_sweep_2026-01-16_v01/`
+  - v01回収: TXSDログのみ→RXログのみ、の2回に分けて `D:\\logs` から回収。結果として `RX=442, TXSD=442` を同一v01に統合（manifest行数=884）。
+  - `scripts/sweep_status.py` による完走判定:
+    - 期待: 50 trial（OFF + 100/500/1000/2000ms 各10回）
+    - 実際: `rx_n=442`, `txsd_n=442` で expected を大きく超過 → 周回/リセット混入の疑い（`likely_loop_or_reset=true`）。
+    - RX品質: 442本中ほぼ全てがヘッダのみ（`rx_zero_trials=441` 相当）で、受信ログが実質取れていない。
+    - TXSD品質: adv_countが取れているtrialもあるが、`adv_count=0` のtrialが大量（TICK配線/割り込み不安定/未配線の可能性）。
+  - 次アクション案: 混在防止のため v02 を切って再計測（50 trial で停止確認）、RXの `AGENT RX diag` と TXSDの `adv_count` が安定する条件（TICK配線）を先に確認。
