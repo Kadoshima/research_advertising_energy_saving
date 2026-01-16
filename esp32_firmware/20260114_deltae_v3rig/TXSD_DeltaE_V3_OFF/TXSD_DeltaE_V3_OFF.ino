@@ -186,10 +186,17 @@ void loop() {
 #endif
 #if DBG_LEVEL >= 3
   static uint32_t lastDebugMs = 0;
-  if (nowMs - lastDebugMs >= 5000) {
+  static int lastRptSyncIn = -1;
+  static int lastRptSyncAlt = -1;
+  static int lastRptLogging = -1;
+  bool changed = (syncIn != lastRptSyncIn) || (syncAlt != lastRptSyncAlt) || ((logging ? 1 : 0) != lastRptLogging);
+  if (changed || (nowMs - lastDebugMs >= 10000)) {
     Serial.printf("[DBG] SYNC_IN=%d SYNC_ALT=%d logging=%d syncLowSince=%lu\n",
                   syncIn, syncAlt, logging ? 1 : 0, (unsigned long)syncLowSince);
     lastDebugMs = nowMs;
+    lastRptSyncIn = syncIn;
+    lastRptSyncAlt = syncAlt;
+    lastRptLogging = (logging ? 1 : 0);
   }
 #endif
 

@@ -1,0 +1,22 @@
+2026-01-16 (JST)
+
+- 変更: `esp32_firmware/20260114_deltae_v3rig/RX_DeltaE_V3/RX_DeltaE_V3.ino`
+  - RX(V3) の MFD 解析を sweep 側と同等に強化（メーカー広告がバイナリでも firstMfd を hex で記録し、`MFxxxx` 形式のみを採用）。
+  - NimBLE / 非NimBLE の両分岐で `cbTotal / mfdFail / addrMis / bufDrop / firstAddr / firstMfd` 診断が出るよう統一。
+  - 周期DBG（DBG_LEVEL>=3）を「状態変化時 or 10秒ごと」に抑制。
+  - 未使用の SYNC 割り込み関連（`syncLvl` / `onSync()`）を削除。
+
+- 変更: `esp32_firmware/20260114_deltae_v3rig/TXSD_DeltaE_V3_ON/TXSD_DeltaE_V3_ON.ino`
+  - 未使用の `nextPath()` を削除（サイズ/混乱の低減）。
+  - 周期DBG（DBG_LEVEL>=3）を「状態変化時 or 10秒ごと」に抑制。
+
+- 変更: `esp32_firmware/20260114_deltae_v3rig/TXSD_DeltaE_V3_OFF/TXSD_DeltaE_V3_OFF.ino`
+  - 周期DBG（DBG_LEVEL>=3）を「状態変化時 or 10秒ごと」に抑制。
+
+- 追加: `scripts/sweep_status.py`
+  - TXのシリアル無しで、RX/TXSDのCSV（SDカード `/logs/` のコピー）から sweep の完走可否を判定するスクリプトを追加。
+  - 判定指標: ファイル数（expected 50）、start_ms逆行（周回/リセット疑い）、RXの受信間隔推定、TXSDのadv_count健全性。
+
+- 追記: `esp32_firmware/20260115_deltae_v3rig_sweep/README.md`
+  - 「完了判定（TXのシリアル無し）」の手順とコマンドを追記。
+

@@ -13,3 +13,14 @@
   - RX/TXSDのシリアルログが [DBG] の連打にならず、トライアル開始/終了やエッジが見える程度に整理される。
   - TX側の広告データ生成がより安定（長時間運転でのabortリスクを低減）。
 
+2026-01-15 JST
+- 目的: 席外し中にOFF+ON(100/500/1000/2000ms)を一気通貫で回すsweep用ファーム一式を追加。
+- 追加:
+  - esp32_firmware/20260115_deltae_v3rig_sweep/README.md
+  - esp32_firmware/20260115_deltae_v3rig_sweep/TX_DeltaE_Sweep/TX_DeltaE_Sweep.ino
+  - esp32_firmware/20260115_deltae_v3rig_sweep/TXSD_DeltaE_Sweep/TXSD_DeltaE_Sweep.ino
+  - esp32_firmware/20260115_deltae_v3rig_sweep/RX_DeltaE_Sweep/RX_DeltaE_Sweep.ino
+- 反省点の反映:
+  - SYNCは二重入力/二重出力対応、HIGH/LOW両側デバウンス、start後return。
+  - MFDは生bytesから"MFxxxx"を直接パース（String依存低減）。
+  - TXは単一スケッチでOFF→ON各intervalを自動実行、ON時のみTICKを出力。

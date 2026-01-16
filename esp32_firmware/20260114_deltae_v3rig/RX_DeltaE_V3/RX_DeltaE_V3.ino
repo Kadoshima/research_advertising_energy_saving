@@ -53,8 +53,6 @@ static volatile uint16_t rxBufHead = 0;
 static uint16_t rxBufTail = 0;
 static uint32_t lastFlushMs = 0;
 static uint32_t bufOverflow = 0;
-
-volatile bool syncLvl = false;
 File f;
 static const char FW_TAG[] = "RX_DeltaE_V3";
 static uint32_t trialIndex = 0;
@@ -65,11 +63,28 @@ static inline int nib(char c) {
   if (c >= 'a' && c <= 'f') return c - 'a' + 10;
   return -1;
 }
-static bool parseMFD(const String& s, uint16_t& seq) {
-  if (s.length() < 6) return false;
-  if (!(s[0] == 'M' && s[1] == 'F')) return false;
-  int n0 = nib(s[2]), n1 = nib(s[3]), n2 = nib(s[4]), n3 = nib(s[5]);
+static inline void bytesToHex(const uint8_t* p, size_t n, char* out, size_t out_sz) {
+  static const char* H = "0123456789ABCDEF";
+  size_t j = 0;
+  for (size_t i = 0; i < n && (j + 2) < out_sz; i++) {
+    out[j++] = H[(p[i] >> 4) & 0xF];
+    out[j++] = H[p[i] & 0xF];
+  }
+  out[j] = '\0';
+}
+
+static bool parseMfdAsciiMFxxxx(const uint8_t* data, size_t len, char out6[7], uint16_t& seq) {
+  if (len < 6) return false;
+  if (data[0] != 'M' || data[1] != 'F') return false;
+  int n0 = nib((char)data[2]), n1 = nib((char)data[3]), n2 = nib((char)data[4]), n3 = nib((char)data[5]);
   if (n0 < 0 || n1 < 0 || n2 < 0 || n3 < 0) return false;
+  out6[0] = 'M';
+  out6[1] = 'F';
+  out6[2] = (char)data[2];
+  out6[3] = (char)data[3];
+  out6[4] = (char)data[4];
+  out6[5] = (char)data[5];
+  out6[6] = '\0';
   seq = (uint16_t)((n0 << 12) | (n1 << 8) | (n2 << 4) | n3);
   return true;
 }
@@ -84,16 +99,9 @@ static uint32_t cbTotal = 0;
 static uint32_t cbMfdParseFail = 0;
 static uint32_t cbAddrMismatch = 0;
 static uint32_t cbBufDrop = 0;
-static char cbFirstMfd[16] = "";
+static char cbFirstMfd[32] = "";
 static char cbFirstAddr[18] = "";
 // #endregion
-
-void IRAM_ATTR onSync() {
-  bool s = digitalRead(SYNC_IN);
-  if (s != syncLvl) {
-    syncLvl = s;
-  }
-}
 
 static void makeNextPath(char* out, size_t out_sz) {
   SD.mkdir("/logs");
@@ -189,18 +197,40 @@ NimBLEScan* gScan = nullptr;
 class CB : public NimBLEAdvertisedDeviceCallbacks {
   void onResult(NimBLEAdvertisedDevice* d) override {
     if (!trial) return;
-    std::string mfdStd = d->getManufacturerData();
-    if (mfdStd.length() < 6) return;
-    if (mfdStd[0] != 'M' || mfdStd[1] != 'F') return;
+    cbTotal++;
+
+    std::string mfd = d->getManufacturerData(); // may be binary
+    if (cbFirstMfd[0] == '\0' && mfd.size() > 0) {
+      char hex[32];
+      bytesToHex((const uint8_t*)mfd.data(), (mfd.size() > 8 ? 8 : mfd.size()), hex, sizeof(hex));
+      strncpy(cbFirstMfd, hex, sizeof(cbFirstMfd) - 1);
+      cbFirstMfd[sizeof(cbFirstMfd) - 1] = '\0';
+    }
+
+    char mfd6[7];
+    uint16_t seq;
+    if (!parseMfdAsciiMFxxxx((const uint8_t*)mfd.data(), mfd.size(), mfd6, seq)) {
+      cbMfdParseFail++;
+      return;
+    }
+
     std::string addrStd = d->getAddress().toString();
+    if (cbFirstAddr[0] == '\0') {
+      strncpy(cbFirstAddr, addrStd.c_str(), sizeof(cbFirstAddr) - 1);
+      cbFirstAddr[sizeof(cbFirstAddr) - 1] = '\0';
+    }
     if (txLockAddr[0] == '\0') {
       strncpy(txLockAddr, addrStd.c_str(), sizeof(txLockAddr) - 1);
       txLockAddr[sizeof(txLockAddr) - 1] = '\0';
     }
-    if (strncmp(txLockAddr, addrStd.c_str(), sizeof(txLockAddr)) != 0) return;
+    if (strncmp(txLockAddr, addrStd.c_str(), sizeof(txLockAddr)) != 0) {
+      cbAddrMismatch++;
+      return;
+    }
     uint16_t nextHead = (rxBufHead + 1) % RX_BUF_SIZE;
     if (nextHead == rxBufTail) {
       bufOverflow++;
+      cbBufDrop++;
       return;
     }
     RxEntry& e = rxBuf[rxBufHead];
@@ -208,7 +238,7 @@ class CB : public NimBLEAdvertisedDeviceCallbacks {
     e.rssi = (int8_t)d->getRSSI();
     strncpy(e.addr, addrStd.c_str(), sizeof(e.addr) - 1);
     e.addr[sizeof(e.addr) - 1] = '\0';
-    strncpy(e.mfd, mfdStd.c_str(), sizeof(e.mfd) - 1);
+    strncpy(e.mfd, mfd6, sizeof(e.mfd) - 1);
     e.mfd[sizeof(e.mfd) - 1] = '\0';
     rxBufHead = nextHead;
     rxCount++;
@@ -221,13 +251,18 @@ class CB : public BLEAdvertisedDeviceCallbacks {
   void onResult(BLEAdvertisedDevice d) override {
     if (!trial) return;
     cbTotal++;
-    String mfd = d.getManufacturerData().c_str();
-    uint16_t seq;
-    if (cbFirstMfd[0] == '\0') {
-      strncpy(cbFirstMfd, mfd.c_str(), sizeof(cbFirstMfd) - 1);
+    String mfdStr = d.getManufacturerData();
+    const uint8_t* mfdData = (const uint8_t*)mfdStr.c_str();
+    const size_t mfdLen = (size_t)mfdStr.length();
+    if (cbFirstMfd[0] == '\0' && mfdLen > 0) {
+      char hex[32];
+      bytesToHex(mfdData, (mfdLen > 8 ? 8 : mfdLen), hex, sizeof(hex));
+      strncpy(cbFirstMfd, hex, sizeof(cbFirstMfd) - 1);
       cbFirstMfd[sizeof(cbFirstMfd) - 1] = '\0';
     }
-    if (!parseMFD(mfd, seq)) {
+    char mfd6[7];
+    uint16_t seq;
+    if (!parseMfdAsciiMFxxxx(mfdData, mfdLen, mfd6, seq)) {
       cbMfdParseFail++;
       return;
     }
@@ -255,7 +290,7 @@ class CB : public BLEAdvertisedDeviceCallbacks {
     e.rssi = (int8_t)d.getRSSI();
     strncpy(e.addr, addr.c_str(), sizeof(e.addr) - 1);
     e.addr[sizeof(e.addr) - 1] = '\0';
-    strncpy(e.mfd, mfd.c_str(), sizeof(e.mfd) - 1);
+    strncpy(e.mfd, mfd6, sizeof(e.mfd) - 1);
     e.mfd[sizeof(e.mfd) - 1] = '\0';
     rxBufHead = nextHead;
     rxCount++;
@@ -338,10 +373,18 @@ void loop() {
 #endif
 #if DBG_LEVEL >= 3
   static uint32_t lastDebugMs = 0;
-  if (nowMs - lastDebugMs >= 5000) {
+  static int lastRptSyncIn = -1;
+  static int lastRptSyncAlt = -1;
+  static int lastRptTrial = -1;
+  bool changed = (syncIn != lastRptSyncIn) || (syncAlt != lastRptSyncAlt) || ((int)trial != lastRptTrial);
+  if (changed || (nowMs - lastDebugMs >= 10000)) {
     Serial.printf("[DBG] SYNC_IN=%d SYNC_ALT=%d trial=%d highSince=%lu lowSince=%lu\n",
-                  syncIn, syncAlt, (int)trial, (unsigned long)syncHighSince, (unsigned long)syncLowSince);
+                  syncIn, syncAlt, (int)trial,
+                  (unsigned long)syncHighSince, (unsigned long)syncLowSince);
     lastDebugMs = nowMs;
+    lastRptSyncIn = syncIn;
+    lastRptSyncAlt = syncAlt;
+    lastRptTrial = (int)trial;
   }
 #endif
   

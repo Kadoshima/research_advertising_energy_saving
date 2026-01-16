@@ -32,6 +32,7 @@ Get-FileHash -Algorithm SHA256 .\rx_trial_001.csv
 ## 関連リンク
 
 - ファームウェア: `esp32_firmware/20260114_deltae_v3rig/`
+- sweep（一気通貫）: `esp32_firmware/20260115_deltae_v3rig_sweep/README.md`
 - フェーズ2索引: `docs/フェーズ2/README.md`
 
 ## 更新履歴
