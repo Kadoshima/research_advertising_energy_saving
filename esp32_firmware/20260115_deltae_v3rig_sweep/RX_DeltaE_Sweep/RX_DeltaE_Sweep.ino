@@ -70,6 +70,7 @@ static char txLockAddr[18] = "";
 
 // Callback diagnostics
 static uint32_t cbTotal = 0;
+static uint32_t cbNoMfd = 0;
 static uint32_t cbMfdBad = 0;
 static uint32_t cbAddrMismatch = 0;
 static uint32_t cbBufDrop = 0;
@@ -100,9 +101,12 @@ static inline int nib(char c) {
   return -1;
 }
 static bool parseMfdAsciiMFxxxx(const uint8_t* data, size_t len, char out6[7]) {
-  // Manufacturer data may include 2-byte Company ID prefix; search within payload.
+  // Manufacturer data may include 2-byte Company ID prefix; only allow offsets 0 or 2.
+  // (Avoid false positives from scanning arbitrary binary payloads.)
   if (!data || len < 6) return false;
-  for (size_t i = 0; (i + 6) <= len; i++) {
+  for (size_t k = 0; k < 2; k++) {
+    const size_t i = (k == 0) ? 0 : 2;
+    if ((i + 6) > len) continue;
     if (data[i] != 'M' || data[i + 1] != 'F') continue;
     int n0 = nib((char)data[i + 2]);
     int n1 = nib((char)data[i + 3]);
@@ -156,6 +160,7 @@ static void startTrial() {
   lastFlushMs = millis();
 
   cbTotal = 0;
+  cbNoMfd = 0;
   cbMfdBad = 0;
   cbAddrMismatch = 0;
   cbBufDrop = 0;
@@ -190,9 +195,10 @@ static void endTrialWithReason(const char* reason) {
   Serial.printf("[RX] summary trial=%lu ms_total=%lu, rx=%lu, rate_hz=%.2f, buf_overflow=%lu\n",
                 (unsigned long)trialIndex, (unsigned long)t_ms, (unsigned long)rxCount,
                 rate_hz, (unsigned long)bufOverflow);
-  Serial.printf("[AGENT] RX diag trial=%lu cbTotal=%lu mfdBad=%lu addrMis=%lu bufDrop=%lu firstAddr=%s firstMfd=%s\n",
+  Serial.printf("[AGENT] RX diag trial=%lu cbTotal=%lu noMfd=%lu mfdBad=%lu addrMis=%lu bufDrop=%lu firstAddr=%s firstMfd=%s\n",
                 (unsigned long)trialIndex,
                 (unsigned long)cbTotal,
+                (unsigned long)cbNoMfd,
                 (unsigned long)cbMfdBad,
                 (unsigned long)cbAddrMismatch,
                 (unsigned long)cbBufDrop,
@@ -208,7 +214,17 @@ class CB : public NimBLEAdvertisedDeviceCallbacks {
     if (!trial) return;
     cbTotal++;
 
+    std::string addrStd = d->getAddress().toString();
+    if (firstAddr[0] == '\0') {
+      strncpy(firstAddr, addrStd.c_str(), sizeof(firstAddr) - 1);
+      firstAddr[sizeof(firstAddr) - 1] = '\0';
+    }
+
     std::string mfd = d->getManufacturerData();
+    if (mfd.size() == 0) {
+      cbNoMfd++;
+      return;
+    }
     if (firstMfd[0] == '\0' && mfd.size() > 0) {
       // store first 8 bytes as hex for visibility
       char hex[32];
@@ -223,11 +239,6 @@ class CB : public NimBLEAdvertisedDeviceCallbacks {
       return;
     }
 
-    std::string addrStd = d->getAddress().toString();
-    if (firstAddr[0] == '\0') {
-      strncpy(firstAddr, addrStd.c_str(), sizeof(firstAddr) - 1);
-      firstAddr[sizeof(firstAddr) - 1] = '\0';
-    }
     if (txLockAddr[0] == '\0') {
       strncpy(txLockAddr, addrStd.c_str(), sizeof(txLockAddr) - 1);
       txLockAddr[sizeof(txLockAddr) - 1] = '\0';
@@ -262,9 +273,19 @@ class CB : public BLEAdvertisedDeviceCallbacks {
     if (!trial) return;
     cbTotal++;
 
+    String addr = d.getAddress().toString();
+    if (firstAddr[0] == '\0') {
+      strncpy(firstAddr, addr.c_str(), sizeof(firstAddr) - 1);
+      firstAddr[sizeof(firstAddr) - 1] = '\0';
+    }
+
     String mfdStr = d.getManufacturerData();
     const uint8_t* mfdData = (const uint8_t*)mfdStr.c_str();
     const size_t mfdLen = (size_t)mfdStr.length();
+    if (mfdLen == 0) {
+      cbNoMfd++;
+      return;
+    }
     if (firstMfd[0] == '\0' && mfdLen > 0) {
       char hex[32];
       bytesToHex(mfdData, (mfdLen > 8 ? 8 : mfdLen), hex, sizeof(hex));
@@ -278,11 +299,6 @@ class CB : public BLEAdvertisedDeviceCallbacks {
       return;
     }
 
-    String addr = d.getAddress().toString();
-    if (firstAddr[0] == '\0') {
-      strncpy(firstAddr, addr.c_str(), sizeof(firstAddr) - 1);
-      firstAddr[sizeof(firstAddr) - 1] = '\0';
-    }
     if (txLockAddr[0] == '\0') {
       strncpy(txLockAddr, addr.c_str(), sizeof(txLockAddr) - 1);
       txLockAddr[sizeof(txLockAddr) - 1] = '\0';

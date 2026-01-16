@@ -26,6 +26,7 @@ from typing import Optional
 
 
 DEBUG_LOG_PATH = Path(".cursor") / "debug.log"
+RUN_ID = os.environ.get("SWEEP_RUN_ID", "rx_txsd_only")
 
 
 def _ndjson(hypothesis_id: str, location: str, message: str, data: dict) -> None:
@@ -33,7 +34,7 @@ def _ndjson(hypothesis_id: str, location: str, message: str, data: dict) -> None
     try:
         payload = {
             "sessionId": "debug-session",
-            "runId": "rx_txsd_only",
+            "runId": RUN_ID,
             "hypothesisId": hypothesis_id,
             "location": location,
             "message": message,
@@ -214,11 +215,16 @@ def _monotonicity(trials_start_ms: list[int]) -> dict:
 
 
 def main(argv: list[str]) -> int:
-    if len(argv) != 2:
-        print("usage: python scripts/sweep_status.py <run_dir>")
+    # argv:
+    #   python scripts/sweep_status.py <run_dir> [run_id]
+    global RUN_ID
+    if len(argv) not in (2, 3):
+        print("usage: python scripts/sweep_status.py <run_dir> [run_id]")
         return 2
 
     run_dir = Path(argv[1])
+    if len(argv) == 3:
+        RUN_ID = argv[2]
     rx_dir = run_dir / "RX"
     txsd_dir = run_dir / "TXSD"
 
@@ -232,6 +238,7 @@ def main(argv: list[str]) -> int:
     _ndjson("H1", "scripts/sweep_status.py:main", "loaded trials", {
         "rx_n": len(rx_trials),
         "txsd_n": len(txsd_trials),
+        "run_dir": str(run_dir),
     })
 
     rx_mono = _monotonicity([t.start_ms for t in rx_trials])
@@ -257,6 +264,16 @@ def main(argv: list[str]) -> int:
         "rx_mode_hist": rx_mode_hist,
         "txsd_mode_hist": txsd_mode_hist,
         "txsd_adv_n_le_3": adv_small,
+    })
+
+    # Extra metrics for rx=0 / too-short detection
+    rx_zero = sum(1 for t in rx_trials if t.rx_n == 0)
+    rx_short = sum(1 for t in rx_trials if t.dur_ms < 1000)
+    txsd_short = sum(1 for t in txsd_trials if t.dur_ms < 1000)
+    _ndjson("H4", "scripts/sweep_status.py:main", "trial quality counters", {
+        "rx_zero_trials": rx_zero,
+        "rx_short_trials_lt_1s": rx_short,
+        "txsd_short_trials_lt_1s": txsd_short,
     })
 
     # Completion heuristic: expect 50 trials total per device

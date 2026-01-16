@@ -74,9 +74,12 @@ static inline void bytesToHex(const uint8_t* p, size_t n, char* out, size_t out_
 }
 
 static bool parseMfdAsciiMFxxxx(const uint8_t* data, size_t len, char out6[7], uint16_t& seq) {
-  // Note: Manufacturer data may start with 2-byte Company ID, so "MFxxxx" may not be at offset 0.
+  // Note: Manufacturer data may start with 2-byte Company ID, so "MFxxxx" may be at offset 2.
+  // Only allow offsets 0 or 2 to avoid false positives scanning arbitrary binary payloads.
   if (!data || len < 6) return false;
-  for (size_t i = 0; (i + 6) <= len; i++) {
+  for (size_t k = 0; k < 2; k++) {
+    const size_t i = (k == 0) ? 0 : 2;
+    if ((i + 6) > len) continue;
     if (data[i] != 'M' || data[i + 1] != 'F') continue;
     int n0 = nib((char)data[i + 2]);
     int n1 = nib((char)data[i + 3]);
@@ -103,6 +106,7 @@ uint32_t rxCount = 0;
 // #region agent log
 // RX callback diagnostics (to distinguish "no packets seen" vs "filtered out")
 static uint32_t cbTotal = 0;
+static uint32_t cbNoMfd = 0;
 static uint32_t cbMfdParseFail = 0;
 static uint32_t cbAddrMismatch = 0;
 static uint32_t cbBufDrop = 0;
@@ -151,6 +155,7 @@ void startTrial() {
   txLockAddr[0] = '\0';
   rxCount = 0;
   cbTotal = 0;
+  cbNoMfd = 0;
   cbMfdParseFail = 0;
   cbAddrMismatch = 0;
   cbBufDrop = 0;
@@ -187,9 +192,10 @@ static void endTrialWithReason(const char* reason) {
                 (unsigned long)trialIndex, (unsigned long)t_ms, (unsigned long)rxCount,
                 rate_hz, pdr, (unsigned long)bufOverflow);
   // #region agent log
-  Serial.printf("[AGENT] RX diag trial=%lu cbTotal=%lu mfdFail=%lu addrMis=%lu bufDrop=%lu firstAddr=%s firstMfd=%s\n",
+  Serial.printf("[AGENT] RX diag trial=%lu cbTotal=%lu noMfd=%lu mfdFail=%lu addrMis=%lu bufDrop=%lu firstAddr=%s firstMfd=%s\n",
                 (unsigned long)trialIndex,
                 (unsigned long)cbTotal,
+                (unsigned long)cbNoMfd,
                 (unsigned long)cbMfdParseFail,
                 (unsigned long)cbAddrMismatch,
                 (unsigned long)cbBufDrop,
@@ -206,7 +212,17 @@ class CB : public NimBLEAdvertisedDeviceCallbacks {
     if (!trial) return;
     cbTotal++;
 
+    std::string addrStd = d->getAddress().toString();
+    if (cbFirstAddr[0] == '\0') {
+      strncpy(cbFirstAddr, addrStd.c_str(), sizeof(cbFirstAddr) - 1);
+      cbFirstAddr[sizeof(cbFirstAddr) - 1] = '\0';
+    }
+
     std::string mfd = d->getManufacturerData(); // may be binary
+    if (mfd.size() == 0) {
+      cbNoMfd++;
+      return;
+    }
     if (cbFirstMfd[0] == '\0' && mfd.size() > 0) {
       char hex[32];
       bytesToHex((const uint8_t*)mfd.data(), (mfd.size() > 8 ? 8 : mfd.size()), hex, sizeof(hex));
@@ -221,11 +237,6 @@ class CB : public NimBLEAdvertisedDeviceCallbacks {
       return;
     }
 
-    std::string addrStd = d->getAddress().toString();
-    if (cbFirstAddr[0] == '\0') {
-      strncpy(cbFirstAddr, addrStd.c_str(), sizeof(cbFirstAddr) - 1);
-      cbFirstAddr[sizeof(cbFirstAddr) - 1] = '\0';
-    }
     if (txLockAddr[0] == '\0') {
       strncpy(txLockAddr, addrStd.c_str(), sizeof(txLockAddr) - 1);
       txLockAddr[sizeof(txLockAddr) - 1] = '\0';
@@ -258,9 +269,20 @@ class CB : public BLEAdvertisedDeviceCallbacks {
   void onResult(BLEAdvertisedDevice d) override {
     if (!trial) return;
     cbTotal++;
+
+    String addr = d.getAddress().toString();
+    if (cbFirstAddr[0] == '\0') {
+      strncpy(cbFirstAddr, addr.c_str(), sizeof(cbFirstAddr) - 1);
+      cbFirstAddr[sizeof(cbFirstAddr) - 1] = '\0';
+    }
+
     String mfdStr = d.getManufacturerData();
     const uint8_t* mfdData = (const uint8_t*)mfdStr.c_str();
     const size_t mfdLen = (size_t)mfdStr.length();
+    if (mfdLen == 0) {
+      cbNoMfd++;
+      return;
+    }
     if (cbFirstMfd[0] == '\0' && mfdLen > 0) {
       char hex[32];
       bytesToHex(mfdData, (mfdLen > 8 ? 8 : mfdLen), hex, sizeof(hex));
@@ -272,11 +294,6 @@ class CB : public BLEAdvertisedDeviceCallbacks {
     if (!parseMfdAsciiMFxxxx(mfdData, mfdLen, mfd6, seq)) {
       cbMfdParseFail++;
       return;
-    }
-    String addr = d.getAddress().toString();
-    if (cbFirstAddr[0] == '\0') {
-      strncpy(cbFirstAddr, addr.c_str(), sizeof(cbFirstAddr) - 1);
-      cbFirstAddr[sizeof(cbFirstAddr) - 1] = '\0';
     }
     if (txLockAddr[0] == '\0') {
       strncpy(txLockAddr, addr.c_str(), sizeof(txLockAddr) - 1);
