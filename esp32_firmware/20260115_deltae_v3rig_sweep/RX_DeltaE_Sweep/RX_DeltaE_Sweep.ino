@@ -7,18 +7,8 @@
 #include <SD.h>
 #include <esp_system.h> // esp_random()
 
-#ifndef __has_include
-  #define __has_include(x) 0
-#endif
-#if __has_include(<NimBLEDevice.h>)
-  #include <NimBLEDevice.h>
-  #define USE_NIMBLE 1
-#else
-  #include <BLEDevice.h>
-  #include <BLEUtils.h>
-  #include <BLEScan.h>
-  #define USE_NIMBLE 0
-#endif
+#include <NimBLEDevice.h>
+#define USE_NIMBLE 1
 
 static const char FW_TAG[] = "RX_DeltaE_Sweep";
 static const char FW_BUILD[] = "RX_DeltaE_Sweep_2026-01-15";
@@ -38,10 +28,11 @@ static const uint32_t TRIAL_MS_FALLBACK = 70000;
 static const uint32_t START_DEBOUNCE_MS = 100;
 static const uint32_t END_DEBOUNCE_MS = 100;
 
-// Scan config
-#ifndef SCAN_MS
-  #define SCAN_MS 50
-#endif
+// Scan config (match 1210 baseline)
+static const uint16_t SCAN_INTERVAL_MS = 100;
+static const uint16_t SCAN_WINDOW_MS = 90; // 90% duty
+static const bool ACTIVE_SCAN = false;
+static const bool DUPLICATE_FILTER = false;
 
 // Debug verbosity: 0=min, 1=edges+agent, 2=more agent detail, 3=periodic verbose
 #ifndef DBG_LEVEL
@@ -146,9 +137,11 @@ static void startTrial() {
   }
   f.println("prog_id,ms,event,rssi,addr,mfd");
   trialIndex++;
-  f.printf("# meta, firmware=%s, program_id=%s, trial_index=%lu, scan_ms=%u, buf_size=%u, build=%s %s\r\n",
-           FW_TAG, PROGRAM_ID, (unsigned long)trialIndex, (unsigned)SCAN_MS, (unsigned)RX_BUF_SIZE,
-           __DATE__, __TIME__);
+  f.printf("# meta, firmware=%s, program_id=%s, trial_index=%lu, scan_interval_ms=%u, scan_window_ms=%u, active_scan=%u, dup_filter=%u, buf_size=%u, build=%s %s\r\n",
+           FW_TAG, PROGRAM_ID, (unsigned long)trialIndex,
+           (unsigned)SCAN_INTERVAL_MS, (unsigned)SCAN_WINDOW_MS,
+           ACTIVE_SCAN ? 1U : 0U, DUPLICATE_FILTER ? 1U : 0U,
+           (unsigned)RX_BUF_SIZE, __DATE__, __TIME__);
 
   t0Ms = millis();
   trial = true;
@@ -209,8 +202,8 @@ static void endTrialWithReason(const char* reason) {
 
 #if USE_NIMBLE
 NimBLEScan* gScan = nullptr;
-class CB : public NimBLEAdvertisedDeviceCallbacks {
-  void onResult(NimBLEAdvertisedDevice* d) override {
+class CB : public NimBLEScanCallbacks {
+  void onResult(const NimBLEAdvertisedDevice* d) override {
     if (!trial) return;
     cbTotal++;
 
@@ -331,8 +324,10 @@ static CB cb;
 void setup() {
   Serial.begin(115200);
   Serial.printf("[FW] %s build=%s %s\n", FW_BUILD, __DATE__, __TIME__);
-  Serial.printf("[FW] tag=%s program_id=%s use_nimble=%d scan_ms=%u\n",
-                FW_TAG, PROGRAM_ID, (int)USE_NIMBLE, (unsigned)SCAN_MS);
+  Serial.printf("[FW] tag=%s program_id=%s use_nimble=%d scan_interval_ms=%u scan_window_ms=%u active_scan=%u dup_filter=%u\n",
+                FW_TAG, PROGRAM_ID, (int)USE_NIMBLE,
+                (unsigned)SCAN_INTERVAL_MS, (unsigned)SCAN_WINDOW_MS,
+                ACTIVE_SCAN ? 1U : 0U, DUPLICATE_FILTER ? 1U : 0U);
 
   SPI.begin(18, 19, 23, SD_CS);
   if (!SD.begin(SD_CS)) {
@@ -346,18 +341,19 @@ void setup() {
 #if USE_NIMBLE
   NimBLEDevice::init("RX_DELTAE_SWEEP");
   gScan = NimBLEDevice::getScan();
-  gScan->setAdvertisedDeviceCallbacks(&cb);
-  gScan->setActiveScan(false);
-  gScan->setInterval(SCAN_MS);
-  gScan->setWindow(SCAN_MS);
-  gScan->start(0, nullptr, false);
+  gScan->setScanCallbacks(&cb, true);
+  gScan->setActiveScan(ACTIVE_SCAN);
+  gScan->setInterval(SCAN_INTERVAL_MS);
+  gScan->setWindow(SCAN_WINDOW_MS);
+  gScan->setDuplicateFilter(DUPLICATE_FILTER);
+  gScan->start(0, false);
 #else
   BLEDevice::init("RX_DELTAE_SWEEP");
   gScan = BLEDevice::getScan();
-  gScan->setAdvertisedDeviceCallbacks(&cb);
-  gScan->setActiveScan(false);
-  gScan->setInterval(SCAN_MS);
-  gScan->setWindow(SCAN_MS);
+  gScan->setAdvertisedDeviceCallbacks(&cb, true);
+  gScan->setActiveScan(ACTIVE_SCAN);
+  gScan->setInterval(SCAN_INTERVAL_MS);
+  gScan->setWindow(SCAN_WINDOW_MS);
   gScan->start(0, nullptr, false);
 #endif
 

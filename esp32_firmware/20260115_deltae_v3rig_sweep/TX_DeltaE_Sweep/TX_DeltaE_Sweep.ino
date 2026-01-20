@@ -9,17 +9,31 @@ static const char FW_TAG[] = "TX_DeltaE_Sweep";
 static const char PROGRAM_ID[] = "TX_DELTAE_SWEEP_20260115";
 
 // Pins
-static const int SYNC_OUT_PIN = 25;
-static const int SYNC_ALT_OUT_PIN = 26; // optional mirror of SYNC_OUT
-static const bool USE_SYNC_ALT_OUT = true;
+static const int SYNC_OUT_PIN = 26;
+static const int SYNC_ALT_OUT_PIN = 25; // optional mirror of SYNC_OUT
+static const bool USE_SYNC_ALT_OUT = false;
 static const int TICK_OUT_PIN = 27;
 static const bool USE_TICK_OUT = true;
 static const int LED_PIN = 2;
 
 // Schedule
+#ifndef QUICK_TEST
+#define QUICK_TEST 1
+#endif
+#ifndef SINGLE_MODE_ONLY
+#define SINGLE_MODE_ONLY 1
+#endif
+#if QUICK_TEST
+static const uint32_t TRIAL_MS = 15000;
+static const uint8_t TRIALS_PER_MODE = 1;
+static const uint32_t GAP_BETWEEN_TRIALS_MS = 2000;
+static const uint8_t START_MODE_INDEX = 1; // ON_100ms
+#else
 static const uint32_t TRIAL_MS = 60000;
 static const uint8_t TRIALS_PER_MODE = 10;
 static const uint32_t GAP_BETWEEN_TRIALS_MS = 5000;
+static const uint8_t START_MODE_INDEX = 1; // ON_100ms
+#endif
 static const uint8_t HOLD0 = 8; // first N advs use seq=0 to help receiver lock
 
 // TX power
@@ -75,7 +89,7 @@ static inline const String& makeMFD(uint16_t s) {
 static void bleEnsureInit() {
   if (adv) return;
   BLEDevice::init("TX_DELTAE_SWEEP");
-  BLEDevice::setPower(TX_PWR);
+  BLEDevice::setPower(TX_PWR, ESP_BLE_PWR_TYPE_ADV);
   BLEAdvertising* a = BLEDevice::getAdvertising();
   a->setScanResponse(false);
   a->setMinPreferred(0);
@@ -92,6 +106,7 @@ static void bleStartWithIntervalMs(uint16_t intervalMs) {
   bleEnsureInit();
   uint16_t itv = (uint16_t)lroundf(intervalMs / 0.625f);
   BLEAdvertisementData ad;
+  ad.setFlags(0x06);
   ad.setName("TX_DELTAE_SWEEP");
   ad.setManufacturerData(makeMFD(0));
   adv->setAdvertisementData(ad);
@@ -153,7 +168,7 @@ void setup() {
 
   delay(2000);
 
-  modeIndex = 0;
+  modeIndex = START_MODE_INDEX;
   trialIndexInMode = 0;
   applyMode(MODES[modeIndex]);
   delay(500);
@@ -171,9 +186,11 @@ void loop() {
         uint16_t sendSeq = (hold0 > 0) ? 0 : seq;
 
         BLEAdvertisementData ad;
+        ad.setFlags(0x06);
         ad.setName("TX_DELTAE_SWEEP");
         ad.setManufacturerData(makeMFD(sendSeq));
         adv->setAdvertisementData(ad);
+        adv->start();
 
         if (hold0 > 0) {
           --hold0;
@@ -199,6 +216,19 @@ void loop() {
       return;
     }
 
+    static bool done = false;
+    if (SINGLE_MODE_ONLY) {
+      if (!done) {
+        done = true;
+        Serial.printf("[TX] All modes completed. modes=%u trials_per_mode=%u\n",
+                      (unsigned)N_MODES, (unsigned)TRIALS_PER_MODE);
+        syncEnd();
+        bleStopIfRunning();
+      }
+      vTaskDelay(100);
+      return;
+    }
+
     if (trialIndexInMode + 1 < TRIALS_PER_MODE) {
       trialIndexInMode++;
       startTrial(m);
@@ -217,7 +247,6 @@ void loop() {
       return;
     }
 
-    static bool done = false;
     if (!done) {
       done = true;
       Serial.printf("[TX] All modes completed. modes=%u trials_per_mode=%u\n",

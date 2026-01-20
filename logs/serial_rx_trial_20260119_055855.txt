@@ -1,0 +1,25 @@
+[05:58:55] ets Jul 29 2019 12:21:46
+[05:58:55] rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[05:58:55] configsip: 0, SPIWP:0xee
+[05:58:55] clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[05:58:55] mode:DIO, clock div:1
+[05:58:55] load:0x3fff0030,len:4980
+[05:58:55] load:0x40078000,len:16612
+[05:58:55] load:0x40080400,len:3500
+[05:58:55] entry 0x400805b4
+[05:58:56] [FW] RX_DeltaE_V3_syncdebounce_2026-01-15_v2
+[05:58:56] [AGENT] RX build_file=C:\Users\tp240\Documents\Research\research_advertising_energy_saving\esp32_firmware\20260114_deltae_v3rig\RX_DeltaE_V3\RX_DeltaE_V3.ino dbg_level=1 periodic_dbg=0
+[05:58:56] [AGENT_PROBE] RX build_datetime=Jan 19 2026 05:57:49 fw_build=RX_DeltaE_V3_syncdebounce_2026-01-15_v2
+[05:58:57] [RX] ready
+[05:58:57] [DBG] SYNC_PIN=26 level=1 nowMs=740
+[05:58:57] [DBG] SYNC_PIN=25 level=0 nowMs=740
+[05:58:57] [AGENT] RX startTrial nowMs=1388 t0Ms=1388 sync=1 alt=0
+[05:58:57] [RX] start /logs/rx_00000843_18d24a0c.csv (trial=1)
+[05:59:50] [DBG] SYNC_PIN=26 level=0 nowMs=53807
+[05:59:50] [AGENT] RX endTrial reason=SYNC_LOW_STABLE nowMs=53907 t0Ms=1388 dt=52519 sync=0 alt=0
+[05:59:50] [RX] summary trial=1 ms_total=52536, rx=486, rate_hz=9.25, est_pdr=0.925, buf_overflow=0
+[05:59:50] [AGENT] RX diag trial=1 cbTotal=6858 noMfd=152 mfdFail=6220 addrMis=0 bufDrop=0 nameHit=486 firstAddr=77:8a:1a:58:b9:f4 firstMfd=4C0010054A1C00AF nameAddr=e0:5a:1b:15:c4:ca nameMfd=4D4630303433
+[05:59:50] [RX] end
+[05:59:55] [DBG] SYNC_PIN=26 level=1 nowMs=58807
+[05:59:56] [AGENT] RX startTrial nowMs=59455 t0Ms=59455 sync=1 alt=0
+[05:59:56] [RX] start /logs/rx_00058910_354ac7a4.csv (trial=2)

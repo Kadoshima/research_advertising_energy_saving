@@ -18,6 +18,8 @@
 - `esp32_firmware/20260114_deltae_v3rig/TX_DeltaE_V3_ON_500ms/TX_DeltaE_V3_ON_500ms.ino`
 - `esp32_firmware/20260114_deltae_v3rig/TX_DeltaE_V3_ON_1000ms/TX_DeltaE_V3_ON_1000ms.ino`
 - `esp32_firmware/20260114_deltae_v3rig/TX_DeltaE_V3_ON_2000ms/TX_DeltaE_V3_ON_2000ms.ino`
+- `esp32_firmware/20260114_deltae_v3rig/TX_Sync_Toggle/TX_Sync_Toggle.ino`
+  - SYNC配線の診断用（GPIO26を0.5秒周期でトグル）
 
 ### TX（OFF）
 
@@ -31,12 +33,16 @@
   - 追記: 開始側デバウンス（HIGH 100ms）/ユニークファイル名/DBG_LEVEL/`SYNC_IN || SYNC_ALT_IN` 対応
 - `esp32_firmware/20260114_deltae_v3rig/TXSD_DeltaE_V3_OFF/TXSD_DeltaE_V3_OFF.ino`
   - CSV先頭列に `prog_id` を付与
+- `esp32_firmware/20260114_deltae_v3rig/TXSD_Sync_Probe/TXSD_Sync_Probe.ino`
+  - SYNC配線の診断用（GPIO25/26のレベルを1秒ごとに出力）
 
 ### RX（必要時のみ）
 
 - `esp32_firmware/20260114_deltae_v3rig/RX_DeltaE_V3/RX_DeltaE_V3.ino`
   - `ADV_INTERVAL_MS` はPDR目安用。intervalと一致させる
   - CSV先頭列に `prog_id` を付与
+- `esp32_firmware/20260114_deltae_v3rig/RX_Diag_Ping/RX_Diag_Ping.ino`
+  - シリアル疎通確認用（1秒ごとに `[AGENT] RX_DIAG_PING` を出力）
 
 ## 関連ドキュメント
 

@@ -1,0 +1,887 @@
+[13:10:53] TX ets Jul 29 2019 12:21:46
+[13:10:53] TX rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:10:53] TX configsip: 0, SPIWP:0xee
+[13:10:53] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:10:53] TX mode:DIO, clock div:1
+[13:10:53] TX load:0x3fff0030,len:4980
+[13:10:53] TX load:0x40078000,len:16612
+[13:10:53] TX load:0x40080400,len:3500
+[13:10:53] TX entry 0x400805b4
+[13:10:53] TX E (28) qio_mode: Failed to set QIE bit, not enabling QIO mode
+[13:10:53] TX E (28) flash_parts: partition 0 invalid magic number 0xa902
+[13:10:53] TX E (28) boot: Failed to verify partition table
+[13:10:53] TX E (32) boot: load partition table error!
+[13:10:53] TX ets Jul 29 2019 12:21:46
+[13:10:53] TX rst:0x3 (SW_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:10:53] TX configsip: 0, SPIWP:0xee
+[13:10:53] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:10:53] TX mode:DIO, clock div:1
+[13:10:53] TX load:0x3fff0030,len:4980
+[13:10:53] TX load:0xd0012000,len:4153
+[13:10:53] TX load:0x80433988,len:143136776
+[13:10:53] TX 1150 mmu set 00010000, pos 00010000
+[13:10:53] TX 1150 mmu set 00020000, pos 00020000
+[13:10:53] TX 1150 mmu set 00030000, pos 00030000
+[13:10:53] TX 1150 mmu set 00040000, pos 00040000
+[13:10:53] TX 1150 mmu set 00050000, pos 00050000
+[13:10:53] TX 1150 mmu set 00060000, pos 00060000
+[13:10:53] TX 1150 mmu set 00070000, pos 00070000
+[13:10:53] TX 1150 mmu set 00080000, pos 00080000
+[13:10:53] TX 1150 mmu set 00090000, pos 00090000
+[13:10:53] TX 1150 mmu set 000a0000, pos 000a0000
+[13:10:53] TX 1150 mmu set 000b0000, pos 000b0000
+[13:10:53] TX 1150 mmu set 000c0000, pos 000c0000
+[13:10:53] TX 1150 mmu set 000d0000, pos 000d0000
+[13:10:53] TX 1150 mmu set 000e0000, pos 000e0000
+[13:10:54] TX 1150 mmu set 000f0000, pos 000f0000
+[13:10:54] TX 1150 mmu set 00100000, pos 00100000
+[13:10:54] TX 1150 mmu set 00110000, pos 00110000
+[13:10:54] TX 1150 mmu set 00120000, pos 00120000
+[13:10:54] TX 1150 mmu set 00130000, pos 00130000
+[13:10:54] TX 1150 mmu set 00140000, pos 00140000
+[13:10:54] TX 1150 mmu set 00150000, pos 00150000
+[13:10:54] TX 1150 mmu set 00160000, pos 00160000
+[13:10:54] TX 1150 mmu set 00170000, pos 00170000
+[13:10:54] TX 1150 mmu set 00180000, pos 00180000
+[13:10:54] TX 1150 mmu set 00190000, pos 00190000
+[13:10:54] TX 1150 mmu set 001a000ets Jul 29 2019 12:21:46
+[13:10:54] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:10:54] TX configsip: 0, SPIWP:0xee
+[13:10:54] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:10:54] TX mode:DIO, clock div:1
+[13:10:54] TX load:0x3fff0030,len:4980
+[13:10:54] TX load:0xd0012000,len:4153
+[13:10:54] TX load:0x80433988,len:143136776
+[13:10:54] TX 1150 mmu set 00010000, pos 00010000
+[13:10:54] TX 1150 mmu set 00020000, pos 00020000
+[13:10:54] TX 1150 mmu set 00030000, pos 00030000
+[13:10:54] TX 1150 mmu set 00040000, pos 00040000
+[13:10:54] TX 1150 mmu set 00050000, pos 00050000
+[13:10:54] TX 1150 mmu set 00060000, pos 00060000
+[13:10:54] TX 1150 mmu set 00070000, pos 00070000
+[13:10:54] TX 1150 mmu set 00080000, pos 00080000
+[13:10:54] TX 1150 mmu set 00090000, pos 00090000
+[13:10:54] TX 1150 mmu set 000a0000, pos 000a0000
+[13:10:54] TX 1150 mmu set 000b0000, pos 000b0000
+[13:10:54] TX 1150 mmu set 000c0000, pos 000c0000
+[13:10:54] TX 1150 mmu set 000d0000, pos 000d0000
+[13:10:54] TX 1150 mmu set 000e0000, pos 000e0000
+[13:10:54] TX 1150 mmu set 000f0000, pos 000f0000
+[13:10:54] TX 1150 mmu set 00100000, pos 00100000
+[13:10:54] TX 1150 mmu set 00110000, pos 00110000
+[13:10:54] TX 1150 mmu set 00120000, pos 00120000
+[13:10:54] TX 1150 mmu set 00130000, pos 00130000
+[13:10:54] TX 1150 mmu set 00140000, pos 00140000
+[13:10:54] TX 1150 mmu set 00150000, pos 00150000
+[13:10:54] TX 1150 mmu set 00160000, pos 00160000
+[13:10:54] TX 1150 mmu set 00170000, pos 00170000
+[13:10:54] TX 1150 mmu set 00180000, pos 00180000
+[13:10:54] TX 1150 mmu set 00190000, pos 00190000
+[13:10:54] TX 1150 mmu setets Jul 29 2019 12:21:46
+[13:10:54] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:10:54] TX configsip: 0, SPIWP:0xee
+[13:10:54] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:10:54] TX mode:DIO, clock div:1
+[13:10:54] TX load:0x3fff0030,len:4980
+[13:10:54] TX load:0xffffffff,len:-1
+[13:10:54] TX ets Jul 29 2019 12:21:46
+[13:10:54] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:10:54] TX configsip: 0, SPIWP:0xee
+[13:10:54] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:10:54] TX mode:DIO, clock div:1
+[13:10:54] TX load:0x3fff0030,len:4980
+[13:10:54] TX load:0xffffffff,len:-1
+[13:10:55] TX ets Jul 29 2019 12:21:46
+[13:10:55] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:10:55] TX configsip: 0, SPIWP:0xee
+[13:10:55] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:10:55] TX mode:DIO, clock div:1
+[13:10:55] TX load:0x3fff0030,len:4980
+[13:10:55] TX load:0xffffffff,len:-1
+[13:10:55] TX ets Jul 29 2019 12:21:46
+[13:10:55] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:10:55] TX configsip: 0, SPIWP:0xee
+[13:10:55] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:10:55] TX mode:DIO, clock div:1
+[13:10:55] TX load:0x3fff0030,len:4980
+[13:10:55] TX load:0xffffffff,len:-1
+[13:10:55] TX ets Jul 29 2019 12:21:46
+[13:10:55] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:10:55] TX configsip: 0, SPIWP:0xee
+[13:10:55] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:10:55] TX mode:DIO, clock div:1
+[13:10:55] TX load:0x3fff0030,len:4980
+[13:10:55] TX load:0xffffffff,len:-1
+[13:10:56] TX ets Jul 29 2019 12:21:46
+[13:10:56] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:10:56] TX configsip: 0, SPIWP:0xee
+[13:10:56] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:10:56] TX mode:DIO, clock div:1
+[13:10:56] TX load:0x3fff0030,len:4980
+[13:10:56] TX load:0xd0012000,len:4153
+[13:10:56] TX load:0xffffffff,len:-1
+[13:10:56] TX ets Jul 29 2019 12:21:46
+[13:10:56] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:10:56] TX configsip: 0, SPIWP:0xee
+[13:10:56] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:10:56] TX mode:DIO, clock div:1
+[13:10:56] TX load:0x3fff0030,len:4980
+[13:10:56] TX load:0xffffffff,len:-1
+[13:10:56] TX ets Jul 29 2019 12:21:46
+[13:10:56] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:10:56] TX configsip: 0, SPIWP:0xee
+[13:10:56] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:10:56] TX mode:DIO, clock div:1
+[13:10:56] TX load:0x3fff0030,len:4980
+[13:10:56] TX load:0xffffffff,len:-1
+[13:10:57] TX ets Jul 29 2019 12:21:46
+[13:10:57] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:10:57] TX configsip: 0, SPIWP:0xee
+[13:10:57] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:10:57] TX mode:DIO, clock div:1
+[13:10:57] TX load:0x3fff0030,len:4980
+[13:10:57] TX load:0xffffffff,len:-1
+[13:10:57] TX ets Jul 29 2019 12:21:46
+[13:10:57] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:10:57] TX configsip: 0, SPIWP:0xee
+[13:10:57] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:10:57] TX mode:DIO, clock div:1
+[13:10:57] TX load:0x3fff0030,len:4980
+[13:10:57] TX load:0xffffffff,len:-1
+[13:10:57] TX ets Jul 29 2019 12:21:46
+[13:10:57] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:10:57] TX configsip: 0, SPIWP:0xee
+[13:10:57] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:10:57] TX mode:DIO, clock div:1
+[13:10:57] TX load:0x3fff0030,len:4980
+[13:10:57] TX load:0xffffffff,len:-1
+[13:10:58] TX ets Jul 29 2019 12:21:46
+[13:10:58] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:10:58] TX configsip: 0, SPIWP:0xee
+[13:10:58] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:10:58] TX mode:DIO, clock div:1
+[13:10:58] TX load:0x3fff0030,len:4980
+[13:10:58] TX load:0xffffffff,len:-1
+[13:10:58] TX ets Jul 29 2019 12:21:46
+[13:10:58] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:10:58] TX configsip: 0, SPIWP:0xee
+[13:10:58] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:10:58] TX mode:DIO, clock div:1
+[13:10:58] TX load:0x3fff0030,len:4980
+[13:10:58] TX load:0xd0012000,len:4153
+[13:10:58] TX load:0xffffffff,len:-1
+[13:10:58] TX ets Jul 29 2019 12:21:46
+[13:10:58] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:10:58] TX configsip: 0, SPIWP:0xee
+[13:10:58] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:10:58] TX mode:DIO, clock div:1
+[13:10:58] TX load:0x3fff0030,len:4980
+[13:10:58] TX load:0xd0012000,len:4153
+[13:10:58] TX load:0xffffffff,len:-1
+[13:10:59] TX ets Jul 29 2019 12:21:46
+[13:10:59] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:10:59] TX configsip: 0, SPIWP:0xee
+[13:10:59] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:10:59] TX mode:DIO, clock div:1
+[13:10:59] TX load:0x3fff0030,len:4980
+[13:10:59] TX load:0xffffffff,len:-1
+[13:10:59] TX ets Jul 29 2019 12:21:46
+[13:10:59] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:10:59] TX configsip: 0, SPIWP:0xee
+[13:10:59] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:10:59] TX mode:DIO, clock div:1
+[13:10:59] TX load:0x3fff0030,len:4980
+[13:10:59] TX load:0xd0012000,len:4153
+[13:10:59] TX load:0xffffffff,len:-1
+[13:10:59] TX ets Jul 29 2019 12:21:46
+[13:10:59] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:10:59] TX configsip: 0, SPIWP:0xee
+[13:10:59] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:10:59] TX mode:DIO, clock div:1
+[13:10:59] TX load:0x3fff0030,len:4980
+[13:10:59] TX load:0xffffffff,len:-1
+[13:10:59] TX ets Jul 29 2019 12:21:46
+[13:10:59] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:10:59] TX configsip: 0, SPIWP:0xee
+[13:10:59] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:00] TX mode:DIO, clock div:1
+[13:11:00] TX load:0x3fff0030,len:4980
+[13:11:00] TX load:0xffffffff,len:-1
+[13:11:00] TX ets Jul 29 2019 12:21:46
+[13:11:00] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:00] TX configsip: 0, SPIWP:0xee
+[13:11:00] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:00] TX mode:DIO, clock div:1
+[13:11:00] TX load:0x3fff0030,len:4980
+[13:11:00] TX load:0xffffffff,len:-1
+[13:11:00] TX ets Jul 29 2019 12:21:46
+[13:11:00] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:00] TX configsip: 0, SPIWP:0xee
+[13:11:00] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:00] TX mode:DIO, clock div:1
+[13:11:00] TX load:0x3fff0030,len:4980
+[13:11:00] TX load:0xffffffff,len:-1
+[13:11:00] TX ets Jul 29 2019 12:21:46
+[13:11:00] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:00] TX configsip: 0, SPIWP:0xee
+[13:11:00] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:00] TX mode:DIO, clock div:1
+[13:11:00] TX load:0x3fff0030,len:4980
+[13:11:00] TX load:0xffffffff,len:-1
+[13:11:01] TX ets Jul 29 2019 12:21:46
+[13:11:01] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:01] TX configsip: 0, SPIWP:0xee
+[13:11:01] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:01] TX mode:DIO, clock div:1
+[13:11:01] TX load:0x3fff0030,len:4980
+[13:11:01] TX load:0xffffffff,len:-1
+[13:11:01] TX ets Jul 29 2019 12:21:46
+[13:11:01] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:01] TX configsip: 0, SPIWP:0xee
+[13:11:01] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:01] TX mode:DIO, clock div:1
+[13:11:01] TX load:0x3fff0030,len:4980
+[13:11:01] TX load:0xffffffff,len:-1
+[13:11:01] TX ets Jul 29 2019 12:21:46
+[13:11:01] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:01] TX configsip: 0, SPIWP:0xee
+[13:11:01] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:01] TX mode:DIO, clock div:1
+[13:11:01] TX load:0x3fff0030,len:4980
+[13:11:01] TX load:0xffffffff,len:-1
+[13:11:02] TX ets Jul 29 2019 12:21:46
+[13:11:02] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:02] TX configsip: 0, SPIWP:0xee
+[13:11:02] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:02] TX mode:DIO, clock div:1
+[13:11:02] TX load:0x3fff0030,len:4980
+[13:11:02] TX load:0xffffffff,len:-1
+[13:11:02] TX ets Jul 29 2019 12:21:46
+[13:11:02] TX rst:0x10 (RTCWDT_RTC_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:02] TX configsip: 0, SPIWP:0xee
+[13:11:02] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:02] TX mode:DIO, clock div:1
+[13:11:02] TX load:0x3fff0030,len:4980
+[13:11:02] TX load:0x40078000,len:16612
+[13:11:02] TX load:0x40080400,len:3500
+[13:11:02] TX entry 0x400805b4
+[13:11:02] TX E (28) qio_mode: Failed to set QIE bit, not enabling QIO mode
+[13:11:02] TX E (28) flash_parts: partition 0 invalid magic number 0xa902
+[13:11:02] TX E (28) boot: Failed to verify partition table
+[13:11:02] TX E (32) boot: load partition table error!
+[13:11:02] TX ets Jul 29 2019 12:21:46
+[13:11:02] TX rst:0x3 (SW_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:02] TX configsip: 0, SPIWP:0xee
+[13:11:02] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:02] TX mode:DIO, clock div:1
+[13:11:02] TX load:0x3fff0030,len:4980
+[13:11:02] TX load:0xffffffff,len:-1
+[13:11:02] TX ets Jul 29 2019 12:21:46
+[13:11:02] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:02] TX configsip: 0, SPIWP:0xee
+[13:11:02] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:02] TX mode:DIO, clock div:1
+[13:11:02] TX load:0x3fff0030,len:4980
+[13:11:02] TX load:0xffffffff,len:-1
+[13:11:03] TX ets Jul 29 2019 12:21:46
+[13:11:03] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:03] TX configsip: 0, SPIWP:0xee
+[13:11:03] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:03] TX mode:DIO, clock div:1
+[13:11:03] TX load:0x3fff0030,len:4980
+[13:11:03] TX load:0xd0012000,len:4153
+[13:11:03] TX load:0xffffffff,len:-1
+[13:11:03] TX ets Jul 29 2019 12:21:46
+[13:11:03] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:03] TX configsip: 0, SPIWP:0xee
+[13:11:03] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:03] TX mode:DIO, clock div:1
+[13:11:03] TX load:0x3fff0030,len:4980
+[13:11:03] TX load:0xffffffff,len:-1
+[13:11:03] TX ets Jul 29 2019 12:21:46
+[13:11:03] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:03] TX configsip: 0, SPIWP:0xee
+[13:11:03] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:03] TX mode:DIO, clock div:1
+[13:11:03] TX load:0x3fff0030,len:4980
+[13:11:03] TX load:0xffffffff,len:-1
+[13:11:04] TX ets Jul 29 2019 12:21:46
+[13:11:04] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:04] TX configsip: 0, SPIWP:0xee
+[13:11:04] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:04] TX mode:DIO, clock div:1
+[13:11:04] TX load:0x3fff0030,len:4980
+[13:11:04] TX load:0xffffffff,len:-1
+[13:11:04] TX ets Jul 29 2019 12:21:46
+[13:11:04] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:04] TX configsip: 0, SPIWP:0xee
+[13:11:04] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:04] TX mode:DIO, clock div:1
+[13:11:04] TX load:0x3fff0030,len:4980
+[13:11:04] TX load:0xffffffff,len:-1
+[13:11:04] TX ets Jul 29 2019 12:21:46
+[13:11:04] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:04] TX configsip: 0, SPIWP:0xee
+[13:11:04] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:04] TX mode:DIO, clock div:1
+[13:11:04] TX load:0x3fff0030,len:4980
+[13:11:04] TX load:0xffffffff,len:-1
+[13:11:05] TX ets Jul 29 2019 12:21:46
+[13:11:05] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:05] TX configsip: 0, SPIWP:0xee
+[13:11:05] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:05] TX mode:DIO, clock div:1
+[13:11:05] TX load:0x3fff0030,len:4980
+[13:11:05] TX load:0xffffffff,len:-1
+[13:11:05] TX ets Jul 29 2019 12:21:46
+[13:11:05] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:05] TX configsip: 0, SPIWP:0xee
+[13:11:05] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:05] TX mode:DIO, clock div:1
+[13:11:05] TX load:0x3fff0030,len:4980
+[13:11:05] TX load:0xffffffff,len:-1
+[13:11:05] TX ets Jul 29 2019 12:21:46
+[13:11:05] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:05] TX configsip: 0, SPIWP:0xee
+[13:11:05] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:05] TX mode:DIO, clock div:1
+[13:11:05] TX load:0x3fff0030,len:4980
+[13:11:05] TX load:0xffffffff,len:-1
+[13:11:06] TX ets Jul 29 2019 12:21:46
+[13:11:06] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:06] TX configsip: 0, SPIWP:0xee
+[13:11:06] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:06] TX mode:DIO, clock div:1
+[13:11:06] TX load:0x3fff0030,len:4980
+[13:11:06] TX load:0xffffffff,len:-1
+[13:11:06] TX ets Jul 29 2019 12:21:46
+[13:11:06] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:06] TX configsip: 0, SPIWP:0xee
+[13:11:06] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:06] TX mode:DIO, clock div:1
+[13:11:06] TX load:0x3fff0030,len:4980
+[13:11:06] TX load:0xffffffff,len:-1
+[13:11:06] TX ets Jul 29 2019 12:21:46
+[13:11:06] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:06] TX configsip: 0, SPIWP:0xee
+[13:11:06] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:06] TX mode:DIO, clock div:1
+[13:11:06] TX load:0x3fff0030,len:4980
+[13:11:06] TX load:0xffffffff,len:-1
+[13:11:06] TX ets Jul 29 2019 12:21:46
+[13:11:06] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:06] TX configsip: 0, SPIWP:0xee
+[13:11:06] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:06] TX mode:DIO, clock div:1
+[13:11:06] TX load:0x3fff0030,len:4980
+[13:11:06] TX load:0xffffffff,len:-1
+[13:11:07] TX ets Jul 29 2019 12:21:46
+[13:11:07] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:07] TX configsip: 0, SPIWP:0xee
+[13:11:07] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:07] TX mode:DIO, clock div:1
+[13:11:07] TX load:0x3fff0030,len:4980
+[13:11:07] TX load:0xffffffff,len:-1
+[13:11:07] TX ets Jul 29 2019 12:21:46
+[13:11:07] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:07] TX configsip: 0, SPIWP:0xee
+[13:11:07] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:07] TX mode:DIO, clock div:1
+[13:11:07] TX load:0x3fff0030,len:4980
+[13:11:07] TX load:0xffffffff,len:-1
+[13:11:07] TX ets Jul 29 2019 12:21:46
+[13:11:07] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:07] TX configsip: 0, SPIWP:0xee
+[13:11:07] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:07] TX mode:DIO, clock div:1
+[13:11:07] TX load:0x3fff0030,len:4980
+[13:11:07] TX load:0xffffffff,len:-1
+[13:11:08] TX ets Jul 29 2019 12:21:46
+[13:11:08] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:08] TX configsip: 0, SPIWP:0xee
+[13:11:08] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:08] TX mode:DIO, clock div:1
+[13:11:08] TX load:0x3fff0030,len:4980
+[13:11:08] TX load:0xffffffff,len:-1
+[13:11:08] TX ets Jul 29 2019 12:21:46
+[13:11:08] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:08] TX configsip: 0, SPIWP:0xee
+[13:11:08] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:08] TX mode:DIO, clock div:1
+[13:11:08] TX load:0x3fff0030,len:4980
+[13:11:08] TX load:0xffffffff,len:-1
+[13:11:08] TX ets Jul 29 2019 12:21:46
+[13:11:08] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:08] TX configsip: 0, SPIWP:0xee
+[13:11:08] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:08] TX mode:DIO, clock div:1
+[13:11:08] TX load:0x3fff0030,len:4980
+[13:11:08] TX load:0xffffffff,len:-1
+[13:11:09] TX ets Jul 29 2019 12:21:46
+[13:11:09] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:09] TX configsip: 0, SPIWP:0xee
+[13:11:09] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:09] TX mode:DIO, clock div:1
+[13:11:09] TX load:0x3fff0030,len:4980
+[13:11:09] TX load:0xffffffff,len:-1
+[13:11:09] TX ets Jul 29 2019 12:21:46
+[13:11:09] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:09] TX configsip: 0, SPIWP:0xee
+[13:11:09] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:09] TX mode:DIO, clock div:1
+[13:11:09] TX load:0x3fff0030,len:4980
+[13:11:09] TX load:0xffffffff,len:-1
+[13:11:09] TX ets Jul 29 2019 12:21:46
+[13:11:09] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:09] TX configsip: 0, SPIWP:0xee
+[13:11:09] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:09] TX mode:DIO, clock div:1
+[13:11:09] TX load:0x3fff0030,len:4980
+[13:11:09] TX load:0xffffffff,len:-1
+[13:11:10] TX ets Jul 29 2019 12:21:46
+[13:11:10] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:10] TX configsip: 0, SPIWP:0xee
+[13:11:10] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:10] TX mode:DIO, clock div:1
+[13:11:10] TX load:0x3fff0030,len:4980
+[13:11:10] TX load:0xd0012000,len:4153
+[13:11:10] TX load:0xffffffff,len:-1
+[13:11:10] TX ets Jul 29 2019 12:21:46
+[13:11:10] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:10] TX configsip: 0, SPIWP:0xee
+[13:11:10] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:10] TX mode:DIO, clock div:1
+[13:11:10] TX load:0x3fff0030,len:4980
+[13:11:10] TX load:0xffffffff,len:-1
+[13:11:10] TX ets Jul 29 2019 12:21:46
+[13:11:10] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:10] TX configsip: 0, SPIWP:0xee
+[13:11:10] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:10] TX mode:DIO, clock div:1
+[13:11:10] TX load:0x3fff0030,len:4980
+[13:11:10] TX load:0xffffffff,len:-1
+[13:11:11] TX ets Jul 29 2019 12:21:46
+[13:11:11] TX rst:0x10 (RTCWDT_RTC_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:11] TX configsip: 0, SPIWP:0xee
+[13:11:11] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:11] TX mode:DIO, clock div:1
+[13:11:11] TX load:0x3fff0030,len:4980
+[13:11:11] TX load:0x40078000,len:16612
+[13:11:11] TX load:0x40080400,len:3500
+[13:11:11] TX entry 0x400805b4
+[13:11:11] TX E (28) qio_mode: Failed to set QIE bit, not enabling QIO mode
+[13:11:11] TX E (28) flash_parts: partition 0 invalid magic number 0xa902
+[13:11:11] TX E (28) boot: Failed to verify partition table
+[13:11:11] TX E (32) boot: load partition table error!
+[13:11:11] TX ets Jul 29 2019 12:21:46
+[13:11:11] TX rst:0x3 (SW_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:11] TX configsip: 0, SPIWP:0xee
+[13:11:11] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:11] TX mode:DIO, clock div:1
+[13:11:11] TX load:0x3fff0030,len:4980
+[13:11:11] TX load:0xffffffff,len:-1
+[13:11:11] TX ets Jul 29 2019 12:21:46
+[13:11:11] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:11] TX configsip: 0, SPIWP:0xee
+[13:11:11] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:11] TX mode:DIO, clock div:1
+[13:11:11] TX load:0x3fff0030,len:4980
+[13:11:11] TX load:0xffffffff,len:-1
+[13:11:11] TX ets Jul 29 2019 12:21:46
+[13:11:11] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:11] TX configsip: 0, SPIWP:0xee
+[13:11:11] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:11] TX mode:DIO, clock div:1
+[13:11:11] TX load:0x3fff0030,len:4980
+[13:11:11] TX load:0xffffffff,len:-1
+[13:11:12] TX ets Jul 29 2019 12:21:46
+[13:11:12] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:12] TX configsip: 0, SPIWP:0xee
+[13:11:12] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:12] TX mode:DIO, clock div:1
+[13:11:12] TX load:0x3fff0030,len:4980
+[13:11:12] TX load:0xffffffff,len:-1
+[13:11:12] TX ets Jul 29 2019 12:21:46
+[13:11:12] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:12] TX configsip: 0, SPIWP:0xee
+[13:11:12] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:12] TX mode:DIO, clock div:1
+[13:11:12] TX load:0x3fff0030,len:4980
+[13:11:12] TX load:0xffffffff,len:-1
+[13:11:12] TX ets Jul 29 2019 12:21:46
+[13:11:12] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:12] TX configsip: 0, SPIWP:0xee
+[13:11:12] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:12] TX mode:DIO, clock div:1
+[13:11:12] TX load:0x3fff0030,len:4980
+[13:11:12] TX load:0xffffffff,len:-1
+[13:11:13] TX ets Jul 29 2019 12:21:46
+[13:11:13] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:13] TX configsip: 0, SPIWP:0xee
+[13:11:13] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:13] TX mode:DIO, clock div:1
+[13:11:13] TX load:0x3fff0030,len:4980
+[13:11:13] TX load:0xffffffff,len:-1
+[13:11:13] TX ets Jul 29 2019 12:21:46
+[13:11:13] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:13] TX configsip: 0, SPIWP:0xee
+[13:11:13] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:13] TX mode:DIO, clock div:1
+[13:11:13] TX load:0x3fff0030,len:4980
+[13:11:13] TX load:0xffffffff,len:-1
+[13:11:13] TX ets Jul 29 2019 12:21:46
+[13:11:13] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:13] TX configsip: 0, SPIWP:0xee
+[13:11:13] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:13] TX mode:DIO, clock div:1
+[13:11:13] TX load:0x3fff0030,len:4980
+[13:11:13] TX load:0xffffffff,len:-1
+[13:11:14] TX ets Jul 29 2019 12:21:46
+[13:11:14] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:14] TX configsip: 0, SPIWP:0xee
+[13:11:14] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:14] TX mode:DIO, clock div:1
+[13:11:14] TX load:0x3fff0030,len:4980
+[13:11:14] TX load:0xffffffff,len:-1
+[13:11:14] TX ets Jul 29 2019 12:21:46
+[13:11:14] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:14] TX configsip: 0, SPIWP:0xee
+[13:11:14] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:14] TX mode:DIO, clock div:1
+[13:11:14] TX load:0x3fff0030,len:4980
+[13:11:14] TX load:0xffffffff,len:-1
+[13:11:14] TX ets Jul 29 2019 12:21:46
+[13:11:14] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:14] TX configsip: 0, SPIWP:0xee
+[13:11:14] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:14] TX mode:DIO, clock div:1
+[13:11:14] TX load:0x3fff0030,len:4980
+[13:11:14] TX load:0xffffffff,len:-1
+[13:11:14] TX ets Jul 29 2019 12:21:46
+[13:11:14] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:14] TX configsip: 0, SPIWP:0xee
+[13:11:14] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:14] TX mode:DIO, clock div:1
+[13:11:14] TX load:0x3fff0030,len:4980
+[13:11:15] TX load:0xffffffff,len:-1
+[13:11:15] TX ets Jul 29 2019 12:21:46
+[13:11:15] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:15] TX configsip: 0, SPIWP:0xee
+[13:11:15] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:15] TX mode:DIO, clock div:1
+[13:11:15] TX load:0x3fff0030,len:4980
+[13:11:15] TX load:0xffffffff,len:-1
+[13:11:15] TX ets Jul 29 2019 12:21:46
+[13:11:15] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:15] TX configsip: 0, SPIWP:0xee
+[13:11:15] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:15] TX mode:DIO, clock div:1
+[13:11:15] TX load:0x3fff0030,len:4980
+[13:11:15] TX load:0xffffffff,len:-1
+[13:11:15] TX ets Jul 29 2019 12:21:46
+[13:11:15] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:15] TX configsip: 0, SPIWP:0xee
+[13:11:15] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:15] TX mode:DIO, clock div:1
+[13:11:15] TX load:0x3fff0030,len:4980
+[13:11:15] TX load:0xffffffff,len:-1
+[13:11:16] TX ets Jul 29 2019 12:21:46
+[13:11:16] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:16] TX configsip: 0, SPIWP:0xee
+[13:11:16] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:16] TX mode:DIO, clock div:1
+[13:11:16] TX load:0x3fff0030,len:4980
+[13:11:16] TX load:0xffffffff,len:-1
+[13:11:16] TX ets Jul 29 2019 12:21:46
+[13:11:16] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:16] TX configsip: 0, SPIWP:0xee
+[13:11:16] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:16] TX mode:DIO, clock div:1
+[13:11:16] TX load:0x3fff0030,len:4980
+[13:11:16] TX load:0xffffffff,len:-1
+[13:11:16] TX ets Jul 29 2019 12:21:46
+[13:11:16] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:16] TX configsip: 0, SPIWP:0xee
+[13:11:16] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:16] TX mode:DIO, clock div:1
+[13:11:16] TX load:0x3fff0030,len:4980
+[13:11:16] TX load:0xffffffff,len:-1
+[13:11:17] TX ets Jul 29 2019 12:21:46
+[13:11:17] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:17] TX configsip: 0, SPIWP:0xee
+[13:11:17] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:17] TX mode:DIO, clock div:1
+[13:11:17] TX load:0x3fff0030,len:4980
+[13:11:17] TX load:0xffffffff,len:-1
+[13:11:17] TX ets Jul 29 2019 12:21:46
+[13:11:17] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:17] TX configsip: 0, SPIWP:0xee
+[13:11:17] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:17] TX mode:DIO, clock div:1
+[13:11:17] TX load:0x3fff0030,len:4980
+[13:11:17] TX load:0xffffffff,len:-1
+[13:11:17] TX ets Jul 29 2019 12:21:46
+[13:11:17] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:17] TX configsip: 0, SPIWP:0xee
+[13:11:17] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:17] TX mode:DIO, clock div:1
+[13:11:17] TX load:0x3fff0030,len:4980
+[13:11:17] TX load:0xffffffff,len:-1
+[13:11:18] TX ets Jul 29 2019 12:21:46
+[13:11:18] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:18] TX configsip: 0, SPIWP:0xee
+[13:11:18] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:18] TX mode:DIO, clock div:1
+[13:11:18] TX load:0x3fff0030,len:4980
+[13:11:18] TX load:0xffffffff,len:-1
+[13:11:18] TX ets Jul 29 2019 12:21:46
+[13:11:18] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:18] TX configsip: 0, SPIWP:0xee
+[13:11:18] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:18] TX mode:DIO, clock div:1
+[13:11:18] TX load:0x3fff0030,len:4980
+[13:11:18] TX load:0xffffffff,len:-1
+[13:11:18] TX ets Jul 29 2019 12:21:46
+[13:11:18] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:18] TX configsip: 0, SPIWP:0xee
+[13:11:18] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:18] TX mode:DIO, clock div:1
+[13:11:18] TX load:0x3fff0030,len:4980
+[13:11:18] TX load:0xffffffff,len:-1
+[13:11:19] TX ets Jul 29 2019 12:21:46
+[13:11:19] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:19] TX configsip: 0, SPIWP:0xee
+[13:11:19] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:19] TX mode:DIO, clock div:1
+[13:11:19] TX load:0x3fff0030,len:4980
+[13:11:19] TX load:0xffffffff,len:-1
+[13:11:19] TX ets Jul 29 2019 12:21:46
+[13:11:19] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:19] TX configsip: 0, SPIWP:0xee
+[13:11:19] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:19] TX mode:DIO, clock div:1
+[13:11:19] TX load:0x3fff0030,len:4980
+[13:11:19] TX load:0xffffffff,len:-1
+[13:11:19] TX ets Jul 29 2019 12:21:46
+[13:11:19] TX rst:0x10 (RTCWDT_RTC_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:19] TX configsip: 0, SPIWP:0xee
+[13:11:19] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:19] TX mode:DIO, clock div:1
+[13:11:19] TX load:0x3fff0030,len:4980
+[13:11:19] TX load:0x40078000,len:16612
+[13:11:19] TX load:0x40080400,len:3500
+[13:11:19] TX entry 0x400805b4
+[13:11:19] TX E (28) qio_mode: Failed to set QIE bit, not enabling QIO mode
+[13:11:19] TX E (28) flash_parts: partition 0 invalid magic number 0xa902
+[13:11:19] TX E (28) boot: Failed to verify partition table
+[13:11:19] TX E (32) boot: load partition table error!
+[13:11:19] TX ets Jul 29 2019 12:21:46
+[13:11:19] TX rst:0x3 (SW_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:19] TX configsip: 0, SPIWP:0xee
+[13:11:19] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:19] TX mode:DIO, clock div:1
+[13:11:19] TX load:0x3fff0030,len:4980
+[13:11:19] TX load:0xffffffff,len:-1
+[13:11:20] TX ets Jul 29 2019 12:21:46
+[13:11:20] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:20] TX configsip: 0, SPIWP:0xee
+[13:11:20] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:20] TX mode:DIO, clock div:1
+[13:11:20] TX load:0x3fff0030,len:4980
+[13:11:20] TX load:0xffffffff,len:-1
+[13:11:20] TX ets Jul 29 2019 12:21:46
+[13:11:20] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:20] TX configsip: 0, SPIWP:0xee
+[13:11:20] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:20] TX mode:DIO, clock div:1
+[13:11:20] TX load:0x3fff0030,len:4980
+[13:11:20] TX load:0xffffffff,len:-1
+[13:11:20] TX ets Jul 29 2019 12:21:46
+[13:11:20] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:20] TX configsip: 0, SPIWP:0xee
+[13:11:20] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:20] TX mode:DIO, clock div:1
+[13:11:20] TX load:0x3fff0030,len:4980
+[13:11:20] TX load:0xffffffff,len:-1
+[13:11:21] TX ets Jul 29 2019 12:21:46
+[13:11:21] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:21] TX configsip: 0, SPIWP:0xee
+[13:11:21] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:21] TX mode:DIO, clock div:1
+[13:11:21] TX load:0x3fff0030,len:4980
+[13:11:21] TX load:0xffffffff,len:-1
+[13:11:21] TX ets Jul 29 2019 12:21:46
+[13:11:21] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:21] TX configsip: 0, SPIWP:0xee
+[13:11:21] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:21] TX mode:DIO, clock div:1
+[13:11:21] TX load:0x3fff0030,len:4980
+[13:11:21] TX load:0xffffffff,len:-1
+[13:11:21] TX ets Jul 29 2019 12:21:46
+[13:11:21] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:21] TX configsip: 0, SPIWP:0xee
+[13:11:21] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:21] TX mode:DIO, clock div:1
+[13:11:21] TX load:0x3fff0030,len:4980
+[13:11:21] TX load:0xffffffff,len:-1
+[13:11:22] TX ets Jul 29 2019 12:21:46
+[13:11:22] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:22] TX configsip: 0, SPIWP:0xee
+[13:11:22] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:22] TX mode:DIO, clock div:1
+[13:11:22] TX load:0x3fff0030,len:4980
+[13:11:22] TX load:0xffffffff,len:-1
+[13:11:22] TX ets Jul 29 2019 12:21:46
+[13:11:22] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:22] TX configsip: 0, SPIWP:0xee
+[13:11:22] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:22] TX mode:DIO, clock div:1
+[13:11:22] TX load:0x3fff0030,len:4980
+[13:11:22] TX load:0xffffffff,len:-1
+[13:11:22] TX ets Jul 29 2019 12:21:46
+[13:11:22] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:22] TX configsip: 0, SPIWP:0xee
+[13:11:22] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:22] TX mode:DIO, clock div:1
+[13:11:22] TX load:0x3fff0030,len:4980
+[13:11:22] TX load:0xffffffff,len:-1
+[13:11:23] TX ets Jul 29 2019 12:21:46
+[13:11:23] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:23] TX configsip: 0, SPIWP:0xee
+[13:11:23] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:23] TX mode:DIO, clock div:1
+[13:11:23] TX load:0x3fff0030,len:4980
+[13:11:23] TX load:0xffffffff,len:-1
+[13:11:23] TX ets Jul 29 2019 12:21:46
+[13:11:23] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:23] TX configsip: 0, SPIWP:0xee
+[13:11:23] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:23] TX mode:DIO, clock div:1
+[13:11:23] TX load:0x3fff0030,len:4980
+[13:11:23] TX load:0xffffffff,len:-1
+[13:11:23] TX ets Jul 29 2019 12:21:46
+[13:11:23] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:23] TX configsip: 0, SPIWP:0xee
+[13:11:23] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:23] TX mode:DIO, clock div:1
+[13:11:23] TX load:0x3fff0030,len:4980
+[13:11:23] TX load:0xffffffff,len:-1
+[13:11:23] TX ets Jul 29 2019 12:21:46
+[13:11:24] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:24] TX configsip: 0, SPIWP:0xee
+[13:11:24] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:24] TX mode:DIO, clock div:1
+[13:11:24] TX load:0x3fff0030,len:4980
+[13:11:24] TX load:0xffffffff,len:-1
+[13:11:24] TX ets Jul 29 2019 12:21:46
+[13:11:24] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:24] TX configsip: 0, SPIWP:0xee
+[13:11:24] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:24] TX mode:DIO, clock div:1
+[13:11:24] TX load:0x3fff0030,len:4980
+[13:11:24] TX load:0xffffffff,len:-1
+[13:11:24] TX ets Jul 29 2019 12:21:46
+[13:11:24] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:24] TX configsip: 0, SPIWP:0xee
+[13:11:24] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:24] TX mode:DIO, clock div:1
+[13:11:24] TX load:0x3fff0030,len:4980
+[13:11:24] TX load:0xffffffff,len:-1
+[13:11:24] TX ets Jul 29 2019 12:21:46
+[13:11:24] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:24] TX configsip: 0, SPIWP:0xee
+[13:11:24] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:24] TX mode:DIO, clock div:1
+[13:11:24] TX load:0x3fff0030,len:4980
+[13:11:24] TX load:0xffffffff,len:-1
+[13:11:25] TX ets Jul 29 2019 12:21:46
+[13:11:25] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:25] TX configsip: 0, SPIWP:0xee
+[13:11:25] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:25] TX mode:DIO, clock div:1
+[13:11:25] TX load:0x3fff0030,len:4980
+[13:11:25] TX load:0xffffffff,len:-1
+[13:11:25] TX ets Jul 29 2019 12:21:46
+[13:11:25] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:25] TX configsip: 0, SPIWP:0xee
+[13:11:25] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:25] TX mode:DIO, clock div:1
+[13:11:25] TX load:0x3fff0030,len:4980
+[13:11:25] TX load:0xffffffff,len:-1
+[13:11:26] TX ets Jul 29 2019 12:21:46
+[13:11:26] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0xMP*a	2x 
+[13:11:26] TX configsip: 0, SPIWP:0xee
+[13:11:26] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:26] TX mode:DIO, clock div:1
+[13:11:26] TX load:0x3fff0030,len:4980
+[13:11:26] TX load:0xffffffff,len:-1
+[13:11:26] TX ets Jul 29 2019 12:21:46
+[13:11:26] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:26] TX configsip: 0, SPIWP:0xee
+[13:11:26] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:26] TX mode:DIO, clock div:1
+[13:11:26] TX load:0x3fff0030,len:4980
+[13:11:26] TX load:0xffffffff,len:-1
+[13:11:26] TX ets Jul 29 2019 12:21:46
+[13:11:26] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:26] TX configsip: 0, SPIWP:0xee
+[13:11:26] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:26] TX mode:DIO, clock div:1
+[13:11:26] TX load:0x3fff0030,len:4980
+[13:11:26] TX load:0xffffffff,len:-1
+[13:11:26] TX ets Jul 29 2019 12:21:46
+[13:11:26] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:26] TX configsip: 0, SPIWP:0xee
+[13:11:26] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:26] TX mode:DIO, clock div:1
+[13:11:26] TX load:0x3fff0030,len:4980
+[13:11:26] TX load:0xffffffff,len:-1
+[13:11:27] TX ets Jul 29 2019 12:21:46
+[13:11:27] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:27] TX configsip: 0, SPIWP:0xee
+[13:11:27] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:27] TX mode:DIO, clock div:1
+[13:11:27] TX load:0x3fff0030,len:4980
+[13:11:27] TX load:0xffffffff,len:-1
+[13:11:27] TX ets Jul 29 2019 12:21:46
+[13:11:27] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:27] TX configsip: 0, SPIWP:0xee
+[13:11:27] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:27] TX mode:DIO, clock div:1
+[13:11:27] TX load:0x3fff0030,len:4980
+[13:11:27] TX load:0xffffffff,len:-1
+[13:11:28] TX ets Jul 29 2019 12:21:46
+[13:11:28] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:28] TX configsip: 0, SPIWP:0xee
+[13:11:28] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:28] TX mode:DIO, clock div:1
+[13:11:28] TX load:0x3fff0030,len:4980
+[13:11:28] TX load:0xffffffff,len:-1
+[13:11:28] TX ets Jul 29 2019 12:21:46
+[13:11:28] TX rst:0x10 (RTCWDT_RTC_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:28] TX configsip: 0, SPIWP:0xee
+[13:11:28] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:28] TX mode:DIO, clock div:1
+[13:11:28] TX load:0x3fff0030,len:4980
+[13:11:28] TX load:0x40078000,len:16612
+[13:11:28] TX load:0x40080400,len:3500
+[13:11:28] TX entry 0x400805b4
+[13:11:28] TX E (28) qio_mode: Failed to set QIE bit, not enabling QIO mode
+[13:11:28] TX E (28) flash_parts: partition 0 invalid magic number 0xa902
+[13:11:28] TX E (28) boot: Failed to verify partition table
+[13:11:28] TX E (32) boot: load partition table error!
+[13:11:28] TX ets Jul 29 2019 12:21:46
+[13:11:28] TX rst:0x3 (SW_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:28] TX configsip: 0, SPIWP:0xee
+[13:11:28] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:28] TX mode:DIO, clock div:1
+[13:11:28] TX load:0x3fff0030,len:4980
+[13:11:28] TX load:0xffffffff,len:-1
+[13:11:28] TX ets Jul 29 2019 12:21:46
+[13:11:28] TX rst:0x7 (TG0WDT_SYS_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:11:28] TX configsip: 0, SPIWP:0xee
+[13:11:28] TX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:11:28] TX mode:DIO, clock div:1
+[13:11:28] TX load:0x3fff0030,len:4980
+[13:11:28] TX load:0xffffffff,len:-1
+[13:11:29] TX ets Jul 29 2019 12:21:46

@@ -1,0 +1,25 @@
+[13:57:58] RX ets Jul 29 2019 12:21:46
+[13:57:58] RX rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:57:58] RX configsip: 0, SPIWP:0xee
+[13:57:58] RX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:57:58] RX mode:DIO, clock div:1
+[13:57:58] RX load:0x3fff0030,len:4980
+[13:57:58] RX load:0x40078000,len:16612
+[13:57:58] RX load:0x40080400,len:3500
+[13:57:58] RX entry 0x400805b4
+[13:57:59] RX [FW] RX_DeltaE_Sweep_2026-01-15 build=Jan 19 2026 09:15:51
+[13:57:59] RX [FW] tag=RX_DeltaE_Sweep program_id=RX_DELTAE_SWEEP_20260115 use_nimble=0 scan_ms=50
+[13:58:00] RX [RX] ready
+[13:58:00] RX [DBG] SYNC_PIN=26 level=0 nowMs=717
+[13:58:00] RX [DBG] SYNC_PIN=25 level=0 nowMs=717
+[13:58:01] RX [DBG] SYNC_PIN=26 level=1 nowMs=2424
+[13:58:02] RX [AGENT] RX startTrial nowMs=3177 t0Ms=3177 sync=1 alt=0
+[13:58:02] RX [RX] start /logs/rx_00002527_7ba14bf7.csv (trial=1)
+[13:59:01] RX [DBG] SYNC_PIN=26 level=0 nowMs=62424
+[13:59:01] RX [AGENT] RX endTrial reason=SYNC_LOW_STABLE nowMs=62524 t0Ms=3177 dt=59347 sync=0 alt=0
+[13:59:01] RX [RX] summary trial=1 ms_total=59347, rx=0, rate_hz=0.00, buf_overflow=0
+[13:59:01] RX [AGENT] RX diag trial=1 cbTotal=11150 noMfd=560 mfdBad=10590 addrMis=0 bufDrop=0 firstAddr=48:fa:d8:e9:67:ff firstMfd=4C001005481CADA
+[13:59:01] RX [RX] end
+[13:59:06] RX [DBG] SYNC_PIN=26 level=1 nowMs=67424
+[13:59:07] RX [AGENT] RX startTrial nowMs=68179 t0Ms=68179 sync=1 alt=0
+[13:59:07] RX [RX] start /logs/rx_00067527_079ed384.csv (trial=2)

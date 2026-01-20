@@ -1,0 +1,6 @@
+[06:00:55] [DBG] SYNC_PIN=26 level=0 nowMs=3557736
+[06:00:55] [AGENT] TXSD endTrial nowMs=3557836 t0_ms=3498409 dt=59427 sync=0 alt=0 syncLowSince=3557736
+[06:00:55] [PWR] end ms=59427 adv=595 E=-506.025mJ
+[06:01:00] [DBG] SYNC_PIN=26 level=1 nowMs=3562737
+[06:01:01] [AGENT] TXSD startTrial nowMs=3563410 t0_ms=3563410 sync=1 alt=0
+[06:01:01] [PWR] start /logs/pwr_03562839_daba01e5_on.csv

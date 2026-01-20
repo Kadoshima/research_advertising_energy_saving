@@ -1,0 +1,16 @@
+[11:09:47] RX [DBG] SYNC_PIN=26 level=0 nowMs=84000
+[11:09:47] RX [AGENT] RX endTrial reason=SYNC_LOW_STABLE nowMs=84100 t0Ms=24741 dt=59359 sync=0 alt=0
+[11:09:47] RX [RX] summary trial=2 ms_total=59359, rx=0, rate_hz=0.00, buf_overflow=0
+[11:09:47] RX [AGENT] RX diag trial=2 cbTotal=10417 noMfd=11 mfdBad=10406 addrMis=0 bufDrop=0 firstAddr=57:a2:e1:85:22:da firstMfd=4C0007190124200
+[11:09:47] RX [RX] end
+[11:09:52] RX [DBG] SYNC_PIN=26 level=1 nowMs=89000
+[11:09:53] RX [AGENT] RX startTrial nowMs=89740 t0Ms=89740 sync=1 alt=0
+[11:09:53] RX [RX] start /logs/rx_00089103_1f9bfa65.csv (trial=3)
+[11:10:52] RX [DBG] SYNC_PIN=26 level=0 nowMs=149000
+[11:10:52] RX [AGENT] RX endTrial reason=SYNC_LOW_STABLE nowMs=149100 t0Ms=89740 dt=59360 sync=0 alt=0
+[11:10:52] RX [RX] summary trial=3 ms_total=59360, rx=0, rate_hz=0.00, buf_overflow=0
+[11:10:52] RX [AGENT] RX diag trial=3 cbTotal=10126 noMfd=7 mfdBad=10119 addrMis=0 bufDrop=0 firstAddr=76:83:39:64:70:df firstMfd=4C0010063E1D4BC
+[11:10:52] RX [RX] end
+[11:10:57] RX [DBG] SYNC_PIN=26 level=1 nowMs=154000
+[11:10:58] RX [AGENT] RX startTrial nowMs=154862 t0Ms=154862 sync=1 alt=0
+[11:10:58] RX [RX] start /logs/rx_00154103_66147842.csv (trial=4)

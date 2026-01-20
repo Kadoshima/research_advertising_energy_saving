@@ -1,0 +1,9 @@
+2026-01-19 14:46:17 JST
+- Updated RX scan config to NimBLE passive scan (interval/window=100/90, duplicates allowed) and refreshed meta/boot logging in `esp32_firmware/20260115_deltae_v3rig_sweep/RX_DeltaE_Sweep/RX_DeltaE_Sweep.ino`.
+- Verified compile via `arduino-cli compile --fqbn esp32:esp32:esp32wroverkit` (RX_DeltaE_Sweep).
+- Added 1210 baseline rules doc in `docs/????1/ble_rx_rules_1210/README.md`.
+2026-01-19 14:47:01 JST
+- Uploaded RX_DeltaE_Sweep to COM9 (esp32:esp32:esp32wroverkit).
+2026-01-19 14:55:34 JST
+- Appended data integrity + research rules to `AGENTS.md`.
+- Documented hardware adjustments in `docs/????0-0/???????_v3.md`.

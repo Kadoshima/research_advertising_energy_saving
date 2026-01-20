@@ -13,11 +13,11 @@ static const uint32_t TRIAL_MS = 60000;
 static const uint8_t N_TRIALS = 10;
 static const uint32_t GAP_BETWEEN_TRIALS_MS = 5000;
 static const bool USE_TICK_OUT = true;
-static const esp_power_level_t TX_PWR = ESP_PWR_LVL_N0; // 0 dBm
+static const esp_power_level_t TX_PWR = ESP_PWR_LVL_P9; // +9 dBm (max)
 
-static const int SYNC_OUT_PIN = 25;
-static const int SYNC_ALT_OUT_PIN = 26; // optional mirror of SYNC_OUT
-static const bool USE_SYNC_ALT_OUT = true;
+static const int SYNC_OUT_PIN = 26;
+static const int SYNC_ALT_OUT_PIN = 25; // optional mirror of SYNC_OUT
+static const bool USE_SYNC_ALT_OUT = false;
 static const int TICK_OUT_PIN = 27;
 static const int LED_PIN = 2;
 
@@ -99,7 +99,7 @@ void setup() {
   }
 
   BLEDevice::init("TX_DELTAE_V3");
-  BLEDevice::setPower(TX_PWR);
+  BLEDevice::setPower(TX_PWR, ESP_BLE_PWR_TYPE_ADV);
   BLEAdvertising* a = BLEDevice::getAdvertising();
   a->setScanResponse(false);
   a->setMinPreferred(0);
@@ -107,6 +107,7 @@ void setup() {
   a->setMinInterval(itv);
   a->setMaxInterval(itv);
   BLEAdvertisementData ad;
+  ad.setFlags(0x06);
   ad.setName("TX_DELTAE_V3");
   ad.setManufacturerData(makeMFD(0));
   a->setAdvertisementData(ad);
@@ -127,9 +128,11 @@ void loop() {
       nextAdvMs += ADV_INTERVAL_MS;
       uint16_t sendSeq = (hold0 > 0) ? 0 : seq;
       BLEAdvertisementData ad;
+      ad.setFlags(0x06);
       ad.setName("TX_DELTAE_V3");
       ad.setManufacturerData(makeMFD(sendSeq));
       adv->setAdvertisementData(ad);
+      adv->start();
       if (hold0 > 0) {
         --hold0;
       } else {

@@ -106,12 +106,17 @@ uint32_t rxCount = 0;
 // #region agent log
 // RX callback diagnostics (to distinguish "no packets seen" vs "filtered out")
 static uint32_t cbTotal = 0;
+static uint32_t cbTotalAll = 0;
 static uint32_t cbNoMfd = 0;
 static uint32_t cbMfdParseFail = 0;
 static uint32_t cbAddrMismatch = 0;
 static uint32_t cbBufDrop = 0;
 static char cbFirstMfd[32] = "";
 static char cbFirstAddr[18] = "";
+static uint32_t cbNameHit = 0;
+static char cbFirstNameAddr[18] = "";
+static char cbFirstNameMfd[32] = "";
+static bool sdOk = false;
 // #endregion
 
 static void makeNextPath(char* out, size_t out_sz) {
@@ -134,17 +139,21 @@ void flushBuffer() {
 }
 
 void startTrial() {
-  char path[64];
-  makeNextPath(path, sizeof(path));
-  f = SD.open(path, FILE_WRITE);
-  if (!f) {
-    Serial.printf("[SD] open FAIL path=%s\n", path);
-    return;
+  char path[64] = "NO_SD";
+  if (sdOk) {
+    makeNextPath(path, sizeof(path));
+    f = SD.open(path, FILE_WRITE);
+    if (!f) {
+      Serial.printf("[SD] open FAIL path=%s\n", path);
+    } else {
+      f.println("prog_id,ms,event,rssi,addr,mfd");
+      f.printf("# meta, firmware=%s, program_id=%s, trial_index=%lu, adv_interval_ms=%u, buf_size=%u\r\n",
+               FW_TAG, PROGRAM_ID, (unsigned long)trialIndex + 1, (unsigned)ADV_INTERVAL_MS, (unsigned)RX_BUF_SIZE);
+    }
+  } else {
+    f = File();
   }
-  f.println("prog_id,ms,event,rssi,addr,mfd");
   trialIndex++;
-  f.printf("# meta, firmware=%s, program_id=%s, trial_index=%lu, adv_interval_ms=%u, buf_size=%u\r\n",
-           FW_TAG, PROGRAM_ID, (unsigned long)trialIndex, (unsigned)ADV_INTERVAL_MS, (unsigned)RX_BUF_SIZE);
   t0Ms = millis();
   trial = true;
   // #region agent log
@@ -155,12 +164,16 @@ void startTrial() {
   txLockAddr[0] = '\0';
   rxCount = 0;
   cbTotal = 0;
+  cbTotalAll = 0;
   cbNoMfd = 0;
   cbMfdParseFail = 0;
   cbAddrMismatch = 0;
   cbBufDrop = 0;
   cbFirstMfd[0] = '\0';
   cbFirstAddr[0] = '\0';
+  cbNameHit = 0;
+  cbFirstNameAddr[0] = '\0';
+  cbFirstNameMfd[0] = '\0';
   rxBufHead = 0;
   rxBufTail = 0;
   bufOverflow = 0;
@@ -192,15 +205,18 @@ static void endTrialWithReason(const char* reason) {
                 (unsigned long)trialIndex, (unsigned long)t_ms, (unsigned long)rxCount,
                 rate_hz, pdr, (unsigned long)bufOverflow);
   // #region agent log
-  Serial.printf("[AGENT] RX diag trial=%lu cbTotal=%lu noMfd=%lu mfdFail=%lu addrMis=%lu bufDrop=%lu firstAddr=%s firstMfd=%s\n",
+  Serial.printf("[AGENT] RX diag trial=%lu cbTotal=%lu noMfd=%lu mfdFail=%lu addrMis=%lu bufDrop=%lu nameHit=%lu firstAddr=%s firstMfd=%s nameAddr=%s nameMfd=%s\n",
                 (unsigned long)trialIndex,
                 (unsigned long)cbTotal,
                 (unsigned long)cbNoMfd,
                 (unsigned long)cbMfdParseFail,
                 (unsigned long)cbAddrMismatch,
                 (unsigned long)cbBufDrop,
+                (unsigned long)cbNameHit,
                 cbFirstAddr[0] ? cbFirstAddr : "-",
-                cbFirstMfd[0] ? cbFirstMfd : "-");
+                cbFirstMfd[0] ? cbFirstMfd : "-",
+                cbFirstNameAddr[0] ? cbFirstNameAddr : "-",
+                cbFirstNameMfd[0] ? cbFirstNameMfd : "-");
   // #endregion
   Serial.println("[RX] end");
 }
@@ -209,6 +225,7 @@ static void endTrialWithReason(const char* reason) {
 NimBLEScan* gScan = nullptr;
 class CB : public NimBLEAdvertisedDeviceCallbacks {
   void onResult(NimBLEAdvertisedDevice* d) override {
+    cbTotalAll++;
     if (!trial) return;
     cbTotal++;
 
@@ -218,10 +235,25 @@ class CB : public NimBLEAdvertisedDeviceCallbacks {
       cbFirstAddr[sizeof(cbFirstAddr) - 1] = '\0';
     }
 
+    std::string name = d->getName();
+    if (!name.empty() && name.find("TX_DELTAE_V3") != std::string::npos) {
+      cbNameHit++;
+      if (cbFirstNameAddr[0] == '\0') {
+        strncpy(cbFirstNameAddr, addrStd.c_str(), sizeof(cbFirstNameAddr) - 1);
+        cbFirstNameAddr[sizeof(cbFirstNameAddr) - 1] = '\0';
+      }
+    }
+
     std::string mfd = d->getManufacturerData(); // may be binary
     if (mfd.size() == 0) {
       cbNoMfd++;
       return;
+    }
+    if (cbFirstNameMfd[0] == '\0' && !name.empty() && name.find("TX_DELTAE_V3") != std::string::npos) {
+      char hex[32];
+      bytesToHex((const uint8_t*)mfd.data(), (mfd.size() > 8 ? 8 : mfd.size()), hex, sizeof(hex));
+      strncpy(cbFirstNameMfd, hex, sizeof(cbFirstNameMfd) - 1);
+      cbFirstNameMfd[sizeof(cbFirstNameMfd) - 1] = '\0';
     }
     if (cbFirstMfd[0] == '\0' && mfd.size() > 0) {
       char hex[32];
@@ -267,6 +299,7 @@ CB cb;
 BLEScan* gScan = nullptr;
 class CB : public BLEAdvertisedDeviceCallbacks {
   void onResult(BLEAdvertisedDevice d) override {
+    cbTotalAll++;
     if (!trial) return;
     cbTotal++;
 
@@ -276,12 +309,27 @@ class CB : public BLEAdvertisedDeviceCallbacks {
       cbFirstAddr[sizeof(cbFirstAddr) - 1] = '\0';
     }
 
+    String name = d.getName();
+    if (name.length() > 0 && name.indexOf("TX_DELTAE_V3") >= 0) {
+      cbNameHit++;
+      if (cbFirstNameAddr[0] == '\0') {
+        strncpy(cbFirstNameAddr, addr.c_str(), sizeof(cbFirstNameAddr) - 1);
+        cbFirstNameAddr[sizeof(cbFirstNameAddr) - 1] = '\0';
+      }
+    }
+
     String mfdStr = d.getManufacturerData();
     const uint8_t* mfdData = (const uint8_t*)mfdStr.c_str();
     const size_t mfdLen = (size_t)mfdStr.length();
     if (mfdLen == 0) {
       cbNoMfd++;
       return;
+    }
+    if (cbFirstNameMfd[0] == '\0' && name.length() > 0 && name.indexOf("TX_DELTAE_V3") >= 0) {
+      char hex[32];
+      bytesToHex(mfdData, (mfdLen > 8 ? 8 : mfdLen), hex, sizeof(hex));
+      strncpy(cbFirstNameMfd, hex, sizeof(cbFirstNameMfd) - 1);
+      cbFirstNameMfd[sizeof(cbFirstNameMfd) - 1] = '\0';
     }
     if (cbFirstMfd[0] == '\0' && mfdLen > 0) {
       char hex[32];
@@ -333,9 +381,9 @@ void setup() {
                 __DATE__, __TIME__, FW_BUILD);
   // #endregion
   SPI.begin(18, 19, 23, SD_CS);
-  if (!SD.begin(SD_CS)) {
-    Serial.println("[SD] init FAIL");
-    while (1) delay(1000);
+  sdOk = SD.begin(SD_CS);
+  if (!sdOk) {
+    Serial.println("[SD] init FAIL (continue without SD)");
   }
   pinMode(SYNC_IN, INPUT_PULLDOWN);
   pinMode(SYNC_ALT_IN, INPUT_PULLDOWN);
@@ -345,15 +393,16 @@ void setup() {
   NimBLEDevice::init("RX_DELTAE_V3");
   gScan = NimBLEDevice::getScan();
   gScan->setAdvertisedDeviceCallbacks(&cb);
-  gScan->setActiveScan(false);
+  gScan->setActiveScan(true);
   gScan->setInterval(SCAN_MS);
   gScan->setWindow(SCAN_MS);
+  gScan->setDuplicateFilter(false);
   gScan->start(0, nullptr, false);
 #else
   BLEDevice::init("RX_DELTAE_V3");
   gScan = BLEDevice::getScan();
-  gScan->setAdvertisedDeviceCallbacks(&cb);
-  gScan->setActiveScan(false);
+  gScan->setAdvertisedDeviceCallbacks(&cb, true);
+  gScan->setActiveScan(true);
   gScan->setInterval(SCAN_MS);
   gScan->setWindow(SCAN_MS);
   gScan->start(0, nullptr, false);
@@ -402,9 +451,16 @@ void loop() {
   static int lastRptTrial = -1;
   bool changed = (syncIn != lastRptSyncIn) || (syncAlt != lastRptSyncAlt) || ((int)trial != lastRptTrial);
   if (changed || (nowMs - lastDebugMs >= 10000)) {
-    Serial.printf("[DBG] SYNC_IN=%d SYNC_ALT=%d trial=%d highSince=%lu lowSince=%lu\n",
+    Serial.printf("[DBG] SYNC_IN=%d SYNC_ALT=%d trial=%d highSince=%lu lowSince=%lu cbTotal=%lu cbAll=%lu nameHit=%lu noMfd=%lu mfdFail=%lu addrMis=%lu bufDrop=%lu firstAddr=%s firstMfd=%s nameAddr=%s nameMfd=%s\n",
                   syncIn, syncAlt, (int)trial,
-                  (unsigned long)syncHighSince, (unsigned long)syncLowSince);
+                  (unsigned long)syncHighSince, (unsigned long)syncLowSince,
+                  (unsigned long)cbTotal, (unsigned long)cbTotalAll,
+                  (unsigned long)cbNameHit,
+                  (unsigned long)cbNoMfd,
+                  (unsigned long)cbMfdParseFail, (unsigned long)cbAddrMismatch,
+                  (unsigned long)cbBufDrop, cbFirstAddr, cbFirstMfd,
+                  cbFirstNameAddr[0] ? cbFirstNameAddr : "-",
+                  cbFirstNameMfd[0] ? cbFirstNameMfd : "-");
     lastDebugMs = nowMs;
     lastRptSyncIn = syncIn;
     lastRptSyncAlt = syncAlt;

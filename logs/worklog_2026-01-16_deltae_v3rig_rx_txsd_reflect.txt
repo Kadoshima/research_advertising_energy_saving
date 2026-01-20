@@ -48,3 +48,49 @@
     - RX品質: 442本中ほぼ全てがヘッダのみ（`rx_zero_trials=441` 相当）で、受信ログが実質取れていない。
     - TXSD品質: adv_countが取れているtrialもあるが、`adv_count=0` のtrialが大量（TICK配線/割り込み不安定/未配線の可能性）。
   - 次アクション案: 混在防止のため v02 を切って再計測（50 trial で停止確認）、RXの `AGENT RX diag` と TXSDの `adv_count` が安定する条件（TICK配線）を先に確認。
+
+- 2026-01-16: RX_DeltaE_V3 �� esp32:esp32:esp32wroverkit �Ńr���h�BCOM9 �ւ̏������݂̓|�[�g��L�Ŏ��s�i�A�N�Z�X���ہj�B
+- 2026-01-16: TX_DeltaE_V3_ON_100ms �� esp32:esp32:esp32wroverkit �Ńr���h�ECOM7 �ɏ������݊����B
+- 2026-01-16: RX_DeltaE_V3 upload to COM9 completed.
+- 2026-01-16: COM9 serial monitor started at 115200; no output yet (waiting for reset/AGENT logs).
+- 2026-01-18: Added RX_Diag_Ping sketch for serial sanity check; updated README to reference it.
+- 2026-01-18: RX_DeltaE_V3 updated to continue without SD (sdOk flag), added cbTotalAll counter and periodic DBG includes cbAll; built with DBG_LEVEL=3 and uploaded to COM9.
+- 2026-01-18: TX_DeltaE_V3_ON_100ms re-uploaded to COM7; TX serial shows trial start, but RX reports SYNC_IN/ALT=0 throughout and trial never starts while cbAll increments.
+- 2026-01-18: RX reports SD init FAIL; without SD it now continues for diagnostics.
+- 2026-01-18: Added TXSD_Sync_Probe for SYNC wiring check; uploaded to COM8.
+- 2026-01-18: SYNC probe on COM8 shows pin25/pin26 stay LOW during TX trial; RX on COM9 also reports SYNC_IN/ALT=0 while cbAll increments.
+- 2026-01-18: TX on COM7 re-uploaded and starts trial; SYNC still not observed on probe.
+- 2026-01-18: TX_DeltaE_V3_ON_100ms updated for diagnostic (SYNC_OUT_PIN=33, USE_SYNC_ALT_OUT=false) and uploaded to COM7; TXSD sync probe still shows all monitored pins low.
+- 2026-01-18: TX_Sync_Toggle (GPIO33 0.5s toggle) added and uploaded to COM7; TXSD probe shows pin26=1 when wired TX33->TXSD26 (signal now observed).
+- 2026-01-18: TX_Sync_Toggle switched to GPIO25 and uploaded to COM7; TXSD probe still reads pin25/pin26 low (no signal observed).
+- 2026-01-18: TX_Sync_Toggle switched to GPIO26 and uploaded to COM7; TXSD probe shows pin26=1 (signal observed) when wired TX26->TXSD26.
+- 2026-01-18: TX_DeltaE_V3_ON_100ms updated to SYNC_OUT_PIN=26 (ALT disabled) and uploaded to COM7; TXSD probe confirms pin26 goes HIGH during trial.
+- 2026-01-19: RX_DeltaE_V3 updated to log TX name hits (TX_DELTAE_V3) and first name-matched MFD; built with DBG_LEVEL=3 and uploaded to COM9.
+- 2026-01-19: TX_DeltaE_V3_ON_100ms SYNC_OUT_PIN=26 (ALT off) on COM7; RX sees SYNC and runs trial but nameHit=0 and only Apple MFD observed (firstMfd=4C001202...).
+2026-01-19 06:02:15 JST
+- Added RX diagnostic scan sketch: esp32_firmware/20260114_deltae_v3rig/RX_Diag_Scan/RX_Diag_Scan.ino (scan logging).
+- Updated RX scan to active scan + duplicates: esp32_firmware/20260114_deltae_v3rig/RX_DeltaE_V3/RX_DeltaE_V3.ino.
+- Compiled/uploaded TX to COM7, RX to COM9; logs: logs/serial_tx_20260119_055159.txt, logs/serial_rx_diag_scan_20260119_055609.txt, logs/serial_rx_trial_20260119_055855.txt.
+- TXSD trial log shows adv_count>0: logs/serial_txsd_trial_20260119_060032.txt.
+2026-01-19 06:07:36 JST
+- Updated sweep firmware: esp32_firmware/20260115_deltae_v3rig_sweep/TX_DeltaE_Sweep/TX_DeltaE_Sweep.ino (SYNC on GPIO26, flags+adv start), esp32_firmware/20260115_deltae_v3rig_sweep/RX_DeltaE_Sweep/RX_DeltaE_Sweep.ino (active scan + duplicates).
+- Compiled/uploaded sweep firmware to COM7 (TX), COM8 (TXSD), COM9 (RX) using esp32:esp32:esp32wroverkit.
+2026-01-19 09:05:25 JST
+- Added QUICK_TEST toggles to sweep TX: esp32_firmware/20260115_deltae_v3rig_sweep/TX_DeltaE_Sweep/TX_DeltaE_Sweep.ino.
+- Ran quick test (ON_100ms, 15s) with sweep firmware; logs: logs/serial_rx_quickcheck_20260119_090338.txt, logs/serial_txsd_quickcheck_20260119_090338.txt.
+- Restored TX sweep build (default timings) on COM7.
+2026-01-19 09:17:37 JST
+- Flashed sweep programs for experiment: COM7 TX_DeltaE_Sweep, COM8 TXSD_DeltaE_Sweep, COM9 RX_DeltaE_Sweep.
+2026-01-19 13:17:40 JST
+- TX (COM7) shows bootloop/partition error; esptool erase-flash failed to connect (no serial data).
+2026-01-19 13:22:11 JST
+- TX COM7 in DOWNLOAD_BOOT ("waiting for download") but esptool erase-flash still fails (no serial data); suspect USB TX line or wiring on U0RX/U0TX.
+2026-01-19 13:53:31 JST
+- Replaced TX ESP32; flashed TX_DeltaE_Sweep to COM5 successfully.
+2026-01-19 13:59:54 JST
+- Orchestration check with TX(COM5)/RX(COM9)/TXSD(COM8): SYNC toggles, RX/TXSD start/end trials; OFF mode shows adv=0/rx=0 as expected. Logs: logs/serial_tx_orch_20260119_135758.txt, logs/serial_rx_orch_20260119_135758.txt, logs/serial_txsd_orch_20260119_135758.txt.
+2026-01-19 14:31:15 JST
+- Set sweep TX start mode to ON_100ms: esp32_firmware/20260115_deltae_v3rig_sweep/TX_DeltaE_Sweep/TX_DeltaE_Sweep.ino.
+- Flashed updated TX_DeltaE_Sweep to COM5.
+2026-01-19 14:34:03 JST
+- ON-start monitoring shows adv_count and RX received: logs/serial_txsd_onstart_20260119_143147.txt (adv=593), logs/serial_rx_onstart_20260119_143147.txt (rx=366).

@@ -1,0 +1,22 @@
+[08:59:52] TXSD ets Jul 29 2019 12:21:46
+[08:59:52] TXSD rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[08:59:52] TXSD configsip: 0, SPIWP:0xee
+[08:59:52] TXSD clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[08:59:52] TXSD mode:DIO, clock div:1
+[08:59:52] TXSD load:0x3fff0030,len:4980
+[08:59:52] TXSD load:0x40078000,len:16612
+[08:59:52] TXSD load:0x40080400,len:3500
+[08:59:52] TXSD entry 0x400805b4
+[08:59:52] TXSD [FW] TXSD_DeltaE_Sweep_2026-01-15 build=Jan 19 2026 06:06:46
+[08:59:52] TXSD [PWR] ready TXSD_DeltaE_Sweep program_id=TXSD_DELTAE_SWEEP_20260115
+[08:59:52] TXSD [DBG] SYNC_PIN=26 level=0 nowMs=40
+[08:59:52] TXSD [DBG] SYNC_PIN=25 level=0 nowMs=40
+[08:59:57] TXSD [DBG] SYNC_PIN=26 level=1 nowMs=4934
+[08:59:58] TXSD [AGENT] TXSD startTrial nowMs=5660 t0_ms=5660 sync=1 alt=0 tickStart=0
+[08:59:58] TXSD [PWR] start /logs/pwr_00005036_46367b7f_sweep.csv
+[09:00:57] TXSD [DBG] SYNC_PIN=26 level=0 nowMs=64942
+[09:00:57] TXSD [AGENT] TXSD endTrial nowMs=65042 t0_ms=5660 dt=59382 sync=0 alt=0 adv=0
+[09:00:57] TXSD [PWR] end ms=59382 adv=0 E=-504.556mJ
+[09:01:02] TXSD [DBG] SYNC_PIN=26 level=1 nowMs=69934
+[09:01:03] TXSD [AGENT] TXSD startTrial nowMs=70660 t0_ms=70660 sync=1 alt=0 tickStart=0
+[09:01:03] TXSD [PWR] start /logs/pwr_00070036_0a0b709d_sweep.csv

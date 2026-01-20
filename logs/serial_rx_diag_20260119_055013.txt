@@ -1,0 +1,20 @@
+[05:50:22] [DBG] SYNC_IN=1 SYNC_ALT=0 trial=1 highSince=0 lowSince=0 cbTotal=0 cbAll=0 nameHit=0 noMfd=0 mfdFail=0 addrMis=0 bufDrop=0 firstAddr= firstMfd= nameAddr=- nameMfd=-
+[05:50:32] [DBG] SYNC_IN=1 SYNC_ALT=0 trial=1 highSince=0 lowSince=0 cbTotal=0 cbAll=0 nameHit=0 noMfd=0 mfdFail=0 addrMis=0 bufDrop=0 firstAddr= firstMfd= nameAddr=- nameMfd=-
+[05:50:42] [DBG] SYNC_IN=1 SYNC_ALT=0 trial=1 highSince=0 lowSince=0 cbTotal=0 cbAll=0 nameHit=0 noMfd=0 mfdFail=0 addrMis=0 bufDrop=0 firstAddr= firstMfd= nameAddr=- nameMfd=-
+[05:50:52] [DBG] SYNC_IN=1 SYNC_ALT=0 trial=1 highSince=0 lowSince=0 cbTotal=0 cbAll=0 nameHit=0 noMfd=0 mfdFail=0 addrMis=0 bufDrop=0 firstAddr= firstMfd= nameAddr=- nameMfd=-
+[05:51:01] [DBG] SYNC_PIN=26 level=0 nowMs=420322
+[05:51:01] [DBG] SYNC_IN=0 SYNC_ALT=0 trial=1 highSince=0 lowSince=0 cbTotal=3 cbAll=3 nameHit=0 noMfd=0 mfdFail=3 addrMis=0 bufDrop=0 firstAddr=55:c1:5f:0b:19:a5 firstMfd=4C001608008E1085 nameAddr=- nameMfd=-
+[05:51:01] [AGENT] RX endTrial reason=SYNC_LOW_STABLE nowMs=420422 t0Ms=361041 dt=59381 sync=0 alt=0
+[05:51:01] [RX] summary trial=7 ms_total=59394, rx=0, rate_hz=0.00, est_pdr=0.000, buf_overflow=0
+[05:51:01] [AGENT] RX diag trial=7 cbTotal=3 noMfd=0 mfdFail=3 addrMis=0 bufDrop=0 nameHit=0 firstAddr=55:c1:5f:0b:19:a5 firstMfd=4C001608008E1085 nameAddr=- nameMfd=-
+[05:51:01] [RX] end
+[05:51:01] [DBG] SYNC_IN=0 SYNC_ALT=0 trial=0 highSince=0 lowSince=0 cbTotal=3 cbAll=3 nameHit=0 noMfd=0 mfdFail=3 addrMis=0 bufDrop=0 firstAddr=55:c1:5f:0b:19:a5 firstMfd=4C001608008E1085 nameAddr=- nameMfd=-
+[05:51:06] [DBG] SYNC_PIN=26 level=1 nowMs=425322
+[05:51:06] [DBG] SYNC_IN=1 SYNC_ALT=0 trial=0 highSince=0 lowSince=0 cbTotal=3 cbAll=3 nameHit=0 noMfd=0 mfdFail=3 addrMis=0 bufDrop=0 firstAddr=55:c1:5f:0b:19:a5 firstMfd=4C001608008E1085 nameAddr=- nameMfd=-
+[05:51:06] [AGENT] RX start condition met (HIGH stable) nowMs=425422 highSince=425322
+[05:51:07] [AGENT] RX startTrial nowMs=426039 t0Ms=426039 sync=1 alt=0
+[05:51:07] [RX] start /logs/rx_00425425_758b7bd7.csv (trial=8)
+[05:51:07] [DBG] SYNC_IN=1 SYNC_ALT=0 trial=1 highSince=0 lowSince=0 cbTotal=0 cbAll=0 nameHit=0 noMfd=0 mfdFail=0 addrMis=0 bufDrop=0 firstAddr= firstMfd= nameAddr=- nameMfd=-
+[05:51:17] [DBG] SYNC_IN=1 SYNC_ALT=0 trial=1 highSince=0 lowSince=0 cbTotal=1 cbAll=1 nameHit=0 noMfd=0 mfdFail=1 addrMis=0 bufDrop=0 firstAddr=53:d8:21:3c:55:63 firstMfd=4C001006001DDD9B nameAddr=- nameMfd=-
+[05:51:27] [DBG] SYNC_IN=1 SYNC_ALT=0 trial=1 highSince=0 lowSince=0 cbTotal=1 cbAll=1 nameHit=0 noMfd=0 mfdFail=1 addrMis=0 bufDrop=0 firstAddr=53:d8:21:3c:55:63 firstMfd=4C001006001DDD9B nameAddr=- nameMfd=-
+[05:51:37] [DBG] SYNC_IN=1 SYNC_ALT=0 trial=1 highSince=0 lowSince=0 cbTotal=4 cbAll=4 nameHit=0 noMfd=0 mfdFail=4 addrMis=0 bufDrop=0 firstAddr=53:d8:21:3c:55:63 firstMfd=4C001006001DDD9B nameAddr=- nameMfd=-

@@ -1,0 +1,13 @@
+[13:07:48] TXSD ets Jul 29 2019 12:21:46
+[13:07:48] TXSD rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[13:07:48] TXSD configsip: 0, SPIWP:0xee
+[13:07:48] TXSD clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[13:07:48] TXSD mode:DIO, clock div:1
+[13:07:48] TXSD load:0x3fff0030,len:4980
+[13:07:48] TXSD load:0x40078000,len:16612
+[13:07:48] TXSD load:0x40080400,len:3500
+[13:07:48] TXSD entry 0x400805b4
+[13:07:48] TXSD [FW] TXSD_DeltaE_Sweep_2026-01-15 build=Jan 19 2026 09:17:01
+[13:07:48] TXSD [PWR] ready TXSD_DeltaE_Sweep program_id=TXSD_DELTAE_SWEEP_20260115
+[13:07:48] TXSD [DBG] SYNC_PIN=26 level=0 nowMs=40
+[13:07:48] TXSD [DBG] SYNC_PIN=25 level=0 nowMs=40

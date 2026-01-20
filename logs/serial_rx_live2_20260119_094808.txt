@@ -1,0 +1,8 @@
+[09:48:12] RX [DBG] SYNC_PIN=26 level=0 nowMs=1590506
+[09:48:12] RX [AGENT] RX endTrial reason=SYNC_LOW_STABLE nowMs=1590606 t0Ms=1531335 dt=59271 sync=0 alt=0
+[09:48:12] RX [RX] summary trial=25 ms_total=59271, rx=0, rate_hz=0.00, buf_overflow=0
+[09:48:12] RX [AGENT] RX diag trial=25 cbTotal=7689 noMfd=12 mfdBad=7677 addrMis=0 bufDrop=0 firstAddr=60:bd:fb:6b:bc:8a firstMfd=4C0010054A1C7AA
+[09:48:12] RX [RX] end
+[09:48:17] RX [DBG] SYNC_PIN=26 level=1 nowMs=1595506
+[09:48:18] RX [AGENT] RX startTrial nowMs=1596407 t0Ms=1596407 sync=1 alt=0
+[09:48:18] RX [RX] start /logs/rx_01595609_fc17aaa9.csv (trial=26)

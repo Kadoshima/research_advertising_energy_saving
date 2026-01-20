@@ -1,0 +1,14 @@
+[12:55:17] RX ets Jul 29 2019 12:21:46
+[12:55:17] RX rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[12:55:17] RX configsip: 0, SPIWP:0xee
+[12:55:17] RX clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+[12:55:17] RX mode:DIO, clock div:1
+[12:55:17] RX load:0x3fff0030,len:4980
+[12:55:17] RX load:0x40078000,len:16612
+[12:55:17] RX load:0x40080400,len:3500
+[12:55:17] RX entry 0x400805b4
+[12:55:18] RX [FW] RX_DeltaE_Sweep_2026-01-15 build=Jan 19 2026 09:15:51
+[12:55:18] RX [FW] tag=RX_DeltaE_Sweep program_id=RX_DELTAE_SWEEP_20260115 use_nimble=0 scan_ms=50
+[12:55:18] RX [RX] ready
+[12:55:18] RX [DBG] SYNC_PIN=26 level=0 nowMs=727
+[12:55:18] RX [DBG] SYNC_PIN=25 level=0 nowMs=727

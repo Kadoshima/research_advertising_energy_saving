@@ -1,0 +1,3 @@
+[11:40:53] TXSD [DBG] SYNC_PIN=26 level=0 nowMs=88927
+[11:40:53] TXSD [AGENT] TXSD endTrial nowMs=89027 t0_ms=29770 dt=59257 sync=0 alt=0 adv=0
+[11:40:53] TXSD [PWR] end ms=59257 adv=0 E=10262.945mJ

@@ -1,0 +1,9 @@
+{
+  "additionalFiles": "",
+  "compiler.optimization_flags": "-Os",
+  "customBuildProperties": "",
+  "fqbn": "esp32:esp32:esp32wroverkit",
+  "hardwareFolders": "C:\\Users\\tp240\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\3.3.5,C:\\Users\\tp240\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\3.3.5",
+  "otherLibrariesFolders": "C:\\Users\\tp240\\Documents\\Arduino\\libraries",
+  "sketchLocation": "C:\\Users\\tp240\\Documents\\Research\\research_advertising_energy_saving\\esp32_firmware\\20260114_deltae_v3rig\\RX_DeltaE_V3"
+}

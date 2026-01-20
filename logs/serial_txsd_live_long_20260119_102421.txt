@@ -1,0 +1,6 @@
+[10:25:16] TXSD [DBG] SYNC_PIN=26 level=0 nowMs=167239
+[10:25:16] TXSD [AGENT] TXSD endTrial nowMs=167339 t0_ms=108044 dt=59295 sync=0 alt=0 adv=0
+[10:25:16] TXSD [PWR] end ms=59295 adv=0 E=9365.759mJ
+[10:25:21] TXSD [DBG] SYNC_PIN=26 level=1 nowMs=172239
+[10:25:21] TXSD [AGENT] TXSD startTrial nowMs=173039 t0_ms=173039 sync=1 alt=0 tickStart=0
+[10:25:21] TXSD [PWR] start /logs/pwr_00172341_3264c40e_sweep.csv
