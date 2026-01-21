@@ -1,0 +1,23 @@
+2026-01-21 01:15:16 JST Serial capture check: RX log reached trial=50 end; TXSD log has 50 startTrial; files serial_COM8_20260121_001546.log / serial_COM9_20260121_001546.log; run appears complete.
+2026-01-21 01:30:37 JST TXSD SD check: D:\logs pwr_*_sweep.csv count=73; latest pwr_03195697_a9ae0e7b_sweep.csv; best ~65k sequence len=27 (1504663-3195697).
+2026-01-21 01:33:17 JST Copied TXSD 50 files into data/実験データ/研究室/deltae_v3rig_sweep_2026-01-21_v02/TXSD using serial_COM8_20260121_001546.log list; wrote TXSD_SHA256.txt.
+2026-01-21 01:38:00 JST Copied RX 50 files into data/実験データ/研究室/deltae_v3rig_sweep_2026-01-21_v02/RX using serial_COM9_20260121_001546.log list; wrote RX_SHA256.txt.
+2026-01-21 01:41:16 JST Created manifest.csv and README.md for data/実験データ/研究室/deltae_v3rig_sweep_2026-01-21_v02 (RX 50, TXSD 50).
+2026-01-21 02:11:33 JST Moved serial logs to logs/serial_capture and updated README paths for deltae_v3rig_sweep_2026-01-21_v02.
+2026-01-21 02:14:54 JST manifest.csv check for deltae_v3rig_sweep_2026-01-21_v02: rows=100 (RX=50, TXSD=50), missing=0, rx_rows_total=7521 (zero-row files=10, min=0 max=574), txsd_rows_total=297001 (min=5933 max=5945).
+2026-01-21 02:15:38 JST sweep_status.py --find deltae_v3rig_sweep_2026-01-21_v02 run_20260121_v02: RX=50 TXSD=50, intervals hist RX/TXSD (None=10, 100/500/1000/2000=10 each), adv_n<=3=10 (likely OFF).
+2026-01-21 02:32:58 JST Ran scripts/analyze_deltae_v3rig_sweep.py for data/実験データ/研究室/deltae_v3rig_sweep_2026-01-21_v02; outputs: results/deltae_v3rig_sweep_2026-01-21_v02_trials.csv, results/deltae_v3rig_sweep_2026-01-21_v02_mode_summary.csv, results/deltae_v3rig_sweep_2026-01-21_v02_summary.md.
+2026-01-21 02:38:17 JST Analysis outputs generated for deltae_v3rig_sweep_2026-01-21_v02: results/*_trials.csv, *_mode_summary.csv, *_rx_zero_check.csv, *_rx_zero_by_mode.csv, plots, and analysis memo results/deltae_v3rig_sweep_2026-01-21_v02_analysis.md; README updated with result links.
+2026-01-21 02:41:31 JST 総評メモ: deltae_v3rig_sweep_2026-01-21_v02 はRX/TXSD各50本で完走、RX 0行はOFFのみ一致、ΔEは全ONで正方向(100ms=3365.609mJ等)・PDR 0.923-0.942。参照: results/deltae_v3rig_sweep_2026-01-21_v02_analysis.md / results/deltae_v3rig_sweep_2026-01-21_v02_mode_summary.csv
+2026-01-21 03:37:56 JST Phase0-0 KPI report created: docs/フェーズ0-0/ΔE_v3rig_sweep_2026-01-21_v02/README.md with mode summary and ΔE CI; stats_ci.csv generated.
+2026-01-21 03:38:47 JST stats_ci.csv generated with 95% CI / Cohen's d and analysis memo updated: results/deltae_v3rig_sweep_2026-01-21_v02_stats_ci.csv, results/deltae_v3rig_sweep_2026-01-21_v02_analysis.md.
+2026-01-21 03:38:47 JST Phase1整理メモ作成: docs/フェーズ1/フェーズ1整理_2026-01-21/README.md
+2026-01-21 03:49:10 JST Updated docs/フェーズ0-0/要件定義.md with KPI section.
+2026-01-21 JST - MCP flash: TX_DeltaE_Sweep->COM6, TXSD_DeltaE_Sweep->COM8, RX_DeltaE_Sweep->COM9; sketches copied to Arduino_MCP_Sketches; RX upload timed out once then succeeded.
+2026-01-21 JST - MCP flash: TX_DeltaE_Sweep->COM6, TXSD_DeltaE_Sweep->COM8, RX_DeltaE_Sweep->COM9; sketches copied to Arduino_MCP_Sketches; RX upload timed out once then succeeded.
+2026-01-21 JST - Phase1 E2 CCS firmware prep: created esp32_firmware/20260121_phase1_e2_ccs (TX_BLE_Adv_CCS_Mode.ino with SYNC held high + RUN_MODE=FIXED_100, RX_CCS_E2.ino fallback 700000ms + TX_NAME, TXSD_CCS_E2.ino program_id updated). Flashed TX_BLE_Adv_CCS_Mode->COM6, TXSD_CCS_E2->COM8, RX_CCS_E2->COM9 (RX upload timed out once then succeeded).
+2026-01-21 JST - TX_BLE_Adv_CCS_Mode set SESSION_REPEAT=10, GAP_BETWEEN_SESSIONS_MS=5000; group id auto by mode; reflashed TX (COM6).
+2026-01-21 16:49:02 JST TX firmware updated: TX_BLE_Adv_CCS_Mode sweep FIXED_100/500/1000/2000 (10x each); wrote Arduino_MCP_Sketches\\TX_BLE_Adv_CCS_Sweep (+ ccs_session_data.h) and uploaded to COM6.
+2026-01-21 16:53:16 JST TX firmware update: removed FIXED_100 from sweep; REPS_PER_MODE=5, MODE_SEQUENCE=500/1000/2000; uploaded TX_BLE_Adv_CCS_Sweep to COM6.
+2026-01-21 20:10:12 JST Phase1 E2 fixed sweep v01: collected TXSD 15 and RX 15 from D: using serial_COM8_20260121_165545_e2_run1.log / serial_COM9_20260121_165545_e2_run1.log; manifest updated, RX missing 4 (pre-ready SD open FAIL).
+2026-01-21 20:13:45 JST Added README note for phase1_e2_fixed_sweep_2026-01-21_v01: RX missing 4 due to pre-ready SD open FAIL; trial=1..15 unaffected.
