@@ -1,0 +1,23 @@
+2026-01-20 09:06:20 JST
+- Ran ON-only session check (low) via `scripts/session_ononly_check.py`.
+  - RX log: `logs/session_checks/serial_rx_ononly_check_20260120_090310.txt` (name_hit=124, mfd_hit=124).
+  - TX log: `logs/session_checks/serial_tx_ononly_check_20260120_090310.txt` (adv_sent=150).
+
+2026-01-20 09:14:55 JST
+- Ran ON-only sweep (100/500/1000/2000ms, 3 trials each, 15s) with TX/RX/TXSD serial capture.
+  - TX log: `logs/serial_tx_on_modes_3tr_20260120_090947.txt`
+  - RX log: `logs/serial_rx_on_modes_3tr_20260120_090947.txt`
+  - TXSD log: `logs/serial_txsd_on_modes_3tr_20260120_090947.txt`
+  - Alignment: RX/TXSD logs include one extra entry at capture start; last 12 entries aligned to TX 12 trials.
+  - PDR by mode (RX name_hit / TX adv_sent):
+    - ON_100ms: [0.90, 0.85, 0.87], mean=0.88
+    - ON_500ms: [0.93, 0.90, 0.87], mean=0.90
+    - ON_1000ms: [0.93, 0.87, 0.93], mean=0.91
+    - ON_2000ms: [1.00, 0.86, 1.00], mean=0.95
+  - TXSD adv_count observed: 142 (100ms), 30 (500ms), 16 (1000ms), 8 (2000ms).
+2026-01-20 10:45:30 JST
+- Monitored RX/TXSD after USB reconnect; both show boot + ready logs, SYNC level low (idle). Logs: `logs/serial_rx_watch20_20260120_104310.txt`, `logs/serial_txsd_watch20_20260120_104310.txt`.
+2026-01-20 10:56:30 JST
+- RX/TXSD USB replug restored boot logs; both ready with SYNC low. Logs: `logs/serial_rx_replug_watch_20260120_105553.txt`, `logs/serial_txsd_replug_watch_20260120_105553.txt`.
+2026-01-20 15:10:25 JST
+- Long capture after RX/TXSD reset + TX power cycle: `logs/serial_txsd_ext_run_20260120_150620.txt` and `logs/serial_rx_ext_run_20260120_150620.txt` (both 0 bytes).

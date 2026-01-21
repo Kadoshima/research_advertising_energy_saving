@@ -1,0 +1,7 @@
+2026-01-20 15:22:46 JST TX_DeltaE_Sweep rebuild: arduino-cli compile OK; esptool erase_flash OK; upload to COM5 failed (MD5 mismatch).
+2026-01-20 15:25:21 JST TX_DeltaE_Sweep upload retry COM5@115200 failed (MD5 mismatch).
+2026-01-20 15:26:28 JST esptool flash_id OK on COM5 (8MB, 3.3V) -> flash responds; likely not bricked.
+2026-01-20 15:28:51 JST USB changed; erase-flash OK; upload retry COM5@115200 still MD5 mismatch.
+2026-01-20 15:48:03 JST TX_DeltaE_Sweep upload OK on COM6 (esp32wroverkit).
+2026-01-20 16:12:31 JST DTR/RTS toggle capture: COM8/COM9 boot logs recorded -> logs/serial_mcp_capture_COM8_20260120_161010.txt, logs/serial_mcp_capture_COM9_20260120_161010.txt. MCP monitors still silent after boot.
+2026-01-20 17:15:28 JST parallel capture 120s (COM6/COM8/COM9) -> logs/serial_parallel_capture_COM6_20260120_171257.txt, COM8_20260120_171257.txt, COM9_20260120_171257.txt.

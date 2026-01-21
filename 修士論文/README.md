@@ -90,3 +90,8 @@ repomix --output repomix_thesis_bundle_light.xml --style xml --parsable-style \
   --include "修士論文/**,logs/worklog_2025-12-17_thesis_setup.txt,logs/worklog_2025-12-17_letter_route.txt,logs/worklog_2025-12-16_letter_route.txt,logs/worklog_2025-12-16_letter_route_continued.txt,logs/worklog_2025-12-15_thesis_setup.txt,uccs_d2_scan90/README.md,uccs_d2_scan90/metrics/**,uccs_d3_scan70/README.md,uccs_d3_scan70/metrics/**,uccs_d4_scan90/README.md,uccs_d4_scan90/metrics/**,uccs_d4b_scan90/README.md,uccs_d4b_scan90/metrics/**" \
   --ignore "docs/**,**/src/**,**/analysis/**,**/plots/**,**/data/**"
 ```
+
+---
+
+## 更新履歴
+- 2026-01-19: 指摘対応として要旨/序論/背景/関連研究/提案手法/評価/考察/謝辞の表現を見直し（口語表現の修正、見出しの統一、長文の分割）。

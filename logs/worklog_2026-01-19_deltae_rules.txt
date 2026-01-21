@@ -7,3 +7,69 @@
 2026-01-19 14:55:34 JST
 - Appended data integrity + research rules to `AGENTS.md`.
 - Documented hardware adjustments in `docs/????0-0/???????_v3.md`.
+2026-01-19 15:47:02 JST
+- Ran ON-only short trial (TX QUICK_TEST=1, SINGLE_MODE_ONLY=1) and captured serial via pyserial.
+- Logs: `logs/serial_tx_ononly_py_20260119_154900.txt`, `logs/serial_txsd_ononly_py_20260119_154900.txt`, `logs/serial_rx_ononly_py_20260119_154900.txt`.
+- TX: adv_sent=150 (ON_100ms, ~15s). RX trial=5: rx=112, cbTotal=3242, mfdBad=3068, noMfd=62. TXSD: adv=142, dt~14.2s, E approx -0.467 mJ (see log for details).
+2026-01-19 15:58:34 JST
+- Added RX MFD diagnostic sampling (mfdBad samples, len stats, firstGoodMfd/Addr) in `esp32_firmware/20260115_deltae_v3rig_sweep/RX_DeltaE_Sweep/RX_DeltaE_Sweep.ino` and uploaded to COM9.
+- Ran ON-only short trial; logs: `logs/serial_rx_ononly_mfdprobe_20260119_155509.txt`, `logs/serial_tx_ononly_mfdprobe_20260119_155509.txt`, `logs/serial_txsd_ononly_mfdprobe_20260119_155509.txt`.
+- RX trial=1: cbTotal=3377, mfdBad=3275, mfdSeen=3275, mfdLenMin=6, mfdLenMax=29, avg=17.53, firstGoodMfd missing; samples show 4C00/0600 prefixes.
+2026-01-19 15:56:40 JST
+- Updated thesis wording per review in `修士論文/frontmatter/abstract.tex`, `修士論文/chapters/ch0_introduction.tex`, `修士論文/chapters/ch1_background.tex`, `修士論文/chapters/ch2_related_work.tex`, `修士論文/chapters/ch2_proposed.tex`, `修士論文/chapters/ch4_rain.tex`, `修士論文/chapters/ch5_publicroad.tex`, `修士論文/chapters/acknowledgements.tex`.
+- Aligned headings/phrasing, split a long sentence in `修士論文/chapters/ch4_rain.tex`, and standardized U-shuffle wording.
+- Logged the update in `修士論文/README.md`.
+2026-01-19 16:02:41 JST
+- Refined wording in `修士論文/chapters/ch0_introduction.tex` (purpose phrasing, contribution bullets, scope wording, and conclusion wording).
+2026-01-19 16:23:47 JST
+- Polished abstract wording in `修士論文/frontmatter/abstract.tex` and intro phrasing in `修士論文/chapters/ch0_introduction.tex` (formalized quoted requirements, clarified metrics wording).
+- Aligned U-shuffle phrasing to "時系列構造を乱す" across `修士論文/chapters/ch4_rain.tex` and `修士論文/chapters/ch5_publicroad.tex`.
+2026-01-19 16:26:13 JST
+- Replaced "単位監査" with "単位整合の確認" in `修士論文/chapters/ch0_introduction.tex`, `修士論文/chapters/appx_a_metrics.tex`, and `修士論文/chapters/ch8_measurement_system.tex` for clarity.
+2026-01-19 16:26:59 JST
+- Clarified the scan70 condition in `修士論文/frontmatter/abstract.tex` by noting the scan duty reduction.
+2026-01-19 16:33:34 JST
+- Added permanent thesis wording rules in `docs/フェーズ1/修士論文_表現ルール/修論_表現ルール.md` with index `docs/フェーズ1/修士論文_表現ルール/README.md`.
+- Linked the new task directory from `docs/フェーズ1/README.md`.
+2026-01-19 16:48:40 JST
+- Polished wording in `修士論文/chapters/ch1_background.tex` and `修士論文/chapters/ch2_related_work.tex` (terminology, headings, and academic phrasing).
+- Updated rules in `docs/フェーズ1/修士論文_表現ルール/修論_表現ルール.md` to reflect new term alignments.
+2026-01-19 17:00:03 JST
+- Refined system design, HAR uncertainty, and method wording in `修士論文/chapters/ch3_system_design.tex`, `修士論文/chapters/ch9_har_uncertainty.tex`, and `修士論文/chapters/ch2_proposed.tex`.
+- Updated CCS params appendix wording in `修士論文/chapters/appx_h_ccs_params.tex` and expanded term rules in `docs/フェーズ1/修士論文_表現ルール/修論_表現ルール.md`.
+2026-01-19 17:14:16 JST
+- Replaced monotonic phrasing in `修士論文/chapters/ch9_har_uncertainty.tex` with a more academic description of the CCS coefficient effect.
+2026-01-19 16:02:50 JST
+- Added RX scan for embedded "MF" in manufacturer data (mfHit samples) in `esp32_firmware/20260115_deltae_v3rig_sweep/RX_DeltaE_Sweep/RX_DeltaE_Sweep.ino` and uploaded to COM9.
+- Ran ON-only short trial; logs: `logs/serial_rx_ononly_mfscan_20260119_155848.txt`, `logs/serial_tx_ononly_mfscan_20260119_155848.txt`, `logs/serial_txsd_ononly_mfscan_20260119_155848.txt`.
+- RX trial=1: mfdMfHit=0 (no "MF" found in MFD), cbTotal=3495, mfdBad=3386; TX adv_sent=150; TXSD adv=142.
+2026-01-19 16:29:35 JST
+- Added RX name-hit diagnostics (TX_DELTAE_SWEEP) and uploaded to COM9.
+- Ran ON-only short trial; logs: `logs/serial_rx_ononly_namecheck_20260119_162317.txt`, `logs/serial_tx_ononly_namecheck_20260119_162317.txt`, `logs/serial_txsd_ononly_namecheck_20260119_162317.txt`.
+- RX trial=1: nameHit=22, mfdMfHit=22, firstGoodMfd=MF001D, addr=8c:4b:14:14:5c:4e (TX seen on RF).
+2026-01-19 16:32:21 JST
+- Ran ON-only short trial (near/quiet check) with name/MF diagnostics; logs: `logs/serial_rx_ononly_near_20260119_163131.txt`, `logs/serial_tx_ononly_near_20260119_163131.txt`, `logs/serial_txsd_ononly_near_20260119_163131.txt`.
+- RX trial=2: nameHit=110, mfdMfHit=110, rx=110 (MF hits align), cbTotal=3658, mfdBad=3460.
+2026-01-19 17:38 JST
+- 修士論文/chapters/ch3_oncampus.tex と 修士論文/chapters/ch8_measurement_system.tex の表現を調整（整合性確認/不具合要因/基準構成等に整備）。
+- 修士論文/chapters/ch6_stress_fixed.tex、修士論文/chapters/ch7_offline_eval.tex、修士論文/chapters/ch4_rain.tex の見出しと日本語表現を学術調に整理（アブレーションの記述、裾分析の呼称、制約可視化など）。
+- 主要な指標変化: なし（文言整備のみ）。
+2026-01-19 17:46 JST
+- Updated wording rules with measurement/validation and heading term alignments in `docs/フェーズ1/修士論文_表現ルール/修論_表現ルール.md`.
+2026-01-19 18:09 JST
+- Updated discussion and conclusion wording in `????/chapters/ch5_publicroad.tex` and `????/chapters/conclusion.tex` (formalized comparisons, section titles, and validity wording).
+- Aligned appendix phrasing in `????/chapters/ch8_experiment_design.tex`, `????/chapters/ch10_implementation.tex`, `????/chapters/appx_a_metrics.tex`, and `????/chapters/appx_e_runbook.tex`.
+- ???????: ??????????.
+2026-01-19 18:15:19 JST
+- Added `scripts/session_ononly_check.py` to run 15s ON-only session checks and write `logs/session_checks/manifest.csv`.
+- Added docs for the session check workflow: `docs/????1/deltae_session_check/README.md`.
+- Recorded crowded/low checks into `logs/session_checks/manifest.csv` using existing logs.
+2026-01-19 19:14 JST
+- Rebuilt thesis PDF: `????/build/main.pdf` via `latexmk main.tex` in `????/` (72 pages).
+- Build notes: warnings for overfull hbox and font size substitutions; no fatal errors.
+2026-01-19 19:16:46 JST
+- Re-ran session ON-only check (crowded) via `scripts/session_ononly_check.py` and appended to `logs/session_checks/manifest.csv`.
+- Latest session: 2026-01-19_crowded_repeat with name_hit=111, mfd_hit=111 (see `logs/session_checks/serial_rx_ononly_check_20260119_191605.txt`).
+2026-01-20 09:04:12 JST
+- Ran session ON-only check (low, people few) via `scripts/session_ononly_check.py`; logs: `logs/session_checks/serial_rx_ononly_check_20260120_090310.txt`, `logs/session_checks/serial_tx_ononly_check_20260120_090310.txt`, `logs/session_checks/serial_txsd_ononly_check_20260120_090310.txt`.
+- RX: name_hit=124, mfd_hit=124, cb_total=1821, mfd_bad=1690, ms_total=13030; TX adv_sent=150.

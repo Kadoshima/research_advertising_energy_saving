@@ -1,0 +1,9 @@
+[DBG] SYNC_PIN=26 level=0 nowMs=60272
+[AGENT] TXSD endTrial nowMs=60372 t0_ms=46181 dt=14191 sync=0 alt=0 adv=141
+[PWR] end ms=14191 adv=141 E=-0.530mJ
+[DBG] SYNC_PIN=26 level=1 nowMs=64265
+[AGENT] TXSD startTrial nowMs=65170 t0_ms=65170 sync=1 alt=0 tickStart=454
+[PWR] start /logs/pwr_00064367_dbcb4c3a_sweep.csv
+[DBG] SYNC_PIN=26 level=0 nowMs=79265
+[AGENT] TXSD endTrial nowMs=79365 t0_ms=65170 dt=14195 sync=0 alt=0 adv=142
+[PWR] end ms=14195 adv=142 E=-0.467mJ

@@ -67,6 +67,32 @@ static uint32_t cbAddrMismatch = 0;
 static uint32_t cbBufDrop = 0;
 static char firstAddr[18] = "";
 static char firstMfd[16] = "";
+static char firstGoodAddr[18] = "";
+static char firstGoodMfd[8] = "";
+static uint32_t mfdSeen = 0;
+static uint32_t mfdLenSum = 0;
+static uint16_t mfdLenMin = 0;
+static uint16_t mfdLenMax = 0;
+static uint8_t mfdBadSampleCount = 0;
+static const uint8_t MFD_BAD_SAMPLE_MAX = 5;
+static char mfdBadSamples[MFD_BAD_SAMPLE_MAX][32];
+static uint8_t mfdBadLens[MFD_BAD_SAMPLE_MAX];
+static uint32_t mfdMfHit = 0;
+static uint8_t mfHitCount = 0;
+static const uint8_t MF_HIT_SAMPLE_MAX = 5;
+static char mfHitAddr[MF_HIT_SAMPLE_MAX][18];
+static char mfHitHex[MF_HIT_SAMPLE_MAX][32];
+static uint8_t mfHitOffset[MF_HIT_SAMPLE_MAX];
+static uint8_t mfHitLen[MF_HIT_SAMPLE_MAX];
+static int8_t mfHitRssi[MF_HIT_SAMPLE_MAX];
+static char mfHitName[MF_HIT_SAMPLE_MAX][20];
+static uint32_t nameHit = 0;
+static uint8_t nameHitCount = 0;
+static const uint8_t NAME_HIT_SAMPLE_MAX = 5;
+static char nameHitAddr[NAME_HIT_SAMPLE_MAX][18];
+static char nameHitName[NAME_HIT_SAMPLE_MAX][20];
+static int8_t nameHitRssi[NAME_HIT_SAMPLE_MAX];
+static uint8_t nameHitMfdLen[NAME_HIT_SAMPLE_MAX];
 
 static void makeNextPath(char* out, size_t out_sz) {
   SD.mkdir("/logs");
@@ -159,6 +185,17 @@ static void startTrial() {
   cbBufDrop = 0;
   firstAddr[0] = '\0';
   firstMfd[0] = '\0';
+  firstGoodAddr[0] = '\0';
+  firstGoodMfd[0] = '\0';
+  mfdSeen = 0;
+  mfdLenSum = 0;
+  mfdLenMin = 0;
+  mfdLenMax = 0;
+  mfdBadSampleCount = 0;
+  mfdMfHit = 0;
+  mfHitCount = 0;
+  nameHit = 0;
+  nameHitCount = 0;
 
   Serial.printf("[AGENT] RX startTrial nowMs=%lu t0Ms=%lu sync=%d alt=%d\n",
                 (unsigned long)millis(), (unsigned long)t0Ms,
@@ -197,6 +234,37 @@ static void endTrialWithReason(const char* reason) {
                 (unsigned long)cbBufDrop,
                 firstAddr[0] ? firstAddr : "-",
                 firstMfd[0] ? firstMfd : "-");
+  Serial.printf("[AGENT] RX diag2 trial=%lu mfdSeen=%lu mfdLenMin=%u mfdLenMax=%u mfdLenAvg=%.2f firstGoodAddr=%s firstGoodMfd=%s\n",
+                (unsigned long)trialIndex,
+                (unsigned long)mfdSeen,
+                (unsigned)mfdLenMin,
+                (unsigned)mfdLenMax,
+                (mfdSeen > 0) ? ((double)mfdLenSum / (double)mfdSeen) : 0.0,
+                firstGoodAddr[0] ? firstGoodAddr : "-",
+                firstGoodMfd[0] ? firstGoodMfd : "-");
+  for (uint8_t i = 0; i < mfdBadSampleCount; ++i) {
+    Serial.printf("[AGENT] RX mfdBadSample idx=%u len=%u hex=%s\n",
+                  (unsigned)i, (unsigned)mfdBadLens[i], mfdBadSamples[i]);
+  }
+  Serial.printf("[AGENT] RX diag3 trial=%lu mfdMfHit=%lu\n",
+                (unsigned long)trialIndex, (unsigned long)mfdMfHit);
+  for (uint8_t i = 0; i < mfHitCount; ++i) {
+    Serial.printf("[AGENT] RX mfHit idx=%u len=%u offset=%u rssi=%d addr=%s name=%s hex=%s\n",
+                  (unsigned)i, (unsigned)mfHitLen[i], (unsigned)mfHitOffset[i],
+                  (int)mfHitRssi[i],
+                  mfHitAddr[i][0] ? mfHitAddr[i] : "-",
+                  mfHitName[i][0] ? mfHitName[i] : "-",
+                  mfHitHex[i]);
+  }
+  Serial.printf("[AGENT] RX diag4 trial=%lu nameHit=%lu name=TX_DELTAE_SWEEP\n",
+                (unsigned long)trialIndex, (unsigned long)nameHit);
+  for (uint8_t i = 0; i < nameHitCount; ++i) {
+    Serial.printf("[AGENT] RX nameHit idx=%u rssi=%d addr=%s name=%s mfd_len=%u\n",
+                  (unsigned)i, (int)nameHitRssi[i],
+                  nameHitAddr[i][0] ? nameHitAddr[i] : "-",
+                  nameHitName[i][0] ? nameHitName[i] : "-",
+                  (unsigned)nameHitMfdLen[i]);
+  }
   Serial.println("[RX] end");
 }
 
@@ -208,9 +276,22 @@ class CB : public NimBLEScanCallbacks {
     cbTotal++;
 
     std::string addrStd = d->getAddress().toString();
+    std::string name = d->getName();
     if (firstAddr[0] == '\0') {
       strncpy(firstAddr, addrStd.c_str(), sizeof(firstAddr) - 1);
       firstAddr[sizeof(firstAddr) - 1] = '\0';
+    }
+    if (!name.empty() && name == "TX_DELTAE_SWEEP") {
+      nameHit++;
+      if (nameHitCount < NAME_HIT_SAMPLE_MAX) {
+        strncpy(nameHitAddr[nameHitCount], addrStd.c_str(), sizeof(nameHitAddr[nameHitCount]) - 1);
+        nameHitAddr[nameHitCount][sizeof(nameHitAddr[nameHitCount]) - 1] = '\0';
+        strncpy(nameHitName[nameHitCount], name.c_str(), sizeof(nameHitName[nameHitCount]) - 1);
+        nameHitName[nameHitCount][sizeof(nameHitName[nameHitCount]) - 1] = '\0';
+        nameHitRssi[nameHitCount] = (int8_t)d->getRSSI();
+        nameHitMfdLen[nameHitCount] = (uint8_t)d->getManufacturerData().size();
+        nameHitCount++;
+      }
     }
 
     std::string mfd = d->getManufacturerData();
@@ -218,6 +299,11 @@ class CB : public NimBLEScanCallbacks {
       cbNoMfd++;
       return;
     }
+    mfdSeen++;
+    uint16_t mfdLen = (uint16_t)mfd.size();
+    mfdLenSum += mfdLen;
+    if (mfdLenMin == 0 || mfdLen < mfdLenMin) mfdLenMin = mfdLen;
+    if (mfdLen > mfdLenMax) mfdLenMax = mfdLen;
     if (firstMfd[0] == '\0' && mfd.size() > 0) {
       // store first 8 bytes as hex for visibility
       char hex[32];
@@ -225,11 +311,51 @@ class CB : public NimBLEScanCallbacks {
       strncpy(firstMfd, hex, sizeof(firstMfd) - 1);
       firstMfd[sizeof(firstMfd) - 1] = '\0';
     }
+    // Scan for ASCII "MF" anywhere in manufacturer data to detect TX payload.
+    for (size_t i = 0; i + 1 < mfd.size(); ++i) {
+      if (mfd[i] == 'M' && mfd[i + 1] == 'F') {
+        mfdMfHit++;
+        if (mfHitCount < MF_HIT_SAMPLE_MAX) {
+          std::string name = d->getName();
+          strncpy(mfHitAddr[mfHitCount], addrStd.c_str(), sizeof(mfHitAddr[mfHitCount]) - 1);
+          mfHitAddr[mfHitCount][sizeof(mfHitAddr[mfHitCount]) - 1] = '\0';
+          mfHitRssi[mfHitCount] = (int8_t)d->getRSSI();
+          mfHitOffset[mfHitCount] = (uint8_t)i;
+          mfHitLen[mfHitCount] = (uint8_t)mfd.size();
+          bytesToHex((const uint8_t*)mfd.data(),
+                     (mfd.size() > 12 ? 12 : mfd.size()),
+                     mfHitHex[mfHitCount],
+                     sizeof(mfHitHex[mfHitCount]));
+          if (!name.empty()) {
+            strncpy(mfHitName[mfHitCount], name.c_str(), sizeof(mfHitName[mfHitCount]) - 1);
+            mfHitName[mfHitCount][sizeof(mfHitName[mfHitCount]) - 1] = '\0';
+          } else {
+            mfHitName[mfHitCount][0] = '\0';
+          }
+          mfHitCount++;
+        }
+        break;
+      }
+    }
 
     char mfd6[7];
     if (!parseMfdAsciiMFxxxx((const uint8_t*)mfd.data(), mfd.size(), mfd6)) {
       cbMfdBad++;
+      if (mfdBadSampleCount < MFD_BAD_SAMPLE_MAX) {
+        bytesToHex((const uint8_t*)mfd.data(),
+                   (mfd.size() > 12 ? 12 : mfd.size()),
+                   mfdBadSamples[mfdBadSampleCount],
+                   sizeof(mfdBadSamples[mfdBadSampleCount]));
+        mfdBadLens[mfdBadSampleCount] = (uint8_t)mfdLen;
+        mfdBadSampleCount++;
+      }
       return;
+    }
+    if (firstGoodMfd[0] == '\0') {
+      strncpy(firstGoodMfd, mfd6, sizeof(firstGoodMfd) - 1);
+      firstGoodMfd[sizeof(firstGoodMfd) - 1] = '\0';
+      strncpy(firstGoodAddr, addrStd.c_str(), sizeof(firstGoodAddr) - 1);
+      firstGoodAddr[sizeof(firstGoodAddr) - 1] = '\0';
     }
 
     if (txLockAddr[0] == '\0') {
@@ -267,9 +393,22 @@ class CB : public BLEAdvertisedDeviceCallbacks {
     cbTotal++;
 
     String addr = d.getAddress().toString();
+    String name = d.getName();
     if (firstAddr[0] == '\0') {
       strncpy(firstAddr, addr.c_str(), sizeof(firstAddr) - 1);
       firstAddr[sizeof(firstAddr) - 1] = '\0';
+    }
+    if (name.length() > 0 && name == "TX_DELTAE_SWEEP") {
+      nameHit++;
+      if (nameHitCount < NAME_HIT_SAMPLE_MAX) {
+        strncpy(nameHitAddr[nameHitCount], addr.c_str(), sizeof(nameHitAddr[nameHitCount]) - 1);
+        nameHitAddr[nameHitCount][sizeof(nameHitAddr[nameHitCount]) - 1] = '\0';
+        strncpy(nameHitName[nameHitCount], name.c_str(), sizeof(nameHitName[nameHitCount]) - 1);
+        nameHitName[nameHitCount][sizeof(nameHitName[nameHitCount]) - 1] = '\0';
+        nameHitRssi[nameHitCount] = (int8_t)d.getRSSI();
+        nameHitMfdLen[nameHitCount] = (uint8_t)mfdStr.length();
+        nameHitCount++;
+      }
     }
 
     String mfdStr = d.getManufacturerData();
@@ -279,17 +418,60 @@ class CB : public BLEAdvertisedDeviceCallbacks {
       cbNoMfd++;
       return;
     }
+    mfdSeen++;
+    mfdLenSum += (uint16_t)mfdLen;
+    if (mfdLenMin == 0 || mfdLen < mfdLenMin) mfdLenMin = (uint16_t)mfdLen;
+    if (mfdLen > mfdLenMax) mfdLenMax = (uint16_t)mfdLen;
     if (firstMfd[0] == '\0' && mfdLen > 0) {
       char hex[32];
       bytesToHex(mfdData, (mfdLen > 8 ? 8 : mfdLen), hex, sizeof(hex));
       strncpy(firstMfd, hex, sizeof(firstMfd) - 1);
       firstMfd[sizeof(firstMfd) - 1] = '\0';
     }
+    for (size_t i = 0; i + 1 < mfdLen; ++i) {
+      if (mfdData[i] == 'M' && mfdData[i + 1] == 'F') {
+        mfdMfHit++;
+        if (mfHitCount < MF_HIT_SAMPLE_MAX) {
+          String name = d.getName();
+          strncpy(mfHitAddr[mfHitCount], addr.c_str(), sizeof(mfHitAddr[mfHitCount]) - 1);
+          mfHitAddr[mfHitCount][sizeof(mfHitAddr[mfHitCount]) - 1] = '\0';
+          mfHitRssi[mfHitCount] = (int8_t)d.getRSSI();
+          mfHitOffset[mfHitCount] = (uint8_t)i;
+          mfHitLen[mfHitCount] = (uint8_t)mfdLen;
+          bytesToHex(mfdData,
+                     (mfdLen > 12 ? 12 : mfdLen),
+                     mfHitHex[mfHitCount],
+                     sizeof(mfHitHex[mfHitCount]));
+          if (name.length() > 0) {
+            strncpy(mfHitName[mfHitCount], name.c_str(), sizeof(mfHitName[mfHitCount]) - 1);
+            mfHitName[mfHitCount][sizeof(mfHitName[mfHitCount]) - 1] = '\0';
+          } else {
+            mfHitName[mfHitCount][0] = '\0';
+          }
+          mfHitCount++;
+        }
+        break;
+      }
+    }
 
     char mfd6[7];
     if (!parseMfdAsciiMFxxxx(mfdData, mfdLen, mfd6)) {
       cbMfdBad++;
+      if (mfdBadSampleCount < MFD_BAD_SAMPLE_MAX) {
+        bytesToHex(mfdData,
+                   (mfdLen > 12 ? 12 : mfdLen),
+                   mfdBadSamples[mfdBadSampleCount],
+                   sizeof(mfdBadSamples[mfdBadSampleCount]));
+        mfdBadLens[mfdBadSampleCount] = (uint8_t)mfdLen;
+        mfdBadSampleCount++;
+      }
       return;
+    }
+    if (firstGoodMfd[0] == '\0') {
+      strncpy(firstGoodMfd, mfd6, sizeof(firstGoodMfd) - 1);
+      firstGoodMfd[sizeof(firstGoodMfd) - 1] = '\0';
+      strncpy(firstGoodAddr, addr.c_str(), sizeof(firstGoodAddr) - 1);
+      firstGoodAddr[sizeof(firstGoodAddr) - 1] = '\0';
     }
 
     if (txLockAddr[0] == '\0') {

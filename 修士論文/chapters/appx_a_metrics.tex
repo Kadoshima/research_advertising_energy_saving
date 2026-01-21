@@ -27,14 +27,14 @@ P_{\mathrm{out}}(\tau)=\frac{1}{N_{\mathrm{event}}}\sum_{j=1}^{N_{\mathrm{event}
 \end{equation}
 で定義する．
 \noindent
-試行時間がtruthの全長より短い場合は末端遷移が試行区間外に出るため，truth側も有効長（EFFECTIVE\_LEN）でクリップし，$N_{\mathrm{event}}$の分母を揃える．
+試行時間が真値系列の全長より短い場合は末端遷移が試行区間外に出るため，真値系列側も有効長（EFFECTIVE\_LEN）でクリップし，$N_{\mathrm{event}}$の分母を揃える．
 
-\subsubsection{EFFECTIVE\_LEN（評価に用いるtruthの有効長）}
-truthの全長を$T_{\mathrm{truth}}$，trialの計測区間長を$T_{\mathrm{trial}}$とする．このとき評価に用いるtruthの有効長を
+\subsubsection{EFFECTIVE\_LEN（評価に用いる真値系列の有効長）}
+真値系列の全長を$T_{\mathrm{truth}}$，trialの計測区間長を$T_{\mathrm{trial}}$とする．このとき評価に用いる真値系列の有効長を
 \begin{equation}
   \mathrm{EFFECTIVE\_LEN}=\min(T_{\mathrm{trial}},T_{\mathrm{truth}})
 \end{equation}
-と定義し，truthを$[0,\mathrm{EFFECTIVE\_LEN}]$にクリップしてイベント数$N_{\mathrm{event}}$を数える．これにより，「末端遷移が試行区間外に出る」ことによる$N_{\mathrm{event}}$の不一致を避け，trial間比較の安定性を確保する．動的切替では試行の切り出し条件が揺らぎやすいため，EFFECTIVE\_LENを明示して分母を固定することが重要である（背景と実装上の理由は\secref{sec:stress_fixed_metrics}）．
+と定義し，真値系列を$[0,\mathrm{EFFECTIVE\_LEN}]$にクリップしてイベント数$N_{\mathrm{event}}$を数える．これにより，「末端遷移が試行区間外に出る」ことによる$N_{\mathrm{event}}$の不一致を避け，trial間比較の安定性を確保する．動的切替では試行の切り出し条件が揺らぎやすいため，EFFECTIVE\_LENを明示して分母を固定することが重要である（背景と実装上の理由は\secref{sec:stress_fixed_metrics}）．
 
 \subsection{電荷と$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）}
 本研究の一次KPIである$q_{\mathrm{event}}$は，セッション中の電荷消費をイベント数で正規化した指標である．電力やエネルギーは電圧に依存するため，バッテリ消費の観点では電荷（Coulomb count）で整理すると解釈が容易である．
@@ -61,4 +61,4 @@ TL/Poutの評価起点となるイベント数を$N_{\mathrm{event}}$とする�
 \end{equation}
 で定義する．$\Delta Q$の代わりに$Q_{\mathrm{on}}$を用いる場合は，基準補正が入らないため，条件間比較の解釈に注意する．
 \noindent
-なお，平均電力$\overline{P}$や$\Delta E/N_{\mathrm{adv}}$等は従属指標として併用し，単位監査や原因切り分けに用いる．
+なお，平均電力$\overline{P}$や$\Delta E/N_{\mathrm{adv}}$等は従属指標として併用し，単位整合の確認や原因切り分けに用いる．

@@ -49,8 +49,8 @@
     - TXSD品質: adv_countが取れているtrialもあるが、`adv_count=0` のtrialが大量（TICK配線/割り込み不安定/未配線の可能性）。
   - 次アクション案: 混在防止のため v02 を切って再計測（50 trial で停止確認）、RXの `AGENT RX diag` と TXSDの `adv_count` が安定する条件（TICK配線）を先に確認。
 
-- 2026-01-16: RX_DeltaE_V3 �� esp32:esp32:esp32wroverkit �Ńr���h�BCOM9 �ւ̏������݂̓|�[�g��L�Ŏ��s�i�A�N�Z�X���ہj�B
-- 2026-01-16: TX_DeltaE_V3_ON_100ms �� esp32:esp32:esp32wroverkit �Ńr���h�ECOM7 �ɏ������݊����B
+- 2026-01-16: RX_DeltaE_V3 �� esp32:esp32:esp32wroverkit �Ńr���h�BCOM9 �ւ̏������݂̓|�[�g��L�Ŏ��s�i�A�N�Z�X���ہj�B
+- 2026-01-16: TX_DeltaE_V3_ON_100ms �� esp32:esp32:esp32wroverkit �Ńr���h�ECOM7 �ɏ������݊����B
 - 2026-01-16: RX_DeltaE_V3 upload to COM9 completed.
 - 2026-01-16: COM9 serial monitor started at 115200; no output yet (waiting for reset/AGENT logs).
 - 2026-01-18: Added RX_Diag_Ping sketch for serial sanity check; updated README to reference it.

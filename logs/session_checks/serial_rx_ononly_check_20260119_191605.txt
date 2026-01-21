@@ -1,0 +1,53 @@
+[DBG] SYNC_PIN=26 level=1 nowMs=9841855
+
+abort() was called at PC 0x400831a7 on core 1
+
+
+Backtrace: 0x400952cc:0x3ffce9b0 0x40095291:0x3ffce9d0 0x4009b169:0x3ffce9f0 0x400831a7:0x3ffcea70 0x400833a2:0x3ffcea90 0x40090e1f:0x3ffceab0 0x4012524b:0x3ffcead0 0x401252f5:0x3ffceb00 0x400d490c:0x3ffceb20 0x400d4af9:0x3ffceb40 0x400d4bf5:0x3ffceb80 0x400d41d9:0x3ffcebc0 0x400d2544:0x3ffcebf0 0x400eb990:0x3ffcecb0 0x40095e95:0x3ffcecd0
+
+
+
+
+ELF file SHA256: 2f3118b9b
+
+Rebooting...
+ets Jul 29 2019 12:21:46
+
+rst:0xc (SW_CPU_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:1
+load:0x3fff0030,len:4980
+load:0x40078000,len:16612
+load:0x40080400,len:3500
+entry 0x400805b4
+[FW] RX_DeltaE_Sweep_2026-01-15 build=Jan 19 2026 16:22:49
+[FW] tag=RX_DeltaE_Sweep program_id=RX_DELTAE_SWEEP_20260115 use_nimble=1 scan_interval_ms=100 scan_window_ms=90 active_scan=0 dup_filter=0
+[RX] ready
+[DBG] SYNC_PIN=26 level=1 nowMs=318
+[DBG] SYNC_PIN=25 level=0 nowMs=318
+[AGENT] RX startTrial nowMs=1115 t0Ms=1115 sync=1 alt=0
+[RX] start /logs/rx_00000421_c278782c.csv (trial=1)
+[DBG] SYNC_PIN=26 level=0 nowMs=14050
+[AGENT] RX endTrial reason=SYNC_LOW_STABLE nowMs=14150 t0Ms=1115 dt=13035 sync=0 alt=0
+[RX] summary trial=1 ms_total=13035, rx=111, rate_hz=8.52, buf_overflow=0
+[AGENT] RX diag trial=1 cbTotal=3086 noMfd=7 mfdBad=2968 addrMis=0 bufDrop=0 firstAddr=7c:1a:3e:fa:c1:be firstMfd=4C000C0E00DA78B
+[AGENT] RX diag2 trial=1 mfdSeen=3079 mfdLenMin=6 mfdLenMax=29 mfdLenAvg=17.71 firstGoodAddr=8c:4b:14:14:5c:4e firstGoodMfd=MF000C
+[AGENT] RX mfdBadSample idx=0 len=26 hex=4C000C0E00DA78B35D12A671
+[AGENT] RX mfdBadSample idx=1 len=25 hex=4C000215954CB3FCF7C90C95
+[AGENT] RX mfdBadSample idx=2 len=10 hex=4C000906038FC0A8A91E
+[AGENT] RX mfdBadSample idx=3 len=25 hex=4C000215954CB3FCF7C90C95
+[AGENT] RX mfdBadSample idx=4 len=9 hex=4C001005001827354F
+[AGENT] RX diag3 trial=1 mfdMfHit=111
+[AGENT] RX mfHit idx=0 len=6 offset=0 rssi=-50 addr=8c:4b:14:14:5c:4e name=TX_DELTAE_SWEEP hex=4D4630303043
+[AGENT] RX mfHit idx=1 len=6 offset=0 rssi=-47 addr=8c:4b:14:14:5c:4e name=TX_DELTAE_SWEEP hex=4D4630303044
+[AGENT] RX mfHit idx=2 len=6 offset=0 rssi=-50 addr=8c:4b:14:14:5c:4e name=TX_DELTAE_SWEEP hex=4D4630303046
+[AGENT] RX mfHit idx=3 len=6 offset=0 rssi=-49 addr=8c:4b:14:14:5c:4e name=TX_DELTAE_SWEEP hex=4D4630303130
+[AGENT] RX mfHit idx=4 len=6 offset=0 rssi=-49 addr=8c:4b:14:14:5c:4e name=TX_DELTAE_SWEEP hex=4D4630303131
+[AGENT] RX diag4 trial=1 nameHit=111 name=TX_DELTAE_SWEEP
+[AGENT] RX nameHit idx=0 rssi=-50 addr=8c:4b:14:14:5c:4e name=TX_DELTAE_SWEEP mfd_len=6
+[AGENT] RX nameHit idx=1 rssi=-47 addr=8c:4b:14:14:5c:4e name=TX_DELTAE_SWEEP mfd_len=6
+[AGENT] RX nameHit idx=2 rssi=-50 addr=8c:4b:14:14:5c:4e name=TX_DELTAE_SWEEP mfd_len=6
+[AGENT] RX nameHit idx=3 rssi=-49 addr=8c:4b:14:14:5c:4e name=TX_DELTAE_SWEEP mfd_len=6
+[AGENT] RX nameHit idx=4 rssi=-49 addr=8c:4b:14:14:5c:4e name=TX_DELTAE_SWEEP mfd_len=6
+[RX] end

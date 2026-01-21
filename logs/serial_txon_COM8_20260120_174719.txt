@@ -1,0 +1,40 @@
+[DBG] SYNC_PIN=26 level=0 nowMs=279962
+
+[AGENT] TXSD endTrial nowMs=280062 t0_ms=250688 dt=29374 sync=0 alt=0 adv=60
+[PWR] end ms=29374 adv=60 E=8328.709mJ
+
+[DBG] SYNC_PIN=26 level=1 nowMs=281962
+
+[AGENT] TXSD startTrial nowMs=282695 t0_ms=282695 sync=1 alt=0 tickStart=960
+[PWR] start /logs/pwr_00282064_82a6d1c6_sweep.csv
+
+[DBG] SYNC_PIN=26 level=0 nowMs=311963
+
+[AGENT] TXSD endTrial nowMs=312063 t0_ms=282695 dt=29368 sync=0 alt=0 adv=60
+[PWR] end ms=29368 adv=60 E=8658.273mJ
+
+[DBG] SYNC_PIN=26 level=1 nowMs=313963
+
+[AGENT] TXSD startTrial nowMs=314692 t0_ms=314692 sync=1 alt=0 tickStart=1020
+[PWR] start /logs/pwr_00314065_b3e6cc14_sweep.csv
+
+[DBG] SYNC_PIN=26 level=0 nowMs=343964
+
+[AGENT] TXSD endTrial nowMs=344064 t0_ms=314692 dt=29372 sync=0 alt=0 adv=60
+[PWR] end ms=29372 adv=60 E=8534.040mJ
+
+[DBG] SYNC_PIN=26 level=1 nowMs=346465
+
+[AGENT] TXSD startTrial nowMs=347194 t0_ms=347194 sync=1 alt=0 tickStart=1079
+[PWR] start /logs/pwr_00346567_2e22bcd3_sweep.csv
+
+[DBG] SYNC_PIN=26 level=0 nowMs=376465
+
+[AGENT] TXSD endTrial nowMs=376565 t0_ms=347194 dt=29371 sync=0 alt=0 adv=31
+[PWR] end ms=29371 adv=31 E=8377.839mJ
+
+[DBG] SYNC_PIN=26 level=1 nowMs=378466
+
+[AGENT] TXSD startTrial nowMs=379196 t0_ms=379196 sync=1 alt=0 tickStart=1109
+[PWR] start /logs/pwr_00378568_5a70ab2e_sweep.csv
+

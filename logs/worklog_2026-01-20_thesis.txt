@@ -1,0 +1,3 @@
+2026-01-20 17:16 JST
+- Adjusted table formatting to prevent overflow in `????/chapters/ch4_rain.tex` (D4 ablation table: smaller font, tighter columns, wrapped labels).
+- ???????: ??????????.

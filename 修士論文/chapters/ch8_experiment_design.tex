@@ -7,12 +7,33 @@ Phase 1の実験目的は，ルールベース方策（CCS→広告間隔切替�
 \begin{enumerate}
   \item 省電力：固定\SI{100}{\milli\second}よりも$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）が低い運用点が存在する．
   \item QoS維持：代表的な期限$\tau$に対して$P_{\mathrm{out}}(\tau)$が過度に悪化しない．
-  \item トレードオフ：固定点と動的点を同一平面（$P_{\mathrm{out}}(\tau)$--$q_{\mathrm{event}}$）で比較し，Pareto的な位置づけを示す．
+  \item トレードオフ：固定点と動的点を同一平面（$P_{\mathrm{out}}(\tau)$--$q_{\mathrm{event}}$）で比較し，Pareto最適性の観点から位置づけを明らかにする．
 \end{enumerate}
 
 \subsection{実験条件}
 \subsubsection{環境条件}
-実験は，距離，受信端末，スキャン設定等を固定し，端末内比較として実施する．干渉状況の違い（例：E1/E2）は外的要因として扱い，必要に応じて環境を分けて評価する．表\ref{tab:env_conditions}に，主結果で固定した受信端末とスキャン設定を整理する．
+実験は，距離，受信端末，スキャン設定等を固定し，端末内比較として実施する．干渉状況の違いは外的要因として扱い，必要に応じて環境を分けて評価する．
+
+\paragraph{干渉環境の分類}
+BLEとWi-Fiは同一の2.4\,GHz帯を共有するため，Wi-Fi干渉がBLE通信品質に影響する．本研究では，Wi-Fiアナライザアプリ（Analiti等）で計測した最強APのRSSIに基づき，干渉環境を表\ref{tab:env_interference}のように分類する．主結果はE1（低干渉）で取得し，E2/E2+は干渉耐性の補足評価として扱う．
+
+\begin{table}[tb]
+  \centering
+  \caption{干渉環境の分類}
+  \label{tab:env_interference}
+  \begin{tabular}{llll}
+    \toprule
+    環境ID & 名称 & Wi-Fi最強AP RSSI & 想定シナリオ \\
+    \midrule
+    E1 & 低干渉環境 & $\le -40\,\si{\decibelmilliwatt}$ & 通常オフィス \\
+    E2 & 高干渉環境 & $-40 \sim -25\,\si{\decibelmilliwatt}$ & ルーター近接 \\
+    E2+ & 極強干渉環境 & $> -25\,\si{\decibelmilliwatt}$ & AP直下 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{受信設定}
+表\ref{tab:env_conditions}に，主結果で固定した受信端末とスキャン設定を整理する．
 
 \begin{table}[tb]
   \centering

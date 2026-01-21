@@ -1,0 +1,60 @@
+[DBG] SYNC_PIN=26 level=0 nowMs=373878
+
+[AGENT] RX endTrial reason=SYNC_LOW_STABLE nowMs=373978 t0Ms=344511 dt=29467 sync=0 alt=0
+[RX] summary trial=11 ms_total=29467, rx=12, rate_hz=0.41, buf_overflow=0
+[AGENT] RX diag trial=11 cbTotal=4288 noMfd=104 mfdBad=4172 addrMis=0 bufDrop=0 firstAddr=6c:b0:2a:4a:9a:33 firstMfd=4C0010052318541
+[AGENT] RX diag2 trial=11 mfdSeen=4184 mfdLenMin=6 mfdLenMax=29 mfdLenAvg=16.62 firstGoodAddr=e0:5a:1b:15:b2:ee firstGoodMfd=MF0000
+[AGENT] RX mfdBadSample idx=0 len=9 hex=4C001
+005231854197B
+[AGENT] RX mfdBadSample idx=1 len=29 hex=060001092002CBC97F882FE3
+[AGENT] RX mfdBadSample idx=2 len=22 hex=4C000908136FC0A8C1A01B58
+[AGENT] RX mfdBadSample idx=3 len=25 hex=4C000215954CB3FCF7C90C95
+[AGENT] RX mfdBadSample idx=4 len=25 hex=4C000215954CB3FCF7C90C95
+[AGENT] RX diag3 trial=11 mfdMfHit=12
+[AGENT] RX mfHit idx=0 len=6 offset=0 rssi=-50 addr=e0:5a:1b:15:b2:ee name=TX_DELTAE_SWEEP hex=4D4630303030
+[AGENT] RX mfHit idx=1 len=6 offset=0 rssi=-41 addr=e0:5a:1b:15:b2:ee name=TX_DELTAE_SWEEP hex=4D4630303030
+[AGENT] RX mfHit idx=2 len=6 offset=0 rssi=-41 addr=e0:5a:1b:15:b2:ee name=TX_DELTAE_SWEEP hex=4D4630303030
+[AGENT] RX mfHit idx=3 len=6 offset=0 rssi=-49 addr=e0:5a:1b:15:
+b2:ee name=TX_DELTAE_SWEEP hex=4D4630303030
+[AGENT] RX mfHit idx=4 len=6 offset=0 rssi=-49 addr=e0:5a:1b:15:b2:ee name=TX_DELTAE_SWEEP hex=4D4630303030
+[AGENT] RX diag4 trial=11 nameHit=12 name=TX_DELTAE_SWEEP
+[AGENT] RX nameHit idx=0 rssi=-50 addr=e0:5a:1b:15:b2:ee name=TX_DELTAE_SWEEP mfd_len=6
+[AGENT] RX nameHit idx=1 rssi=-41 addr=e0:5a:1b:15:b2:ee name=TX_DELTAE_SWEEP mfd_len=6
+[AGENT] RX nameHit idx=2 rssi=-41 addr=e0:5a:1b:15:b2:ee name=TX_DELTAE_SWEEP mfd_len=6
+[AGENT] RX nameHit idx=3 rssi=-49 addr=e0:5a:1b:15:b2:ee name=TX_DELTAE_SWEEP mfd_len=6
+[AGENT] RX nameHit idx=4 rssi=-49 addr=e0:5a:1b:15:b2:ee name=TX_DELTAE_SWEEP mfd_len=6
+[RX] end
+
+[DBG] SYNC_PIN=26 level=1 nowMs=375878
+
+[AGENT] RX startTrial nowMs=376512 t0Ms=376512 sync=1 alt=0
+[RX] start /logs/rx_00375980_a178456b.csv (trial=12)
+
+[DBG] SYNC_PIN=26 level=0 nowMs=405879
+
+[AGENT] RX endTrial reason=SYNC_LOW_STABLE nowMs=405979 t0Ms=376512 dt=29467 sync=0 alt=0
+
+[RX] summary trial=12 ms_total=29467, rx=14, rate_hz=0.48, buf_overflow=0
+[AGENT] RX diag trial=12 cbTotal=4204 noMfd=107 mfdBad=4083 addrMis=0 bufDrop=0 firstAddr=6b:d0:b7:2e:02:a3 firstMfd=4C0009081302C0A
+[AGENT] RX diag2 trial=12 mfdSeen=4097 mfdLenMin=6 mfdLenMax=29 mfdLenAvg=17.11 firstGoodAddr=e0:5a:1b:15:b2:ee firstGoodMfd=MF0000
+[AGENT] RX mfdBadSample idx=0 len=22 hex=4C0009081302C0A8443E1B58
+[AGENT] RX mfdBadSample idx=1 len=22 hex=4C000908130CC0A844351B58
+[AGENT] RX mfdBadSample idx=2 len=29 hex=0600010920220614B47BFAD8
+[AGENT] RX mfdBadSample idx=3 len=29 hex=060001092002AE7367D0060D
+[AGENT] RX mfdBadSample idx=4 len=14 hex=69096055F92A470EAB00103B
+[AGENT] RX diag3 trial=12 mfdMfHit=
+14
+[AGENT] RX mfHit idx=0 len=6 offset=0 rssi=-41 addr=e0:5a:1b:15:b2:ee name=TX_DELTAE_SWEEP hex=4D4630303030
+[AGENT] RX mfHit idx=1 len=6 offset=0 rssi=-43 addr=e0:5a:1b:15:b2:ee name=TX_DELTAE_SWEEP hex=4D4630303030
+[AGENT] RX mfHit idx=2 len=6 offset=0 rssi=-49 addr=e0:5a:1b:15:b2:ee name=TX_DELTAE_SWEEP hex=4D4630303030
+[AGENT] RX mfHit idx=3 len=6 offset=0 rssi=-41 addr=e0:5a:1b:15:b2:ee name=TX_DELTAE_SWEEP hex=4D4630303030
+[AGENT] RX mfHit idx=4 len=6 offset=0 rssi=-43 addr=e0:5a:1b:15:b2:ee name=TX_DELTAE_SWEEP hex=4D4630303030
+[AGENT] RX diag4 trial=12 nameHit=14 name=TX_DELTAE_SWEEP
+[AGENT] RX nameHit idx=0 rssi=-41 addr=e0:5a:1b:15:b2:ee name=TX_DELTAE_SWEEP mfd_len=6
+[AGENT] RX name
+Hit idx=1 rssi=-43 addr=e0:5a:1b:15:b2:ee name=TX_DELTAE_SWEEP mfd_len=6
+[AGENT] RX nameHit idx=2 rssi=-49 addr=e0:5a:1b:15:b2:ee name=TX_DELTAE_SWEEP mfd_len=6
+[AGENT] RX nameHit idx=3 rssi=-41 addr=e0:5a:1b:15:b2:ee name=TX_DELTAE_SWEEP mfd_len=6
+[AGENT] RX nameHit idx=4 rssi=-43 addr=e0:5a:1b:15:b2:ee name=TX_DELTAE_SWEEP mfd_len=6
+[RX] end
+

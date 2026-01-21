@@ -1,0 +1,13 @@
+[DBG] SYNC_PIN=26 level=0 nowMs=60187
+[AGENT] RX endTrial reason=SYNC_LOW_STABLE nowMs=60287 t0Ms=45986 dt=14301 sync=0 alt=0
+[RX] summary trial=4 ms_total=14301, rx=90, rate_hz=6.29, buf_overflow=0
+[AGENT] RX diag trial=4 cbTotal=3394 noMfd=91 mfdBad=3213 addrMis=0 bufDrop=0 firstAddr=58:c1:ae:e7:e6:61 firstMfd=4C000C0E0054427
+[RX] end
+[DBG] SYNC_PIN=26 level=1 nowMs=64179
+[AGENT] RX startTrial nowMs=64971 t0Ms=64971 sync=1 alt=0
+[RX] start /logs/rx_00064282_198c8bd1.csv (trial=5)
+[DBG] SYNC_PIN=26 level=0 nowMs=79180
+[AGENT] RX endTrial reason=SYNC_LOW_STABLE nowMs=79280 t0Ms=64971 dt=14309 sync=0 alt=0
+[RX] summary trial=5 ms_total=14309, rx=112, rate_hz=7.83, buf_overflow=0
+[AGENT] RX diag trial=5 cbTotal=3242 noMfd=62 mfdBad=3068 addrMis=0 bufDrop=0 firstAddr=0c:97:7e:3f:77:33 firstMfd=060001092022AC0
+[RX] end

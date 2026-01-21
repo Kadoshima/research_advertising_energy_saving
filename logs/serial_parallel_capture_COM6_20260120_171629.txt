@@ -1,0 +1,8 @@
+[TX] end mode=ON_2000ms trial=2/3 adv_sent=15
+
+[TX] start mode=ON_2000ms trial=3/3
+
+[TX] end mode=ON_2000ms trial=3/3 adv_sent=15
+
+[TX] All modes completed. modes=5 trials_per_mode=3
+

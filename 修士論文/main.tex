@@ -1,5 +1,5 @@
 % main.tex --- 修士論文テンプレート（LuaLaTeX）
-\documentclass[a4paper,12pt,oneside]{ltjsreport}
+\documentclass[a4paper,12pt,twoside]{ltjsreport}
 
 % 体裁（図表キャプション、目次深さ、表紙/要旨ページ等）
 \usepackage{chubuthesis}
@@ -23,8 +23,10 @@
 
 % --- 目次（ローマ数字 i） ---
 \pagenumbering{roman}
-\setcounter{tocdepth}{1}
+\setcounter{page}{1}
 \thesistableofcontents
+\thesislistoffigures
+\thesislistoftables
 
 % --- 本文（アラビア数字 1 から） ---
 \hypersetup{pageanchor=true}
@@ -61,6 +63,6 @@
   Contoli2024EnergyAwareHARReview,
   Rashid2022AHAR%
 }
-\thesisbibliography{参考文献・参考 URL}
+\thesisbibliography{\bibname}
 
 \end{document}

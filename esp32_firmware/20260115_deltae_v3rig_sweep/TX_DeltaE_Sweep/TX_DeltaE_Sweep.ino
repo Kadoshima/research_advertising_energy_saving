@@ -18,21 +18,23 @@ static const int LED_PIN = 2;
 
 // Schedule
 #ifndef QUICK_TEST
-#define QUICK_TEST 1
+#define QUICK_TEST 0
 #endif
 #ifndef SINGLE_MODE_ONLY
-#define SINGLE_MODE_ONLY 1
+#define SINGLE_MODE_ONLY 0
 #endif
 #if QUICK_TEST
-static const uint32_t TRIAL_MS = 15000;
-static const uint8_t TRIALS_PER_MODE = 1;
+static const uint32_t TRIAL_MS = 30000;
+static const uint8_t TRIALS_PER_MODE = 3;
 static const uint32_t GAP_BETWEEN_TRIALS_MS = 2000;
-static const uint8_t START_MODE_INDEX = 1; // ON_100ms
+static const uint8_t START_MODE_INDEX = 0; // OFF
+static const uint32_t STARTUP_WARMUP_MS = 20000;
 #else
 static const uint32_t TRIAL_MS = 60000;
 static const uint8_t TRIALS_PER_MODE = 10;
 static const uint32_t GAP_BETWEEN_TRIALS_MS = 5000;
-static const uint8_t START_MODE_INDEX = 1; // ON_100ms
+static const uint8_t START_MODE_INDEX = 0; // OFF
+static const uint32_t STARTUP_WARMUP_MS = 0;
 #endif
 static const uint8_t HOLD0 = 8; // first N advs use seq=0 to help receiver lock
 
@@ -171,6 +173,10 @@ void setup() {
   modeIndex = START_MODE_INDEX;
   trialIndexInMode = 0;
   applyMode(MODES[modeIndex]);
+  if (STARTUP_WARMUP_MS > 0) {
+    Serial.printf("[TX] warmup %lu ms before first trial\n", (unsigned long)STARTUP_WARMUP_MS);
+    delay(STARTUP_WARMUP_MS);
+  }
   delay(500);
   startTrial(MODES[modeIndex]);
 }

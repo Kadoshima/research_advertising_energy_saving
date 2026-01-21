@@ -1,0 +1,6 @@
+mode,n_trials,rx_zero_trials,rx_zero_pct,adv_zero_trials
+100,10,0,0.000,0
+1000,10,0,0.000,0
+2000,10,0,0.000,0
+500,10,0,0.000,0
+OFF,10,10,1.000,10

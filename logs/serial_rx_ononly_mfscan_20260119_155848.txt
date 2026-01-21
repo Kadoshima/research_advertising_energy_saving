@@ -1,0 +1,30 @@
+ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:1
+load:0x3fff0030,len:4980
+load:0x40078000,len:16612
+load:0x40080400,len:3500
+entry 0x400805b4
+[FW] RX_DeltaE_Sweep_2026-01-15 build=Jan 19 2026 15:58:21
+[FW] tag=RX_DeltaE_Sweep program_id=RX_DELTAE_SWEEP_20260115 use_nimble=1 scan_interval_ms=100 scan_window_ms=90 active_scan=0 dup_filter=0
+[RX] ready
+[DBG] SYNC_PIN=26 level=0 nowMs=320
+[DBG] SYNC_PIN=25 level=0 nowMs=320
+[DBG] SYNC_PIN=26 level=1 nowMs=3302
+[AGENT] RX startTrial nowMs=4100 t0Ms=4100 sync=1 alt=0
+[RX] start /logs/rx_00003405_5ba0c339.csv (trial=1)
+[DBG] SYNC_PIN=26 level=0 nowMs=18303
+[AGENT] RX endTrial reason=SYNC_LOW_STABLE nowMs=18403 t0Ms=4100 dt=14303 sync=0 alt=0
+[RX] summary trial=1 ms_total=14303, rx=0, rate_hz=0.00, buf_overflow=0
+[AGENT] RX diag trial=1 cbTotal=3495 noMfd=109 mfdBad=3386 addrMis=0 bufDrop=0 firstAddr=58:d9:fb:74:67:a6 firstMfd=4C001005401C034
+[AGENT] RX diag2 trial=1 mfdSeen=3386 mfdLenMin=6 mfdLenMax=29 mfdLenAvg=17.50 firstGoodAddr=- firstGoodMfd=-
+[AGENT] RX mfdBadSample idx=0 len=9 hex=4C001005401C034B93
+[AGENT] RX mfdBadSample idx=1 len=29 hex=0600010920220F84694D8A23
+[AGENT] RX mfdBadSample idx=2 len=22 hex=4C0009081302C0A8443E1B58
+[AGENT] RX mfdBadSample idx=3 len=18 hex=35021F89D5C2487FFDF5AAD5
+[AGENT] RX mfdBadSample idx=4 len=26 hex=4C000C0E009C018F20205790
+[AGENT] RX diag3 trial=1 mfdMfHit=0
+[RX] end

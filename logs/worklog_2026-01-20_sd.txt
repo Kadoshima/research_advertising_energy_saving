@@ -1,0 +1,7 @@
+2026-01-20 18:53:09 JST SD card detected at D:\\logs; TXSD pwr_* files listed; RX files not present on TXSD card.
+2026-01-20 19:18:28 JST Copied RX/TXSD logs to data/実験データ/研究室/deltae_v3rig_sweep_2026-01-20_v01 (RX 6, TXSD 6) and wrote README.md, updated manifest.csv.
+2026-01-20 19:19:54 JST sweep_status on data/実験データ/研究室/deltae_v3rig_sweep_2026-01-20_v01: RX=6, TXSD=6; intervals inferred 100/500/1000; 2000 missing; incomplete vs expected 50.
+2026-01-20 19:27:35 JST v02 pre-TX capture: RX/TXSD started; SYNC detected, trial1 started; logs serial_v02_pre_tx_COM8_20260120_192621.txt, COM9_20260120_192621.txt.
+2026-01-20 19:49:08 JST Added scripts/serial_capture.py for continuous serial capture (COM ports, duration, optional reset).
+2026-01-20 19:53:47 JST Updated TX_DeltaE_Sweep schedule: QUICK_TEST=0, START_MODE_INDEX=0 (OFF), TRIAL_MS=60000, TRIALS_PER_MODE=10 (compile OK).
+2026-01-20 23:42:57 JST Checked SD at D:\logs: rx_*.csv=67, pwr_*.csv=67; longest ~65k-step sequence len=42 (RX 359572-3024226; TXSD 359673-3024292), suggests incomplete vs 50.

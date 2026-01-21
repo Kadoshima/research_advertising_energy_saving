@@ -11,29 +11,45 @@
 % --- レイアウト ---
 % Word由来PDFの厳密な余白は推定が難しいため、一般的な学位論文の安全域で設定。
 % 研究室/学科で指定があればここを調整してください。
-\RequirePackage[a4paper,top=25mm,bottom=25mm,left=30mm,right=25mm]{geometry}
+\RequirePackage[
+  a4paper,
+  textwidth=160mm,
+  textheight=232mm,
+  headheight=14.4pt,
+  headsep=0.3in,
+  footskip=30pt,
+  hmargin=25mm
+]{geometry}
 
 % 段落字下げ（1全角）
 % LuaLaTeXでは「zw」単位ではなく \zw を使う（luatexja）
 \setlength{\parindent}{1\zw}
 \setlength{\parskip}{0pt}
 
-% 目次は section まで（先輩修論の見え方に寄せる）
-\setcounter{tocdepth}{1}
+% 目次は subsection まで（先輩修論の見え方に寄せる）
+\setcounter{tocdepth}{2}
 \setcounter{secnumdepth}{2}
+
+% 目次・図目次・表目次の表記
+\renewcommand{\contentsname}{目 次}
+\renewcommand{\listfigurename}{図 目 次}
+\renewcommand{\listtablename}{表 目 次}
+\renewcommand{\bibname}{参考文献}
 
 % --- ページ番号（下右に統一） ---
 \RequirePackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyfoot[R]{\thepage}
+\fancyfoot[RO]{\thepage}
+\fancyfoot[LE]{\thepage}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
 
 % chapter開始ページなど plain も同じにする
 \fancypagestyle{plain}{%
   \fancyhf{}%
-  \fancyfoot[R]{\thepage}%
+  \fancyfoot[RO]{\thepage}%
+  \fancyfoot[LE]{\thepage}%
   \renewcommand{\headrulewidth}{0pt}%
   \renewcommand{\footrulewidth}{0pt}%
 }
@@ -41,13 +57,15 @@
 % ltjsreport は章開始などで plainhead/plainfoot を使うため、こちらも同じにする
 \fancypagestyle{plainhead}{%
   \fancyhf{}%
-  \fancyfoot[R]{\thepage}%
+  \fancyfoot[RO]{\thepage}%
+  \fancyfoot[LE]{\thepage}%
   \renewcommand{\headrulewidth}{0pt}%
   \renewcommand{\footrulewidth}{0pt}%
 }
 \fancypagestyle{plainfoot}{%
   \fancyhf{}%
-  \fancyfoot[R]{\thepage}%
+  \fancyfoot[RO]{\thepage}%
+  \fancyfoot[LE]{\thepage}%
   \renewcommand{\headrulewidth}{0pt}%
   \renewcommand{\footrulewidth}{0pt}%
 }
@@ -55,17 +73,17 @@
 % --- 章見出し（中央寄せ・太字にしない） ---
 \RequirePackage{titlesec}
 \titleformat{\chapter}[display]
-  {\normalfont\Large\centering}
-  {第\thechapter\relax 章}
-  {2em}
-  {\Large}
+  {\normalfont\huge\bfseries\raggedright}
+  {第\thechapter章}
+  {1\baselineskip}
+  {\Huge}
 \titleformat{name=\chapter,numberless}[display]
-  {\normalfont\Large\centering}
+  {\normalfont\huge\bfseries\raggedright}
   {}
   {0pt}
-  {\Large}
-\titlespacing*{\chapter}{0pt}{0.33\textheight}{0pt}
-\titlespacing*{name=\chapter,numberless}{0pt}{0.33\textheight}{0pt}
+  {\Huge}
+\titlespacing*{\chapter}{0pt}{0pt}{2\baselineskip}
+\titlespacing*{name=\chapter,numberless}{0pt}{0pt}{2\baselineskip}
 
 % --- 図表 ---
 \RequirePackage{graphicx}
@@ -93,8 +111,8 @@
 
 % --- キャプション：図 4-1 タイトル / 表 4-1 タイトル ---
 \RequirePackage{caption}
-\renewcommand{\thefigure}{\thechapter-\arabic{figure}}
-\renewcommand{\thetable}{\thechapter-\arabic{table}}
+\renewcommand{\thefigure}{\thechapter.\arabic{figure}}
+\renewcommand{\thetable}{\thechapter.\arabic{table}}
 \captionsetup{labelsep=space}
 \captionsetup[figure]{name=図,justification=centering}
 \captionsetup[table]{name=表,justification=centering}
@@ -107,10 +125,13 @@
 \newcommand{\chapref}[1]{第\ref{#1}章}
 
 % --- 章（番号なし）でも目次に載せる：はじめに / おわりに / 謝辞 ---
-\newcommand{\chapterwithtoc}[1]{%
-  \chapter*{#1}%
-  \addcontentsline{toc}{chapter}{#1}%
-  \clearpage
+\newcommand{\chapterwithtoc}[2][]{%
+  \chapter*{#2}%
+  \if\relax\detokenize{#1}\relax
+    \addcontentsline{toc}{chapter}{#2}%
+  \else
+    \addcontentsline{toc}{chapter}{#1}%
+  \fi
 }
 
 % --- 参考文献（biblatex） ---
@@ -170,6 +191,32 @@
 }
 \makeatother
 
+% --- 図目次・表目次 ---
+\makeatletter
+\newcommand{\thesislistoffigures}{%
+  \clearpage
+  \thispagestyle{plain}%
+  \pdfbookmark[0]{\listfigurename}{lof}%
+  \begin{center}
+    {\Large \listfigurename\par}
+  \end{center}
+  \vspace{1em}
+  \@starttoc{lof}%
+  \clearpage
+}
+\newcommand{\thesislistoftables}{%
+  \clearpage
+  \thispagestyle{plain}%
+  \pdfbookmark[0]{\listtablename}{lot}%
+  \begin{center}
+    {\Large \listtablename\par}
+  \end{center}
+  \vspace{1em}
+  \@starttoc{lot}%
+  \clearpage
+}
+\makeatother
+
 % --- 参考文献 ---
 % biblatex の heading=bibintoc は \chapter* を使うため、章扉の縦中央体裁が乗ってしまう。
 % 参考文献は「本文ページ」として上寄せにする。
@@ -191,26 +238,32 @@
 \newcommand{\makethesistitle}{%
 \begin{titlepage}
   \thispagestyle{empty}
-  \centering
-  \vspace*{20mm}
-  {\Large \ThesisYearLabel\par}
-  \vspace{25mm}
+  \null\vfil
+  \vskip -60 \p@
+  \begin{center}
+    {\vspace{-5zw}\LARGE \ThesisYearLabel\par}
+    \vskip 3em%
 
-  \fbox{%
-    \parbox{0.85\textwidth}{\centering
-      \vspace{6mm}
-      {\Large \ThesisTitle\par}
-      \vspace{6mm}
-    }%
-  }
-
-  \vfill
-  {\Large \University\ \GraduateSchool\par}
-  {\Large \Department\ \Course\par}
-  \vspace{10mm}
-  {\Large 氏名\hspace{2em}\AuthorFamily\ \AuthorGiven\par}
-  \vspace{5mm}
-  {\Large 指導教授\hspace{2em}\AdvisorFamily\ \AdvisorGiven\par}
+    {\hspace{-2mm}\setlength{\fboxsep}{4\fboxsep}\framebox[16cm][c]{%
+      \begin{tabular}{c}
+        {\Huge\bfseries \ThesisTitleLineOne \par}\\
+        {\Huge\bfseries \ThesisTitleLineTwo \par}
+      \end{tabular}
+    }}
+    \vskip 2.5in%
+    {\LARGE \University\ \GraduateSchool\par\vskip 1.0zw}
+    {\LARGE \Department\ \Course\par\vskip 1.0zw}
+    {\LARGE \AuthorFamily\ \AuthorGiven\par}
+    \vskip 2.5in%
+    \begin{flushright}
+      {\LARGE
+        \lineskip 4.75em%
+        \begin{tabular}[t]{c}%
+          {指導教授 \hspace{0.9zw}\AdvisorFamily\ \AdvisorGiven}
+        \end{tabular}\par}%
+    \end{flushright}
+    \vskip 12.5em%
+  \end{center}\par
 \end{titlepage}
 }
 

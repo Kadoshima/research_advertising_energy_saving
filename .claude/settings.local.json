@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python scripts/sweep_status.py:*)",
+      "Bash(wc:*)",
+      "Bash(for:*)",
+      "Bash(done)",
+      "Bash(while read dir)",
+      "Bash(du:*)",
+      "Bash(ls:*)"
+    ]
+  }
+}

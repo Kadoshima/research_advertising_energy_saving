@@ -1,0 +1,74 @@
+[AGENT] TXSD endTrial nowMs=382704 t0_ms=370655 dt=12049 sync=0 alt=0 adv=120
+[PWR] end ms=12049 adv=120 E=-0.408mJ
+[DBG] SYNC_PIN=26 level=1 nowMs=386649
+[AGENT] TXSD startTrial nowMs=387565 t0_ms=387565 sync=1 alt=0 tickStart=286
+[PWR] start /logs/pwr_00386751_c71a6a01_sweep.csv
+[DBG] SYNC_PIN=26 level=0 nowMs=401649
+[AGENT] TXSD endTrial nowMs=401749 t0_ms=387565 dt=14184 sync=0 alt=0 adv=142
+[PWR] end ms=14184 adv=142 E=-0.513mJ
+[DBG] SYNC_PIN=26 level=1 nowMs=403649
+[AGENT] TXSD startTrial nowMs=404565 t0_ms=404565 sync=1 alt=0 tickStart=436
+[PWR] start /logs/pwr_00403751_01483e46_sweep.csv
+[DBG] SYNC_PIN=26 level=0 nowMs=418649
+[AGENT] TXSD endTrial nowMs=418749 t0_ms=404565 dt=14184 sync=0 alt=0 adv=142
+[PWR] end ms=14184 adv=142 E=-0.519mJ
+[DBG] SYNC_PIN=26 level=1 nowMs=420649
+[AGENT] TXSD startTrial nowMs=421566 t0_ms=421566 sync=1 alt=0 tickStart=586
+[PWR] start /logs/pwr_00420751_78d846e7_sweep.csv
+[DBG] SYNC_PIN=26 level=0 nowMs=435649
+[AGENT] TXSD endTrial nowMs=435749 t0_ms=421566 dt=14183 sync=0 alt=0 adv=142
+[PWR] end ms=14183 adv=142 E=-0.496mJ
+[DBG] SYNC_PIN=26 level=1 nowMs=438149
+[AGENT] TXSD startTrial nowMs=439071 t0_ms=439071 sync=1 alt=0 tickStart=728
+[PWR] start /logs/pwr_00438251_2d1f5098_sweep.csv
+[DBG] SYNC_PIN=26 level=0 nowMs=453149
+[AGENT] TXSD endTrial nowMs=453249 t0_ms=439071 dt=14178 sync=0 alt=0 adv=30
+[PWR] end ms=14178 adv=30 E=-0.500mJ
+[DBG] SYNC_PIN=26 level=1 nowMs=455149
+[AGENT] TXSD startTrial nowMs=456067 t0_ms=456067 sync=1 alt=0 tickStart=758
+[PWR] start /logs/pwr_00455251_7da847f2_sweep.csv
+[DBG] SYNC_PIN=26 level=0 nowMs=470150
+[AGENT] TXSD endTrial nowMs=470250 t0_ms=456067 dt=14183 sync=0 alt=0 adv=30
+[PWR] end ms=14183 adv=30 E=-0.493mJ
+[DBG] SYNC_PIN=26 level=1 nowMs=472149
+[AGENT] TXSD startTrial nowMs=473068 t0_ms=473068 sync=1 alt=0 tickStart=788
+[PWR] start /logs/pwr_00472251_b7655b36_sweep.csv
+[DBG] SYNC_PIN=26 level=0 nowMs=487150
+[AGENT] TXSD endTrial nowMs=487250 t0_ms=473068 dt=14182 sync=0 alt=0 adv=30
+[PWR] end ms=14182 adv=30 E=-0.503mJ
+[DBG] SYNC_PIN=26 level=1 nowMs=489649
+[AGENT] TXSD startTrial nowMs=490568 t0_ms=490568 sync=1 alt=0 tickStart=817
+[PWR] start /logs/pwr_00489751_c0429986_sweep.csv
+[DBG] SYNC_PIN=26 level=0 nowMs=504650
+[AGENT] TXSD endTrial nowMs=504750 t0_ms=490568 dt=14182 sync=0 alt=0 adv=16
+[PWR] end ms=14182 adv=16 E=-0.490mJ
+[DBG] SYNC_PIN=26 level=1 nowMs=506649
+[AGENT] TXSD startTrial nowMs=507573 t0_ms=507573 sync=1 alt=0 tickStart=832
+[PWR] start /logs/pwr_00506751_ff19f54c_sweep.csv
+[DBG] SYNC_PIN=26 level=0 nowMs=521650
+[AGENT] TXSD endTrial nowMs=521750 t0_ms=507573 dt=14177 sync=0 alt=0 adv=16
+[PWR] end ms=14177 adv=16 E=-0.460mJ
+[DBG] SYNC_PIN=26 level=1 nowMs=523649
+[AGENT] TXSD startTrial nowMs=524575 t0_ms=524575 sync=1 alt=0 tickStart=847
+[PWR] start /logs/pwr_00523751_fdbaa238_sweep.csv
+[DBG] SYNC_PIN=26 level=0 nowMs=538650
+[AGENT] TXSD endTrial nowMs=538750 t0_ms=524575 dt=14175 sync=0 alt=0 adv=16
+[PWR] end ms=14175 adv=16 E=-0.454mJ
+[DBG] SYNC_PIN=26 level=1 nowMs=541150
+[AGENT] TXSD startTrial nowMs=542068 t0_ms=542068 sync=1 alt=0 tickStart=862
+[PWR] start /logs/pwr_00541252_f9ae16f2_sweep.csv
+[DBG] SYNC_PIN=26 level=0 nowMs=556150
+[AGENT] TXSD endTrial nowMs=556250 t0_ms=542068 dt=14182 sync=0 alt=0 adv=8
+[PWR] end ms=14182 adv=8 E=-0.463mJ
+[DBG] SYNC_PIN=26 level=1 nowMs=558150
+[AGENT] TXSD startTrial nowMs=559073 t0_ms=559073 sync=1 alt=0 tickStart=869
+[PWR] start /logs/pwr_00558252_e15dd513_sweep.csv
+[DBG] SYNC_PIN=26 level=0 nowMs=573150
+[AGENT] TXSD endTrial nowMs=573250 t0_ms=559073 dt=14177 sync=0 alt=0 adv=8
+[PWR] end ms=14177 adv=8 E=-0.490mJ
+[DBG] SYNC_PIN=26 level=1 nowMs=575150
+[AGENT] TXSD startTrial nowMs=576073 t0_ms=576073 sync=1 alt=0 tickStart=876
+[PWR] start /logs/pwr_00575252_00bc586c_sweep.csv
+[DBG] SYNC_PIN=26 level=0 nowMs=590150
+[AGENT] TXSD endTrial nowMs=590250 t0_ms=576073 dt=14177 sync=0 alt=0 adv=8
+[PWR] end ms=14177 adv=8 E=-0.483mJ

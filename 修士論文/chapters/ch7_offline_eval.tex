@@ -3,10 +3,10 @@
 \label{sec:offline_eval}
 
 \subsection{目的}
-実機実験の探索空間を縮小し，説明可能な代表方策を選定するために，オフライン評価を行う．本節では，mHealth由来の時系列（不確実度・安定度・複合スコア）に対してルールベース方策を適用し，固定間隔の電力テーブルと組み合わせて，QoS制約下の省電力運用点を探索する．オフライン評価の主軸は平均電力$\overline{P}$であり，一次KPIである$q_{\mathrm{event}}$の検証は実機評価で行う．
+実機評価における探索候補を効率的に絞り込むために，オフライン評価を行う．本節では，mHealth由来の時系列（不確実度・安定度・複合スコア）に対してルールベース方策を適用し，固定間隔の電力テーブルと組み合わせて，QoS制約下の省電力運用点を探索する．オフライン評価の主軸は平均電力$\overline{P}$であり，主要指標である$q_{\mathrm{event}}$の最終確認は実機実験にて実施する．
 
 \subsection{入力データ（mHealth合成）}
-オフライン評価では，実機上でのHAR推論を直接用いる代わりに，既存データセット（UCI mHealth）由来の時系列から$U,S,\mathrm{CCS}$を合成し，方策を適用する\scite{uci_ml_repo}．これにより，実機で高価な全探索を行う前に，閾値やヒステリシスの候補を絞り込める．
+オフライン評価では，実機上でのHAR推論を直接用いる代わりに，既存データセット（UCI mHealth）由来の時系列から$U,S,\mathrm{CCS}$を合成し，方策を適用する\scite{uci_ml_repo}．これにより，実機実験における全探索のコストを回避し，閾値やヒステリシスの候補を絞り込める．
 
 \subsection{方策のパラメータ化}
 ルールベース方策は，次のパラメータで表せる．
@@ -29,18 +29,18 @@
 で近似できる．ここで$\rho_\pi(a)$は，mHealth時系列に方策を適用した結果の滞在時間比率として求める．
 
 \subsection{QoS制約と境界条件}
-オフライン評価では，代表的な期限$\tau$に対する$P_{\mathrm{out}}(\tau)$を制約として扱い，許容値$\epsilon$を満たす運用点を可行集合として抽出する．$\epsilon$は厳しすぎると可行集合が空になり，緩すぎると省電力とQoSの議論が弱くなるため，境界付近を主張点として設計することが重要である（例：$\epsilon=0.1$）．
+オフライン評価では，代表的な期限$\tau$に対する$P_{\mathrm{out}}(\tau)$を制約として扱い，許容値$\epsilon$を満たす運用点を実行可能解（Feasible Solution）として抽出する．$\epsilon$が過度に厳しい場合，実行可能解が存在せず，緩すぎると省電力とQoSの議論が弱くなるため，境界付近の条件を評価対象として設定することが重要である（例：$\epsilon=0.1$）．
 
 \subsubsection{QoSの推定}
 オフライン評価におけるQoS推定は，固定間隔の実測から得られる$P_{\mathrm{out}}(\tau\mid a)$等の指標を参照し，方策の滞在比率に基づき合成する（詳細は\secref{sec:metrics_detail}）．動的切替時の非定常性（切替直後の遅延分布など）は近似に含まれないため，実機評価で差分を検証する必要がある．
 
-\subsection{Paretoフロントと制約帯プロット}
+\subsection{Paretoフロントと制約充足領域の可視化（Constraint Band Plot）}
 図\ref{fig:letter_delta_band}に，オフライン評価の代表例として，Pout(1s)と平均電力のトレードオフを示す．固定間隔点と候補方策点を同一平面で可視化することで，制約$\epsilon$付近における省電力運用点の存在を示す．
 
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.95\linewidth]{figures/offline_delta_band.png}
-  \caption{制約帯プロット（オフライン評価, $\epsilon=0.1$）}
+  \caption{制約充足領域の可視化（オフライン評価, $\epsilon=0.1$）}
   \label{fig:letter_delta_band}
 \end{figure}
 

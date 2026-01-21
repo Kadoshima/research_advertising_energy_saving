@@ -1,0 +1,14 @@
+[TX] end mode=ON_500ms trial=2/3 adv_sent=60
+
+[TX] start mode=ON_500ms trial=3/3
+
+[TX] end mode=ON_500ms trial=3/3 adv_sent=60
+
+[TX] mode=ON_1000ms interval=1000 ms
+
+[TX] start mode=ON_1000ms trial=1/3
+
+[TX] end mode=ON_1000ms trial=1/3 adv_sent=30
+
+[TX] start mode=ON_1000ms trial=2/3
+
