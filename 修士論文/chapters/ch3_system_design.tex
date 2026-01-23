@@ -1,10 +1,9 @@
-% chapters/ch3_system_design.tex --- 構成要素：問題設定とシステム設計
+﻿% chapters/ch3_system_design.tex --- 構成要素：問題設定とシステム設計
 \section{問題設定とシステム設計}
 
 \subsection{世界モデル（World Model）}
 本研究は，アプリケーション層（HAR）と通信層（BLEアドバタイジング）を跨ぐクロスレイヤー制御である．このため，単にアドバタイジング間隔を調整するだけでなく，「どの情報がどこで生成され，どこで観測されるか」を明確にする必要がある．本節では，アクター（構成要素）とシステム要件（Capabilities）を整理し，議論の前提を固定する．
-
-\subsubsection{アクター（構成要素）}
+\noindent アクター（構成要素）について述べる．
 \tabref{tab:actors}に，本研究で扱うアクターを示す．
 
 \begin{table}[tb]
@@ -23,8 +22,7 @@
     \bottomrule
   \end{tabular}
 \end{table}
-
-\subsubsection{システム要件（Capabilities）}
+\noindent システム要件（Capabilities）について述べる．
 本研究の設計で重要となる要件を以下にまとめる．
 \begin{enumerate}
   \item Perception：HAR推論から確率分布を得て，不確実度$U$と安定度$S$を計算する．
@@ -72,6 +70,8 @@
 
 \subsection{フェーズ設計（Phase 1 → Phase 2）}
 Phase 1では，ルールベース方策で「計測・指標・実機実装」を成立させることを優先する．特に，TL/Poutの定義と時間同期，電力計測の健全化は，学習以前に必須である．Phase 2では，コンテキスト（$U,S$）と行動（アドバタイジング間隔）の選択をSafe Contextual Banditとして定式化し，環境差に適応しつつQoS制約を守る枠組みを検証する．
+
+
 
 
 

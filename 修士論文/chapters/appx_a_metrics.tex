@@ -28,8 +28,7 @@ P_{\mathrm{out}}(\tau)=\frac{1}{N_{\mathrm{event}}}\sum_{j=1}^{N_{\mathrm{event}
 で定義する．
 \noindent
 試行時間が真値系列の全長より短い場合は末端遷移が試行区間外に出るため，真値系列側も有効長（EFFECTIVE\_LEN）でクリップし，$N_{\mathrm{event}}$の分母を揃える．
-
-\subsubsection{EFFECTIVE\_LEN（評価に用いる真値系列の有効長）}
+\noindent EFFECTIVE\_LEN（評価に用いる真値系列の有効長）について述べる．
 真値系列の全長を$T_{\mathrm{truth}}$，trialの計測区間長を$T_{\mathrm{trial}}$とする．このとき評価に用いる真値系列の有効長を
 \begin{equation}
   \mathrm{EFFECTIVE\_LEN}=\min(T_{\mathrm{trial}},T_{\mathrm{truth}})
@@ -62,5 +61,7 @@ TL/Poutの評価起点となるイベント数を$N_{\mathrm{event}}$とする�
 で定義する．$\Delta Q$の代わりに$Q_{\mathrm{on}}$を用いる場合は，基準補正が入らないため，条件間比較の解釈に注意する．
 \noindent
 なお，平均電力$\overline{P}$や$\Delta E/N_{\mathrm{adv}}$等は従属指標として併用し，単位整合の確認や原因切り分けに用いる．
+
+
 
 

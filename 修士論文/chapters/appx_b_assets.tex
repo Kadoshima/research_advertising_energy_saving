@@ -1,4 +1,4 @@
-% chapters/appx_b_assets.tex --- 付録B 実験資産一覧（ファイル・ディレクトリ）
+﻿% chapters/appx_b_assets.tex --- 付録B 実験資産一覧（ファイル・ディレクトリ）
 \section{実験資産一覧}
 \label{sec:assets}
 
@@ -13,7 +13,7 @@
   \item 追加検証（ブートストラップCI）：\path{scripts/bootstrap_effects.py}
 \end{itemize}
 
-\subsection{実機評価（例：D2）}
+\\subsection{実機評価の例（D2/D4/D4B）}
 実機の動的切替の例として，D2（scan90）では次のディレクトリ構成でログと指標を管理する．
 \begin{itemize}
   \item 実験ルート：\path{uccs_d2_scan90/}
@@ -27,7 +27,6 @@
   \item 参考（run別n=3）：\path{uccs_d2_scan90/metrics/B/summary.md} / \path{uccs_d2_scan90/metrics/B_02/summary.md}
 \end{itemize}
 
-\subsection{実機評価（例：D4）}
 U-shuffleアブレーション（D4, scan90）では，次のディレクトリ構成でログと指標を管理する．
 \begin{itemize}
   \item 実験ルート：\path{uccs_d4_scan90/}
@@ -38,7 +37,6 @@ U-shuffleアブレーション（D4, scan90）では，次のディレクトリ�
   \item 出力（主張図）：\path{uccs_d4_scan90/plots/d4_01_power_vs_pout.pdf} / \path{uccs_d4_scan90/plots/d4_01_power_vs_pout.png}
 \end{itemize}
 
-\subsection{実機評価（例：D4B）}
 CCS-offアブレーション（D4B, scan90）では，次のディレクトリ構成でログと指標を管理する．
 \begin{itemize}
   \item 実験ルート：\path{uccs_d4b_scan90/}
@@ -57,7 +55,6 @@ CCS-offアブレーション（D4B, scan90）では，次のディレクトリ�
   \item 再現メモ（追加解析）：\path{uccs_d4b_scan90/metrics/01/extra_analysis.md}
 \end{itemize}
 
-\subsection{実機評価（準備：D4B scan70）}
 scan70条件でCCS-offアブレーション（D4B）の追試を行うための実験ディレクトリを用意した．
 \begin{itemize}
   \item 実験ルート：\path{uccs_d4b_scan70/}
@@ -87,3 +84,4 @@ scan70条件でCCS-offアブレーション（D4B）の追試を行うための�
   \item 条件付きタイミング（D4B run01）：\path{uccs_d4b_scan90/analysis/ccs_timing_analysis_conditional.py}
   \item ブートストラップCI：\path{scripts/bootstrap_effects.py}
 \end{itemize}
+
