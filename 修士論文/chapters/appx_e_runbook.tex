@@ -1,4 +1,4 @@
-% chapters/appx_e_runbook.tex --- 付録E 実験Runbook（チェックリスト）
+﻿% chapters/appx_e_runbook.tex --- 付録E 実験Runbook（チェックリスト）
 \section{実験Runbook（チェックリスト）}
 \label{sec:runbook}
 
@@ -16,7 +16,7 @@
 \subsection{試行（trial）実行}
 \begin{enumerate}
   \item SYNCで試行開始が一致していることを目視（LED等）で確認する．
-  \item 試行中は条件（広告間隔，スキャン設定）を変更しない．
+  \item 試行中は条件（アドバタイジング間隔，スキャン設定）を変更しない．
   \item 試行終了後，TXSDログ末尾のsummary（ms\_total, adv\_count, E\_total等）を確認する．
   \item 明らかな異常（rate低下，欠損，桁ズレ）があれば，その試行は破棄し，再試行する．除外理由を作業ログに残す．
 \end{enumerate}
@@ -39,7 +39,8 @@
 
 \subsection{既知の注意点}
 \begin{itemize}
-  \item 文字列中の\texttt{\detokenize{_}}（アンダースコア）は，LaTeX本文では\texttt{\detokenize{\texttt{\detokenize{...}}}}等で扱う．
+  \item 文字列中の\texttt{\detokenize{_}}（アンダースコア）は，LaTeX本文では\texttt{\detokenize{...}}で扱う．
   \item TL/Poutは開始位相ずれで歪むため，定数オフセット補正を適用した定義（v5）を基準にする（\secref{sec:stress_fixed_metrics}）．
   \item 条件混在（LED/SYNCの扱いの違い等）は定常オフセットとなるため，比較は同一コード系列に限定する（\secref{sec:measurement_system}）．
 \end{itemize}
+

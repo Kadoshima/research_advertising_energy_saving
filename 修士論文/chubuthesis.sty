@@ -1,16 +1,39 @@
 % chubuthesis.sty --- 修士論文テンプレート（LuaLaTeX）
+
 % 例の Word→PDF 修論の体裁を参考に、表紙/要旨/目次/図表キャプション等を整えています。
 
+
+
 \NeedsTeXFormat{LaTeX2e}
+
 \ProvidesPackage{chubuthesis}[2025/12/15 Thesis style]
 
+
+
 % --- 日本語（LuaLaTeX） ---
+
 \RequirePackage{luatexja}
+
 \RequirePackage[haranoaji]{luatexja-preset}
 
+
+
 % --- レイアウト ---
-% Word由来PDFの厳密な余白は推定が難しいため、一般的な学位論文の安全域で設定。
-% 研究室/学科で指定があればここを調整してください。
+
+
+
+% master_thesis_cls.cls (4.3.2, 4.3.3項) に基づく設定
+
+
+
+% 本文領域: 160mm x 232mm
+
+
+
+% マージン: 25mm (左右)
+
+
+
 \RequirePackage[
   a4paper,
   textwidth=160mm,
@@ -21,10 +44,55 @@
   hmargin=25mm
 ]{geometry}
 
+% --- 行間（master_thesis_cls.cls準拠：12pt/18pt） ---
+\makeatletter
+\renewcommand{\normalsize}{%
+  \@setfontsize\normalsize\@xiipt{18}%
+  \abovedisplayskip 16.5\p@ \@plus3\p@ \@minus7\p@
+  \abovedisplayshortskip \z@ \@plus3\p@
+  \belowdisplayshortskip 11\p@ \@plus3.5\p@ \@minus3\p@
+  \belowdisplayskip \abovedisplayskip
+  \let\@listi\@listI}
+\normalsize
+\renewcommand{\small}{%
+  \@setfontsize\small\@xipt{13.6}%
+  \abovedisplayskip 11\p@ \@plus3\p@ \@minus6\p@
+  \abovedisplayshortskip \z@ \@plus3\p@
+  \belowdisplayshortskip 6.5\p@ \@plus3.5\p@ \@minus3\p@
+  \def\@listi{\leftmargin\leftmargini
+              \topsep 9\p@ \@plus3\p@ \@minus5\p@
+              \parsep 4.5\p@ \@plus2\p@ \@minus\p@
+              \itemsep \parsep}%
+  \belowdisplayskip \abovedisplayskip}
+\renewcommand{\footnotesize}{%
+  \@setfontsize\footnotesize\@xpt\@xiipt
+  \abovedisplayskip 10\p@ \@plus2\p@ \@minus5\p@
+  \abovedisplayshortskip \z@ \@plus3\p@
+  \belowdisplayshortskip 6\p@ \@plus3\p@ \@minus3\p@
+  \def\@listi{\leftmargin\leftmargini
+              \topsep 6\p@ \@plus2\p@ \@minus2\p@
+              \parsep 3\p@ \@plus2\p@ \@minus\p@
+              \itemsep \parsep}%
+  \belowdisplayskip \abovedisplayskip}
+\renewcommand{\scriptsize}{\@setfontsize\scriptsize\@viiipt{9.5}}
+\renewcommand{\tiny}{\@setfontsize\tiny\@vipt\@viipt}
+\renewcommand{\large}{\@setfontsize\large\@xivpt{21}}
+\renewcommand{\Large}{\@setfontsize\Large\@xviipt{25}}
+\renewcommand{\LARGE}{\@setfontsize\LARGE\@xxpt{28}}
+\renewcommand{\huge}{\@setfontsize\huge\@xxvpt{33}}
+\let\Huge=\huge
+\makeatother
+
+
 % 段落字下げ（1全角）
+
 % LuaLaTeXでは「zw」単位ではなく \zw を使う（luatexja）
+
 \setlength{\parindent}{1\zw}
+
 \setlength{\parskip}{0pt}
+
+
 
 % 目次は subsection まで（先輩修論の見え方に寄せる）
 \setcounter{tocdepth}{2}
@@ -34,47 +102,55 @@
 \renewcommand{\contentsname}{目 次}
 \renewcommand{\listfigurename}{図 目 次}
 \renewcommand{\listtablename}{表 目 次}
-\renewcommand{\bibname}{参考文献}
+\renewcommand{\bibname}{参考文献参考URL}
+
 
 % --- ページ番号（下右に統一） ---
+
 \RequirePackage{fancyhdr}
+
 \pagestyle{fancy}
+
 \fancyhf{}
-\fancyfoot[RO]{\thepage}
-\fancyfoot[LE]{\thepage}
+
+\fancyfoot[RO,RE]{\thepage}
 \renewcommand{\headrulewidth}{0pt}
+
 \renewcommand{\footrulewidth}{0pt}
 
+
+
 % chapter開始ページなど plain も同じにする
+
 \fancypagestyle{plain}{%
   \fancyhf{}%
-  \fancyfoot[RO]{\thepage}%
-  \fancyfoot[LE]{\thepage}%
+  \fancyfoot[RO,RE]{\thepage}%
   \renewcommand{\headrulewidth}{0pt}%
   \renewcommand{\footrulewidth}{0pt}%
 }
 
+
 % ltjsreport は章開始などで plainhead/plainfoot を使うため、こちらも同じにする
+
 \fancypagestyle{plainhead}{%
   \fancyhf{}%
-  \fancyfoot[RO]{\thepage}%
-  \fancyfoot[LE]{\thepage}%
+  \fancyfoot[RO,RE]{\thepage}%
   \renewcommand{\headrulewidth}{0pt}%
   \renewcommand{\footrulewidth}{0pt}%
 }
 \fancypagestyle{plainfoot}{%
   \fancyhf{}%
-  \fancyfoot[RO]{\thepage}%
-  \fancyfoot[LE]{\thepage}%
+  \fancyfoot[RO,RE]{\thepage}%
   \renewcommand{\headrulewidth}{0pt}%
   \renewcommand{\footrulewidth}{0pt}%
 }
 
-% --- 章見出し（中央寄せ・太字にしない） ---
+
+% --- 章見出し（左寄せ・太字） ---
 \RequirePackage{titlesec}
 \titleformat{\chapter}[display]
   {\normalfont\huge\bfseries\raggedright}
-  {第\thechapter章}
+  {第\arabic{chapter}章}
   {1\baselineskip}
   {\Huge}
 \titleformat{name=\chapter,numberless}[display]
@@ -85,46 +161,84 @@
 \titlespacing*{\chapter}{0pt}{0pt}{2\baselineskip}
 \titlespacing*{name=\chapter,numberless}{0pt}{0pt}{2\baselineskip}
 
+
 % --- 図表 ---
+
 \RequirePackage{graphicx}
+
 \RequirePackage{booktabs}
+
 \RequirePackage{tabularx}
+
 \RequirePackage{longtable}
+
 \RequirePackage{array}
 
+
+
 % --- 図だけのページ（float page）の縦方向センタリングをやめる ---
+
 % デフォルトは \@fptop/\@fpbot が伸縮するため、図がページ中央に寄りやすい。
+
 \makeatletter
+
 \setlength{\@fptop}{0pt}
+
 \setlength{\@fpsep}{8pt}
+
 \setlength{\@fpbot}{0pt}
+
 \makeatother
 
+
+
 % --- 数式 ---
+
 \RequirePackage{amsmath,amssymb}
+
 \numberwithin{equation}{chapter}
 
+
+
 % --- 単位 ---
+
 \RequirePackage{siunitx}
+
 \sisetup{detect-all}
+
 \DeclareSIUnit{\decibelmilliwatt}{dBm}
 
+
+
 % --- キャプション：図 4-1 タイトル / 表 4-1 タイトル ---
+
 \RequirePackage{caption}
-\renewcommand{\thefigure}{\thechapter.\arabic{figure}}
-\renewcommand{\thetable}{\thechapter.\arabic{table}}
+
+\renewcommand{\thefigure}{\thechapter-\arabic{figure}}
+\renewcommand{\thetable}{\thechapter-\arabic{table}}
 \captionsetup{labelsep=space}
+
 \captionsetup[figure]{name=図,justification=centering}
+
 \captionsetup[table]{name=表,justification=centering}
 
+
 % --- 参照（図/表/式） ---
+
 \newcommand{\figref}[1]{図~\ref{#1}}
+
 \newcommand{\tabref}[1]{表~\ref{#1}}
+
 \newcommand{\eqrefj}[1]{式~(\ref{#1})}
+
 \newcommand{\secref}[1]{\ref{#1}節}
+
 \newcommand{\chapref}[1]{第\ref{#1}章}
 
+
+
 % --- 章（番号なし）でも目次に載せる：はじめに / おわりに / 謝辞 ---
+
 \newcommand{\chapterwithtoc}[2][]{%
   \chapter*{#2}%
   \if\relax\detokenize{#1}\relax
@@ -134,54 +248,97 @@
   \fi
 }
 
+
 % --- 参考文献（biblatex） ---
+
 \RequirePackage[backend=biber,style=numeric,sorting=none]{biblatex}
+\renewcommand{\bibname}{参考文献参考URL}
+
+
 
 % 参考文献の体裁：本文と同じ文字サイズ・行間に揃える
+
 % （bbx/lbx 側で \bibfont 等が調整される場合があるため、開始フックで確実に上書きする）
+
 \newlength{\thesisbodybaselineskip}
+
 \AtBeginDocument{\setlength{\thesisbodybaselineskip}{\baselineskip}}
+
 \AtBeginBibliography{%
+
   \normalfont\normalsize\selectfont
+
   \setlength{\baselineskip}{\thesisbodybaselineskip}%
+
   \setlength{\bibitemsep}{0pt}%
+
   \setlength{\bibparsep}{0pt}%
+
 }
+
 \renewcommand*{\bibfont}{\normalfont\normalsize}
 
+
+
 % \scite{a,b} で [1][2] 形式を作る（普通の \cite は [1,2]）
+
 \DeclareCiteCommand{\scite}
+
   {}
+
   {\mkbibbrackets{\usebibmacro{citeindex}\usebibmacro{cite}}}
+
   {}
+
   {}
+
+
 
 % URL 表記を簡素化（"url:" / "visited on" を出さない）
+
 \DeclareFieldFormat{url}{\url{#1}}
+
 \renewbibmacro*{url+urldate}{\printfield{url}}
 
+
+
 % --- ハイパーリンク（最後の方で読み込み） ---
+
 \RequirePackage[hidelinks]{hyperref}
 \RequirePackage{bookmark}
 
+
 % --- 目次 ---
+
 % numberless \chapter の「章扉（縦中央）」体裁を避け、目次の先頭余白を詰めて表示する
+
 \makeatletter
 \newcommand{\thesistableofcontents}{%
   \clearpage
   \thispagestyle{plain}%
   \pdfbookmark[0]{\contentsname}{toc}%
   % ltjsreport の \tableofcontents が行う幅計算をここでも実施
+
   % （これを省くと、章番号と見出しの間隔・インデントが崩れる）
+
   \settowidth\jsc@tocl@width{\headfont\prechaptername\postchaptername}%
+
   \settowidth\@tempdima{\headfont\appendixname}%
+
   \ifdim\jsc@tocl@width<\@tempdima
+
     \setlength\jsc@tocl@width{\@tempdima}%
+
   \fi
+
   \ifdim\jsc@tocl@width<2\zw
+
     \divide\jsc@tocl@width by 2
+
     \advance\jsc@tocl@width 1\zw
+
   \fi
+
   \begin{center}
     {\Large \contentsname\par}
   \end{center}
@@ -217,49 +374,62 @@
 }
 \makeatother
 
+
 % --- 参考文献 ---
+
 % biblatex の heading=bibintoc は \chapter* を使うため、章扉の縦中央体裁が乗ってしまう。
+
 % 参考文献は「本文ページ」として上寄せにする。
+
 \newcommand{\thesisbibliography}[1]{%
   \clearpage
   \thispagestyle{plain}%
   \phantomsection
   \addcontentsline{toc}{chapter}{#1}%
+
   \pdfbookmark[0]{#1}{bibliography}%
+
   {\centering\Large #1\par}
+
   \vspace{0.75em}
+
   \printbibliography[heading=none]%
+
   \clearpage
 }
 
+
 % --- 表紙・要旨ページ ---
+
 % meta.tex で定義するコマンドを使う想定
+
+
 
 \newcommand{\makethesistitle}{%
 \begin{titlepage}
   \thispagestyle{empty}
   \null\vfil
-  \vskip -60 \p@
+  \vskip -60pt
   \begin{center}
-    {\vspace{-5zw}\LARGE \ThesisYearLabel\par}
+    {\vspace{-5em}\LARGE \ThesisYearLabel\par}
     \vskip 3em%
 
-    {\hspace{-2mm}\setlength{\fboxsep}{4\fboxsep}\framebox[16cm][c]{%
-      \begin{tabular}{c}
-        {\Huge\bfseries \ThesisTitleLineOne \par}\\
-        {\Huge\bfseries \ThesisTitleLineTwo \par}
-      \end{tabular}
+    {\setlength{\fboxsep}{18pt}\fbox{%
+      \begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule-6pt\relax}\centering
+        {\Large \ThesisTitleLineOne\par}
+        {\Large \ThesisTitleLineTwo\par}
+      \end{minipage}
     }}
     \vskip 2.5in%
-    {\LARGE \University\ \GraduateSchool\par\vskip 1.0zw}
-    {\LARGE \Department\ \Course\par\vskip 1.0zw}
+    {\LARGE \University\ \GraduateSchool\par\vskip 1.0em}
+    {\LARGE \Department\ \Course\par\vskip 1.0em}
     {\LARGE \AuthorFamily\ \AuthorGiven\par}
     \vskip 2.5in%
     \begin{flushright}
       {\LARGE
         \lineskip 4.75em%
         \begin{tabular}[t]{c}%
-          {指導教授 \hspace{0.9zw}\AdvisorFamily\ \AdvisorGiven}
+          {指導教授 \hspace{0.9em}\AdvisorFamily\ \AdvisorGiven}
         \end{tabular}\par}%
     \end{flushright}
     \vskip 12.5em%
@@ -267,16 +437,15 @@
 \end{titlepage}
 }
 
+
 \newcommand{\makeabstractpage}{%
 \clearpage
 \thispagestyle{empty}
-\noindent 修士論文題目
+\noindent 論文要旨
 
 \vspace{6mm}
 \begin{center}
   {\Large \ThesisTitle\par}
-  \vspace{-2mm}
-  \rule{0.9\textwidth}{0.4pt}
 \end{center}
 
 \vspace{4mm}
@@ -291,3 +460,6 @@
 \input{frontmatter/abstract}
 \clearpage
 }
+
+
+

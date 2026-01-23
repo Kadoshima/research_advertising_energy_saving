@@ -107,13 +107,13 @@ class ConditionSummary:
     environment: str
     n_trials: int = 0
 
-    # Power (mean ± std)
+    # Power (mean +/- std)
     avg_current_ma_mean: float = 0.0
     avg_current_ma_std: float = 0.0
     total_energy_mj_mean: float = 0.0
     total_energy_mj_std: float = 0.0
 
-    # QoS (mean ± std)
+    # QoS (mean +/- std)
     tl_p50_mean: float = 0.0
     tl_p95_mean: float = 0.0
     pout_1s_mean: float = 0.0
@@ -444,6 +444,25 @@ def process_trial(
                     interval_changes.append((int(s.ms), s.interval_ms))
                 prev_interval = s.interval_ms
 
+    # If CCS and interval_ms not present in power log, fall back to session definition
+    if condition == 'CCS' and not interval_changes and ccs_session_path:
+        if os.path.exists(ccs_session_path):
+            session_intervals = load_ccs_session(ccs_session_path)
+            prev_interval = None
+            for ts_ms, interval_ms in session_intervals:
+                if prev_interval is None:
+                    prev_interval = interval_ms
+                    continue
+                if interval_ms != prev_interval:
+                    interval_changes.append((int(ts_ms), interval_ms))
+                    prev_interval = interval_ms
+            # Fill interval distribution if missing
+            if not result.interval_distribution:
+                dist = {}
+                for _, interval_ms in session_intervals:
+                    dist[interval_ms] = dist.get(interval_ms, 0) + 1
+                result.interval_distribution = dist
+
     # For FIXED modes, create synthetic events at regular intervals for TL analysis
     elif condition in ('FIXED100', 'FIXED2000') and result.duration_ms > 0:
         # Create events every 60 seconds (simulating activity checks)
@@ -475,6 +494,23 @@ def process_experiment(
     """
     results = []
 
+    # Resolve CCS session path (default to session_id=1)
+    ccs_session_path = None
+    if session_manifest_path and os.path.exists(session_manifest_path):
+        with open(session_manifest_path, 'r', encoding='utf-8') as fh:
+            manifest_list = json.load(fh)
+        session_map = {}
+        for entry in manifest_list:
+            try:
+                sid = int(entry.get('session_id'))
+            except Exception:
+                continue
+            out_path = entry.get('output_path')
+            if out_path:
+                session_map[sid] = out_path
+        if session_map:
+            ccs_session_path = session_map.get(1) or next(iter(session_map.values()))
+
     # Find all environments (E1, E2)
     for env_dir in sorted(glob.glob(os.path.join(data_dir, 'E*'))):
         environment = os.path.basename(env_dir)
@@ -496,6 +532,7 @@ def process_experiment(
                     condition=condition,
                     environment=environment,
                     trial_id=trial_id,
+                    ccs_session_path=ccs_session_path,
                     p_off_mw=p_off_mw
                 )
                 results.append(result)
@@ -594,7 +631,7 @@ def generate_report(summaries: List[ConditionSummary], results: List[TrialResult
     for s in summaries:
         lines.append(
             f"| {s.environment} | {s.condition} | {s.n_trials} | "
-            f"{s.avg_current_ma_mean:.2f} ± {s.avg_current_ma_std:.2f} | "
+            f"{s.avg_current_ma_mean:.2f} +/- {s.avg_current_ma_std:.2f} | "
             f"{s.energy_saving_pct:+.1f}% | "
             f"{s.tl_p50_mean:.1f} | {s.tl_p95_mean:.1f} | "
             f"{s.pout_2s_mean*100:.1f}% | {s.pdr_mean:.3f} |"
@@ -689,7 +726,11 @@ def main():
     print(f"Processing experiment data from: {args.data_dir}")
 
     # Process all trials
-    results = process_experiment(args.data_dir, p_off_mw=args.baseline_p_off)
+    results = process_experiment(
+        args.data_dir,
+        p_off_mw=args.baseline_p_off,
+        session_manifest_path=args.session_manifest
+    )
     print(f"Processed {len(results)} trials")
 
     if not results:

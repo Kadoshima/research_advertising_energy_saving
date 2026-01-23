@@ -1,21 +1,21 @@
-% chapters/ch2_proposed.tex --- 構成要素：提案手法（CCS→広告間隔制御）
-\section{提案手法：CCSに基づくBLE広告間隔制御}
+﻿% chapters/ch2_proposed.tex --- 構成要素：提案手法（CCS→アドバタイジング間隔制御）
+\section{提案手法：CCSに基づくBLEアドバタイジング間隔制御}
 \label{sec:proposed_method}
 
 \subsection{問題設定}
-本研究は，広告間隔$a$を選択する方策$\pi$に対して，電荷指標$q_{\mathrm{event}}$を小さくしつつ，受信遅延に基づく期限超過率$P_{\mathrm{out}}(\tau)$を制約する問題として整理する（問題設定は\secref{sec:measurement_setup}と\secref{sec:metrics_detail}に従う）．
+本研究は，アドバタイジング間隔$a$を選択する方策$\pi$に対して，電荷指標$q_{\mathrm{event}}$を小さくしつつ，受信遅延に基づく期限超過率$P_{\mathrm{out}}(\tau)$を制約する問題として整理する（問題設定は\secref{sec:measurement_setup}と\secref{sec:metrics_detail}に従う）．
 
 \subsection{不確実度と安定度}
 HARモデルの出力確率分布から不確実度$U\in[0,1]$を算出し，過去一定窓におけるラベル遷移回数から安定度$S\in[0,1]$を算出する（算出方法と前提は\secref{sec:har_uncertainty}）．
 
-\subsection{複合スコアに基づく広告間隔制御}
-不確実度と安定度から複合スコア（Composite Confidence Score: CCS）を構成し，その値に応じて広告間隔を段階的に切り替える．実装の単純性と説明容易性を優先し，閾値・ヒステリシス・最小滞在時間を用いたルールベース方策を採用する．これらを用いて制御のチャタリング（振動）を抑制する．
+\subsection{複合スコアに基づくアドバタイジング間隔制御}
+不確実度と安定度から複合スコア（Composite Confidence Score: CCS）を構成し，その値に応じてアドバタイジング間隔を段階的に切り替える．実装の単純性と説明容易性を優先し，閾値・ヒステリシス・最小滞在時間を用いたルールベース方策を採用する．これらを用いて制御のチャタリング（振動）を抑制する．
 
 \subsubsection{複合スコアCCS}
-CCSは，不確実度$U$と安定度$S$の線形結合として定義し（\secref{sec:har_uncertainty}），閾値写像により広告間隔へ変換する．
+CCSは，不確実度$U$と安定度$S$の線形結合として定義し（\secref{sec:har_uncertainty}），閾値写像によりアドバタイジング間隔へ変換する．
 
 \subsubsection{閾値写像}
-CCSを3段階に分け，広告間隔$a\in\{100,500,2000\}\,\si{\milli\second}$へ写像する．閾値を$\theta_{\mathrm{low}}$，$\theta_{\mathrm{high}}$（$\theta_{\mathrm{low}}<\theta_{\mathrm{high}}$）とすると，
+CCSを3段階に分け，アドバタイジング間隔$a\in\{100,500,2000\}\,\si{\milli\second}$へ写像する．閾値を$\theta_{\mathrm{low}}$，$\theta_{\mathrm{high}}$（$\theta_{\mathrm{low}}<\theta_{\mathrm{high}}$）とすると，
 \begin{equation}
   a(\mathrm{CCS}) =
   \begin{cases}
@@ -34,7 +34,7 @@ CCSは推論誤差やセンサノイズにより変動するため，単純な�
 \subsubsection{切替ロジック}
 実装は，現在の間隔$a_t$とCCSの観測値$\mathrm{CCS}_t$から次の間隔$a_{t+1}$を決定する有限状態機械として表せる．本研究では以下を満たす設計とする．
 \begin{itemize}
-  \item \textbf{単調性}：CCSが高いほど長い広告間隔が選択されやすくなる．
+  \item \textbf{単調性}：CCSが高いほど長いアドバタイジング間隔が選択されやすくなる．
   \item \textbf{安全側への移行}：QoS悪化の兆候がある場合は短間隔へ戻す余地を残す．
   \item \textbf{振動抑制}：ヒステリシスと最小滞在時間で切替頻度を抑える．
 \end{itemize}
@@ -46,11 +46,12 @@ CCSは推論誤差やセンサノイズにより変動するため，単純な�
 \subsubsection{切替理由（Reason）の記録}
 切替のたびに，閾値越え，ヒステリシス判定，最小滞在時間による抑制，フェイルセーフ移行などの理由を\texttt{\detokenize{reason}}として記録する．これにより，結果図表の背後にある「切替の根拠」を監査できる．
 
-\subsubsection{Tx/Rx/Powerのスキーマ}
+\subsubsection{TX/RX/電力ログのスキーマ}
 TXログは方策の内側（$U,S,\mathrm{CCS}$と選択した$a$），RXログは受信時刻とseq，TXSDログは電流・電圧系列とsummaryを保持する．ログ列の詳細は\secref{sec:log_schema}に示し，\secref{sec:runbook}に従って運用条件（端末，スキャン設定，sleepの有無）を固定する．
 
 \subsection{動的切替の最小構成（2値制御）}
-実機実験の初期段階では，電力低下の主効果が短間隔滞在の削減にあることを踏まえ，広告間隔を\SI{100}{\milli\second}と\SI{500}{\milli\second}の2値に限定した動的切替を用いる．この最小構成により，計測系の同期とログ整合を保ちつつ，動的切替が期待通りに動作することを確認する．
+実機実験の初期段階では，電力低下の主効果が短間隔滞在の削減にあることを踏まえ，アドバタイジング間隔を\SI{100}{\milli\second}と\SI{500}{\milli\second}の2値に限定した動的切替を用いる．この最小構成により，計測系の同期とログ整合を保ちつつ，動的切替が期待通りに動作することを確認する．
 
 \subsubsection{2値制御の目的}
 2値制御は，行動空間を小さくすることで，実装・解析の複雑性を抑える目的がある．また，\SI{100}{\milli\second}と\SI{500}{\milli\second}の差は平均電力の主効果になりやすく，省電力化の寄与を説明しやすい．
+

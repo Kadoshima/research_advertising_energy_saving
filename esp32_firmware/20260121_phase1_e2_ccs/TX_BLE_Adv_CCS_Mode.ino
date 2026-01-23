@@ -15,9 +15,12 @@
 #include <Wire.h>
 #include <Adafruit_INA219.h>
 #include <BLEDevice.h>
+#include <esp_task_wdt.h>
 
 // Include CCS session data (auto-generated)
 #include "ccs_session_data.h"
+
+static const char FW_TAG[] = "TX_BLE_Adv_CCS_TailGuard";
 
 // ===== Run Mode Selection =====
 enum RunMode {
@@ -31,21 +34,27 @@ enum RunMode {
 // ===== Configuration =====
 static const uint32_t SAMPLE_US         = 10000;  // INA219 sampling: 10ms = 100Hz
 static const uint32_t SESSION_DURATION_S = 600;   // 10 minutes
-// Run order: 500/1000/2000, 5 sessions each (n>=3 per condition).
+// Run order: CCS only, 5 sessions.
 static const RunMode  MODE_SEQUENCE[] = {
-  MODE_FIXED_500, MODE_FIXED_1000, MODE_FIXED_2000
+  MODE_CCS
 };
-static const uint8_t  REPS_PER_MODE   = 5;
+static const uint8_t  REPS_PER_MODE   = 5;  // 1 boot = 5 trials
 static const uint8_t  MODE_SEQUENCE_LEN =
   (uint8_t)(sizeof(MODE_SEQUENCE) / sizeof(MODE_SEQUENCE[0]));
 static const uint16_t SESSION_REPEAT  = (uint16_t)(MODE_SEQUENCE_LEN * REPS_PER_MODE);
 static const uint32_t GAP_BETWEEN_SESSIONS_MS = 5000;
+// Tail guard: force short interval after interval changes (ms)
+static const uint32_t TAIL_GUARD_MS = 2000;
+static const uint16_t TAIL_GUARD_INTERVAL_MS = 100;
+static const uint32_t WDT_TIMEOUT_S = 15;
+static const uint32_t WDT_TIMEOUT_MS = WDT_TIMEOUT_S * 1000;
 
 static const bool     USE_TICK_OUT      = true;
 static const esp_power_level_t TX_PWR   = ESP_PWR_LVL_N0; // 0 dBm
 
 // Pin assignments (same as original)
-static const int SYNC_OUT_PIN = 26;
+static const int SYNC_OUT_PIN = 26; // START pulse
+static const int SYNC_END_PIN = 25; // END pulse
 static const int TICK_OUT_PIN = 27;
 static const int LED_PIN      = 2;
 static const int I2C_SDA      = 21;
@@ -70,6 +79,9 @@ static uint32_t nextSampleUs = 0;
 static uint32_t nextAdvMs = 0;
 static uint16_t currentIntervalMs = 100;
 static uint16_t prevIntervalMs = 100;
+static uint16_t desiredIntervalMs = 100;
+static bool guardActive = false;
+static uint32_t guardUntilMs = 0;
 static bool sessionRunning = false;
 static uint32_t advCount = 0;
 static uint32_t intervalChangeCount = 0;
@@ -137,13 +149,12 @@ static void updateBLEInterval(uint16_t intervalMs) {
   adv->start();
 }
 
-static void syncStart() {
+static const uint16_t SYNC_PULSE_MS = 50;
+static void syncPulse(int pin) {
   digitalWrite(LED_PIN, HIGH);
-  digitalWrite(SYNC_OUT_PIN, HIGH);
-}
-
-static void syncEnd() {
-  digitalWrite(SYNC_OUT_PIN, LOW);
+  digitalWrite(pin, HIGH);
+  delay(SYNC_PULSE_MS);
+  digitalWrite(pin, LOW);
   digitalWrite(LED_PIN, LOW);
 }
 
@@ -169,15 +180,18 @@ static void startSession() {
   nextSampleUs = micros() + SAMPLE_US;
 
   // Get initial interval
-  currentIntervalMs = getIntervalForMode(currentMode, 0);
+  desiredIntervalMs = getIntervalForMode(currentMode, 0);
+  currentIntervalMs = desiredIntervalMs;
   prevIntervalMs = currentIntervalMs;
+  guardActive = false;
+  guardUntilMs = 0;
   nextAdvMs = sessionStartMs + currentIntervalMs;
 
   // Set initial BLE interval
   updateBLEInterval(currentIntervalMs);
 
-  // Hold SYNC HIGH for the full session to gate RX/TXSD logging.
-  syncStart();
+  // Start pulse (GPIO26)
+  syncPulse(SYNC_OUT_PIN);
 
   Serial.printf("[TX] === SESSION START (%u/%u) ===\n",
                 (unsigned)sessionIndex, (unsigned)SESSION_REPEAT);
@@ -190,7 +204,8 @@ static void startSession() {
 
 static void endSession() {
   sessionRunning = false;
-  syncEnd();
+  // End pulse (GPIO25)
+  syncPulse(SYNC_END_PIN);
   if (adv != nullptr) {
     adv->stop();
   }
@@ -218,11 +233,21 @@ void setup() {
   delay(100);
 
   Serial.printf("\n[TX] TX_BLE_Adv_CCS_Mode initializing...\n");
+  Serial.printf("[TX] fw=%s\n", FW_TAG);
+  esp_task_wdt_config_t wdt_config = {
+    .timeout_ms = WDT_TIMEOUT_MS,
+    .idle_core_mask = 0,
+    .trigger_panic = true
+  };
+  esp_task_wdt_init(&wdt_config);
+  esp_task_wdt_add(NULL);
   // GPIO setup
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, LOW);
   pinMode(SYNC_OUT_PIN, OUTPUT);
+  pinMode(SYNC_END_PIN, OUTPUT);
   digitalWrite(SYNC_OUT_PIN, LOW);
+  digitalWrite(SYNC_END_PIN, LOW);
   if (USE_TICK_OUT) {
     pinMode(TICK_OUT_PIN, OUTPUT);
     digitalWrite(TICK_OUT_PIN, LOW);
@@ -265,6 +290,7 @@ void setup() {
 }
 
 void loop() {
+  esp_task_wdt_reset();
   uint32_t nowUs = micros();
   uint32_t nowMs = millis();
 
@@ -305,18 +331,49 @@ void loop() {
 
     guard++;
     nowUs = micros();
+    esp_task_wdt_reset();
   }
 
   // ---- Check for interval changes (every second for CCS mode) ----
   if (currentMode == MODE_CCS) {
     uint16_t newInterval = getIntervalForMode(currentMode, elapsedS);
-    if (newInterval != currentIntervalMs) {
-      prevIntervalMs = currentIntervalMs;
-      currentIntervalMs = newInterval;
-      updateBLEInterval(currentIntervalMs);
+    if (newInterval != desiredIntervalMs) {
+      desiredIntervalMs = newInterval;
       intervalChangeCount++;
 
-      Serial.printf("[TX] t=%lus: interval %u -> %u ms\n",
+      if (TAIL_GUARD_MS > 0) {
+        guardActive = true;
+        guardUntilMs = nowMs + TAIL_GUARD_MS;
+        if (currentIntervalMs != TAIL_GUARD_INTERVAL_MS) {
+          prevIntervalMs = currentIntervalMs;
+          currentIntervalMs = TAIL_GUARD_INTERVAL_MS;
+          updateBLEInterval(currentIntervalMs);
+        }
+        Serial.printf("[TX] t=%lus: guard start (desired=%u ms, hold=%lu ms)\n",
+                      (unsigned long)elapsedS,
+                      (unsigned)desiredIntervalMs,
+                      (unsigned long)TAIL_GUARD_MS);
+      } else {
+        prevIntervalMs = currentIntervalMs;
+        currentIntervalMs = desiredIntervalMs;
+        updateBLEInterval(currentIntervalMs);
+        Serial.printf("[TX] t=%lus: interval %u -> %u ms\n",
+                      (unsigned long)elapsedS,
+                      (unsigned)prevIntervalMs,
+                      (unsigned)currentIntervalMs);
+      }
+    }
+  }
+
+  // ---- Tail guard release ----
+  if (guardActive && (int32_t)(nowMs - guardUntilMs) >= 0) {
+    guardActive = false;
+    guardUntilMs = 0;
+    if (currentIntervalMs != desiredIntervalMs) {
+      prevIntervalMs = currentIntervalMs;
+      currentIntervalMs = desiredIntervalMs;
+      updateBLEInterval(currentIntervalMs);
+      Serial.printf("[TX] t=%lus: guard end (interval %u -> %u ms)\n",
                     (unsigned long)elapsedS,
                     (unsigned)prevIntervalMs,
                     (unsigned)currentIntervalMs);

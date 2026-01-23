@@ -13,21 +13,23 @@ static const char FW_TAG[] = "TXSD_CCS_E2";
 static const char FW_BUILD[] = "TXSD_CCS_E2_2026-01-21";
 static const char PROGRAM_ID[] = "TXSD_CCS_E2_20260121";
 
-// Pins
+// Pins (start/end pulses)
 static const int SD_CS = 5;
 static const int SD_SCK = 18;
 static const int SD_MISO = 19;
 static const int SD_MOSI = 23;
 static const int I2C_SDA = 21;
 static const int I2C_SCL = 22;
-static const int SYNC_IN = 26;
-static const int SYNC_ALT_IN = 25;
+static const int SYNC_IN = 26;     // START pulse
+static const int SYNC_ALT_IN = 25; // END pulse
 static const int TICK_IN = 33;
 
 // Sampling
 static const uint32_t SAMPLE_US = 10000;   // 10 ms
 static const uint32_t MIN_TRIAL_MS = 1000; // ignore too-short
 static const uint32_t FALLBACK_MS = 900000;
+static const uint32_t NO_TICK_TIMEOUT_MS = 8000;
+static const uint32_t NO_TICK_MIN_MS = 2000;
 
 // Debounce
 static const uint32_t START_DEBOUNCE_MS = 100;
@@ -44,6 +46,9 @@ File f;
 volatile uint32_t tickCountRaw = 0;
 static void IRAM_ATTR onTickRaw() { tickCountRaw++; }
 
+volatile bool endSignalReceived = false;
+static void IRAM_ATTR onEndSignal() { endSignalReceived = true; }
+
 bool logging = false;
 uint32_t t0_ms = 0;
 uint32_t nextSampleUs = 0;
@@ -53,6 +58,8 @@ double sumV_V = 0.0;
 double sumI_mA = 0.0;
 uint32_t badLines = 0;
 uint32_t tickStart = 0;
+uint32_t lastTickRaw = 0;
+uint32_t lastTickMs = 0;
 
 static void makeNextPath(char* out, size_t out_sz) {
   SD.mkdir("/logs");
@@ -77,11 +84,14 @@ static void startTrial() {
   t0_ms = millis();
   nextSampleUs = micros() + SAMPLE_US;
   tickStart = (tickCountRaw > 0) ? (tickCountRaw - 1) : 0;
+  lastTickRaw = tickCountRaw;
+  lastTickMs = t0_ms;
   sumP_mW = 0.0;
   sumV_V = 0.0;
   sumI_mA = 0.0;
   sampN = 0;
   badLines = 0;
+  endSignalReceived = false;
 
   Serial.printf("[AGENT] TXSD startTrial nowMs=%lu t0_ms=%lu sync=%d alt=%d tickStart=%lu\n",
                 (unsigned long)millis(), (unsigned long)t0_ms,
@@ -143,6 +153,7 @@ void setup() {
 
   pinMode(SYNC_IN, INPUT_PULLDOWN);
   pinMode(SYNC_ALT_IN, INPUT_PULLDOWN);
+  attachInterrupt(digitalPinToInterrupt(SYNC_ALT_IN), onEndSignal, RISING);
   pinMode(TICK_IN, INPUT_PULLDOWN);
   attachInterrupt(digitalPinToInterrupt(TICK_IN), onTickRaw, RISING);
 
@@ -158,25 +169,22 @@ void loop() {
   uint32_t nowMs = millis();
   int syncIn = digitalRead(SYNC_IN);
   int syncAlt = digitalRead(SYNC_ALT_IN);
-  int syncAnyHigh = (syncIn == HIGH) || (syncAlt == HIGH);
-  int syncAllLow = (syncIn == LOW) && (syncAlt == LOW);
 
   // Edge logs (quiet by default)
   static int lastSyncIn = -1;
   static int lastSyncAlt = -1;
+  bool startRise = (syncIn == HIGH) && (lastSyncIn == LOW);
+  bool endRise = (syncAlt == HIGH) && (lastSyncAlt == LOW);
 #if DBG_LEVEL >= 1
   if (syncIn != lastSyncIn) {
     Serial.printf("[DBG] SYNC_PIN=%d level=%d nowMs=%lu\n", SYNC_IN, syncIn, (unsigned long)nowMs);
-    lastSyncIn = syncIn;
   }
   if (syncAlt != lastSyncAlt) {
     Serial.printf("[DBG] SYNC_PIN=%d level=%d nowMs=%lu\n", SYNC_ALT_IN, syncAlt, (unsigned long)nowMs);
-    lastSyncAlt = syncAlt;
   }
-#else
+#endif
   lastSyncIn = syncIn;
   lastSyncAlt = syncAlt;
-#endif
 #if DBG_LEVEL >= 3
   static uint32_t lastDbg = 0;
   if (nowMs - lastDbg >= 5000) {
@@ -186,39 +194,44 @@ void loop() {
   }
 #endif
 
-  // Debounce start/stop
-  static uint32_t highSince = 0;
-  static uint32_t lowSince = 0;
-
   if (!logging) {
-    if (syncAnyHigh) {
-      if (highSince == 0) highSince = nowMs;
-      if (nowMs - highSince >= START_DEBOUNCE_MS) {
-        startTrial();
-        highSince = 0;
-        lowSince = 0;
-        return;
-      }
-    } else {
-      highSince = 0;
+    static uint32_t lastStartEdgeMs = 0;
+    if (startRise && (nowMs - lastStartEdgeMs >= START_DEBOUNCE_MS)) {
+      startTrial();
+      lastStartEdgeMs = nowMs;
+      return;
     }
   } else {
-    if (syncAllLow) {
-      if (lowSince == 0) lowSince = nowMs;
-      if (nowMs - lowSince >= END_DEBOUNCE_MS) {
-        endTrial();
-        lowSince = 0;
-      }
-    } else {
-      lowSince = 0;
-      if ((nowMs - t0_ms) >= FALLBACK_MS) {
-        endTrial();
-      }
+    static uint32_t lastEndEdgeMs = 0;
+    bool endDetected = endSignalReceived || (endRise && (nowMs - lastEndEdgeMs >= END_DEBOUNCE_MS));
+
+    if (tickCountRaw != lastTickRaw) {
+      lastTickRaw = tickCountRaw;
+      lastTickMs = nowMs;
+    } else if ((nowMs - t0_ms) >= NO_TICK_MIN_MS &&
+               (nowMs - lastTickMs) >= NO_TICK_TIMEOUT_MS) {
+      Serial.printf("[AGENT] TXSD endTrial reason=NO_TICK dt=%lu lastTickMs=%lu tick=%lu\n",
+                    (unsigned long)(nowMs - t0_ms),
+                    (unsigned long)lastTickMs,
+                    (unsigned long)tickCountRaw);
+      endTrial();
+      return;
     }
+
+    if (endDetected) {
+      endTrial();
+      lastEndEdgeMs = nowMs;
+      endSignalReceived = false;
+    }
+    if (logging && (nowMs - t0_ms) >= FALLBACK_MS) {
+      endTrial();
+    }
+    if (!logging) return;
 
     // Sampling loop
     uint32_t nowUs = micros();
     while ((int32_t)(nowUs - nextSampleUs) >= 0) {
+      if (endSignalReceived) break; 
       nextSampleUs += SAMPLE_US;
       float v = ina.getBusVoltage_V();
       float i_mA = ina.getCurrent_mA();

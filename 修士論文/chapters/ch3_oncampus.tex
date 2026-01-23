@@ -1,4 +1,4 @@
-% chapters/ch3_oncampus.tex --- 構成要素：実験装置・計測方式
+﻿% chapters/ch3_oncampus.tex --- 構成要素：実験装置・計測方式
 \section{実験装置・計測方式}
 \label{sec:measurement_setup}
 
@@ -16,7 +16,7 @@
     \toprule
     ノード & 役割 & 主なログ \\
     \midrule
-    TX & BLE広告送信・間隔制御 & ペイロード（時刻/タグ），制御状態 \\
+    TX & BLEアドバタイジング送信・間隔制御 & ペイロード（時刻/タグ），制御状態 \\
     TXSD & 電力計測（INA219） & 電圧・電流系列，集約指標 \\
     RX & 受信ログ取得 & 受信時刻，RSSI，ペイロード \\
     \bottomrule
@@ -30,25 +30,25 @@
   \centering
   \caption{計測システムの主要構成}
   \label{tab:hw}
-  \begin{tabular}{ll}
+  \begin{tabularx}{\linewidth}{l>{\raggedright\arraybackslash}X}
     \toprule
     要素 & 役割 \\
     \midrule
-    ESP32（TX） & BLE広告送信，広告間隔制御，ペイロード生成 \\
+    ESP32（TX） & BLEアドバタイジング送信，アドバタイジング間隔制御，ペイロード生成 \\
     ESP32（TXSD） & INA219計測データの収集，SD保存，エネルギー集約 \\
     ESP32（RX）/スマートフォン & 受信ログの取得（時刻，RSSI，seq） \\
     INA219 & 電流・電圧の計測（サンプリング周期は試行条件に依存） \\
-    SYNC/TICK & 試行区間の同期，広告回数の物理カウント \\
+    SYNC/TICK & 試行区間の同期，アドバタイジング回数の物理カウント \\
     \bottomrule
-  \end{tabular}
+  \end{tabularx}
 \end{table}
 
 \subsection{同期設計（SYNC/TICK）}
 \subsubsection{SYNC（試行区間の整列）}
 試行（trial）の開始・終了を揃えるために，同期信号（SYNC）を用いる．TXは試行区間の境界でSYNC信号を出力し，TXSDおよびRXはこの信号に同期してログ取得区間を区切る．SYNCにより，「どの区間の電力・受信ログを比較するか」を明確化できる．
 
-\subsubsection{TICK（広告回数の物理カウント）}
-広告イベント数$N_{\mathrm{adv}}$（定義は\secref{sec:metrics_detail}）は，到達性指標の分母として重要である．可能であれば，TXがTICK信号を出力し，TXSD側で割り込みにより広告回数を物理カウントする．TICKが利用できない場合は，試行時間と広告間隔から期待値を算出するが，動的制御下では推定誤差が生じる可能性がある点に留意が必要である．
+\subsubsection{TICK（アドバタイジング回数の物理カウント）}
+アドバタイジングイベント数$N_{\mathrm{adv}}$（定義は\secref{sec:metrics_detail}）は，到達性指標の分母として重要である．可能であれば，TXがTICK信号を出力し，TXSD側で割り込みによりアドバタイジング回数を物理カウントする．TICKが利用できない場合は，試行時間とアドバタイジング間隔から期待値を算出するが，動的制御下では推定誤差が生じる可能性がある点に留意が必要である．
 
 \subsubsection{配線例（UCCS評価）}
 本研究で用いた配線例を表\ref{tab:wiring_example}に示す（実験ディレクトリのREADMEに準拠）．ピン番号は実装に依存するため，運用時はRunbookに記録して固定する（\secref{sec:runbook}）．
@@ -92,7 +92,7 @@ RXログは，受信時刻，RSSI，ペイロード（seq等）を保持する�
 本研究では，電力とQoSを同一試行で同時に評価する．電力はTXSD，QoSはRXを主に用いる．ただし，動的切替では「イベント時刻の定義」と「時間同期」が結果を左右するため，指標定義（特にTL/Pout）は\secref{sec:stress_fixed_metrics}で固定する．
 
 \subsubsection{ON/OFF差分とsleep}
-省電力指標$q_{\mathrm{event}}$は，電荷積分に基づくため，ログ欠損や単位不整合の影響を強く受ける．そのため，広告ON/OFF差分による基準補正や，生ログを用いた再積分による整合性確認が不可欠である．また，送信側がlight sleep等に入れる条件では，広告間隔を伸ばすことが平均電力低下に直結する．sleepの有無は条件として明示し，同一コード系列で比較する（運用手順は\secref{sec:runbook}）．
+省電力指標$q_{\mathrm{event}}$は，電荷積分に基づくため，ログ欠損や単位不整合の影響を強く受ける．そのため，アドバタイジングON/OFF差分による基準補正や，生ログを用いた再積分による整合性確認が不可欠である．また，送信側がlight sleep等に入れる条件では，アドバタイジング間隔を伸ばすことが平均電力低下に直結する．sleepの有無は条件として明示し，同一コード系列で比較する（運用手順は\secref{sec:runbook}）．
 
 \subsection{受信端末の運用（スマートフォン側）}
 受信側のスキャン挙動は端末・OS状態に依存するため，実験では運用手順を固定する必要がある．特に，スキャンモード，画面状態，電源状態等を統一し，端末内比較の前提を守る．実験前のチェックリストは\secref{sec:runbook}に示す．
@@ -119,3 +119,4 @@ OSの省電力機構によりバックグラウンド制約やスロットリン
 
 \subsection{まとめ}
 本節では，実験装置の構成，同期設計，ログ設計，および運用上の前提を整理した．以降の節では，計測系の不具合要因と修正履歴を\secref{sec:measurement_system}にまとめ，評価の前提を固定する．
+

@@ -1,8 +1,9 @@
 # Phase 2 データ棚卸し（Data Inventory）
 
 - 作成日: 2026-01-21
+- 更新日: 2026-01-22
 - 目的: Phase 2（Safe-UCB）で使用するデータを明確化し、train/test分割を固定する
-- 状態: **DRAFT**（実験完了後に更新）
+- 状態: **V1**（基本情報埋め済み、Pout値は解析待ち）
 
 ---
 
@@ -18,18 +19,18 @@
 
 | データセットID | パス | 環境 | 条件 | n | 用途 |
 |---------------|------|------|------|---|------|
-| D1 | `data/実験データ/研究室/d1_*/` | E1 | 基本動作（100↔500ms） | TBD | 制約モデル |
-| D2b | `data/実験データ/研究室/d2b_*/` | E1 | S1/S4シナリオ | 6 | 制約モデル |
-| D3 | `data/実験データ/研究室/d3_*/` | E1(scan70) | 劣化環境 | 3 | 制約モデル |
-| D4 | `data/実験データ/研究室/d4_*/` | E1 | U-shuffle ablation | 3 | 制約モデル |
-| D4B | `data/実験データ/研究室/d4b_*/` | E1 | CCS-off ablation | 3+3 | 制約モデル |
+| D1 | `uccs_d1_scan90/` | E1 | 基本動作（100↔500ms） | 3 | 制約モデル |
+| D2b | `uccs_d2_scan90/` | E1 | S1/S4シナリオ | 6 | 制約モデル |
+| D3 | `uccs_d3_scan70/` | E1(scan70) | 劣化環境 | 3 | 制約モデル |
+| D4 | `uccs_d4_scan90/` | E1 | U-shuffle ablation | 3 | 制約モデル |
+| D4B | `uccs_d4b_scan90/`, `uccs_d4b_scan70/` | E1 | CCS-off ablation | 3+3 | 制約モデル |
 
 ### 1.3 Phase 1 E2（高干渉環境）
 
 | データセットID | パス | 環境 | 条件 | n | 用途 |
 |---------------|------|------|------|---|------|
-| e2_ccs_v01 | `data/実験データ/研究室/phase1_e2_ccs_2026-01-21_v01/` | E2 | CCS-Control | TBD | 制約モデル（E2） |
-| e2_fixed_v02 | `data/実験データ/研究室/phase1_e2_fixed_2026-01-21_v02/` | E2 | FIXED(500/1000/2000ms) | 15 | 制約モデル（E2） |
+| e2_ccs_v01 | `data/実験データ/研究室/phase1_e2_ccs_2026-01-21_v01/` | E2 | CCS-Control | 10 | 制約モデル（E2） |
+| e2_fixed_v01 | `data/実験データ/研究室/phase1_e2_fixed_sweep_2026-01-21_v01/` | E2 | FIXED(500/1000/2000ms) | 15 | 制約モデル（E2） |
 
 ---
 
@@ -71,11 +72,11 @@ metrics_available:
 use_in_phase2: reward_model (μC estimation)
 ```
 
-### 2.2 e2_fixed_v02（制約モデル用）
+### 2.2 e2_fixed_v01（制約モデル用）
 
 ```yaml
-dataset_id: e2_fixed_v02
-path: data/実験データ/研究室/phase1_e2_fixed_2026-01-21_v02/
+dataset_id: e2_fixed_v01
+path: data/実験データ/研究室/phase1_e2_fixed_sweep_2026-01-21_v01/
 environment: E2
 env_details:
   strongest_ap_rssi_dbm: -20
@@ -149,32 +150,48 @@ use_in_phase2: constraint_model (Pout estimation, E2)
 **使用データ**: deltae_v02
 
 **抽出する値**:
-| 行動a | μC(a) [μJ/event] | σ(a) | n |
-|-------|-----------------|------|---|
-| 100ms | TBD | TBD | 10 |
-| 500ms | TBD | TBD | 10 |
-| 1000ms | TBD | TBD | 10 |
-| 2000ms | TBD | TBD | 10 |
+| 行動a | μC(a) [μJ/event] | σ(a) [μJ/event] | n | N_adv |
+|-------|-----------------|----------------|---|-------|
+| 100ms | 5656 | ~220 | 10 | 595 |
+| 500ms | 12624 | ~200 | 10 | 120 |
+| 1000ms | 17922 | ~180 | 10 | 61 |
+| 2000ms | 34681 | ~215 | 10 | 31 |
 
 **算出方法**:
 ```
 μC(a) = (E_ON(a) - E_OFF) / N_adv(a)
+  where E_ON(a) = mean of 10 trials at interval a
+        E_OFF = 15755.413 mJ (mean of 10 OFF trials)
+        N_adv(a) = 60s / interval_a (approx, actual from logs)
 ```
+
+**データ参照**: `results/deltae_v3rig_sweep_2026-01-21_v02_stats_ci.csv`, `results/deltae_v3rig_sweep_2026-01-21_v02_trials.csv`
 
 ### 4.2 制約モデル（Pout(τ|a)推定）
 
 **使用データ**: E1系（D1-D4B）+ E2系（e2_ccs, e2_fixed）
 
 **抽出する値**:
-| 行動a | 環境 | Pout(1s) | Pout(2s) | n |
-|-------|------|----------|----------|---|
-| 100ms | E1 | TBD | TBD | TBD |
-| 500ms | E1 | TBD | TBD | TBD |
-| 1000ms | E1 | TBD | TBD | TBD |
-| 2000ms | E1 | TBD | TBD | TBD |
-| 500ms | E2 | TBD | TBD | 5 |
-| 1000ms | E2 | TBD | TBD | 5 |
-| 2000ms | E2 | TBD | TBD | 5 |
+| 行動a | 環境 | Pout(1s) | Pout(2s) | n | データソース |
+|-------|------|----------|----------|---|-------------|
+| 100ms | E1 | TBD | TBD | ~9 | D1, D2b (fixed100) |
+| 500ms | E1 | TBD | TBD | ~9 | D1, D2b (fixed500) |
+| 1000ms | E1 | TBD | TBD | ~0 | なし（E1では未計測） |
+| 2000ms | E1 | TBD | TBD | ~0 | なし（E1では未計測） |
+| 500ms | E2 | TBD | TBD | 5 | e2_fixed_v01 |
+| 1000ms | E2 | TBD | TBD | 5 | e2_fixed_v01 |
+| 2000ms | E2 | TBD | TBD | 5 | e2_fixed_v01 |
+
+**算出方法**:
+```
+Pout(τ|a) = Pr[TL > τ | interval = a]
+  where TL = time-to-first-receive after activity change
+        τ = threshold latency (1s or 2s)
+```
+
+**備考**:
+- E1では1000/2000ms固定の計測なし（D1-D4BはCCS-Controlまたは100/500ms固定のみ）
+- Phase 2 MVPでは500msのみを使用し、1000/2000msはE2データで補完
 
 ### 4.3 評価用（hold-out）
 
@@ -201,9 +218,13 @@ use_in_phase2: constraint_model (Pout estimation, E2)
 
 | データセットID | ファイル数 | 空ファイル | SHA256 | duration | 欠損率 | 判定 |
 |---------------|----------|----------|--------|----------|--------|------|
-| deltae_v02 | 100 | 0 | ✅ | ✅ | <1% | ✅ |
-| e2_ccs_v01 | TBD | TBD | TBD | TBD | TBD | TBD |
-| e2_fixed_v02 | TBD | TBD | TBD | TBD | TBD | TBD |
+| deltae_v02 | 100 (RX:50, TXSD:50) | 0 | ✅ | ✅ (~60s) | <1% | ✅ |
+| e2_ccs_v01 | 20 (RX:10, TXSD:10) | 0 | ✅ | ✅ (~600s) | 要確認 | ⏳ |
+| e2_fixed_v01 | 30 (RX:15, TXSD:15) | 4 (RX 7-10番) | ✅ | ✅ (~600s) | 要確認 | ⏳ |
+
+**備考**:
+- e2_fixed_v01のRX 7-10番ファイルは空（manifest.csvでrows列が空白）。対応するTXSDは存在。解析時は除外またはTXSD単独で使用。
+- e2データの欠損率・Pout値は解析スクリプト実行後に埋める。
 
 ---
 
@@ -211,4 +232,5 @@ use_in_phase2: constraint_model (Pout estimation, E2)
 
 | 日付 | 内容 |
 |------|------|
-| 2026-01-21 | 初版作成。テンプレートとして構造を定義。実験完了後に数値を埋める |
+| 2026-01-22 | 実データでTBD埋め。deltae_v02のμC値、e2データのメタ情報、D1-D4Bのパス修正 |
+| 2026-01-21 | 初版作成。テンプレートとして構造を定義 |

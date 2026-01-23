@@ -15,10 +15,10 @@ static const char FW_BUILD[] = "RX_CCS_E2_2026-01-21";
 static const char PROGRAM_ID[] = "RX_CCS_E2_20260121";
 static const char TX_NAME[] = "TXM_ESP32";
 
-// Pins
+// Pins (start/end pulses)
 static const int SD_CS = 5;
-static const int SYNC_IN = 26;
-static const int SYNC_ALT_IN = 25;
+static const int SYNC_IN = 26;     // START pulse
+static const int SYNC_ALT_IN = 25; // END pulse
 
 // Trial + buffering
 static const uint16_t RX_BUF_SIZE = 512;
@@ -547,25 +547,22 @@ void loop() {
   uint32_t nowMs = millis();
   int syncIn = digitalRead(SYNC_IN);
   int syncAlt = digitalRead(SYNC_ALT_IN);
-  int syncAnyHigh = (syncIn == HIGH) || (syncAlt == HIGH);
-  int syncAllLow = (syncIn == LOW) && (syncAlt == LOW);
 
   // Edge logs (quiet by default)
   static int lastSyncIn = -1;
   static int lastSyncAlt = -1;
+  bool startRise = (syncIn == HIGH) && (lastSyncIn == LOW);
+  bool endRise = (syncAlt == HIGH) && (lastSyncAlt == LOW);
 #if DBG_LEVEL >= 1
   if (syncIn != lastSyncIn) {
     Serial.printf("[DBG] SYNC_PIN=%d level=%d nowMs=%lu\n", SYNC_IN, syncIn, (unsigned long)nowMs);
-    lastSyncIn = syncIn;
   }
   if (syncAlt != lastSyncAlt) {
     Serial.printf("[DBG] SYNC_PIN=%d level=%d nowMs=%lu\n", SYNC_ALT_IN, syncAlt, (unsigned long)nowMs);
-    lastSyncAlt = syncAlt;
   }
-#else
+#endif
   lastSyncIn = syncIn;
   lastSyncAlt = syncAlt;
-#endif
 #if DBG_LEVEL >= 3
   static uint32_t lastDbg = 0;
   static int lastRptSyncIn = -1;
@@ -583,31 +580,18 @@ void loop() {
   }
 #endif
 
-  // Debounce start/stop
-  static uint32_t highSince = 0;
-  static uint32_t lowSince = 0;
-
   if (!trial) {
-    if (syncAnyHigh) {
-      if (highSince == 0) highSince = nowMs;
-      if (nowMs - highSince >= START_DEBOUNCE_MS) {
-        startTrial();
-        highSince = 0;
-        lowSince = 0;
-        return;
-      }
-    } else {
-      highSince = 0;
+    static uint32_t lastStartEdgeMs = 0;
+    if (startRise && (nowMs - lastStartEdgeMs >= START_DEBOUNCE_MS)) {
+      startTrial();
+      lastStartEdgeMs = nowMs;
+      return;
     }
   } else {
-    if (syncAllLow) {
-      if (lowSince == 0) lowSince = nowMs;
-      if (nowMs - lowSince >= END_DEBOUNCE_MS) {
-        endTrialWithReason("SYNC_LOW_STABLE");
-        lowSince = 0;
-      }
-    } else {
-      lowSince = 0;
+    static uint32_t lastEndEdgeMs = 0;
+    if (endRise && (nowMs - lastEndEdgeMs >= END_DEBOUNCE_MS)) {
+      endTrialWithReason("SYNC_END_PULSE");
+      lastEndEdgeMs = nowMs;
     }
 
     if (trial && (nowMs - t0Ms) >= TRIAL_MS_FALLBACK) {

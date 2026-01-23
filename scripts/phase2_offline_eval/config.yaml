@@ -1,0 +1,48 @@
+# Phase 2 MVP Offline Evaluation Config
+# 作成日: 2026-01-22
+# 目的: Safe-UCB オフライン評価の設定
+
+# データパス（実在するデータのみ）
+data:
+  # 報酬モデル用（μC推定）
+  reward_data: data/実験データ/研究室/deltae_v3rig_sweep_2026-01-21_v02/
+
+  # 制約モデル用（Pout推定）
+  constraint_data:
+    - data/実験データ/研究室/phase1_e2_ccs_2026-01-21_v01/
+    - data/実験データ/研究室/phase1_e2_fixed_sweep_2026-01-21_v01/
+
+# 行動集合
+actions:
+  - 500   # ms
+  - 1000  # ms
+  - 2000  # ms
+  # 注: 100msは段階3で追加
+
+# 制約設定
+constraint:
+  tau: 1.0      # 許容遅延 [s]
+  epsilon: 0.10 # 制約閾値（Pout(τ) ≤ ε）
+
+# シミュレーション設定
+simulation:
+  T: 1000               # ステップ数
+  seed: 0xD4B40201      # 乱数シード（再現性）
+  n_bootstrap: 100      # ブートストラップ回数（信頼区間用、段階2で増やす）
+
+# 比較手法
+methods:
+  - safe_ucb      # 提案手法
+  - ucb           # 制約なし
+  - fixed_ccs     # Phase 1写像
+  - oracle        # 真の最適
+
+# 出力設定
+output:
+  results_dir: results/phase2_offline_eval/
+  figures:
+    - regret_curve.png
+    - violation_rate.png
+    - energy_curve.png
+    - warmstart_comparison.png
+  save_raw: true  # 生データをCSVで保存

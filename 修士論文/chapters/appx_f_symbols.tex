@@ -1,4 +1,4 @@
-% chapters/appx_f_symbols.tex --- 付録F 記号表・略語
+﻿% chapters/appx_f_symbols.tex --- 付録F 記号表・略語
 \section{記号表・略語}
 \label{sec:symbols}
 
@@ -15,8 +15,8 @@
   記号 & 単位 & 意味 \\
   \midrule
   \endhead
-  $a,\;a(t)$ & ms & 広告間隔（方策が選択する行動） \\
-  $T_{\mathrm{adv}}$ & ms & 広告間隔（説明用の表記） \\
+  $a,\;a(t)$ & ms & アドバタイジング間隔（方策が選択する行動） \\
+  $T_{\mathrm{adv}}$ & ms & アドバタイジング間隔（説明用の表記） \\
   $T_{\mathrm{scan}}$ & ms & スキャン周期 \\
   $d_{\mathrm{scan}}$ & ms & スキャンウィンドウ \\
   $\delta$ & --- & スキャンデューティ比（$d_{\mathrm{scan}}/T_{\mathrm{scan}}$） \\
@@ -35,7 +35,7 @@
   $\epsilon$ & --- & QoS制約の許容値（例：$P_{\mathrm{out}}(\tau)\le\epsilon$） \\
   $\tau$ & s & 遅延期限（outage判定の基準） \\
   $N_{\mathrm{event}}$ & 回 & 評価対象のイベント数 \\
-  $N_{\mathrm{adv}}$ & 回 & 広告イベント数（adv\_count等） \\
+  $N_{\mathrm{adv}}$ & 回 & アドバタイジングイベント数（adv\_count等） \\
   $\hat{\rho}_{100}$ & --- & 短間隔（\SI{100}{\milli\second}）滞在比率の推定値（例：$(P-P_{500})/(P_{100}-P_{500})$） \\
   $\mathrm{PDR}_{\mathrm{raw}}$ & --- & 受信行数に基づくPDR（重複含む） \\
   $\mathrm{PDR}_{\mathrm{unique}}$ & --- & seqでユニーク化したPDR（重複除外） \\
@@ -45,7 +45,7 @@
   $E$ & mJ & 試行区間の総エネルギー \\
   $\Delta E$ & mJ & エネルギー差分（ON$-$OFF） \\
   $\overline{P}$ & mW & 平均電力（$E/T$） \\
-  $p_d$ & --- & 1広告の受信成功確率（近似モデル） \\
+  $p_d$ & --- & 1アドバタイジングの受信成功確率（近似モデル） \\
   RSSI & dBm & 受信強度（Received Signal Strength Indicator） \\
   $t_{\mathrm{inf}}$ & ms & 推論時間（TinyML実機計測） \\
   \bottomrule
@@ -80,6 +80,7 @@
   TX & 送信側（DUT） \\
   RX & 受信側（ロガ） \\
   TXSD & 電力ロガ（送信側の電力計測） \\
-  SYNC/TICK & 試行境界・広告回数の同期信号 \\
+  SYNC/TICK & 試行境界・アドバタイジング回数の同期信号 \\
   \bottomrule
 \end{longtable}
+

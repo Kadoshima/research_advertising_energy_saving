@@ -1,8 +1,8 @@
-% chapters/ch3_system_design.tex --- 構成要素：問題設定とシステム設計
+﻿% chapters/ch3_system_design.tex --- 構成要素：問題設定とシステム設計
 \section{問題設定とシステム設計}
 
 \subsection{World Model}
-本研究は，アプリケーション層（HAR）と通信層（BLE広告）を跨ぐクロスレイヤー制御である．このため，単に広告間隔を調整するだけでなく，「どの情報がどこで生成され，どこで観測されるか」を明確にする必要がある．本節では，アクター（構成要素）とシステム要件（Capabilities）を整理し，議論の前提を固定する．
+本研究は，アプリケーション層（HAR）と通信層（BLEアドバタイジング）を跨ぐクロスレイヤー制御である．このため，単にアドバタイジング間隔を調整するだけでなく，「どの情報がどこで生成され，どこで観測されるか」を明確にする必要がある．本節では，アクター（構成要素）とシステム要件（Capabilities）を整理し，議論の前提を固定する．
 
 \subsubsection{アクター（構成要素）}
 表\ref{tab:actors}に，本研究で扱うアクターを示す．
@@ -15,11 +15,11 @@
     \toprule
     アクター & 役割 \\
     \midrule
-    Edge Node / DUT & IMU等からHARを推論し，不確実度$U$・安定度$S$・CCSを生成して広告間隔を制御する（送信側） \\
-    Gateway（スマートフォン） & BLE広告を受信する主体．スキャン挙動はOS依存で非理想とみなす（受信側） \\
+    Edge Node / DUT & IMU等からHARを推論し，不確実度$U$・安定度$S$・CCSを生成してアドバタイジング間隔を制御する（送信側） \\
+    Gateway（スマートフォン） & BLEアドバタイジングを受信する主体．スキャン挙動はOS依存で非理想とみなす（受信側） \\
     Observer（計測系） & 電力（TXSD）と受信（RX）を収集し，主要評価指標を算出する（実験時の観測者） \\
     安全基準（Safety Oracle） & QoS制約$P_{\mathrm{out}}(\tau)\le\epsilon$を規定する判定基準（設計上の規格） \\
-    Policy Engine & コンテキストから広告間隔を決定する意思決定器（Phase 1はルール，Phase 2でSafe Bandit） \\
+    Policy Engine & コンテキストからアドバタイジング間隔を決定する意思決定器（Phase 1はルール，Phase 2でSafe Bandit） \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -28,8 +28,8 @@
 本研究の設計で重要となる要件を以下にまとめる．
 \begin{enumerate}
   \item Perception：HAR推論から確率分布を得て，不確実度$U$と安定度$S$を計算する．
-  \item Decision：$U,S$からCCSを構成し，広告間隔$a$を決定する．
-  \item Communication：BLE広告として送信し，受信側の非理想スキャン下で到達する．
+  \item Decision：$U,S$からCCSを構成し，アドバタイジング間隔$a$を決定する．
+  \item Communication：BLEアドバタイジングとして送信し，受信側の非理想スキャン下で到達する．
   \item Safety：QoS制約を守るため，危険兆候では短間隔へ移行できる．
   \item Observability：意思決定の根拠（$U,S,\mathrm{CCS}$，閾値，切替理由）をログに残す．
 \end{enumerate}
@@ -45,8 +45,8 @@
     \toprule
     区分 & 指標 \\
     \midrule
-    一次（Primary） & $\si{\micro\coulomb}/\text{event}$，$P_{\mathrm{out}}(\tau)$，TL\_p95 \\
-    二次（Secondary） & 平均電力$\overline{P}$，PDR（unique），RSSI，切替頻度（switch\_rate），平均広告レート（adv\_rate） \\
+    一次（Primary） & $\si{\micro\coulomb}/\text{event}$，$P_{\mathrm{out}}(\tau)$，$TL_{p95}$ \\
+    二次（Secondary） & 平均電力$\overline{P}$，PDR（unique），RSSI，切替頻度（switch\_rate），平均アドバタイジングレート（adv\_rate） \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -59,7 +59,7 @@
 \end{itemize}
 
 \subsection{目的関数と制約}
-本研究の問題設定は，広告間隔制御により電力（電荷消費）を下げつつ，期限超過率を制約することである．動的制御の方策$\pi$に対し，
+本研究の問題設定は，アドバタイジング間隔制御により電力（電荷消費）を下げつつ，期限超過率を制約することである．動的制御の方策$\pi$に対し，
 \begin{equation}
   \text{minimize}\quad \mathbb{E}[q_{\mathrm{event}}(\pi)]
   \quad \text{subject to}\quad P_{\mathrm{out}}(\tau;\pi)\le \epsilon
@@ -68,7 +68,9 @@
 
 \subsection{フェイルセーフ機構}
 非理想スキャン環境では，受信品質が瞬間的に悪化する可能性がある．このため，実装では安全側への移行（短間隔）を設けることが望ましい．本研究では，切替規則の設計とログ化により，安全側に寄せた挙動を説明可能にする．
-具体的には，通常はCCSに応じて広告間隔を選択し，QoS悪化の兆候がある場合は短間隔へ移行できる設計とする．また，移行の根拠（切替理由）をログに残し，監査可能にする．
+具体的には，通常はCCSに応じてアドバタイジング間隔を選択し，QoS悪化の兆候がある場合は短間隔へ移行できる設計とする．また，移行の根拠（切替理由）をログに残し，監査可能にする．
 
 \subsection{フェーズ設計（Phase 1 → Phase 2）}
-Phase 1では，ルールベース方策で「計測・指標・実機実装」を成立させることを優先する．特に，TL/Poutの定義と時間同期，電力計測の健全化は，学習以前に必須である．Phase 2では，コンテキスト（$U,S$）と行動（広告間隔）の選択をSafe Contextual Banditとして定式化し，環境差に適応しつつQoS制約を守る枠組みを検証する．
+Phase 1では，ルールベース方策で「計測・指標・実機実装」を成立させることを優先する．特に，TL/Poutの定義と時間同期，電力計測の健全化は，学習以前に必須である．Phase 2では，コンテキスト（$U,S$）と行動（アドバタイジング間隔）の選択をSafe Contextual Banditとして定式化し，環境差に適応しつつQoS制約を守る枠組みを検証する．
+
+

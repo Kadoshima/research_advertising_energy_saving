@@ -10,6 +10,7 @@ $ENV{LUATEXCACHE} = 'build/luatex-cache';
 # LuaLaTeX + biber (biblatex)
 $pdf_mode = 4;
 $lualatex = 'lualatex -interaction=nonstopmode -file-line-error %O %S';
+$pdflatex = 'lualatex -interaction=nonstopmode -file-line-error %O %S';
 $bibtex_use = 2;
 
 # Keep going for draft builds; errors still surface in exit code.

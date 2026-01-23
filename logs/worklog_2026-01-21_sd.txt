@@ -21,3 +21,6 @@
 2026-01-21 16:53:16 JST TX firmware update: removed FIXED_100 from sweep; REPS_PER_MODE=5, MODE_SEQUENCE=500/1000/2000; uploaded TX_BLE_Adv_CCS_Sweep to COM6.
 2026-01-21 20:10:12 JST Phase1 E2 fixed sweep v01: collected TXSD 15 and RX 15 from D: using serial_COM8_20260121_165545_e2_run1.log / serial_COM9_20260121_165545_e2_run1.log; manifest updated, RX missing 4 (pre-ready SD open FAIL).
 2026-01-21 20:13:45 JST Added README note for phase1_e2_fixed_sweep_2026-01-21_v01: RX missing 4 due to pre-ready SD open FAIL; trial=1..15 unaffected.
+2026-01-21 21:12:17 JST TX firmware update: CCS only, REPS_PER_MODE=10 (MODE_SEQUENCE=CCS); uploaded TX_BLE_Adv_CCS_Sweep to COM6.
+2026-01-21 23:15:23 JST TX firmware update: CCS only, REPS_PER_MODE=5 (MODE_SEQUENCE=CCS); uploaded TX_BLE_Adv_CCS_Sweep to COM6.
+2026-01-22 00:58:34 JST SYNC二線化: docs/フェーズ0-0/実験装置仕様書_v3.md を更新（START=GPIO26, END=GPIO25）。TXSD_CCS_E2のエッジ検出化、TX_BLE_Adv_CCS_ModeのSYNCパルス化。MCPアップロード: TX_BLE_Adv_CCS_Sweep->COM6, TXSD_CCS_E2->COM8, RX_CCS_E2->COM9。

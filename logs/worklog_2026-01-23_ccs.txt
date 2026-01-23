@@ -1,0 +1,33 @@
+2026-01-23 09:40:12 JST  Phase1 E2 CCS+tail-guard: current trial aborted due to TX restart; mark as ABORT in manifest. Plan to collect +2 additional valid trials (1boot=1trial) after restart. Related logs: logs/serial_capture/serial_COM8_20260123_082614_phase1_e2_ccs_tail_guard_v05.log, serial_COM9_20260123_082614_phase1_e2_ccs_tail_guard_v05.log.
+2026-01-23 09:45:22 JST  Added ABORT entry to manifest: data/ŽÀŒ±ƒf[ƒ^/Œ¤‹†Žº/phase1_e2_ccs_tail_guard_2026-01-23_v05/manifest.csv (trial_id=03295148, short 149.77s).
+2026-01-23 10:45:39 JST  Copied TXSD logs to data/ŽÀŒ±ƒf[ƒ^/Œ¤‹†Žº/phase1_e2_ccs_tail_guard_2026-01-23_v05/TXSD: pwr_00558198..., pwr_01106208..., pwr_01654212..., pwr_02202239..., pwr_02750259....
+2026-01-23 10:47:25 JST  Copied RX logs to data/ŽÀŒ±ƒf[ƒ^/Œ¤‹†Žº/phase1_e2_ccs_tail_guard_2026-01-23_v05/RX: rx_03297389..., rx_04393423..., rx_00010549..., rx_01106578..., rx_02202605....
+2026-01-23 10:55:06 JST  Updated manifest and added README: data/ŽÀŒ±ƒf[ƒ^/Œ¤‹†Žº/phase1_e2_ccs_tail_guard_2026-01-23_v05/README.md; analysis run -> results/phase1_e2_ccs_tail_guard_2026-01-23_v05.md (4 valid trials, ABORT excluded).
+2026-01-23 10:56:56 JST  Normalized RX inputs for analysis (strip prog_id column) in results/phase1_e2_ccs_tail_guard_2026-01-23_v05_input/E2/CCS; re-ran analysis -> results/phase1_e2_ccs_tail_guard_2026-01-23_v05.md (PDR/TL now nonzero).
+2026-01-23 11:38:07 JST  Copied TXSD v06 logs to data/ŽÀŒ±ƒf[ƒ^/Œ¤‹†Žº/phase1_e2_ccs_tail_guard_2026-01-23_v06/TXSD: pwr_00007166..., pwr_00562703..., pwr_01110739..., pwr_01658785....
+2026-01-23 11:40:11 JST  Copied RX v06 logs to data/ŽÀŒ±ƒf[ƒ^/Œ¤‹†Žº/phase1_e2_ccs_tail_guard_2026-01-23_v06/RX: rx_00007794..., rx_00014111..., rx_01110175....
+2026-01-23 11:43:18 JST  Updated v06 manifest/README and ran analysis -> results/phase1_e2_ccs_tail_guard_2026-01-23_v06.md (2 valid trials).
+2026-01-23 11:48:53 JST  Combined v05(4) + v06(2) into results/phase1_e2_ccs_tail_guard_2026-01-23_v05_v06_input and ran analysis -> results/phase1_e2_ccs_tail_guard_2026-01-23_v05_v06.md (N=6).
+2026-01-23 11:53 JST Update: docs/ƒtƒF[ƒY1/ŽÀŒ±Œ‹‰Ê_“‡ƒTƒ}ƒŠ_2026-01-12.md ‚Æ docs/ƒtƒF[ƒY1/phase1_e2_compare_2026-01-22/README.md ‚É CCS+TailGuard (N=6) ‚ð’Ç‹LBŽQÆ: results/phase1_e2_ccs_tail_guard_2026-01-23_v05_v06.md
+2026-01-23 11:59 JST Update: docs/ƒtƒF[ƒY1/README.md ‚É CCS+TailGuard WŒvŒ‹‰Ê‚Ö‚ÌŽQÆ‚ð’Ç‰Áiresults/phase1_e2_ccs_tail_guard_2026-01-23_v05_v06.mdjB
+2026-01-23 12:19 JST Update: CŽm˜_•¶/chapters/ch4_rain.tex ‚ÉE2 Baseline/CCS/TailGuard”äŠr‚Ì¬ßE•\‚ð’Ç‰Á‚µA‚Ü‚Æ‚ß‰ÓŠ‚ÉE2 TailGuard‚Ì—v–ñ‚ð’Ç‹LB
+2026-01-23 12:29 JST Update: CŽm˜_•¶/chapters/ch4_rain.tex ‚ÌE2”äŠr¬ß‚ðw‚Ü‚Æ‚ßx‘O‚ÖˆÚ“®‚µA•]‰¿ƒZƒNƒVƒ‡ƒ“‚Ì—¬‚ê‚ð®—B
+2026-01-23 12:30 JST Update: CŽm˜_•¶/chapters/conclusion.tex ‚ÉE2iCCS+TailGuardjˆÊ’u•t‚¯‚Ì‰Óð‘‚«‚ð’Ç‰ÁB
+2026-01-23 12:34 JST Update: ch4_rain.tex ‚ÌE2¬ß‚ðD2b}’¼Œã‚ÖˆÚ“®‚µAE2=•â‘«•]‰¿/ŒXŒü‚Ì’ˆÓ‘‚«‚ÉC³Bconclusion.tex ‚ÌE2‰Óð‘‚«‚à•â‘«•]‰¿•\Œ»‚Ö’²®B
+2026-01-23 JST C˜_C³: ch4_rain.tex ‚ÉE2+’‹L/Žå—vKPI(Pout(2s))/metrics_definitionŽQÆ‚ð’Ç‹LAtransition_step•\‹L‚ðC³Bch8_experiment_design.tex ‚Ì¬Œ©o‚µ‚ð‘¾Žš+\par‚É•ÏXBchubuthesis.sty ‚Ì•\Ž†ƒŒƒCƒAƒEƒg’²®izw¨emj‚ÆÍƒ‰ƒxƒ‹‚ð‘æ\arabic{chapter}Í‚ÖC³Blualatex‚Åƒrƒ‹ƒh‚µ build\\main.pdf ‚ðXVAmain.pdf‚ÖƒRƒs[B
+2026-01-23 JST C˜_ƒrƒ‹ƒhC³: ch4_rain.tex ‚ÌE2”äŠr“±“ü•¶‚ð’Z•¶‰»‚µAŒ‹‰Êƒtƒ@ƒCƒ‹‚ð‰Óð‘‚«‰»Bchubuthesis.sty ‚ÌÍ”Ô†•\Ž¦‚ð‘æ\arabic{chapter}Í‚É•ÏX‚µ•\Ž†‚Ìem‰»‚ð“K—pBlualatexÄƒrƒ‹ƒhŠ®—¹ibuild\\main.pdfXVAmain.pdf‚ÉƒRƒs[jB
+[2026-01-23 15:02 JST] ä¿®å£«è«–æ–‡: ã‚¿ã‚¤ãƒˆãƒ«æž ã®å¤ªå­—ã‚’è§£é™¤ï¼ˆchubuthesis.styï¼‰ï¼‹å†ãƒ“ãƒ«ãƒ‰ã€‚build\\main.pdf ã‚’ main.pdf ã«ã‚³ãƒ”ãƒ¼ã€‚
+[2026-01-23 15:06 JST] ä¿®å£«è«–æ–‡: 'åºƒå‘Š'->'ã‚¢ãƒ‰ãƒã‚¿ã‚¤ã‚¸ãƒ³ã‚°'ã«çµ±ä¸€ï¼ˆ.tex 26ãƒ•ã‚¡ã‚¤ãƒ«, 129ç®‡æ‰€ï¼‰ã€‚å†ãƒ“ãƒ«ãƒ‰ã—ã¦ main.pdf æ›´æ–°ã€‚
+[2026-01-23 15:14 JST] ä¿®å£«è«–æ–‡: ã‚¿ã‚¤ãƒˆãƒ«æ›´æ–°ï¼ˆQoSåˆ¶ç´„ä¸‹â€¦BLEã‚¢ãƒ‰ãƒã‚¿ã‚¤ã‚¸ãƒ³ã‚°é–“éš”ã®é©å¿œåˆ¶å¾¡ï¼‰ã‚’meta.texã¸åæ˜ ã—å†ãƒ“ãƒ«ãƒ‰ã€‚main.pdfæ›´æ–°ã€‚
+[2026-01-23 15:23 JST] ä¿®å£«è«–æ–‡: Warm-startè¡¨è¨˜çµ±ä¸€ã€Pout/TLè¡¨è¨˜ã‚’æ•°å¼åŒ–ã€è¬è¾žã‚’æ›¸ãç›´ã—ã€Phase2ã®ã‚¨ãƒãƒ«ã‚®ãƒ¼è¨˜å·(e_event)æ•´åˆã€Runbook detokenizeç°¡ç•¥åŒ–ã€‚å†ãƒ“ãƒ«ãƒ‰ã—ã¦main.pdfæ›´æ–°ã€‚
+[2026-01-23 15:24 JST] ä¿®å£«è«–æ–‡: è¡¨è¨˜ã‚†ã‚Œä¿®æ­£ï¼ˆWarm-start, Pout/TLæ•°å¼åŒ–ï¼‰ã€è¬è¾žã‚’æ›¸ãæ›ãˆã€Phase2å¹³å‡ã‚¨ãƒãƒ«ã‚®ãƒ¼è¡¨è¨˜(e_event)æ•´åˆã€Runbook detokenizeç°¡ç•¥åŒ–ã€‚å†ãƒ“ãƒ«ãƒ‰ã—ã¦main.pdfæ›´æ–°ã€‚
+2026-01-23 15:41:26 JST ä¿®è«–ãƒ†ãƒ³ãƒ—ãƒ¬æ¯”è¼ƒ_2026-01-23 ã‚’è¿½åŠ ï¼ˆdocs/ãƒ•ã‚§ãƒ¼ã‚º1/ä¿®è«–ãƒ†ãƒ³ãƒ—ãƒ¬æ¯”è¼ƒ_2026-01-23/README.mdï¼‰ã€‚å¤§å­¦é…å¸ƒdocx/ç ”ç©¶å®¤clsã®è¦ä»¶ã‚’ãƒ«ãƒ¼ãƒ«åŒ–ã€‚
+2026-01-23 15:41:26 JST ä¿®å£«è«–æ–‡ãƒ†ãƒ³ãƒ—ãƒ¬æ›´æ–°ï¼ˆä¿®å£«è«–æ–‡/chubuthesis.sty: è¡Œé–“=12pt/18ptã€è¡¨ç´™ã‚¿ã‚¤ãƒˆãƒ«box=Huge+bold+fboxã€è¦æ—¨ãƒšãƒ¼ã‚¸ã®è¦‹å‡ºã—/ä¸‹ç·š/æ°åè¡¨è¨˜ã‚’ä¿®æ­£ï¼‰ã€‚
+2026-01-23 15:41:26 JST ä¿®å£«è«–æ–‡/meta.tex å¹´åº¦è¡¨è¨˜ã‚’äºŒã€‡äºŒäº”å¹´åº¦ä¿®å£«è«–æ–‡ã«æ›´æ–°ã€‚main.tex ã‚’ latexmk ã§å†ãƒ“ãƒ«ãƒ‰ã— main.pdf æ›´æ–°ã€‚
+[2026-01-23 JST] ä¿®å£«è«–æ–‡ãƒ†ãƒ³ãƒ—ãƒ¬æ•´å‚™: ã‚¿ã‚¤ãƒˆãƒ«æž ã®æ–‡å­—ã‚µã‚¤ã‚ºã‚’ \Large ã«èª¿æ•´ã—å¤ªå­—ã‚’è§£é™¤ã€æž å¹…ã‚’ textwidth ã«å¤‰æ›´ï¼ˆä¿®å£«è«–æ–‡/chubuthesis.styï¼‰ã€‚
+[2026-01-23 JST] ä¿®è«–ãƒ†ãƒ³ãƒ—ãƒ¬æ¯”è¼ƒREADMEã‚’UTF-8ã§æ›¸ãç›´ã—ã€é…å¸ƒãƒ†ãƒ³ãƒ—ãƒ¬ã®SHA256ã¨æŠ½å‡ºæ‰‹é †ã‚’æ•´ç†ï¼ˆdocs/ãƒ•ã‚§ãƒ¼ã‚º1/ä¿®è«–ãƒ†ãƒ³ãƒ—ãƒ¬æ¯”è¼ƒ_2026-01-23/README.mdï¼‰ã€‚
+[2026-01-23 JST] ä¿®å£«è«–æ–‡ã®æ›¸å¼ãƒ«ãƒ¼ãƒ«ã‚’å†ä½œæˆï¼ˆä¿®å£«è«–æ–‡/WRITING_RULES.mdï¼‰ã€‚
+[2026-01-23 JST] latexmkã§ãƒ“ãƒ«ãƒ‰ç¢ºèªï¼ˆä¿®å£«è«–æ–‡/main.pdf æ›´æ–°ï¼‰ã€‚
+[2026-01-23 JST] Updated WRITING_RULES.md with lab style (dearu tone, chapter structure, figures/tables, equations, citations).
+2026-01-23 JST CŽm˜_•¶‚Ì‘ÌÙ’²®: ŽÓŽ«‚ðŒh‘Ì‚ÉC³AƒAƒhƒoƒ^ƒCƒWƒ“ƒO•\‹L“ˆêA}•\”Ô†‚ðÍ-˜A”Ô‚Ö•ÏXAƒy[ƒW”Ô†‚ð‰E‰º“ˆêAŽQl•¶Œ£Œ©o‚µ‚ðwŽQl•¶Œ£ŽQlURLx‚ÖXVBCŽm˜_•¶/main.tex ‚Æ chubuthesis.sty “™‚ðXV‚µAlatexmk ‚Åƒrƒ‹ƒhŠm”FB
+2026-01-23 JST Overfull\hbox‘Îô: •\Ž†minipage•’²®Ach2_related_work/ch3_oncampus/ch8_experiment_design‚Ì•\‚ðtabularx‰»Aappx_h_ccs_params‚Ìs“®W‡‚Éallowbreak+‰üsAappx_d_log_schema‚Ì—ñ•’²®Blatexmk‚ÅOverfull‰ðÁŠm”FB

@@ -7,7 +7,19 @@
       "Bash(done)",
       "Bash(while read dir)",
       "Bash(du:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(python scripts/phase2_offline_eval/models/reward_model.py:*)",
+      "Bash(python scripts/phase2_offline_eval/models/constraint_model.py:*)",
+      "Bash(python scripts/phase2_offline_eval/run_offline_eval.py:*)",
+      "Bash(lualatex:*)",
+      "Bash(biber:*)",
+      "Bash(where repomix:*)",
+      "Bash(repomix:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File make_repomix.ps1)",
+      "Bash(powershell -Command \"Get-ChildItem -Path ''修士論文'' -Filter ''*.tex'' -Recurse | Select-Object -First 20 FullName\")",
+      "Bash(powershell -Command \"Test-Path -LiteralPath ''C:\\\\Users\\\\tp240\\\\Documents\\\\Research\\\\research_advertising_energy_saving\\\\修士論文''\")",
+      "Bash(powershell -Command:*)",
+      "Bash(python make_repomix.py:*)"
     ]
   }
 }

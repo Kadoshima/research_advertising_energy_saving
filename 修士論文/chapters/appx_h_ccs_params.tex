@@ -1,4 +1,4 @@
-% chapters/appx_h_ccs_params.tex --- 付録H CCS写像およびパラメータ設定
+﻿% chapters/appx_h_ccs_params.tex --- 付録H CCS写像およびパラメータ設定
 \section{CCS写像およびパラメータ設定}
 \label{sec:ccs_params}
 
@@ -21,7 +21,7 @@
     $\theta_{\mathrm{high}}$ & 0.90 & UNCERTAIN$\leftrightarrow$QUIETの閾値（上り） \\
     $h$ & 0.05 & ヒステリシス幅（下りは$\theta-h$） \\
     $t_{\min}$ & \SI{2}{\second} & 最小滞在時間（切替の振動抑制） \\
-    行動集合 & $\{100,500,2000\}$ ms & Phase 1の最小構成（拡張候補は$\{100,500,1000,2000\}$） \\
+    行動集合 & $\{100,\allowbreak 500,\allowbreak 2000\}\,\si{\milli\second}$ & Phase 1の最小構成\newline（拡張候補は$\{100,\allowbreak 500,\allowbreak 1000,\allowbreak 2000\}$） \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -29,8 +29,9 @@
 \subsection{ログへの記録項目}
 方策の説明可能性と再現性のため，少なくとも以下をTXログに記録する．
 \begin{itemize}
-  \item $U,S,\mathrm{CCS}$と，選択した広告間隔$a$
+  \item $U,S,\mathrm{CCS}$と，選択したアドバタイジング間隔$a$
   \item $\theta_{\mathrm{low/high}}$，ヒステリシス幅$h$，最小滞在時間$t_{\min}$
   \item 切替理由（\texttt{\detokenize{reason}}）
 \end{itemize}
 これにより，結果図表の背後にある意思決定とパラメータを監査できる．
+

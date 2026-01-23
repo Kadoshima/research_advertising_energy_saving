@@ -1,0 +1,23 @@
+\addvspace {10\jsc@mpt }
+\addvspace {10\jsc@mpt }
+\addvspace {10\jsc@mpt }
+\addvspace {10\jsc@mpt }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces 三ノード計測系のシステムアーキテクチャ}}{24}{figure.caption.40}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces 計測系の外観（TX/TXSD/RXの三ノード構成）}}{27}{figure.caption.47}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces 計測ノードの外観}}{28}{figure.caption.48}%
+\addvspace {10\jsc@mpt }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces ストレス固定（scan90）の主要指標（v5）}}{34}{figure.caption.54}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces ストレス固定における実測と簡易モデルの比較（例）}}{35}{figure.caption.56}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces ストレス固定におけるscan50とscan90の比較（例：PDR\_unique，v5）}}{35}{figure.caption.58}%
+\contentsline {figure}{\numberline {5.4}{\ignorespaces 制約充足領域の可視化（オフライン評価, $\epsilon =0.1$）}}{38}{figure.caption.61}%
+\contentsline {figure}{\numberline {5.5}{\ignorespaces Paretoプロット（オフライン評価, 行動集合$\{100,500\}$）}}{38}{figure.caption.63}%
+\contentsline {figure}{\numberline {5.6}{\ignorespaces D2bの平均電力と$P_{\mathrm {out}}(1\mathrm {s})$（初期試行＋追加試行, n=6）}}{41}{figure.caption.69}%
+\contentsline {figure}{\numberline {5.7}{\ignorespaces U/CCSの役割分離と頑健性（S4，D3/D4/D4B）}}{44}{figure.caption.79}%
+\contentsline {figure}{\numberline {5.8}{\ignorespaces $\hat {\rho }_{100}$と$P_{\mathrm {out}}(1\mathrm {s})$の関係（D3/D4/D4B）}}{46}{figure.caption.85}%
+\contentsline {figure}{\numberline {5.9}{\ignorespaces D4B run01の失敗イベント例（\texttt {transition_step=1128}）}}{47}{figure.caption.87}%
+\contentsline {figure}{\numberline {5.10}{\ignorespaces D4B run01の遅延分布の裾（TL$>\SI {1}{\second }$）に対する寄与分析}}{48}{figure.caption.89}%
+\contentsline {figure}{\numberline {5.11}{\ignorespaces D4B run01の条件付きタイミング分析}}{49}{figure.caption.91}%
+\contentsline {figure}{\numberline {5.12}{\ignorespaces 累積Regret推移（Safe-UCB vs UCB vs Fixed-CCS）}}{54}{figure.caption.104}%
+\contentsline {figure}{\numberline {5.13}{\ignorespaces 制約違反率推移（should be $\le \epsilon $）}}{55}{figure.caption.106}%
+\contentsline {figure}{\numberline {5.14}{\ignorespaces 平均エネルギー推移（lower is better）}}{56}{figure.caption.108}%
+\addvspace {10\jsc@mpt }

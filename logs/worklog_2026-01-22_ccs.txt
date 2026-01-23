@@ -1,0 +1,118 @@
+2026-01-22 03:20:47 JST TX_BLE_Adv_CCS_Sweep compiled+uploaded via arduino-cli to COM6 after MCP transport reset; serial_capture python processes stopped to free COM6.
+2026-01-22 09:46:55 JST TX_SYNC_PULSE_TEST sketch created and uploaded to COM6 for START/END pulse wiring verification.
+2026-01-22 10:07:00 JST Restored TX_BLE_Adv_CCS_Sweep firmware to COM6 after pulse test.
+2026-01-22 10:46:52 JST Set REPS_PER_MODE=1 (1 boot=1 trial) and uploaded TX_BLE_Adv_CCS_Sweep to COM6.
+
+--------------------------------------------------------------------------------
+# å¼•ç¶™ãï¼šPhase1 E2/CCSå®Ÿé¨“ï¼ˆ1boot=1trialé‹ç”¨ï¼‰
+
+## 1. ç¾çŠ¶
+
+- **é‹ç”¨æ–¹é‡**: 1boot=1trialï¼ˆTXãƒªãƒ–ãƒ¼ãƒˆã§1è©¦è¡Œï¼‰
+- **æœ€æ–°ãƒ­ã‚°ï¼ˆserial_captureï¼‰**:
+    - `logs/serial_capture/serial_COM6_20260122_100907_phase1_e2_ccs_v01.log`
+    - `logs/serial_capture/serial_COM8_20260122_100907_phase1_e2_ccs_v01.log`
+    - `logs/serial_capture/serial_COM9_20260122_100907_phase1_e2_ccs_v01.log`
+- **æœ€æ–°çŠ¶æ³**:
+    - RX: `endTrial reason=TRIAL_TIMEOUT` ã‚ã‚Šï¼ˆtrial1å®Œäº†ï¼‰
+    - TXSD: `endTrial` å‡ºãšï¼ˆtrial1é›»åŠ›æ¬ æï¼‰
+
+## 2. å®Ÿæ–½æ¸ˆã¿ãƒ†ã‚¹ãƒˆï¼ˆSYNCé…ç·šæ¤œè¨¼ï¼‰
+
+- **æ¤œè¨¼ç”¨ã‚¹ã‚±ãƒƒãƒ**: `C:\Users\tp240\Documents\Arduino_MCP_Sketches\TX_SYNC_PULSE_TEST\TX_SYNC_PULSE_TEST.ino`
+- **ãƒ­ã‚°ï¼ˆSYNCãƒ‘ãƒ«ã‚¹æ¤œå‡ºï¼‰**:
+    - `logs/serial_capture/serial_COM6_20260122_100019_tx_pulse_test.log`
+    - `logs/serial_capture/serial_COM8_20260122_100019_tx_pulse_test.log`
+    - `logs/serial_capture/serial_COM9_20260122_100019_tx_pulse_test.log`
+- **çµæœ**: GPIO26(START)ãƒ»GPIO25(END)ã¨ã‚‚RX/TXSDã§å—ä¿¡ã§ãã‚‹ â†’ é…ç·š/å—ä¿¡å´ã®å•é¡Œã§ã¯ãªã„ã“ã¨ã‚’ç¢ºèªæ¸ˆã¿
+
+## 3. æœ¬ç•ªãƒ•ã‚¡ãƒ¼ãƒ ï¼ˆTX/RX/TXSDï¼‰
+
+- **TXæœ¬ç•ª**:
+    - `C:\Users\tp240\Documents\Arduino_MCP_Sketches\TX_BLE_Adv_CCS_Sweep\TX_BLE_Adv_CCS_Sweep.ino`
+    - `REPS_PER_MODE=1` ã«å¤‰æ›´æ¸ˆã¿ï¼ˆ1boot=1trialï¼‰
+- **TXã‚½ãƒ¼ã‚¹ï¼ˆç ”ç©¶repoå´ï¼‰**: `esp32_firmware/20260121_phase1_e2_ccs/TX_BLE_Adv_CCS_Mode.ino`
+- **RX**: `esp32_firmware/20260121_phase1_e2_ccs/RX_CCS_E2.ino`
+- **TXSD**: `esp32_firmware/20260121_phase1_e2_ccs/TXSD_CCS_E2.ino`
+
+## 4. è¨ˆæ¸¬ãƒ­ã‚°ãƒ»ãƒ‡ãƒ¼ã‚¿
+
+- **serial_captureå®Ÿè¡Œã‚³ãƒãƒ³ãƒ‰**:
+  ```bash
+  python scripts/serial_capture.py --ports COM6,COM8,COM9 --baud 115200 --out-dir logs/serial_capture --duration 0 --tag phase1_e2_ccs_v01
+  ```
+- **RX CSV**: `/logs/rx_*.csv`ï¼ˆSDã‚«ãƒ¼ãƒ‰ï¼‰
+- **TXSD CSV**: `/logs/pwr_*.csv`ï¼ˆSDã‚«ãƒ¼ãƒ‰ï¼‰
+
+## 5. E2ç’°å¢ƒã®æ¡ä»¶ï¼ˆå¹²æ¸‰ç’°å¢ƒï¼‰
+
+- APã‚’è£…ç½®ç›´ä¸‹ã«é…ç½®ã€2.4GHz ON
+- å¼·ã„APä¿¡å·ï¼šç´„ -20dBm
+- ä»–Wi-Fiï¼š-40ã€œ-48dBm
+- å‘¨æ³¢æ•°å¸¯ï¼š2412â€“2472MHz
+- æ¸¬å®šã‚¢ãƒ—ãƒªï¼šAnaliti
+
+## 6. ä½œæ¥­ãƒ­ã‚°
+
+- `logs/worklog_2026-01-22_ccs.txt`ï¼ˆæœ¬ãƒ•ã‚¡ã‚¤ãƒ«ï¼‰
+- TXæ›¸ãè¾¼ã¿/REPS_PER_MODEå¤‰æ›´ãªã©è¨˜éŒ²æ¸ˆã¿
+
+## 7. æœ¬æ¥ã®å‹•ãï¼ˆæœŸå¾…å€¤ï¼‰
+
+1. TXãƒªãƒ–ãƒ¼ãƒˆ
+2. RX/TXSD `startTrial`
+3. 10åˆ†å¾Œã« `endTrial`
+4. 1trialå®Œäº†ï¼ˆé›»åŠ›ï¼‹RXã‚»ãƒƒãƒˆï¼‰
+
+## 8. ç¾åœ¨ã®èª²é¡Œ
+
+
+
+- **TXã®å‹•ä½œåœæ­¢ï¼ˆæœ€é‡è¦ï¼‰**:
+
+    - TXãƒ­ã‚°ï¼ˆCOM6ï¼‰ãŒ `t=545s` ä»˜è¿‘ã§é€”çµ¶ã—ã¦ãŠã‚Šã€`SESSION END` ãŒå‡ºåŠ›ã•ã‚Œã¦ã„ãªã„ã€‚
+
+    - ã“ã‚Œã«ã‚ˆã‚Š ENDãƒ‘ãƒ«ã‚¹ï¼ˆGPIO25ï¼‰ãŒç”Ÿæˆã•ã‚Œãšã€RX/TXSDãŒå…±ã«ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆã—ã¦ã„ã‚‹ã€‚
+
+    - åŸå› ã¨ã—ã¦ TXã®USBåˆ‡æ–­ã€é›»æºä¸å®‰å®šã€ã¾ãŸã¯ãƒ•ã‚¡ãƒ¼ãƒ ã‚¦ã‚§ã‚¢ã®ãƒãƒ³ã‚°ã‚¢ãƒƒãƒ—ãŒç–‘ã‚ã‚Œã‚‹ã€‚
+
+- TXSDãŒ `endTrial` ã‚’å‡ºã•ãªã„trialãŒç™ºç”Ÿ
+
+    - ï¼ˆå¯¾å‡¦æ¸ˆï¼‰TXSDã‚³ãƒ¼ãƒ‰ã«å‰²ã‚Šè¾¼ã¿ï¼ˆISRï¼‰ã«ã‚ˆã‚‹ENDãƒ‘ãƒ«ã‚¹æ¤œå‡ºã‚’è¿½åŠ ã€‚æ›¸ãè¾¼ã¿å¾…ã¡ã€‚
+
+- é›»åŠ›è©•ä¾¡ã¯æ¬ ææ‰±ã„
+
+- RXã®ã¿å®Œèµ°ã™ã‚‹ã‚±ãƒ¼ã‚¹ã‚ã‚Š
+2026-01-22 JST TX_CCS table fix: copied ccs_session_data.h (600 entries) into Arduino_MCP_Sketches\\TX_BLE_Adv_CCS_Sweep; upload to COM6 attempted but failed (port busy).
+2026-01-22 JST TX_BLE_Adv_CCS_Sweep set SESSION_DURATION_S=100 and uploaded to COM6 (short diagnostic run).
+2026-01-22 JST TX_BLE_Adv_CCS_Sweep set REPS_PER_MODE=5 (5 trials per boot) and uploaded to COM6.
+2026-01-22 JST Copied TXSD pwr_*.csv (5 files) from D:\\logs to data\\ÀŒ±ƒf[ƒ^\\Œ¤‹†º\\phase1_e2_ccs_2026-01-22_v03\\TXSD.
+2026-01-22 JST Copied RX rx_*.csv (5 files) from D:\\logs to data\\ÀŒ±ƒf[ƒ^\\Œ¤‹†º\\phase1_e2_ccs_2026-01-22_v03\\RX.
+2026-01-22 JST Created manifest.csv and README.md for data\\ÀŒ±ƒf[ƒ^\\Œ¤‹†º\\phase1_e2_ccs_2026-01-22_v03 (E2 CCS v03, 5 trials) with SHA256 lists.
+2026-01-22 JST Ran scripts/analyze_ccs_experiment.py on staged input results\\phase1_e2_ccs_2026-01-22_v03_input (E2/CCS). Renamed RX files in staging to match TXSD trial_id and removed prog_id column for analysis. Outputs: results\\phase1_e2_ccs_2026-01-22_v03.md + .json.
+2026-01-22 JST Updated phase1_e2_ccs_2026-01-22_v03 README and manifest notes to external power per user confirmation.
+2026-01-22 14:23:23 JST TL/Pout•â³: analyze_ccs_experiment.py ‚ğC³(}¨+/-)‚µÄÀsBo—ÍXV: results/phase1_e2_ccs_2026-01-22_v03.md, .json
+2026-01-22 14:29:05 JST Phase1“]‹L: docs/ƒtƒF[ƒY1/—vŒ’è‹`.md ‚ÉE2/CCS v03Œ‹‰Ê’Ç‰Á, docs/ƒtƒF[ƒY1/phase1_e2_ccs_2026-01-22/README.md ì¬, docs/ƒtƒF[ƒY1/README.md XV
+2026-01-22 14:39:46 JST Baseline€”õ: TX_BLE_Adv_CCS_Sweep ‚ğŒÅ’è100/2000ms~Še3‰ñ‚É•ÏXBarduino-cli compile/upload‚Í VCRUNTIME140.dll ’ŠoŒ ŒÀƒGƒ‰[‚Å¸”s
+2026-01-22 15:18:00 JST ˆøŒp‚¬ì¬: docs/ƒtƒF[ƒY1/phase1_e2_baseline_debug_2026-01-22/README.md ‚ğ’Ç‰Á
+2026-01-22 20:03:07 JST Baseline v01: RX‰ñû(D:\\logs)‚ğ phase1_e2_baseline_2026-01-22_v01/RX ‚ÉƒRƒs[Amanifest.csv/README.md ì¬iTXSD‰ñû‘Ò‚¿j
+2026-01-22 20:05:29 JST Baseline v01: TXSD‰ñû(D:\\logs)‚ğ phase1_e2_baseline_2026-01-22_v01/TXSD ‚ÉƒRƒs[AREADME.md ‚ğs”/SHA256‚İ‚ÅXV
+2026-01-22 20:13:39 JST Baseline‰ğÍ: results/phase1_e2_baseline_2026-01-22_v01.md/.json ì¬Bdocs/ƒtƒF[ƒY1/—vŒ’è‹`.md ‚ÉE2 Baseline/CCS”äŠr”½‰fBdocs/ƒtƒF[ƒY1/phase1_e2_baseline_2026-01-22/README.md ì¬
+2026-01-22 20:15:11 JST Baseline v01‰ğÍ: results/phase1_e2_baseline_2026-01-22_v01_input ‚ğ FIXED100/FIXED2000 \¬‚É®—‚µAprog_id—ñœ‹Œã‚É‰ğÍBdocs/ƒtƒF[ƒY1/phase1_e2_baseline_2026-01-22/README.md ‚ğXV
+2026-01-22 20:16:09 JST Baseline v01: data/ÀŒ±ƒf[ƒ^/Œ¤‹†º/phase1_e2_baseline_2026-01-22_v01/README.md ‚ğUTF-8‚ÅÄ¶¬is”/SHA256”½‰fj
+2026-01-22 20:31 JST Phase1 E2 ”äŠr•\ì¬idocs/ƒtƒF[ƒY1/phase1_e2_compare_2026-01-22/README.mdj‚Æ“‡ƒTƒ}ƒŠXVidocs/ƒtƒF[ƒY1/ÀŒ±Œ‹‰Ê_“‡ƒTƒ}ƒŠ_2026-01-12.mdAdocs/ƒtƒF[ƒY1/README.mdjB
+2026-01-22 21:23 JST Phase1 E2‚ÌÀ{ó‹µ‚ğ”½‰fidocs/ƒtƒF[ƒY1/Œ»ó®—_2026-01-12.md, docs/ƒtƒF[ƒY1/ÀŒ±İŒv‘.mdjB
+2026-01-22 21:35 JST Phase1 E2”äŠr‚Ìl@ƒƒ‚‚ğ’Ç‹Lidocs/ƒtƒF[ƒY1/phase1_e2_compare_2026-01-22/README.md, docs/ƒtƒF[ƒY1/ÀŒ±Œ‹‰Ê_“‡ƒTƒ}ƒŠ_2026-01-12.mdjBCCS/BaselineƒŒƒ|[ƒg‚ÌŠÖ˜AƒŠƒ“ƒNC³B
+2026-01-22 21:57 JST - docs/ƒtƒF[ƒY1/phase1_e2_analysis_plan_2026-01-22/README.md ‚ğì¬iPhase1 E2/CCS vs Baseline •ªÍˆË—ŠƒpƒbƒP[ƒW‚ğ•Û‘¶jB
+2026-01-22 22:18 JST TX_BLE_Adv_CCS_Mode ‚É tail guard (2000ms/100ms) À‘•AFW_TAGXVBArduino_MCP_Sketches ‘¤‚É”½‰f‚µ esp32:esp32:esp32wroverkit ‚ÅƒRƒ“ƒpƒCƒ‹¬Œ÷BCOM6 ‚Ö‚ÌƒAƒbƒvƒ[ƒh‚Íƒ|[ƒg–¢ŒŸo‚Å¸”sB
+2026-01-22 22:35 JST TX_BLE_Adv_CCS_Mode tail-guard”Å‚Å REPS_PER_MODE=5 ‚É•ÏX‚µCOM6‚Ö‘‚«‚İŠ®—¹B
+2026-01-22 22:49 JST - Phase1 E2•ªÍ: scripts/phase1_e2_analysis_package.py ’Ç‰ÁBresults/phase1_e2_ci_summary.md/.csv, results/phase1_e2_tradeoff_plot.png, results/phase1_e2_tail_note.md ‚ğ¶¬B
+2026-01-23 07:25 JST SYNCƒpƒ‹ƒXƒXƒgƒŒƒX—pƒXƒPƒbƒ`‚ğ‘‚«‚İiTX=COM6, RX=COM9, TXSD=COM8jBRX/TXSD‚ÍRX_SYNC_PULSE_STRESS/TXSD_SYNC_PULSE_STRESSATX‚ÍTX_SYNC_PULSE_STRESSB
+2026-01-23 07:49:04 JST  TX_BLE_Adv_CCS_Mode: WDT(15s)’Ç‰Á; TXSD_CCS_E2: no-tickŒŸo(8s)‚ÆENDŠ„‚è‚İ®”õ‚ğrepo/Arduino_MCP_Sketches‚É”½‰fBCOM8‚ªbusy‚Å‘‚«‚İ¸”sAserial_capture’â~‚ª•K—vB
+2026-01-23 07:55:30 JST  TX_BLE_Adv_CCS_Mode recompiled+uploaded to COM6 (WDT config struct); TXSD_CCS_E2 recompiled+uploaded to COM8 (no-tick detection + END ISR).
+2026-01-23 08:57 JST - Phase1 E2•ªÍÄ¶¬: TL p95c²‚Ìtradeoff}‚ÉØ‘ÖAbootstrap n_boot=20000, seed=20260123‚ÅÄŒvZBo—Í: results/phase1_e2_ci_summary.md/.csv, results/phase1_e2_tradeoff_plot.png, results/phase1_e2_tail_note.mdB
+2026-01-23 10:45 JST - tradeoff}‚Ì‘ÌÙ‚ğ˜_•¶Œü‚¯‚É‰ü‘PiƒtƒHƒ“ƒg/ü•/—]”’/–}—ájBresults/phase1_e2_tradeoff_plot.png ‚ğXVB
+2026-01-23 10:46 JST - tradeoff}‚ğTL p95‚Ìlog²‚É•ÏX‚µA—‚¿’…‚¢‚½F–¡‚É’²®Bresults/phase1_e2_tradeoff_plot.png ‚ğXVB
+2026-01-23 10:49 JST - tradeoff}‚Ìlog²–Ú·‚è‚ğ’²®iy²‚É•¡”ƒeƒBƒbƒN•\¦A”ÍˆÍ©“®’²®jBresults/phase1_e2_tradeoff_plot.png ‚ğXVB
+2026-01-23 10:56 JST - TL p50—ptradeoff}‚ğ’Ç‰Á¶¬Bresults/phase1_e2_tradeoff_plot_p50.png ‚ğì¬B
+2026-01-23 11:50 JST - tradeoff}‚ÌTL p95‚ğüŒ`²‚É–ß‚µ‚ÄÄ¶¬Bresults/phase1_e2_tradeoff_plot.png ‚ğXVB
