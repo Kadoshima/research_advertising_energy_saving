@@ -1,11 +1,11 @@
-﻿% chapters/ch3_system_design.tex --- 構成要素：問題設定とシステム設計
+% chapters/ch3_system_design.tex --- 構成要素：問題設定とシステム設計
 \section{問題設定とシステム設計}
 
-\subsection{World Model}
+\subsection{世界モデル（World Model）}
 本研究は，アプリケーション層（HAR）と通信層（BLEアドバタイジング）を跨ぐクロスレイヤー制御である．このため，単にアドバタイジング間隔を調整するだけでなく，「どの情報がどこで生成され，どこで観測されるか」を明確にする必要がある．本節では，アクター（構成要素）とシステム要件（Capabilities）を整理し，議論の前提を固定する．
 
 \subsubsection{アクター（構成要素）}
-表\ref{tab:actors}に，本研究で扱うアクターを示す．
+\tabref{tab:actors}に，本研究で扱うアクターを示す．
 
 \begin{table}[tb]
   \centering
@@ -35,7 +35,7 @@
 \end{enumerate}
 
 \subsection{主要評価指標と設計方針}
-本研究では，評価軸を明確化するため，主要評価指標を定義する．表\ref{tab:kpi}に主要・補助評価指標を示す．主要評価指標は「省電力」と「期限超過」の同時評価を担い，補助評価指標は補足指標として扱う．
+本研究では，評価軸を明確化するため，主要評価指標を定義する．\tabref{tab:kpi}に主要・補助評価指標を示す．主要評価指標は「省電力」と「期限超過」の同時評価を担い，補助評価指標は補足指標として扱う．
 
 \begin{table}[tb]
   \centering
@@ -72,5 +72,6 @@
 
 \subsection{フェーズ設計（Phase 1 → Phase 2）}
 Phase 1では，ルールベース方策で「計測・指標・実機実装」を成立させることを優先する．特に，TL/Poutの定義と時間同期，電力計測の健全化は，学習以前に必須である．Phase 2では，コンテキスト（$U,S$）と行動（アドバタイジング間隔）の選択をSafe Contextual Banditとして定式化し，環境差に適応しつつQoS制約を守る枠組みを検証する．
+
 
 

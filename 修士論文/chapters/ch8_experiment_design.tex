@@ -1,4 +1,4 @@
-﻿% chapters/ch8_experiment_design.tex --- 構成要素：実験設計
+% chapters/ch8_experiment_design.tex --- 構成要素：実験設計
 \section{実験設計}
 \label{sec:experiment_design}
 
@@ -14,8 +14,8 @@ Phase 1の実験目的は，ルールベース方策（CCS→アドバタイジ�
 \subsubsection{環境条件}
 実験は，距離，受信端末，スキャン設定等を固定し，端末内比較として実施する．干渉状況の違いは外的要因として扱い，必要に応じて環境を分けて評価する．
 
-\textbf{干渉環境の分類}\par
-BLEとWi-Fiは同一の2.4\,GHz帯を共有するため，Wi-Fi干渉がBLE通信品質に影響する．本研究では，Wi-Fiアナライザアプリ（Analiti等）で計測した最強APのRSSIに基づき，干渉環境を表\ref{tab:env_interference}のように分類する．主結果はE1（低干渉）で取得し，E2/E2+は干渉耐性の補足評価として扱う．
+干渉環境の分類\par
+BLEとWi-Fiは同一の2.4\,GHz帯を共有するため，Wi-Fi干渉がBLE通信品質に影響する．本研究では，Wi-Fiアナライザアプリ（Analiti等）で計測した最強APのRSSIに基づき，干渉環境を\tabref{tab:env_interference}のように分類する．主結果はE1（低干渉）で取得し，E2/E2+は干渉耐性の補足評価として扱う．
 
 \begin{table}[tb]
   \centering
@@ -32,8 +32,8 @@ BLEとWi-Fiは同一の2.4\,GHz帯を共有するため，Wi-Fi干渉がBLE通�
   \end{tabular}
 \end{table}
 
-\textbf{受信設定}\par
-表\ref{tab:env_conditions}に，主結果で固定した受信端末とスキャン設定を整理する．
+受信設定\par
+\tabref{tab:env_conditions}に，主結果で固定した受信端末とスキャン設定を整理する．
 
 \begin{table}[tb]
   \centering
@@ -95,7 +95,7 @@ BLEとWi-Fiは同一の2.4\,GHz帯を共有するため，Wi-Fi干渉がBLE通�
 
 平均電力$\overline{P}$や総エネルギー$E$，およびアドバタイジング回数で正規化した$\Delta E/N_{\mathrm{adv}}$等は従属指標として併用し，計測健全性の監査（単位・欠損）と原因切り分けに用いる．
 
-\subsubsection{TLと$P_{\mathrm{out}}(\tau)$}
+\subsubsection{\texorpdfstring{TLと$P_{\mathrm{out}}(\tau)$}{TLとPout(tau)}}
 イベント$j$の遅延を$\mathrm{TL}_j$とすると，
 \begin{equation}
   P_{\mathrm{out}}(\tau)=\frac{1}{N_{\mathrm{event}}}\sum_{j=1}^{N_{\mathrm{event}}}\mathbb{I}[\mathrm{TL}_j>\tau]
@@ -120,4 +120,5 @@ BLEとWi-Fiは同一の2.4\,GHz帯を共有するため，Wi-Fi干渉がBLE通�
 
 \subsection{まとめ}
 本節では，Phase 1における実験目的と条件，セッション構成，指標算出，およびリスク対策を整理した．次章では，TL/Poutの定義を実測に基づいて固定し，時間同期の手順（v5）を示す．
+
 

@@ -14,7 +14,7 @@ PDRは，アドバタイジングイベント数に対して受信できた割�
 \end{equation}
 $\mathrm{PDR}_{\mathrm{raw}}$は重複受信により1を超え得るため，到達性の比較（QoS用途）では$\mathrm{PDR}_{\mathrm{unique}}$を優先する．分母$N_{\mathrm{adv}}$は，可能な場合はTICKにより物理カウントした値を正とし，利用できない場合は試行時間とアドバタイジング間隔から推定する（動的切替では誤差が入り得る）．
 
-\subsection{TLと$P_{\mathrm{out}}(\tau)$}
+\subsection{\texorpdfstring{TLと$P_{\mathrm{out}}(\tau)$}{TLとPout(tau)}}
 TLは，イベント後に最初に受信されるまでの遅延である．$P_{\mathrm{out}}(\tau)$は，TLが期限$\tau$を超える確率として定義する．TL/Poutの算出では，受信ログの時間軸と真値（truth）の時間軸の一致が必要であり，開始位相ずれがある場合は定数オフセットで補正する（\secref{sec:stress_fixed_metrics}）．
 
 真値（truth）における状態遷移（イベント）時刻を$t_{\mathrm{event},j}$，その後に初めて正しいラベル（または該当イベントに対応する識別子）が受信される時刻を$t_{\mathrm{rx},j}$とする．ログ上の時刻はmsで記録されるため，TLは秒単位に変換して扱う．
@@ -36,7 +36,7 @@ P_{\mathrm{out}}(\tau)=\frac{1}{N_{\mathrm{event}}}\sum_{j=1}^{N_{\mathrm{event}
 \end{equation}
 と定義し，真値系列を$[0,\mathrm{EFFECTIVE\_LEN}]$にクリップしてイベント数$N_{\mathrm{event}}$を数える．これにより，「末端遷移が試行区間外に出る」ことによる$N_{\mathrm{event}}$の不一致を避け，trial間比較の安定性を確保する．動的切替では試行の切り出し条件が揺らぎやすいため，EFFECTIVE\_LENを明示して分母を固定することが重要である（背景と実装上の理由は\secref{sec:stress_fixed_metrics}）．
 
-\subsection{電荷と$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）}
+\subsection{\texorpdfstring{電荷と$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）}{電荷とq_event（uC/event）}}
 本研究の一次KPIである$q_{\mathrm{event}}$は，セッション中の電荷消費をイベント数で正規化した指標である．電力やエネルギーは電圧に依存するため，バッテリ消費の観点では電荷（Coulomb count）で整理すると解釈が容易である．
 
 電流を$I(t)$とすると，総電荷$Q$は

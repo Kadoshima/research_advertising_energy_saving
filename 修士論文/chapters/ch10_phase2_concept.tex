@@ -1,4 +1,4 @@
-﻿% chapters/ch10_phase2_concept.tex --- Phase 2概念実証: Safe Contextual Bandit
+% chapters/ch10_phase2_concept.tex --- Phase 2概念実証: Safe Contextual Bandit
 \section{Safe Contextual Banditへの拡張可能性（概念実証）}
 \label{sec:phase2_concept}
 
@@ -18,12 +18,12 @@ Safe Contextual Banditは，コンテキスト$x$に応じて行動$a$を選択�
 
 本研究では以下のように定義する：
 \begin{itemize}
-  \item \textbf{コンテキスト} $x$: CCS（複合スコア）$\in [0,1]$
-  \item \textbf{行動集合} $A$: アドバタイジング間隔 $\{500, 1000, 2000\}\,\si{\milli\second}$
-  \item \textbf{報酬} $r(a)$: $-e_{\mathrm{event}}(a)$（負のエネルギー消費，最大化＝省電力化）
-  \item \textbf{制約} $g(x,a)$: $P_{\mathrm{out}}(\tau \mid x,a) \le \epsilon$
-  \item \textbf{許容遅延} $\tau$: \SI{1.0}{\second}
-  \item \textbf{制約閾値} $\epsilon$: 0.10（10\%）
+  \item コンテキスト $x$: CCS（複合スコア）$\in [0,1]$
+  \item 行動集合 $A$: アドバタイジング間隔 $\{500, 1000, 2000\}\,\si{\milli\second}$
+  \item 報酬 $r(a)$: $-e_{\mathrm{event}}(a)$（負のエネルギー消費，最大化＝省電力化）
+  \item 制約 $g(x,a)$: $P_{\mathrm{out}}(\tau \mid x,a) \le \epsilon$
+  \item 許容遅延 $\tau$: \SI{1.0}{\second}
+  \item 制約閾値 $\epsilon$: 0.10（10\%）
 \end{itemize}
 
 行動集合から\SI{100}{\milli\second}を除外したのは，Phase 1の結果から\SI{500}{\milli\second}以上で主な省電力効果が得られることが確認されたためである．将来的には\SI{100}{\milli\second}を含む4行動への拡張も可能である．
@@ -36,7 +36,7 @@ Safe-UCB（Safe Upper Confidence Bound）は，各行動の報酬UCB値を計算
 \subsection{シミュレーション設定}
 
 \subsubsection{報酬モデル（実測データベース）}
-Phase 1のΔE基準実験（\texttt{deltae\_v3rig\_sweep\_2026-01-21\_v02}）から，各アドバタイジング間隔のエネルギー消費実測値を報酬モデルとして使用する．表\ref{tab:phase2_reward_model}に，シミュレーションで使用した報酬モデルの値を示す．なお，本シミュレーションでは電力計測から得たエネルギー（$\si{\micro\joule}/\text{event}$）を使用しており，一次KPIの電荷（$q_{\mathrm{event}}$, $\si{\micro\coulomb}/\text{event}$）とは電圧を介した換算が必要となる．一定電圧下では両者は線形関係にあるため，相対比較には影響しない．
+Phase 1のΔE基準実験（\texttt{deltae\_v3rig\_sweep\_2026-01-21\_v02}）から，各アドバタイジング間隔のエネルギー消費実測値を報酬モデルとして使用する．\tabref{tab:phase2_reward_model}に，シミュレーションで使用した報酬モデルの値を示す．なお，本シミュレーションでは電力計測から得たエネルギー（$\si{\micro\joule}/\text{event}$）を使用しており，一次KPIの電荷（$q_{\mathrm{event}}$, $\si{\micro\coulomb}/\text{event}$）とは電圧を介した換算が必要となる．一定電圧下では両者は線形関係にあるため，相対比較には影響しない．
 
 \begin{table}[tb]
   \centering
@@ -55,7 +55,7 @@ Phase 1のΔE基準実験（\texttt{deltae\_v3rig\_sweep\_2026-01-21\_v02}）か
 
 \subsubsection{制約モデル（推定値）}
 \label{sec:constraint_model_limitation}
-制約モデルのPout値は，Phase 1実験データから直接抽出できなかったため，アドバタイジング間隔と遅延の理論的関係に基づく推定値を使用した．表\ref{tab:phase2_constraint_model}に，シミュレーションで使用した制約モデルの値を示す．
+制約モデルのPout値は，Phase 1実験データから直接抽出できなかったため，アドバタイジング間隔と遅延の理論的関係に基づく推定値を使用した．\tabref{tab:phase2_constraint_model}に，シミュレーションで使用した制約モデルの値を示す．
 
 \begin{table}[tb]
   \centering
@@ -78,10 +78,10 @@ Phase 1のΔE基準実験（\texttt{deltae\_v3rig\_sweep\_2026-01-21\_v02}）か
 \subsubsection{比較手法}
 以下の4手法を比較する：
 \begin{itemize}
-  \item \textbf{Safe-UCB}（提案）: 制約を守りながら探索
-  \item \textbf{UCB}（制約なし）: 報酬のみ最大化
-  \item \textbf{Fixed-CCS}（Phase 1写像）: ルールベース，学習なし
-  \item \textbf{Oracle}（理論上界）: 真の最適行動を常に選択
+  \item Safe-UCB（提案）: 制約を守りながら探索
+  \item UCB（制約なし）: 報酬のみ最大化
+  \item Fixed-CCS（Phase 1写像）: ルールベース，学習なし
+  \item Oracle（理論上界）: 真の最適行動を常に選択
 \end{itemize}
 
 \subsubsection{シミュレーション条件}
@@ -93,18 +93,18 @@ Phase 1のΔE基準実験（\texttt{deltae\_v3rig\_sweep\_2026-01-21\_v02}）か
 
 \subsection{結果}
 
-\subsubsection{累積Regret}
-図\ref{fig:phase2_regret}に，各手法の累積Regret（Oracleとの差分）を示す．Safe-UCBは，UCB（制約なし）に比べて初期の探索が抑制されるが，安全行動集合内での最適化により，最終的にはUCBと同等のRegretに収束する．Fixed-CCS（Phase 1写像）は学習しないため，Regretが蓄積し続ける．
+\subsubsection{累積後悔（Regret）}
+\figref{fig:phase2_regret}に，各手法の累積後悔（Regret，Oracleとの差分）を示す．Safe-UCBは，UCB（制約なし）に比べて初期の探索が抑制されるが，安全行動集合内での最適化により，最終的にはUCBと同等のRegretに収束する．Fixed-CCS（Phase 1写像）は学習しないため，Regretが蓄積し続ける．
 
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.95\linewidth]{figures/phase2_regret_curve}
-  \caption{累積Regret推移（Safe-UCB vs UCB vs Fixed-CCS）}
+  \caption{累積後悔（Regret）推移（Safe-UCB vs UCB vs Fixed-CCS）}
   \label{fig:phase2_regret}
 \end{figure}
 
 \subsubsection{制約違反率}
-図\ref{fig:phase2_violation}に，各手法の制約違反率の推移を示す．Safe-UCBは制約$\epsilon=0.10$を常に満たす一方，UCB（制約なし）は初期に違反が発生する可能性がある．本シミュレーションでは，報酬モデルと制約モデルの設定により，いずれの手法も最終的に違反率が低く抑えられているが，これは推定値の設定に依存する．
+\figref{fig:phase2_violation}に，各手法の制約違反率の推移を示す．Safe-UCBは制約$\epsilon=0.10$を常に満たす一方，UCB（制約なし）は初期に違反が発生する可能性がある．本シミュレーションでは，報酬モデルと制約モデルの設定により，いずれの手法も最終的に違反率が低く抑えられているが，これは推定値の設定に依存する．
 
 \begin{figure}[tb]
   \centering
@@ -114,7 +114,7 @@ Phase 1のΔE基準実験（\texttt{deltae\_v3rig\_sweep\_2026-01-21\_v02}）か
 \end{figure}
 
 \subsubsection{平均エネルギー}
-図\ref{fig:phase2_energy}に，各手法の平均エネルギー（$e_{\mathrm{event}}$）の推移を示す．Safe-UCBとUCBは探索を経て最適行動（\SI{500}{\milli\second}）へ収束し，平均エネルギーが低下する．Fixed-CCSはコンテキストに応じた固定マッピングのため，平均エネルギーが高い．
+\figref{fig:phase2_energy}に，各手法の平均エネルギー（$e_{\mathrm{event}}$）の推移を示す．Safe-UCBとUCBは探索を経て最適行動（\SI{500}{\milli\second}）へ収束し，平均エネルギーが低下する．Fixed-CCSはコンテキストに応じた固定マッピングのため，平均エネルギーが高い．
 
 \begin{figure}[tb]
   \centering
@@ -124,7 +124,7 @@ Phase 1のΔE基準実験（\texttt{deltae\_v3rig\_sweep\_2026-01-21\_v02}）か
 \end{figure}
 
 \subsubsection{数値結果サマリ}
-表\ref{tab:phase2_summary}に，シミュレーション終了時（$T=1000$）の数値結果をまとめる．
+\tabref{tab:phase2_summary}に，シミュレーション終了時（$T=1000$）の数値結果をまとめる．
 
 \begin{table}[tb]
   \centering
@@ -166,4 +166,5 @@ Phase 2の実機実装では，以下が必要となる：
 
 \subsection{まとめ}
 本節では，Phase 1の実測データに基づくシミュレーションにより，Safe Contextual Banditへの拡張可能性を概念実証として示した．Safe-UCBは制約を守りながら報酬改善が可能であり，Phase 1のルールベース写像からの自然な発展経路となる．制約モデルの実測値取得と実機実装は今後の課題である．
+
 

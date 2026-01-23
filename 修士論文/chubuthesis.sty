@@ -251,7 +251,7 @@
 
 % --- 参考文献（biblatex） ---
 
-\RequirePackage[backend=biber,style=numeric,sorting=none]{biblatex}
+\RequirePackage[backend=biber,style=numeric,sorting=none,urldate=iso]{biblatex}
 \renewcommand{\bibname}{参考文献参考URL}
 
 
@@ -297,8 +297,13 @@
 % URL 表記を簡素化（"url:" / "visited on" を出さない）
 
 \DeclareFieldFormat{url}{\url{#1}}
+\DeclareFieldFormat{urldate}{参照日：#1}
 
-\renewbibmacro*{url+urldate}{\printfield{url}}
+\renewbibmacro*{url+urldate}{%
+  \printfield{url}%
+  \setunit{\addspace}%
+  \printurldate%
+}
 
 
 
@@ -306,6 +311,15 @@
 
 \RequirePackage[hidelinks]{hyperref}
 \RequirePackage{bookmark}
+% PDFしおりで数式系コマンドが警告にならないように無害化
+\pdfstringdefDisableCommands{%
+  \def\si#1{#1}%
+  \def\SI#1#2{#1 #2}%
+  \def\mathrm#1{#1}%
+  \def\text#1{#1}%
+  \def\hat#1{#1}%
+  \def\bar#1{#1}%
+}
 
 
 % --- 目次 ---
@@ -416,8 +430,8 @@
 
     {\setlength{\fboxsep}{18pt}\fbox{%
       \begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule-6pt\relax}\centering
-        {\Large \ThesisTitleLineOne\par}
-        {\Large \ThesisTitleLineTwo\par}
+        {\large \ThesisTitleLineOne\par}
+        {\large \ThesisTitleLineTwo\par}
       \end{minipage}
     }}
     \vskip 2.5in%
@@ -445,7 +459,7 @@
 
 \vspace{6mm}
 \begin{center}
-  {\Large \ThesisTitle\par}
+  {\large \ThesisTitle\par}
 \end{center}
 
 \vspace{4mm}

@@ -1,4 +1,4 @@
-﻿% chapters/ch7_offline_eval.tex --- 構成要素：オフライン評価（mHealth合成 + ルールベース方策）
+% chapters/ch7_offline_eval.tex --- 構成要素：オフライン評価（mHealth合成 + ルールベース方策）
 \section{オフライン評価：mHealth合成とルールベース方策探索}
 \label{sec:offline_eval}
 
@@ -35,7 +35,7 @@
 オフライン評価におけるQoS推定は，固定間隔の実測から得られる$P_{\mathrm{out}}(\tau\mid a)$等の指標を参照し，方策の滞在比率に基づき合成する（詳細は\secref{sec:metrics_detail}）．動的切替時の非定常性（切替直後の遅延分布など）は近似に含まれないため，実機評価で差分を検証する必要がある．
 
 \subsection{Paretoフロントと制約充足領域の可視化（Constraint Band Plot）}
-図\ref{fig:letter_delta_band}に，オフライン評価の代表例として，$P_{\mathrm{out}}(1\,\mathrm{s})$と平均電力のトレードオフを示す．固定間隔点と候補方策点を同一平面で可視化することで，制約$\epsilon$付近における省電力運用点の存在を示す．
+\figref{fig:letter_delta_band}に，オフライン評価の代表例として，$P_{\mathrm{out}}(1\,\mathrm{s})$と平均電力のトレードオフを示す．固定間隔点と候補方策点を同一平面で可視化することで，制約$\epsilon$付近における省電力運用点の存在を示す．
 
 \begin{figure}[tb]
   \centering
@@ -45,7 +45,7 @@
 \end{figure}
 
 \subsubsection{Paretoプロット（全体像）}
-図\ref{fig:pareto_plots}に，スイープ結果の全体像としてParetoプロットの例を示す．ここでは，行動集合を$\{100,500\}$に縮退した評価（実装の単純性を優先）を例とする．
+\figref{fig:pareto_plots}に，スイープ結果の全体像としてParetoプロットの例を示す．ここでは，行動集合を$\{100,500\}$に縮退した評価（実装の単純性を優先）を例とする．
 
 \begin{figure}[tb]
   \centering
@@ -62,5 +62,6 @@
 
 \subsection{まとめ}
 本節では，mHealth合成と固定間隔の実測電力テーブルを組み合わせたオフライン評価により，QoS制約下での省電力運用点を探索する枠組みを示した．次節では，実機評価結果（\secref{sec:evaluation_results}）を示す．
+
 
 

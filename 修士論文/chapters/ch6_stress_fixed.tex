@@ -1,4 +1,4 @@
-﻿% chapters/ch6_stress_fixed.tex --- 構成要素：ストレス固定実験と指標定義（scan50/scan90, v5）
+% chapters/ch6_stress_fixed.tex --- 構成要素：ストレス固定実験と指標定義（scan50/scan90, v5）
 \section{ストレス固定実験と指標定義の確立}
 \label{sec:stress_fixed_metrics}
 
@@ -35,7 +35,7 @@ PDRは受信ログの行数に基づく指標（重複含む）と，seqでユ�
 
 \subsection{結果（図表）}
 \subsubsection{scan90の指標サマリ}
-図\ref{fig:stress_fixed_scan90_metrics}に，scan90における主要指標の例を示す．この図は，v5の時間同期を反映したものであり，長間隔側でTL/Poutが不自然に小さくなる問題が緩和される．
+\figref{fig:stress_fixed_scan90_metrics}に，scan90における主要指標の例を示す．この図は，v5の時間同期を反映したものであり，長間隔側でTL/Poutが不自然に小さくなる問題が緩和される．
 
 \begin{figure}[tb]
   \centering
@@ -45,7 +45,7 @@ PDRは受信ログの行数に基づく指標（重複含む）と，seqでユ�
 \end{figure}
 
 \subsubsection{実測と簡易モデルの比較}
-図\ref{fig:stress_fixed_real_vs_sim}に，ストレス固定における実測と簡易モデル（比較用）の例を示す．簡易モデルは，スキャンの非理想性や開始位相ずれの影響を完全には表現できないため，実測との差分が残る．ただし，固定間隔の相対関係（短間隔ほど遅延が改善しやすい等）のトレンドを説明する補助として利用できる．
+\figref{fig:stress_fixed_real_vs_sim}に，ストレス固定における実測と簡易モデル（比較用）の例を示す．簡易モデルは，スキャンの非理想性や開始位相ずれの影響を完全には表現できないため，実測との差分が残る．ただし，固定間隔の相対関係（短間隔ほど遅延が改善しやすい等）のトレンドを説明する補助として利用できる．
 
 \begin{figure}[tb]
   \centering
@@ -55,7 +55,7 @@ PDRは受信ログの行数に基づく指標（重複含む）と，seqでユ�
 \end{figure}
 
 \subsubsection{scan50とscan90の比較}
-図\ref{fig:stress_fixed_scan50_vs_scan90_pdr}に，scan50とscan90の比較（例：PDR\_unique）を示す．duty比を上げることで短間隔側の受信品質が改善することが確認できる．
+\figref{fig:stress_fixed_scan50_vs_scan90_pdr}に，scan50とscan90の比較（例：PDR\_unique）を示す．duty比を上げることで短間隔側の受信品質が改善することが確認できる．
 
 \begin{figure}[tb]
   \centering
@@ -69,5 +69,6 @@ PDRは受信ログの行数に基づく指標（重複含む）と，seqでユ�
 
 \subsection{まとめ}
 本節では，ストレス固定実験を用いてTL/Poutの定義と実装を固定し，開始位相ずれを補正するv5の時間同期手順を示した．以降では，この指標定義を前提として，固定間隔および動的制御の評価を行う．
+
 
 

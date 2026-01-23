@@ -1,4 +1,4 @@
-﻿% chapters/ch3_oncampus.tex --- 構成要素：実験装置・計測方式
+% chapters/ch3_oncampus.tex --- 構成要素：実験装置・計測方式
 \section{実験装置・計測方式}
 \label{sec:measurement_setup}
 
@@ -6,7 +6,7 @@
 本研究の一次KPIは，省電力指標$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）とQoS（TL，$P_{\mathrm{out}}(\tau)$）である．これらを同一試行で評価するため，送信（TX），電力（TXSD），受信（RX）の三ノード構成を採用し，同期信号で試行区間を揃える．本節では，計測方式とログ設計を「再現できる手順」として整理する．
 
 \subsection{三ノード構成（TX/TXSD/RX）}
-各ノードの役割を表\ref{tab:nodes}に示す．
+各ノードの役割を\tabref{tab:nodes}に示す．
 
 \begin{table}[tb]
   \centering
@@ -24,7 +24,7 @@
 \end{table}
 
 \subsubsection{機材と計測パラメータ}
-本研究の計測は，汎用マイコン（ESP32系）と電流センサ（INA219）を中心に構成する．表\ref{tab:hw}に，主要な構成要素と役割を示す．
+本研究の計測は，汎用マイコン（ESP32系）と電流センサ（INA219）を中心に構成する．\tabref{tab:hw}に，主要な構成要素と役割を示す．
 
 \begin{table}[tb]
   \centering
@@ -51,7 +51,7 @@
 アドバタイジングイベント数$N_{\mathrm{adv}}$（定義は\secref{sec:metrics_detail}）は，到達性指標の分母として重要である．可能であれば，TXがTICK信号を出力し，TXSD側で割り込みによりアドバタイジング回数を物理カウントする．TICKが利用できない場合は，試行時間とアドバタイジング間隔から期待値を算出するが，動的制御下では推定誤差が生じる可能性がある点に留意が必要である．
 
 \subsubsection{配線例（UCCS評価）}
-本研究で用いた配線例を表\ref{tab:wiring_example}に示す（実験ディレクトリのREADMEに準拠）．ピン番号は実装に依存するため，運用時はRunbookに記録して固定する（\secref{sec:runbook}）．
+本研究で用いた配線例を\tabref{tab:wiring_example}に示す（実験ディレクトリのREADMEに準拠）．ピン番号は実装に依存するため，運用時はRunbookに記録して固定する（\secref{sec:runbook}）．
 
 \begin{table}[tb]
   \centering
@@ -91,7 +91,7 @@ RXログは，受信時刻，RSSI，ペイロード（seq等）を保持する�
 \subsection{計測方針（電力とQoSの同時評価）}
 本研究では，電力とQoSを同一試行で同時に評価する．電力はTXSD，QoSはRXを主に用いる．ただし，動的切替では「イベント時刻の定義」と「時間同期」が結果を左右するため，指標定義（特にTL/Pout）は\secref{sec:stress_fixed_metrics}で固定する．
 
-\subsubsection{ON/OFF差分とsleep}
+\subsubsection{ON/OFF差分とスリープ}
 省電力指標$q_{\mathrm{event}}$は，電荷積分に基づくため，ログ欠損や単位不整合の影響を強く受ける．そのため，アドバタイジングON/OFF差分による基準補正や，生ログを用いた再積分による整合性確認が不可欠である．また，送信側がlight sleep等に入れる条件では，アドバタイジング間隔を伸ばすことが平均電力低下に直結する．sleepの有無は条件として明示し，同一コード系列で比較する（運用手順は\secref{sec:runbook}）．
 
 \subsection{受信端末の運用（スマートフォン側）}
@@ -119,4 +119,5 @@ OSの省電力機構によりバックグラウンド制約やスロットリン
 
 \subsection{まとめ}
 本節では，実験装置の構成，同期設計，ログ設計，および運用上の前提を整理した．以降の節では，計測系の不具合要因と修正履歴を\secref{sec:measurement_system}にまとめ，評価の前提を固定する．
+
 

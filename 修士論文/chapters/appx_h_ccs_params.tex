@@ -1,11 +1,11 @@
-﻿% chapters/appx_h_ccs_params.tex --- 付録H CCS写像およびパラメータ設定
+% chapters/appx_h_ccs_params.tex --- 付録H CCS写像およびパラメータ設定
 \section{CCS写像およびパラメータ設定}
 \label{sec:ccs_params}
 
 本節では，Phase 1（ルールベース）で用いるCCS写像と主要パラメータを一覧化し，モデル更新時の再調整（キャリブレーション）対象を明確化する．評価の再現性のため，パラメータは実験ログ（TX）に保存し，作業ログに変更履歴を残す．
 
 \subsection{主要パラメータ（Phase 1既定値）}
-表\ref{tab:ccs_params_phase1}に，Phase 1で用いる代表的パラメータを示す．これらはモデルの出力分布や量子化誤差に依存するため，モデル更新時には再調整（キャリブレーション）が必要となる．
+\tabref{tab:ccs_params_phase1}に，Phase 1で用いる代表的パラメータを示す．これらはモデルの出力分布や量子化誤差に依存するため，モデル更新時には再調整（キャリブレーション）が必要となる．
 
 \begin{table}[tb]
   \centering
@@ -34,4 +34,5 @@
   \item 切替理由（\texttt{\detokenize{reason}}）
 \end{itemize}
 これにより，結果図表の背後にある意思決定とパラメータを監査できる．
+
 

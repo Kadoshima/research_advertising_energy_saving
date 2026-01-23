@@ -31,3 +31,10 @@
 [2026-01-23 JST] Updated WRITING_RULES.md with lab style (dearu tone, chapter structure, figures/tables, equations, citations).
 2026-01-23 JST 修士論文の体裁調整: 謝辞を敬体に修正、アドバタイジング表記統一、図表番号を章-連番へ変更、ページ番号を右下統一、参考文献見出しを『参考文献参考URL』へ更新。修士論文/main.tex と chubuthesis.sty 等を更新し、latexmk でビルド確認。
 2026-01-23 JST Overfull\hbox対策: 表紙minipage幅調整、ch2_related_work/ch3_oncampus/ch8_experiment_designの表をtabularx化、appx_h_ccs_paramsの行動集合にallowbreak+改行、appx_d_log_schemaの列幅調整。latexmkでOverfull解消確認。
+2026-01-23 17:28 JST 修士論文: 見出し表記ゆれを統一（sleep→スリープ/scan duty→スキャンデューティ, World Model→世界モデル）; 図表参照を\figref/\tabrefに統一。UTF-8非対応の章（appx_c_results, appx_h_ccs_params, ch10_phase2_concept, ch4_rain, ch6_stress_fixed, ch7_offline_eval, ch8_experiment_design, ch8_measurement_system, ch2_related_work, ch3_oncampus, ch3_system_design）をUTF-8へ変換。latexmk実行でmain.pdf生成・要再実行(biber/参照更新)。
+[2026-01-23 JST] 修士論文: 表紙/要旨題目の文字サイズを \large に調整。本文の不要な \textbf を削除（ch10_phase2_concept.tex, ch2_proposed.tex, ch8_experiment_design.tex）。
+[2026-01-23 JST] 参考文献の参照日表示を確認: PDF上で『参照日：2026-01-23』が出るよう biblatex を urldate=iso + \printurldate に調整し再ビルド。
+[2026-01-23 JST] hyperref警告対策: 数式入り見出しに \\texorpdfstring を適用（ch1_background.tex, ch8_experiment_design.tex, ch4_rain.tex, appx_g_troubleshooting.tex, appx_a_metrics.tex）。ビルドで数式しおり警告が消えることを確認。
+2026-01-23 18:02:44 JST chubuthesis.sty: added pdfstringdefDisableCommands for PDF bookmarks; latexmk build ok (main.pdf).
+2026-01-23 18:10:18 JST Reduced sections to <=5 in ch0_introduction.tex and ch5_publicroad.tex by folding headings into prose; rebuilt thesis (main.pdf).
+2026-01-23 18:13:38 JST Flattened bold lead-ins to full prose in ch0_introduction.tex and ch5_publicroad.tex; rebuilt thesis (main.pdf).

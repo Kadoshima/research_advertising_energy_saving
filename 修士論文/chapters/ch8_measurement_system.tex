@@ -1,4 +1,4 @@
-﻿% chapters/ch8_measurement_system.tex --- 構成要素：計測系の健全化と再現性
+% chapters/ch8_measurement_system.tex --- 構成要素：計測系の健全化と再現性
 \section{計測系の健全化と再現性確保}
 \label{sec:measurement_system}
 
@@ -38,7 +38,7 @@
 \end{figure}
 
 \subsection{計測系の不具合要因（Failure Modes）とその対策}
-計測系の問題は，「値が揺れる」だけではなく，結論を逆転させる（例：OFFがONより大きい）形で顕在化し得る．表\ref{tab:measurement_failures}に，代表的な不具合要因と対策をまとめる．
+計測系の問題は，「値が揺れる」だけではなく，結論を逆転させる（例：OFFがONより大きい）形で顕在化し得る．\tabref{tab:measurement_failures}に，代表的な不具合要因と対策をまとめる．
 
 \begin{table}[tb]
   \centering
@@ -60,7 +60,7 @@
 初期の計測では，「アドバタイジングOFFの方がアドバタイジングONより消費が大きい」という理論値と矛盾する実測値が観察された．この問題は，無線スタックそのものではなく，PowerLogger側の処理能力不足（I/Oボトルネック）や，単位換算の不整合，UART通信エラーによる欠損が原因となり得る．
 
 \noindent
-本研究では，代表的要因と対策を表\ref{tab:measurement_failures}に要点化し，運用上は以下をチェックポイントとして確認した．
+本研究では，代表的要因と対策を\tabref{tab:measurement_failures}に要点化し，運用上は以下をチェックポイントとして確認した．
 \begin{itemize}
   \item I/Oボトルネック：欠損増加$\rightarrow$dtの歪み$\rightarrow$積分破綻を引き起こすため，塊書き込み等で追従性を確保する．
   \item 単位換算：mV/$\mu$A/ms等の桁ずれは結論を逆転させ得るため，生ログ再積分とsummary整合で整合性を確認する．
@@ -101,4 +101,5 @@
 
 \subsection{まとめ}
 本節では，計測系の健全化と再現性確保のための要点を整理した．これにより，固定間隔と動的制御の比較が「同一の評価系で再現可能」であることを担保し，次段階（オンライン最適化）へ接続する基盤とする．
+
 

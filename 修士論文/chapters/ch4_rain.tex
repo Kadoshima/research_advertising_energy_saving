@@ -1,4 +1,4 @@
-﻿% chapters/ch4_rain.tex --- 構成要素：評価結果
+% chapters/ch4_rain.tex --- 構成要素：評価結果
 \section{評価結果}
 \label{sec:evaluation_results}
 
@@ -6,7 +6,7 @@
 固定間隔における$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）と受信品質を基準として整理する．本節の実機評価はtrial長とイベント数$N_{\mathrm{event}}$を固定しているため，$q_{\mathrm{event}}$は平均電力$\overline{P}$と単調対応する．したがって，図表では視認性の高い$\overline{P}$を主に併記し，省電力の解釈は一次KPIである$q_{\mathrm{event}}$と同じ結論になる．特に，\SI{100}{\milli\second}から\SI{500}{\milli\second}への変更により電力が低下する一方で，受信率や遅延分布が変化するため，制約$\epsilon$に対する可行性が境界条件として現れる．
 
 \subsubsection{固定間隔の平均電力（例）}
-本研究では，固定間隔の平均電力を実測し，オフライン評価で用いる電力テーブルとして利用する．表\ref{tab:power_table_example}に，\SI{100}{\milli\second}から\SI{2000}{\milli\second}までの固定間隔における平均電力の一例を示す．
+本研究では，固定間隔の平均電力を実測し，オフライン評価で用いる電力テーブルとして利用する．\tabref{tab:power_table_example}に，\SI{100}{\milli\second}から\SI{2000}{\milli\second}までの固定間隔における平均電力の一例を示す．
 
 \begin{table}[tb]
   \centering
@@ -25,7 +25,7 @@
 \end{table}
 
 \subsubsection{主効果の観察}
-表\ref{tab:power_table_example}の例では，\SI{100}{\milli\second}から\SI{500}{\milli\second}への変更で平均電力が大きく低下する．ただし，\SI{500}{\milli\second}以上では改善幅が小さくなる．この傾向は，動的制御において短間隔の滞在時間を抑制する設計が有効であることを示唆する．
+\tabref{tab:power_table_example}の例では，\SI{100}{\milli\second}から\SI{500}{\milli\second}への変更で平均電力が大きく低下する．ただし，\SI{500}{\milli\second}以上では改善幅が小さくなる．この傾向は，動的制御において短間隔の滞在時間を抑制する設計が有効であることを示唆する．
 
 \subsection{動的制御（2値切替）の実機検証}
 動的制御の最小構成として，\SI{100}{\milli\second}と\SI{500}{\milli\second}の切替を実装し，固定\SI{100}{\milli\second}および固定\SI{500}{\milli\second}と比較する．平均電力が両固定条件の中間に位置し，受信率も中間的になることを確認し，動的制御が正常に機能していることを検証する．
@@ -36,7 +36,7 @@
 本研究では，受信品質をPDRだけでなく，遅延分布と期限超過率$P_{\mathrm{out}}(\tau)$で評価する．特に，非理想スキャン環境では平均受信率が同程度でも，遅延の裾が悪化する場合があるため，$P_{\mathrm{out}}(\tau)$が重要となる（\secref{sec:metrics_detail}）．
 
 \subsubsection{実測例（D2b，scan90）}
-表\ref{tab:d2_summary}に，D2b（scan90）における実測例を示す．本表は，S1/S4の2条件について，固定\SI{100}{\milli\second}，固定\SI{500}{\milli\second}，および方策（2値切替）の比較をまとめたものである．ここでは初期試行（run B, n=3）と追加試行（B/02, n=3）を統合し，各条件n=6として集計した．以降の表では$q_{\mathrm{event}}$を$10^3\,\si{\micro\coulomb}/\text{event}$単位で併記する．
+\tabref{tab:d2_summary}に，D2b（scan90）における実測例を示す．本表は，S1/S4の2条件について，固定\SI{100}{\milli\second}，固定\SI{500}{\milli\second}，および方策（2値切替）の比較をまとめたものである．ここでは初期試行（run B, n=3）と追加試行（B/02, n=3）を統合し，各条件n=6として集計した．以降の表では$q_{\mathrm{event}}$を$10^3\,\si{\micro\coulomb}/\text{event}$単位で併記する．
 
 \begin{table}[tb]
   \centering
@@ -61,7 +61,7 @@
 \end{table}
 
 \noindent
-図\ref{fig:d2b_power_vs_pout}に，D2bの平均電力と$P_{\mathrm{out}}(1\mathrm{s})$の関係を示す．share100は図中に注記する．
+\figref{fig:d2b_power_vs_pout}に，D2bの平均電力と$P_{\mathrm{out}}(1\mathrm{s})$の関係を示す．share100は図中に注記する．
 
 \begin{figure}[tb]
   \centering
@@ -71,13 +71,13 @@
 \end{figure}
 
 \subsubsection{E2（高干渉）におけるBaseline/CCS/TailGuardの比較}
-E2環境（高干渉，RSSI $-40$〜$-25$ dBm）で比較実験を実施した．比較対象は固定間隔（Baseline: Fixed100/Fixed2000），CCS方策，およびCCS+TailGuardである．AP近接で最大約$-20$ dBmの強信号が観測されており，本条件はE2より強い干渉（E2+相当）の可能性がある．高干渉下の遅延悪化を重視し，E2比較では$P_{\mathrm{out}}(2\mathrm{s})$を主要KPIとして用いた．PDR/TL/Poutの定義は\texttt{\detokenize{docs/metrics_definition.md}}に従う．試行長は約600秒とする．結果ファイルは以下に示す．
+E2環境（高干渉，RSSI $-40$--$-25$ dBm）で比較実験を実施した．比較対象は固定間隔（Baseline: Fixed100/Fixed2000），CCS方策，およびCCS+TailGuardである．AP近接で最大約$-20$ dBmの強信号が観測されており，本条件はE2より強い干渉（E2+相当）の可能性がある．高干渉下の遅延悪化を重視し，E2比較では$P_{\mathrm{out}}(2\mathrm{s})$を主要KPIとして用いた．PDR/TL/Poutの定義は\texttt{\detokenize{docs/metrics_definition.md}}に従う．試行長は約600秒とする．結果ファイルは以下に示す．
 \begin{itemize}
   \item \texttt{\detokenize{results/phase1_e2_baseline_2026-01-22_v01.md}}
   \item \texttt{\detokenize{results/phase1_e2_ccs_2026-01-22_v03.md}}
   \item \texttt{\detokenize{results/phase1_e2_ccs_tail_guard_2026-01-23_v05_v06.md}}
 \end{itemize}
-表\ref{tab:e2_ccs_tail_guard}に結果を示す．CCSはFixed100より低電力だが，$P_{\mathrm{out}}(2\mathrm{s})$と$TL_{p95}$が大幅に悪化する．これに対し，TailGuardを追加したCCS+TailGuardは，$P_{\mathrm{out}}(2\mathrm{s})$を1.28\%，$TL_{p95}$を944.5 msまで改善し，Fixed100とFixed2000の間の運用点を実現した．PDRは全条件で0.80〜0.82の範囲であった．
+\tabref{tab:e2_ccs_tail_guard}に結果を示す．CCSはFixed100より低電力だが，$P_{\mathrm{out}}(2\mathrm{s})$と$TL_{p95}$が大幅に悪化する．これに対し，TailGuardを追加したCCS+TailGuardは，$P_{\mathrm{out}}(2\mathrm{s})$を1.28\%，$TL_{p95}$を944.5 msまで改善し，Fixed100とFixed2000の間の運用点を実現した．PDRは全条件で0.80--0.82の範囲であった．
 
 \begin{table}[tb]
   \centering
@@ -101,13 +101,13 @@ E2環境（高干渉，RSSI $-40$〜$-25$ dBm）で比較実験を実施した�
 
 
 \subsubsection{解釈}
-表\ref{tab:d2_summary}および図\ref{fig:d2b_power_vs_pout}より，方策（2値切替）はFixed100より低電力であり，Fixed500より低い期限超過率（QoS改善）を示す運用点になり得る．さらに，遷移が多い側（S4）ほどshare100が増加しており，「必要時のみ\SI{100}{\milli\second}を選択し，それ以外は\SI{500}{\milli\second}を選択する」挙動が定量で確認できる．
+\tabref{tab:d2_summary}および\figref{fig:d2b_power_vs_pout}より，方策（2値切替）はFixed100より低電力であり，Fixed500より低い期限超過率（QoS改善）を示す運用点になり得る．さらに，遷移が多い側（S4）ほどshare100が増加しており，「必要時のみ\SI{100}{\milli\second}を選択し，それ以外は\SI{500}{\milli\second}を選択する」挙動が定量で確認できる．
 
 また，平均電力はFixed100/Fixed500の滞在比率（share100）による線形混合で概ね説明できるため，方策の省電力効果はinterval滞在比率に支配されることが示唆される．これにより，スリープ実装の詳細に依存する議論から分離し，制御則（どの状態で短間隔へ戻すか）の議論へ接続しやすくなる．
 
 \subsubsection{通信環境悪化時の頑健性検証（D3，scan70）}
 \label{sec:d3_scan70}
-表\ref{tab:d3_summary}に，scan dutyを低下させたD3（scan70, S4, 各n=3）の結果を示す．スキャンウィンドウとアドバタイジングタイミングの非同期（同期スリップ）が発生しやすい悪条件（scan70）において，Fixed500の期限超過率は0.285まで悪化する．これに対し，方策は0.089まで改善し，Fixed100（0.065）と同様に制約$\epsilon$（例：$\epsilon=0.1$）を満たす．このとき方策はFixed100より平均電力を\SI{7.8}{\milli\watt}（約3.7\%）低減するが，Fixed500よりは\SI{12.6}{\milli\watt}高い．
+\tabref{tab:d3_summary}に，scan dutyを低下させたD3（scan70, S4, 各n=3）の結果を示す．スキャンウィンドウとアドバタイジングタイミングの非同期（同期スリップ）が発生しやすい悪条件（scan70）において，Fixed500の期限超過率は0.285まで悪化する．これに対し，方策は0.089まで改善し，Fixed100（0.065）と同様に制約$\epsilon$（例：$\epsilon=0.1$）を満たす．このとき方策はFixed100より平均電力を\SI{7.8}{\milli\watt}（約3.7\%）低減するが，Fixed500よりは\SI{12.6}{\milli\watt}高い．
 
 なお，scan70では受信欠落によりRXタグ由来の短間隔滞在比率$\hat{\rho}_{100}$（約0.42）が過小評価されやすい．そのため，D3では平均電力の線形混合により$\hat{\rho}_{100}$を推定した．固定\SI{100}{\milli\second}/\SI{500}{\milli\second}の平均電力をそれぞれ$P_{100}, P_{500}$とし，方策の平均電力を$P_{\mathrm{policy}}$とすると，$\hat{\rho}_{100}=(P_{\mathrm{policy}}-P_{500})/(P_{100}-P_{500})$で与えられる．また，SDコピーでmtimeが信頼できないため，TXSDログはadv\_count（tick\_count）でクラスタリングしてRXと対応付けた．
 
@@ -133,7 +133,7 @@ E2環境（高干渉，RSSI $-40$〜$-25$ dBm）で比較実験を実施した�
 \label{sec:d4_ablation}
 D2bの主結果に対して，不確実度$U$の時系列情報が有効に機能しているかを検証するため，D4としてアブレーション実験を行った．ここでは制御器の構造と閾値は固定し，不確実度系列$U$の時系列構造を乱す（シャッフルする）ことで，制御がどのように変化するかを観察する．
 
-表\ref{tab:d4_summary}に，S4（遷移が多い条件）における結果（各n=3）を示す．方策（U+CCS）はFixed100より低電力であり，Fixed500より低い期限超過率を示す運用点になり得る．ただし，$U$をシャッフルするとshare100が0.593から0.943へ増加し，adv\_countも1227から1715へ増加してFixed100に近い挙動へ偏る．その結果，平均電力も\SI{200.5}{\milli\watt}から\SI{208.1}{\milli\watt}へ増加し，省電力効果が失われる（図\ref{fig:role_separation_overview}）．
+\tabref{tab:d4_summary}に，S4（遷移が多い条件）における結果（各n=3）を示す．方策（U+CCS）はFixed100より低電力であり，Fixed500より低い期限超過率を示す運用点になり得る．ただし，$U$をシャッフルするとshare100が0.593から0.943へ増加し，adv\_countも1227から1715へ増加してFixed100に近い挙動へ偏る．その結果，平均電力も\SI{200.5}{\milli\watt}から\SI{208.1}{\milli\watt}へ増加し，省電力効果が失われる（\figref{fig:role_separation_overview}）．
 
 \begin{table}[tb]
   \centering
@@ -157,7 +157,7 @@ D2bの主結果に対して，不確実度$U$の時系列情報が有効に機�
 \subsubsection{CCS-offアブレーション（D4B，scan90）}
 \label{sec:d4b_ccs_off}
 CCSの寄与を切り分けるため，制御則の構造は固定したままCCSを無効化し，不確実度$U$のみで切替を行う（U-only）実験（D4B）を追加した．
-表\ref{tab:d4b_summary}にS4の結果（各n=3）を示す．Policy（U+CCS）とU-only（CCS-off）は平均電力がほぼ同一（ともに約\SI{200.6}{\milli\watt}）で，adv\_countおよび$\hat{\rho}_{100}$も同等であるにも関わらず，Policy（U+CCS）の方が$P_{\mathrm{out}}(1\mathrm{s})$と$TL_{\mathrm{mean}}$が改善する．したがって，CCSは短間隔状態の総量を増加させるのではなく，その割り当てタイミングを最適化することでQoSを改善していると解釈できる（図\ref{fig:role_separation_overview}）．
+\tabref{tab:d4b_summary}にS4の結果（各n=3）を示す．Policy（U+CCS）とU-only（CCS-off）は平均電力がほぼ同一（ともに約\SI{200.6}{\milli\watt}）で，adv\_countおよび$\hat{\rho}_{100}$も同等であるにも関わらず，Policy（U+CCS）の方が$P_{\mathrm{out}}(1\mathrm{s})$と$TL_{\mathrm{mean}}$が改善する．したがって，CCSは短間隔状態の総量を増加させるのではなく，その割り当てタイミングを最適化することでQoSを改善していると解釈できる（\figref{fig:role_separation_overview}）．
 
 \begin{table}[tb]
   \centering
@@ -179,7 +179,7 @@ CCSの寄与を切り分けるため，制御則の構造は固定したままCC
 \end{table}
 
 \noindent
-図\ref{fig:role_separation_overview}では，U/CCSの寄与と受信条件悪化の方向を矢印で示す．
+\figref{fig:role_separation_overview}では，U/CCSの寄与と受信条件悪化の方向を矢印で示す．
 
 \begin{figure}[tb]
   \centering
@@ -190,9 +190,9 @@ CCSの寄与を切り分けるため，制御則の構造は固定したままCC
 
 \subsubsection{補足：CCS-off追試（D4B，scan70）}
 \label{sec:d4b_scan70_followup}
-受信条件を悪化させたscan70でもCCS-offアブレーション（D4B）の追試を行い，S4（各n=3）で集計した（出力：\texttt{\detokenize{uccs_d4b_scan70/metrics/01_fixed/}}）．表\ref{tab:d4b_scan70_summary}に示すように，Fixed500は$P_{\mathrm{out}}(1\mathrm{s})=0.228\pm0.037$まで悪化する．これに対し，Policy（U+CCS）およびU-only（CCS-off）は0.02以下に改善し，平均電力もFixed100より\SI{4}{\milli\watt}程度低い．したがって，受信条件悪化時でも方策群が中間解として成立し得ることが確認できる．
+受信条件を悪化させたscan70でもCCS-offアブレーション（D4B）の追試を行い，S4（各n=3）で集計した（出力：\texttt{\detokenize{uccs_d4b_scan70/metrics/01_fixed/}}）．\tabref{tab:d4b_scan70_summary}に示すように，Fixed500は$P_{\mathrm{out}}(1\mathrm{s})=0.228\pm0.037$まで悪化する．これに対し，Policy（U+CCS）およびU-only（CCS-off）は0.02以下に改善し，平均電力もFixed100より\SI{4}{\milli\watt}程度低い．したがって，受信条件悪化時でも方策群が中間解として成立し得ることが確認できる．
 
-ただし，本追試ではU-onlyの$\hat{\rho}_{100}$が0.780でPolicy（0.735）よりわずかに大きく，$P_{\mathrm{out}}(1\mathrm{s})$もU-onlyの方が小さい．このため，本条件単体から「同電力でCCSがQoSを改善する」とは言い切れず，同mixでQoS差が出たscan90の結果（表\ref{tab:d4b_summary}）を主張の根拠とする．
+ただし，本追試ではU-onlyの$\hat{\rho}_{100}$が0.780でPolicy（0.735）よりわずかに大きく，$P_{\mathrm{out}}(1\mathrm{s})$もU-onlyの方が小さい．このため，本条件単体から「同電力でCCSがQoSを改善する」とは言い切れず，同mixでQoS差が出たscan90の結果（\tabref{tab:d4b_summary}）を主張の根拠とする．
 
 \begin{table}[tb]
   \centering
@@ -221,12 +221,12 @@ D4の結果は，制御器の構造と閾値を固定したまま入力$U$の時
 D4では，$\Delta power$（policy $-$ U-shuf）は\SI{-7.58}{\milli\watt}（95\%CI \SIrange{-8.39}{-6.93}{\milli\watt}），$\Delta P_{\mathrm{out}}(1\mathrm{s})=+0.0488$（95\%CI $[0.0244,0.0732]$）であり，U-shuffleが短間隔寄りに偏ることが定量で確認できる．
 さらに，D3では，$\Delta P_{\mathrm{out}}(1\mathrm{s})$（policy $-$ fixed500）$=-0.195$（95\%CI $[-0.260,-0.130]$），$\Delta power$（policy $-$ fixed100）は\SI{-7.76}{\milli\watt}（95\%CI \SIrange{-8.24}{-7.22}{\milli\watt}）であり，受信条件悪化時でも方策がFixed500より低い期限超過率を示しつつFixed100より低電力であることが裏付けられる．
 
-\subsubsection{$\hat{\rho}_{100}$--$P_{\mathrm{out}}$プロット（追加検証）}
+\subsubsection{\texorpdfstring{$\hat{\rho}_{100}$--$P_{\mathrm{out}}$プロット（追加検証）}{rho_hat100--Poutプロット（追加検証）}}
 滞在比率の推定を直感的に扱うため，固定\SI{100}{\milli\second}/\SI{500}{\milli\second}の平均電力を$P_{100},P_{500}$とし，各条件の平均電力$P$から
 \begin{equation}
   \hat{\rho}_{100} = \frac{P-P_{500}}{P_{100}-P_{500}}
 \end{equation}
-を定義する（$\hat{\rho}_{100}\approx share100_{\mathrm{mix}}$）．図\ref{fig:rho100_vs_pout_overview}は，$x=\hat{\rho}_{100}$，$y=P_{\mathrm{out}}(1\mathrm{s})$としてD3/D4/D4Bを同一平面に配置したものである．D4Bでは，Policy（U+CCS）とU-only（CCS-off）が同程度の$\hat{\rho}_{100}$であるにも関わらず$P_{\mathrm{out}}$が改善し，同電力でQoSが改善する傾向が可視化できる．また，D4（U-shuffle）では$\hat{\rho}_{100}$が1に近づき，短間隔に固定される傾向が確認できる．
+を定義する（$\hat{\rho}_{100}\approx share100_{\mathrm{mix}}$）．\figref{fig:rho100_vs_pout_overview}は，$x=\hat{\rho}_{100}$，$y=P_{\mathrm{out}}(1\mathrm{s})$としてD3/D4/D4Bを同一平面に配置したものである．D4Bでは，Policy（U+CCS）とU-only（CCS-off）が同程度の$\hat{\rho}_{100}$であるにも関わらず$P_{\mathrm{out}}$が改善し，同電力でQoSが改善する傾向が可視化できる．また，D4（U-shuffle）では$\hat{\rho}_{100}$が1に近づき，短間隔に固定される傾向が確認できる．
 
 \begin{figure}[tb]
   \centering
@@ -236,7 +236,7 @@ D4では，$\Delta power$（policy $-$ U-shuf）は\SI{-7.58}{\milli\watt}（95\
 \end{figure}
 
 \subsubsection{事例解析：QoS差異の要因となる希少事象の分析（D4B run01）}
-D4B（run01）では，Policy（U+CCS）とU-only（CCS-off）が同程度の平均電力でありながら$P_{\mathrm{out}}(1\mathrm{s})$が異なる．この差の内訳を確認するため，trial$\times$遷移ごとのTLを集計し，outage（TL$>\SI{1}{\second}$）に寄与した遷移をランキングした（出力：\texttt{\detokenize{uccs_d4b_scan90/plots/outage_story_01/}}）．代表例として\texttt{transition\_step=1128}（2$\rightarrow$9）では，U-onlyでTL$\approx\SI{9.889}{\second}$（outage）だがPolicyではTL$\approx\SI{0.212}{\second}$であり，少数の失敗イベントが$P_{\mathrm{out}}$差を生み得ることが確認できる．さらに，遷移単位の集計から復元したoutage率（\texttt{\detokenize{pout_est}}）がsummaryと一致することを確認した（Policy=0.04878, U-only=0.06504）．図\ref{fig:outage_story_timeline}に代表例を示す．
+D4B（run01）では，Policy（U+CCS）とU-only（CCS-off）が同程度の平均電力でありながら$P_{\mathrm{out}}(1\mathrm{s})$が異なる．この差の内訳を確認するため，trial$\times$遷移ごとのTLを集計し，outage（TL$>\SI{1}{\second}$）に寄与した遷移をランキングした（出力：\texttt{\detokenize{uccs_d4b_scan90/plots/outage_story_01/}}）．代表例として\texttt{transition\_step=1128}（2$\rightarrow$9）では，U-onlyでTL$\approx\SI{9.889}{\second}$（outage）だがPolicyではTL$\approx\SI{0.212}{\second}$であり，少数の失敗イベントが$P_{\mathrm{out}}$差を生み得ることが確認できる．さらに，遷移単位の集計から復元したoutage率（\texttt{\detokenize{pout_est}}）がsummaryと一致することを確認した（Policy=0.04878, U-only=0.06504）．\figref{fig:outage_story_timeline}に代表例を示す．
 
 \begin{figure}[tb]
   \centering
@@ -246,7 +246,7 @@ D4B（run01）では，Policy（U+CCS）とU-only（CCS-off）が同程度の平
 \end{figure}
 
 \subsubsection{遅延分布の裾（Tail）に対する寄与分析（D4B run01）}
-$P_{\mathrm{out}}(1\mathrm{s})$は「TL$>\SI{1}{\second}$となるoutageの発生有無」で決まりやすい．そこで，trialごとのoutage回数分布と，$\Delta P_{\mathrm{out}}$（U-onlyが悪化する差分）が「どの遷移に集中しているか」を可視化した（出力：\texttt{\detokenize{uccs_d4b_scan90/plots/pout_tail_01/}}）．図\ref{fig:d4b_pout_tail_decomposition}より，本run01では正の$\Delta P_{\mathrm{out}}$を持つ遷移は41遷移中2遷移であり，上位1遷移で差分の50\%を説明するなど，尾の差が少数遷移へ強く集中していることが確認できる．
+$P_{\mathrm{out}}(1\mathrm{s})$は「TL$>\SI{1}{\second}$となるoutageの発生有無」で決まりやすい．そこで，trialごとのoutage回数分布と，$\Delta P_{\mathrm{out}}$（U-onlyが悪化する差分）が「どの遷移に集中しているか」を可視化した（出力：\texttt{\detokenize{uccs_d4b_scan90/plots/pout_tail_01/}}）．\figref{fig:d4b_pout_tail_decomposition}より，本run01では正の$\Delta P_{\mathrm{out}}$を持つ遷移は41遷移中2遷移であり，上位1遷移で差分の50\%を説明するなど，尾の差が少数遷移へ強く集中していることが確認できる．
 
 \begin{figure}[tb]
   \centering
@@ -258,7 +258,7 @@ $P_{\mathrm{out}}(1\mathrm{s})$は「TL$>\SI{1}{\second}$となるoutageの発�
 \end{figure}
 
 \subsubsection{条件付きタイミング：失敗遷移近傍の短間隔割当て（D4B run01）}
-同電力で$P_{\mathrm{out}}$差が生じる要因として，平均的な$\hat{\rho}_{100}$（滞在比率）ではなく「短間隔割り当てのタイミング」が支配的な要因である可能性がある．そこで，U-onlyのoutage率が高い遷移（差分上位）に限定し，遷移近傍における$P(\text{interval}=\SI{100}{\milli\second})$を再集計した（出力：\texttt{\detokenize{uccs_d4b_scan90/plots/ccs_timing_conditional_01/}}）．図\ref{fig:d4b_ccs_timing_conditional}は，失敗しやすい遷移近傍では短間隔割当ての差が現れやすいことを示しており，CCSが短間隔割り当てのタイミングを通じてQoSを改善する可能性を支持する．
+同電力で$P_{\mathrm{out}}$差が生じる要因として，平均的な$\hat{\rho}_{100}$（滞在比率）ではなく「短間隔割り当てのタイミング」が支配的な要因である可能性がある．そこで，U-onlyのoutage率が高い遷移（差分上位）に限定し，遷移近傍における$P(\text{interval}=\SI{100}{\milli\second})$を再集計した（出力：\texttt{\detokenize{uccs_d4b_scan90/plots/ccs_timing_conditional_01/}}）．\figref{fig:d4b_ccs_timing_conditional}は，失敗しやすい遷移近傍では短間隔割当ての差が現れやすいことを示しており，CCSが短間隔割り当てのタイミングを通じてQoSを改善する可能性を支持する．
 
 \begin{figure}[tb]
   \centering
@@ -275,7 +275,7 @@ $P_{\mathrm{out}}(1\mathrm{s})$は「TL$>\SI{1}{\second}$となるoutageの発�
 オフライン評価は，固定間隔の電力テーブルと受信品質推定を合成するため，実環境の非理想性を完全には表現しない．したがって，予測値は「候補探索と説明のための近似」として用い，実測との差分を評価しながらモデルの限界を記述することが重要である．
 
 \subsubsection{制約充足領域の可視化（参考）}
-制約充足領域の可視化は，\secref{sec:offline_eval}の図\ref{fig:letter_delta_band}に示した通り，固定間隔点と候補方策点の位置関係を俯瞰し，実機評価で探索すべき領域を絞り込むための近似として有効である．
+制約充足領域の可視化は，\secref{sec:offline_eval}の\figref{fig:letter_delta_band}に示した通り，固定間隔点と候補方策点の位置関係を俯瞰し，実機評価で探索すべき領域を絞り込むための近似として有効である．
 
 
 \subsection{まとめ}
@@ -288,6 +288,7 @@ $P_{\mathrm{out}}(1\mathrm{s})$は「TL$>\SI{1}{\second}$となるoutageの発�
   \item D4B（CCS-offアブレーション, S4, n=3）では，平均電力をほぼ同一に保ったままCCSの有効化で期限超過率と遅延が改善し，短間隔割り当てのタイミング最適化がQoS改善に寄与する可能性が示唆された．
   \item オフライン評価（制約充足領域の可視化）は，固定間隔点と候補方策点の位置関係を可視化し，実機評価で探索すべき領域を絞り込むための近似として有効である．
 \end{itemize}
+
 
 
 
