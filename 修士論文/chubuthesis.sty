@@ -1,4 +1,4 @@
-% chubuthesis.sty --- 修士論文テンプレート（LuaLaTeX）
+﻿% chubuthesis.sty --- 修士論文テンプレート（LuaLaTeX）
 
 % 例の Word→PDF 修論の体裁を参考に、表紙/要旨/目次/図表キャプション等を整えています。
 
@@ -150,7 +150,7 @@
 \RequirePackage{titlesec}
 \titleformat{\chapter}[display]
   {\normalfont\huge\bfseries\raggedright}
-  {第\arabic{chapter}章}
+  {第　\arabic{chapter}　章}
   {1\baselineskip}
   {\Huge}
 \titleformat{name=\chapter,numberless}[display]
@@ -196,7 +196,7 @@
 
 \RequirePackage{amsmath,amssymb}
 
-\numberwithin{equation}{chapter}
+\numberwithin{equation}{section}
 
 
 
@@ -214,8 +214,8 @@
 
 \RequirePackage{caption}
 
-\renewcommand{\thefigure}{\thechapter-\arabic{figure}}
-\renewcommand{\thetable}{\thechapter-\arabic{table}}
+\renewcommand{\thefigure}{\thechapter.\arabic{figure}}
+\renewcommand{\thetable}{\thechapter.\arabic{table}}
 \captionsetup{labelsep=space}
 
 \captionsetup[figure]{name=図,justification=centering}
@@ -229,7 +229,7 @@
 
 \newcommand{\tabref}[1]{表~\ref{#1}}
 
-\newcommand{\eqrefj}[1]{式~(\ref{#1})}
+\newcommand{\eqrefj}[1]{式(\ref{#1})}
 
 \newcommand{\secref}[1]{\ref{#1}節}
 
@@ -455,25 +455,38 @@
 \newcommand{\makeabstractpage}{%
 \clearpage
 \thispagestyle{empty}
-\noindent 論文要旨
+\noindent {\small 修士論文題目}
 
-\vspace{6mm}
-\begin{center}
-  {\large \ThesisTitle\par}
-\end{center}
+\vspace{2mm}
+\noindent {\normalsize \ThesisTitleLineOne\\\ThesisTitleLineTwo}
 
-\vspace{4mm}
-\noindent \AbstractDepartment\hspace{2em}氏名\hspace{2em}\AuthorFamily\ \AuthorGiven
+\vspace{1mm}
+\noindent\rule{\linewidth}{0.4pt}
 
-\vspace{8mm}
+\vspace{2mm}
+\noindent {\normalsize \underline{\underline{情報工学専攻}}\hspace{2em}氏名\hspace{2em}\underline{\underline{\AuthorFamily\ \AuthorGiven}}}
+
+\vspace{2mm}
 \begin{center}
   論\quad 文\quad 要\quad 旨
 \end{center}
 
-\vspace{6mm}
-\input{frontmatter/abstract}
+\vspace{2mm}
+\noindent\hspace*{1\zw}\input{frontmatter/abstract}
 \clearpage
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

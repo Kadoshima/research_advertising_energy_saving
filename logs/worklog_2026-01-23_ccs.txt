@@ -38,3 +38,11 @@
 2026-01-23 18:02:44 JST chubuthesis.sty: added pdfstringdefDisableCommands for PDF bookmarks; latexmk build ok (main.pdf).
 2026-01-23 18:10:18 JST Reduced sections to <=5 in ch0_introduction.tex and ch5_publicroad.tex by folding headings into prose; rebuilt thesis (main.pdf).
 2026-01-23 18:13:38 JST Flattened bold lead-ins to full prose in ch0_introduction.tex and ch5_publicroad.tex; rebuilt thesis (main.pdf).
+2026-01-23 20:26:57 JST Updated CŽm˜_•¶/WRITING_RULES.md with merged thesis formatting rules and unresolved items.
+2026-01-24 02:13:36 JST Appended resolved formatting decisions to CŽm˜_•¶/WRITING_RULES.md.
+2026-01-24 02:20:01 JST WRITING_RULES.md rewritten with finalized formatting rules (cover year, advisor line, fig/table numbering, equation refs, web ref date, unit spacing).
+2026-01-24 02:30:47 JST Applied thesis formatting rules: updated chubuthesis.sty (chapter spacing, equation numbering by section, figure/table dot numbering, eqref style, abstract signature lines/heading), meta.tex year label, conclusion chapter numbering.
+2026-01-24 02:37:58 JST Updated WRITING_RULES.md abstract layout rules and adjusted chubuthesis.sty makeabstractpage per new format (title line, single/double underline, abstract header and indent).
+2026-01-24 02:56:31 JST Tightened abstract title-to-rule spacing (vspace 1mm -> 0mm) in chubuthesis.sty.
+2026-01-24 03:01:53 JST Tightened abstract title-to-rule spacing further (vspace -1.5mm) in chubuthesis.sty.
+2026-01-24 03:03:54 JST Removed forced line break in abstract title line (use ThesisTitleLineOne only) to reduce spacing before rule.
