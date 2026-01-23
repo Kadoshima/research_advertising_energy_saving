@@ -1,0 +1,61 @@
+[
+  {
+    "added_include_path": "C:\\Users\\tp240\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\3.3.5\\cores\\esp32"
+  },
+  {
+    "added_include_path": "C:\\Users\\tp240\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\3.3.5\\variants\\esp32"
+  },
+  {
+    "compile": {
+      "source_path": "C:\\Users\\tp240\\Documents\\Research\\research_advertising_energy_saving\\_build\\TX_SYNC_PULSE_TEST\\sketch\\TX_SYNC_Pulse_Test.ino.cpp",
+      "object_path": "C:\\Users\\tp240\\Documents\\Research\\research_advertising_energy_saving\\_build\\TX_SYNC_PULSE_TEST\\sketch\\TX_SYNC_Pulse_Test.ino.cpp.o",
+      "depfile_path": "C:\\Users\\tp240\\Documents\\Research\\research_advertising_energy_saving\\_build\\TX_SYNC_PULSE_TEST\\sketch\\TX_SYNC_Pulse_Test.ino.cpp.d"
+    },
+    "compile_task": {
+      "args": [
+        "C:\\Users\\tp240\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp-x32\\2511/bin/xtensa-esp32-elf-g++",
+        "-c",
+        "@C:\\Users\\tp240\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp32-arduino-libs\\idf-release_v5.5-9bb7aa84-v2\\esp32/flags/cpp_flags",
+        "-w",
+        "-Os",
+        "-Werror=return-type",
+        "-w",
+        "-x",
+        "c++",
+        "-E",
+        "-CC",
+        "-DF_CPU=240000000L",
+        "-DARDUINO=10607",
+        "-DARDUINO_ESP32_WROVER_KIT",
+        "-DARDUINO_ARCH_ESP32",
+        "-DARDUINO_BOARD=\"ESP32_WROVER_KIT\"",
+        "-DARDUINO_VARIANT=\"esp32\"",
+        "-DARDUINO_PARTITION_default",
+        "-DARDUINO_HOST_OS=\"windows\"",
+        "-DARDUINO_FQBN=\"esp32:esp32:esp32wroverkit\"",
+        "-DESP32=ESP32",
+        "-DCORE_DEBUG_LEVEL=0",
+        "-DBOARD_HAS_PSRAM",
+        "-mfix-esp32-psram-cache-issue",
+        "-mfix-esp32-psram-cache-strategy=memw",
+        "-DARDUINO_USB_CDC_ON_BOOT=0",
+        "@C:\\Users\\tp240\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp32-arduino-libs\\idf-release_v5.5-9bb7aa84-v2\\esp32/flags/defines",
+        "-IC:\\Users\\tp240\\Documents\\Arduino_MCP_Sketches\\TX_SYNC_Pulse_Test",
+        "-iprefix",
+        "C:\\Users\\tp240\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp32-arduino-libs\\idf-release_v5.5-9bb7aa84-v2\\esp32/include/",
+        "@C:\\Users\\tp240\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp32-arduino-libs\\idf-release_v5.5-9bb7aa84-v2\\esp32/flags/includes",
+        "-IC:\\Users\\tp240\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp32-arduino-libs\\idf-release_v5.5-9bb7aa84-v2\\esp32/qio_qspi/include",
+        "-IC:\\Users\\tp240\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\3.3.5\\cores\\esp32",
+        "-IC:\\Users\\tp240\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\3.3.5\\variants\\esp32",
+        "@C:\\Users\\tp240\\Documents\\Research\\research_advertising_energy_saving\\_build\\TX_SYNC_PULSE_TEST/build_opt.h",
+        "@C:\\Users\\tp240\\Documents\\Research\\research_advertising_energy_saving\\_build\\TX_SYNC_PULSE_TEST/file_opts",
+        "C:\\Users\\tp240\\Documents\\Research\\research_advertising_energy_saving\\_build\\TX_SYNC_PULSE_TEST\\sketch\\TX_SYNC_Pulse_Test.ino.cpp",
+        "-o",
+        "nul"
+      ]
+    }
+  },
+  {
+    "missing_include_h": ""
+  }
+]

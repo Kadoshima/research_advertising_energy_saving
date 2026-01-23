@@ -1,0 +1,9 @@
+{
+  "additionalFiles": "",
+  "compiler.optimization_flags": "-Os",
+  "customBuildProperties": "",
+  "fqbn": "esp32:esp32:esp32wroverkit",
+  "hardwareFolders": "C:\\Users\\tp240\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\3.3.5,C:\\Users\\tp240\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\3.3.5",
+  "otherLibrariesFolders": "C:\\Users\\tp240\\Documents\\Arduino\\libraries",
+  "sketchLocation": "C:\\Users\\tp240\\Documents\\Arduino_MCP_Sketches\\TX_SYNC_Pulse_Test"
+}
