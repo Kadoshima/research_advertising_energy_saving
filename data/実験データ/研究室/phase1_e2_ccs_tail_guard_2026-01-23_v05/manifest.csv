@@ -1,0 +1,7 @@
+trial_id,session,mode,interval_ms,env,notes
+03295148,01,CCS,,E2,ABORT short trial (149.77s) after TX restart; from serial_COM8_20260123_082614_phase1_e2_ccs_tail_guard_v05.log
+00558198_d9087cde_sweep,01,CCS,,E2,tail_guard+WDT; ext power; RX=rx_03297389_2bacad48.csv; TXSD=pwr_00558198_d9087cde_sweep.csv
+01106208_2d7f9d22_sweep,01,CCS,,E2,tail_guard+WDT; ext power; RX=rx_04393423_097252ba.csv; TXSD=pwr_01106208_2d7f9d22_sweep.csv
+01654212_47d22a11_sweep,01,CCS,,E2,tail_guard+WDT; ext power; RX=rx_00010549_47f070c3.csv; TXSD=pwr_01654212_47d22a11_sweep.csv
+02202239_af48d534_sweep,01,CCS,,E2,tail_guard+WDT; ext power; RX=rx_01106578_506cb3c1.csv; TXSD=pwr_02202239_af48d534_sweep.csv
+02750259_ff5bac6a_sweep,01,CCS,,E2,ABORT TXSD empty (0 bytes); RX=rx_02202605_cb97cf0a.csv; TXSD=pwr_02750259_ff5bac6a_sweep.csv

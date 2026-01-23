@@ -1,0 +1,99 @@
+{
+  "summaries": [
+    {
+      "condition": "CCS",
+      "environment": "E2",
+      "n_trials": 5,
+      "avg_current_ma": {
+        "mean": 90.12407709437643,
+        "std": 0.5744667669022246
+      },
+      "energy_saving_pct": 0.0,
+      "tl_p50_ms": 0.0,
+      "tl_p95_ms": 0.0,
+      "pout": {
+        "1s": 0,
+        "2s": 0,
+        "3s": 0
+      },
+      "pdr": 0.8014987635472939
+    }
+  ],
+  "trials": [
+    {
+      "trial_id": "01413883_94c2b81c_sweep",
+      "condition": "CCS",
+      "environment": "E2",
+      "duration_ms": 608100.0,
+      "avg_current_ma": 89.9841432081222,
+      "total_energy_mj": 180573.87970003506,
+      "adv_count": 1858,
+      "rx_unique": 1490,
+      "pdr": 0.8019375672766416,
+      "tl_p50_ms": 0.0,
+      "tl_p95_ms": 0.0,
+      "pout": {},
+      "interval_distribution": {}
+    },
+    {
+      "trial_id": "02027588_eac2cafb_sweep",
+      "condition": "CCS",
+      "environment": "E2",
+      "duration_ms": 599459.0,
+      "avg_current_ma": 90.76591777427285,
+      "total_energy_mj": 179554.47280005782,
+      "adv_count": 1817,
+      "rx_unique": 1454,
+      "pdr": 0.8002201430930105,
+      "tl_p50_ms": 0.0,
+      "tl_p95_ms": 0.0,
+      "pout": {},
+      "interval_distribution": {}
+    },
+    {
+      "trial_id": "02632641_48e55466_sweep",
+      "condition": "CCS",
+      "environment": "E2",
+      "duration_ms": 599459.0,
+      "avg_current_ma": 89.62753198626845,
+      "total_energy_mj": 177302.5012999564,
+      "adv_count": 1812,
+      "rx_unique": 1428,
+      "pdr": 0.7880794701986755,
+      "tl_p50_ms": 0.0,
+      "tl_p95_ms": 0.0,
+      "pout": {},
+      "interval_distribution": {}
+    },
+    {
+      "trial_id": "03237693_f58d6dac_sweep",
+      "condition": "CCS",
+      "environment": "E2",
+      "duration_ms": 599460.0,
+      "avg_current_ma": 90.81851459244592,
+      "total_energy_mj": 179658.8203000392,
+      "adv_count": 1808,
+      "rx_unique": 1452,
+      "pdr": 0.8030973451327433,
+      "tl_p50_ms": 0.0,
+      "tl_p95_ms": 0.0,
+      "pout": {},
+      "interval_distribution": {}
+    },
+    {
+      "trial_id": "03842746_23f87c31_sweep",
+      "condition": "CCS",
+      "environment": "E2",
+      "duration_ms": 599460.0,
+      "avg_current_ma": 89.42427791077274,
+      "total_energy_mj": 176900.71620009304,
+      "adv_count": 1808,
+      "rx_unique": 1472,
+      "pdr": 0.8141592920353983,
+      "tl_p50_ms": 0.0,
+      "tl_p95_ms": 0.0,
+      "pout": {},
+      "interval_distribution": {}
+    }
+  ]
+}

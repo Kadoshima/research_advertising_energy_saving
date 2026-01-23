@@ -1,0 +1,5 @@
+trial_id,session,mode,interval_ms,env,notes
+00007166_5bc8d461_sweep,01,CCS,,E2,ABORT short TXSD (rows=976) + RX empty (rx_00007794_4a5f30ac.csv)
+00562703_a45ded90_sweep,01,CCS,,E2,tail_guard+WDT; ext power; RX=rx_00014111_0c8a1dee.csv; TXSD=pwr_00562703_a45ded90_sweep.csv
+01110739_2a681e37_sweep,01,CCS,,E2,tail_guard+WDT; ext power; RX=rx_01110175_195ee40f.csv; TXSD=pwr_01110739_2a681e37_sweep.csv
+01658785_cb8c7b1f_sweep,01,CCS,,E2,ABORT TXSD empty (0 bytes)

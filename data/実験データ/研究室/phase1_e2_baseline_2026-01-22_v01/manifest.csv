@@ -1,0 +1,7 @@
+trial_id,session,mode,interval_ms,env,notes
+00029818,01,FIXED_100,100,E2,external power; baseline sweep 100msx3->2000msx3; TX_BLE_Adv_Baseline_E2
+00634868,01,FIXED_100,100,E2,external power; baseline sweep 100msx3->2000msx3; TX_BLE_Adv_Baseline_E2
+01239919,01,FIXED_100,100,E2,external power; baseline sweep 100msx3->2000msx3; TX_BLE_Adv_Baseline_E2
+01844969,01,FIXED_2000,2000,E2,external power; baseline sweep 100msx3->2000msx3; TX_BLE_Adv_Baseline_E2
+02450020,01,FIXED_2000,2000,E2,external power; baseline sweep 100msx3->2000msx3; TX_BLE_Adv_Baseline_E2
+03055070,01,FIXED_2000,2000,E2,external power; baseline sweep 100msx3->2000msx3; TX_BLE_Adv_Baseline_E2

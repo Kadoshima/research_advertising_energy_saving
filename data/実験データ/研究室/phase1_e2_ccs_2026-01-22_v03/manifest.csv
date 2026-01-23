@@ -1,0 +1,6 @@
+﻿trial_id,session,mode,interval_ms,env,notes
+01297183,01,CCS,,E2,external power; 5-run batch; TX_BLE_Adv_CCS_Sweep
+01910886,01,CCS,,E2,external power; 5-run batch; TX_BLE_Adv_CCS_Sweep
+02515937,01,CCS,,E2,external power; 5-run batch; TX_BLE_Adv_CCS_Sweep
+03120987,01,CCS,,E2,external power; 5-run batch; TX_BLE_Adv_CCS_Sweep
+03726038,01,CCS,,E2,external power; 5-run batch; TX_BLE_Adv_CCS_Sweep

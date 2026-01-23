@@ -1,0 +1,55 @@
+# phase1_e2_ccs_2026-01-22_v03
+
+目的/範囲
+- E2(高Wi-Fi干渉)環境でCCS制御(600s×5)の実測ログを取得する。
+- TXは外部電源で実施。
+
+入力データ（出所/版/行数/SHA256）
+- 実測のみ（外部データなし）。行数は未集計。
+
+出力物（生成日/生成スクリプト）
+- TXSD: `TXSD/pwr_*.csv`（5本）
+- RX: `RX/rx_*.csv`（5本）
+- `manifest.csv`
+- serial_capture: `logs/serial_capture/serial_COM8_20260122_123652_phase1_e2_ccs_v03.log`, `logs/serial_capture/serial_COM9_20260122_123652_phase1_e2_ccs_v03.log`
+- 生成日: 2026-01-22（手動コピー, D:\logs から回収）
+
+再現手順（コマンド）
+1) `python scripts/serial_capture.py --ports COM8,COM9 --baud 115200 --out-dir logs/serial_capture --duration 0 --tag phase1_e2_ccs_v03`
+2) TX起動（REPS_PER_MODE=5, SESSION_DURATION_S=600, 外部電源）
+3) SD回収 -> D:\logs\*.csv を本フォルダへコピー
+
+状態
+- draft
+
+関連リンク
+- `docs/フェーズ1/要件定義.md`
+- `docs/TODO.md`
+
+環境（E2）
+- AP直下, 2.4GHz ON, 強度 ~ -20 dBm（Analiti）
+- 他Wi-Fi ~ -40〜-48 dBm
+- 2412〜2472 MHz
+
+ファームウェア
+- TX: `Arduino_MCP_Sketches/TX_BLE_Adv_CCS_Sweep`（REPS_PER_MODE=5, SESSION_DURATION_S=600, 外部電源, ccs_session_data.h は `esp32_firmware/20260121_phase1_e2_ccs/ccs_session_data.h`）
+- RX: `esp32_firmware/20260121_phase1_e2_ccs/RX_CCS_E2.ino`（program_id=RX_CCS_E2_20260121）
+- TXSD: `esp32_firmware/20260121_phase1_e2_ccs/TXSD_CCS_E2.ino`（program_id=TXSD_CCS_E2_20260121）
+
+SHA256
+TXSD
+- pwr_01413883_94c2b81c_sweep.csv: A0BCBC48F5B3E13F7D29CC060009A7B12F1BD449B241D22622F9B1375A661D1F
+- pwr_02027588_eac2cafb_sweep.csv: 8BBD50F521F71FD7041B2F99BFE34AFB19A1C4CD76E37AAD7E1F39257B4D434C
+- pwr_02632641_48e55466_sweep.csv: 7B989AAE9CEEA33933FC17C769EFC717FDC8EA3E6C6918BC64280B973A299C22
+- pwr_03237693_f58d6dac_sweep.csv: DE8D65186E3B5977D1200090F6DF92DD455595B067CD7332A3CEAADCFF2FD11B
+- pwr_03842746_23f87c31_sweep.csv: E61DAC9FBF642F5BDF180F69338A1236874CD592FEE96334C9FD0304725C4409
+
+RX
+- rx_01297183_f8a0a210.csv: 84193DDD3513C8E3F999C05523F3B1AF1AA5A050D5B3A1FE2E4C76540BAD9004
+- rx_01910886_48a3fed1.csv: 8B86B632BE16A9197B58E6C1D5252E6772820571F7C51919C5358237C875F8D7
+- rx_02515937_5d9decc7.csv: 94B76B6AEB686ED054212CD24D5835452831664D0F8BEC9DC3DFF0578C4FF9AE
+- rx_03120987_4df0de46.csv: EDFFE43EF041B8C442C58AF12A899720C3D4E19B31AEA84AE3FD5EE5378AA1AC
+- rx_03726038_05e3138b.csv: 2716567688A1FFCFAD97E7FBFC4E6F0372E65D5A009120950E2866AE4BBD7731
+
+更新履歴（YYYY-MM-DD）
+- 2026-01-22: 初版（E2/CCS v03, 5本）
