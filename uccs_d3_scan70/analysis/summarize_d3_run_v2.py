@@ -283,14 +283,28 @@ def estimate_rx_tag_share100_time_est(events: List[RxEvent]) -> Optional[float]:
     return (n100 * 100) / denom_ms
 
 
+def split_adv_clusters(values: List[int]) -> List[List[int]]:
+    """
+    Split adv_count values into 3 clusters using the two largest gaps.
+    """
+    vals = sorted(values)
+    if len(vals) <= 3:
+        return [[v] for v in vals]
+    gaps = [(vals[i + 1] - vals[i], i) for i in range(len(vals) - 1)]
+    gaps_sorted = sorted(gaps, key=lambda x: x[0], reverse=True)
+    split_idxs = sorted([idx for _, idx in gaps_sorted[:2]])
+    i1, i2 = split_idxs
+    return [vals[: i1 + 1], vals[i1 + 1 : i2 + 1], vals[i2 + 1 :]]
+
+
 def classify_txsd_groups_by_adv_count(txsd_trials: List[TxsdTrial]) -> Dict[str, List[TxsdTrial]]:
     """
     Group TXSD trials by adv_count (tick_count).
 
-    For D3 we expect three dominant adv_count values:
-      - min  -> fixed500
-      - mid  -> policy
-      - max  -> fixed100
+    For D3 we expect three dominant adv_count clusters:
+      - min cluster  -> fixed500
+      - mid cluster  -> policy
+      - max cluster  -> fixed100
     """
     by_adv: Dict[int, List[TxsdTrial]] = {}
     for t in txsd_trials:
@@ -300,20 +314,26 @@ def classify_txsd_groups_by_adv_count(txsd_trials: List[TxsdTrial]) -> Dict[str,
     if len(adv_values) < 3:
         raise SystemExit(f"TXSD adv_count has <3 unique values: {adv_values}")
 
-    adv_min = adv_values[0]
-    adv_max = adv_values[-1]
-    if len(adv_values) == 3:
-        adv_mid = adv_values[1]
-    else:
-        # choose the value closest to the midpoint of min/max
-        target = (adv_min + adv_max) / 2.0
-        inner = adv_values[1:-1]
-        adv_mid = min(inner, key=lambda v: abs(v - target))
+    clusters = split_adv_clusters(adv_values)
+    if len(clusters) != 3 or any(not c for c in clusters):
+        raise SystemExit(f"TXSD adv_count clustering failed: {adv_values}")
+
+    means = [(sum(c) / len(c), c) for c in clusters]
+    means.sort(key=lambda x: x[0])
+    low = means[0][1]
+    mid = means[1][1]
+    high = means[2][1]
+
+    def collect(cluster: List[int]) -> List[TxsdTrial]:
+        merged: List[TxsdTrial] = []
+        for v in cluster:
+            merged.extend(by_adv[v])
+        return sorted(merged, key=lambda t: t.path.name)
 
     return {
-        "S4_fixed500": sorted(by_adv[adv_min], key=lambda t: t.path.name),
-        "S4_policy": sorted(by_adv[adv_mid], key=lambda t: t.path.name),
-        "S4_fixed100": sorted(by_adv[adv_max], key=lambda t: t.path.name),
+        "S4_fixed500": collect(low),
+        "S4_policy": collect(mid),
+        "S4_fixed100": collect(high),
     }
 
 

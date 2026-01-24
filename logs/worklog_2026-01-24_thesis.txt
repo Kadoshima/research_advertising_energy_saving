@@ -113,3 +113,14 @@
 2026-01-24 21:29 JST
 - D3/D4B scan70: SYNC_START(26)/SYNC_END(25) 運用に合わせてTX/RX/TXSDを改修
 - ドキュメント更新: uccs_d3_scan70/README.md, uccs_d4b_scan70/README.md, docs/フェーズ1/uccs_n10_2026-01-24/README.md
+2026-01-24 21:55:21 JST TX_UCCS_D3_SCAN70 REPEAT=10 (Arduino_MCP_Sketches) ???COM6 ?????? (port busy) ? ????????????????
+2026-01-25 00:08:29 JST TX_UCCS_D3_SCAN70 REPEAT=10 ?? COM6 ???????? (FQBN=esp32:esp32:esp32wroverkit)
+2026-01-25 00:13:04 JST D3 scan70 n10 run01 を本採用。TXSD preamble パルスが+1で cond_id が c2/c3/c4 になったため、解析は adv_count/RXタグで再ラベルする方針を記録。
+2026-01-25 00:22:20 JST D3 TXSD preamble window を 300ms に短縮 (PROGRAM_ID=v2)。repo+Arduino_MCP_Sketches を更新。COM8 書き込みは port busy で失敗、再試行待ち。
+2026-01-25 00:31:37 JST D3 TXSDログを uccs_d3_scan70/data/02_n10_run01/TX にコピー (D:\logs\trial_*.csv, 33 files)。run README を追加。
+2026-01-25 00:35:35 JST D3 RXログを uccs_d3_scan70/data/02_n10_run01/RX にコピー (D:\logs\rx_trial_*.csv, 33 files)。run README を更新。
+2026-01-25 00:42:34 JST D3 run 02_n10_run01: manifest.csv 作成 (rows=66, sha256=fe427d3f1b9ded73e6106d7a042c13e2a05c0e27759b6b765422dbc783c42ed4)。docs/フェーズ1/uccs_n10_2026-01-24/README.md と uccs_d3_scan70/data/02_n10_run01/README.md に行数/SHA256追記。
+2026-01-25 00:48:59 JST D3 run 02_n10_run01 manifest.csv に start_ts_jst=2026-01-24 22:00 JST と distance_m=1 を記入。SHA256 更新=51b013a097a3f9eca7b568f3fe9ddc16a448da0d2f92bace02877a0f6f40f99b。
+2026-01-25 00:53:03 JST summarize_d3_run_v2.py のTXSD分類を adv_count クラスタ(最大2ギャップ分割)に変更。n=10で 357/358, 1225/1226, 1789/1790 を同条件扱いできるよう調整。
+2026-01-25 00:55:15 JST D3 02_n10_run01 集計出力を確認: uccs_d3_scan70/metrics/02_n10_run01 に summary.md / summary_by_condition.csv / per_trial.csv を生成。
+2026-01-25 01:00:56 JST docs/フェーズ1/uccs_n10_2026-01-24/README.md に D3 scan70 n10 集計結果（summary.md の主要値/差分）を追記。

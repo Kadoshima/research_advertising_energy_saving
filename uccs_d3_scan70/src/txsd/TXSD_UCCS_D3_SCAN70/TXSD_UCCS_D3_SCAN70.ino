@@ -32,10 +32,10 @@ static const uint32_t FALLBACK_MS  = 2400000; // safety fallback
 static const uint32_t MIN_TRIAL_MS = 1000;
 static const uint32_t TICK_PER_TRIAL = 0;     // 0=disabled (use SYNC to end)
 static const char SUBJECT_ID[] = "uccs_d3_scan70";
-static const char PROGRAM_ID[] = "TXSD_UCCS_D3_SCAN70_v1";
+static const char PROGRAM_ID[] = "TXSD_UCCS_D3_SCAN70_v2";
 
 // Preamble window (count TICK pulses after SYNC rising edge)
-static const uint32_t PREAMBLE_WINDOW_MS = 800;
+static const uint32_t PREAMBLE_WINDOW_MS = 300; // keep short to avoid counting first adv tick
 static const uint8_t PREAMBLE_MAX_ID = 16;
 static const uint32_t START_DEBOUNCE_MS = 100;
 static const uint32_t END_DEBOUNCE_MS = 100;

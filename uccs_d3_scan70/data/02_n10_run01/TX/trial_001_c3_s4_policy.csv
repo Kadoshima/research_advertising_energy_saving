@@ -1,0 +1,3 @@
+ms,mV,uA,p_mW,program_id
+# meta, firmware=TXSD_UCCS_D3_SCAN70, cond_id=3, tag=s4_policy, subject=uccs_d3_scan70
+# meta, policy=actions{100,500} u_mid=0.20 u_high=0.35 c_mid=0.20 c_high=0.35 hyst=0.02 ema_alpha=0.20 ccs_inverted=true preamble_guard=true
