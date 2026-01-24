@@ -143,7 +143,9 @@ def main() -> None:
     ax.set_ylabel("pout_1s")
     ax.set_axisbelow(True)
     ax.grid(True, alpha=0.3)
-    ax.set_title(args.title.strip() or f"{args.summary_csv.parent.name}: avg_power vs pout_1s (D3 scan70, S4)")
+    title = args.title.strip()
+    if title:
+        ax.set_title(title)
     ax.legend(loc="upper right", frameon=True, fontsize=9)
 
     args.out.parent.mkdir(parents=True, exist_ok=True)

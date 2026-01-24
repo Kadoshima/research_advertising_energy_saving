@@ -1,6 +1,6 @@
 // RX_UCCS_D3_SCAN70.ino (uccs_d3_scan70)
 // Receive TX_UCCS_D3 packets (MFD "<step_idx>_<tag>") and log to SD.
-// - SYNC gate: TX GPIO25 -> RX GPIO26.
+// - SYNC gate: TX GPIO26 (START) / GPIO25 (END) -> RX GPIO26/25.
 // - NimBLE passive scan with scan70% (interval=100ms, window=70ms).
 
 #include <Arduino.h>
@@ -13,15 +13,16 @@ static const int SD_CS   = 5;
 static const int SD_SCK  = 18;
 static const int SD_MISO = 19;
 static const int SD_MOSI = 23;
-static const int SYNC_IN = 26; // TX GPIO25 -> RX GPIO26
+static const int SYNC_START_IN = 26; // TX GPIO26 -> RX GPIO26
+static const int SYNC_END_IN = 25;   // TX GPIO25 -> RX GPIO25
 
 // scan70
 static const float SCAN_INTERVAL_MS = 100.0f;
 static const float SCAN_WINDOW_MS   = 70.0f;
 
 static const uint32_t SESSION_TIMEOUT_MS = 1200000;
-static const uint32_t SYNC_LOW_DEBOUNCE_MS = 100;
-static const uint32_t START_LEVEL_HOLD_MS = 200;
+static const uint32_t START_DEBOUNCE_MS = 100;
+static const uint32_t END_DEBOUNCE_MS = 100;
 
 static inline uint16_t ms_to_0p625(float ms){ return (uint16_t)lroundf(ms / 0.625f); }
 
@@ -46,11 +47,14 @@ static uint32_t lastFlushMs = 0;
 static bool trial = false;
 static uint32_t t0Ms = 0;
 static uint32_t rxCount = 0;
-static uint32_t syncLowSince = 0;
-static uint32_t syncHighSince = 0;
+static int lastSyncStart = LOW;
+static int lastSyncEnd = LOW;
+static uint32_t lastStartEdgeMs = 0;
+static uint32_t lastEndEdgeMs = 0;
 
 static File f;
 static const char FW_TAG[] = "RX_UCCS_D3_SCAN70";
+static const char PROGRAM_ID[] = "RX_UCCS_D3_SCAN70_v1";
 static bool condSeen = false;
 static bool condWritten = false;
 static char condLabel[16] = {0};
@@ -87,13 +91,14 @@ static void flushBuffer() {
   bool wrote = false;
   while (rxTail != head) {
     RxEntry& e = rxBuf[rxTail];
-    f.printf("%lu,ADV,%d,%u,%s,%s,%s\r\n",
+    f.printf("%lu,ADV,%d,%u,%s,%s,%s,%s\r\n",
              (unsigned long)e.ms,
              (int)e.rssi,
              (unsigned)e.seq,
              e.label,
              e.addr,
-             e.mfd);
+             e.mfd,
+             PROGRAM_ID);
     rxTail = (rxTail + 1) % RX_BUF_SIZE;
     wrote = true;
   }
@@ -104,7 +109,7 @@ static void startSession() {
   String path = nextPath();
   f = SD.open(path, FILE_WRITE);
   if (f) {
-    f.println("ms,event,rssi,seq,label,addr,mfd");
+    f.println("ms,event,rssi,seq,label,addr,mfd,program_id");
     f.printf("# meta, firmware=%s, buf_size=%u\r\n", FW_TAG, (unsigned)RX_BUF_SIZE);
     f.printf("# meta, scan_interval_ms=%.1f, scan_window_ms=%.1f\r\n", SCAN_INTERVAL_MS, SCAN_WINDOW_MS);
     f.flush();
@@ -182,7 +187,8 @@ void setup() {
     while (1) delay(1000);
   }
 
-  pinMode(SYNC_IN, INPUT_PULLDOWN);
+  pinMode(SYNC_START_IN, INPUT_PULLDOWN);
+  pinMode(SYNC_END_IN, INPUT_PULLDOWN);
 
   NimBLEDevice::init("");
   scan = NimBLEDevice::getScan();
@@ -198,24 +204,24 @@ void setup() {
   // start(duration_s, isContinue, restart)
   scan->start(0, false, false);
 
-  Serial.printf("[RX] ready (buf=%u, flush=%lums, wait SYNC pin=%d)\n",
-                (unsigned)RX_BUF_SIZE, (unsigned long)FLUSH_INTERVAL_MS, SYNC_IN);
+  Serial.printf("[RX] ready (buf=%u, flush=%lums, sync_start=%d, sync_end=%d)\n",
+                (unsigned)RX_BUF_SIZE, (unsigned long)FLUSH_INTERVAL_MS,
+                SYNC_START_IN, SYNC_END_IN);
 }
 
 void loop() {
   uint32_t nowMs = millis();
-  int syncIn = digitalRead(SYNC_IN);
+  int syncStart = digitalRead(SYNC_START_IN);
+  int syncEnd = digitalRead(SYNC_END_IN);
+  bool startRise = (syncStart == HIGH) && (lastSyncStart == LOW);
+  bool endRise = (syncEnd == HIGH) && (lastSyncEnd == LOW);
+  lastSyncStart = syncStart;
+  lastSyncEnd = syncEnd;
 
   if (!trial) {
-    if (syncIn == HIGH) {
-      if (syncHighSince == 0) syncHighSince = nowMs;
-      if ((nowMs - syncHighSince) >= START_LEVEL_HOLD_MS) {
-        startSession();
-        syncHighSince = 0;
-        syncLowSince = 0;
-      }
-    } else {
-      syncHighSince = 0;
+    if (startRise && (nowMs - lastStartEdgeMs) >= START_DEBOUNCE_MS) {
+      startSession();
+      lastStartEdgeMs = nowMs;
     }
     vTaskDelay(pdMS_TO_TICKS(10));
     return;
@@ -226,14 +232,9 @@ void loop() {
     lastFlushMs = nowMs;
   }
 
-  if (syncIn == LOW) {
-    if (syncLowSince == 0) syncLowSince = nowMs;
-    if ((nowMs - syncLowSince) >= SYNC_LOW_DEBOUNCE_MS) {
-      endSession();
-      syncLowSince = 0;
-    }
-  } else {
-    syncLowSince = 0;
+  if (endRise && (nowMs - lastEndEdgeMs) >= END_DEBOUNCE_MS) {
+    endSession();
+    lastEndEdgeMs = nowMs;
   }
 
   if ((nowMs - t0Ms) >= SESSION_TIMEOUT_MS) {

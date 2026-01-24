@@ -4,8 +4,8 @@
 
 本研究の一次KPIは，省電力指標$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）とQoS（TL，$P_{\mathrm{out}}(\tau)$）である．これらを同一試行で評価するため，送信（TX），電力（TXSD），受信（RX）の三ノード構成を採用し，同期信号で試行区間を揃える．本節では，計測方式とログ設計を「再現できる手順」として整理する．
 
-\subsection{三ノード構成（TX/TXSD/RX）}
-各ノードの役割を\tabref{tab:nodes}に示す．
+まず，三ノード構成（TX/TXSD/RX）について述べる．
+各ノードの役割を\tabref{tab:nodes}に示す．本研究では，送信ノード（TX）がBLEアドバタイジングと間隔制御を担い，電力計測ノード（TXSD）がINA219を用いて電圧・電流系列と集約指標を記録し，受信ノード（RX）が受信時刻・RSSI・ペイロードをログとして保持する．
 
 \begin{table}[tb]
   \centering
@@ -22,7 +22,7 @@
   \end{tabular}
 \end{table}
 \noindent 機材と計測パラメータについて述べる．
-本研究の計測は，汎用マイコン（ESP32系）と電流センサ（INA219）を中心に構成する．\tabref{tab:hw}に，主要な構成要素と役割を示す．
+本研究の計測は，汎用マイコン（ESP32系）と電流センサ（INA219）を中心に構成する．\tabref{tab:hw}に，計測システムの主要構成要素と役割を示す．各要素は，BLEアドバタイジング送信（TX），電力計測（TXSD），受信ログ取得（RX），電流・電圧計測（INA219），および同期信号（SYNC/TICK）の機能を分担する．
 
 \begin{table}[tb]
   \centering
@@ -41,13 +41,13 @@
   \end{tabularx}
 \end{table}
 
-\subsection{同期設計（SYNC/TICK）}
+次に，同期設計（SYNC/TICK）について述べる．
 \noindent SYNC（試行区間の整列）について述べる．
 試行（trial）の開始・終了を揃えるために，同期信号（SYNC）を用いる．TXは試行区間の境界でSYNC信号を出力し，TXSDおよびRXはこの信号に同期してログ取得区間を区切る．SYNCにより，「どの区間の電力・受信ログを比較するか」を明確化できる．
 \noindent TICK（アドバタイジング回数の物理カウント）について述べる．
-アドバタイジングイベント数$N_{\mathrm{adv}}$（定義は\secref{sec:metrics_detail}）は，到達性指標の分母として重要である．可能であれば，TXがTICK信号を出力し，TXSD側で割り込みによりアドバタイジング回数を物理カウントする．TICKが利用できない場合は，試行時間とアドバタイジング間隔から期待値を算出するが，動的制御下では推定誤差が生じる可能性がある点に留意が必要である．
+アドバタイジングイベント数$N_{\mathrm{adv}}$（定義は\secref{sec:metrics_detail}を参照）は，到達性指標の分母として重要である．可能であれば，TXがTICK信号を出力し，TXSD側で割り込みによりアドバタイジング回数を物理カウントする．TICKが利用できない場合は，試行時間とアドバタイジング間隔から期待値を算出するが，動的制御下では推定誤差が生じる可能性がある点に留意が必要である．
 \noindent 配線例（UCCS評価）について述べる．
-本研究で用いた配線例を\tabref{tab:wiring_example}に示す（実験ディレクトリのREADMEに準拠）．ピン番号は実装に依存するため，運用時はRunbookに記録して固定する（\secref{sec:runbook}）．
+本研究で用いた配線例を\tabref{tab:wiring_example}に示す（実験ディレクトリのREADMEに準拠）．ピン番号は実装に依存するため，運用時はRunbookに記録して固定する（\secref{sec:runbook}を参照）．
 
 \begin{table}[tb]
   \centering
@@ -63,50 +63,39 @@
   \end{tabular}
 \end{table}
 
-\figref{fig:measurement_architecture_esp32_three_node}に，外部電源およびINA219を含む三ノード計測系（TX/TXSD/RX）の配線・信号構成を示す．
+\figref{fig:measurement_architecture_esp32_three_node}に，外部電源およびINA219を含む三ノード計測系（TX/TXSD/RX）の配線・信号構成を示す．図中の破線矢印は同期信号（SYNC/TICK）の接続を，実線矢印は電力供給経路を，円筒形アイコンはログ保存先を表す．
 
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.98\linewidth]{figures/measurement_architecture_esp32_three_node}
-  \caption{三ノード計測系のシステムアーキテクチャ}
+  \caption{三ノード計測系のシステムアーキテクチャ（破線：同期信号，実線：電力供給，円筒：ログ保存）}
   \label{fig:measurement_architecture_esp32_three_node}
 \end{figure}
 
-\subsection{ログ設計とスキーマ}
-解析の再現性を担保するため，ログの列（カラム）を固定する．本研究では，TXSDログ末尾のsummary（例：$N_{\mathrm{adv}}$，$E$，$\overline{P}$）を一次情報として扱い，RXログはPDR/TL評価の基礎とする．ログスキーマの詳細は\secref{sec:log_schema}に示す．
+続いて，ログ設計とスキーマについて述べる．
+解析の再現性を担保するため，ログの列（カラム）を固定する．本研究では，TXSDログ末尾のsummary（例：$N_{\mathrm{adv}}$，$E$，$\overline{P}$）を一次情報として扱い，RXログはPDR/TL評価の基礎とする．ログスキーマの詳細は\secref{sec:log_schema}を参照されたい．
 \noindent TXSD（電力）ログについて述べる．
-TXSDログは，時刻と計測値（電圧・電流）を行ごとに保持し，末尾に集約値を出力する．積分は$\Delta t$を用いた逐次積分とし，後処理でも再積分して整合性を確認する（計測系の健全化は\secref{sec:measurement_system}で述べる）．
+TXSDログは，時刻と計測値（電圧・電流）を行ごとに保持し，末尾に集約値を出力する．積分は$\Delta t$を用いた逐次積分とし，後処理でも再積分して整合性を確認する（計測系の健全化は\secref{sec:measurement_system}を参照）．
 \noindent RX（受信）ログについて述べる．
-RXログは，受信時刻，RSSI，ペイロード（seq等）を保持する．重複受信があるため，seqでユニーク化した件数を併記する（\secref{sec:metrics_detail}）．また，TL/Pout算出にはRXログとtruthの時間軸整合が必要であり，定数オフセット補正を用いる（定義と実装は\secref{sec:stress_fixed_metrics}で述べる）．
+RXログは，受信時刻，RSSI，ペイロード（seq等）を保持する．重複受信があるため，seqでユニーク化した件数を併記する（\secref{sec:metrics_detail}を参照）．また，TL/Pout算出にはRXログとtruthの時間軸整合が必要であり，定数オフセット補正を用いる（定義と実装は\secref{sec:stress_fixed_metrics}を参照）．
 \noindent ファイル命名について述べる．
 ログは試行単位で分割し，\texttt{\detokenize{trial_XXX.csv}}等の連番で管理する．条件IDやスキャン設定の違いは，preambleの条件ID（TICKパルス等）と作業ログにより追跡する．
 
-\subsection{計測方針（電力とQoSの同時評価）}
-本研究では，電力とQoSを同一試行で同時に評価する．電力はTXSD，QoSはRXを主に用いる．ただし，動的切替では「イベント時刻の定義」と「時間同期」が結果を左右するため，指標定義（特にTL/Pout）は\secref{sec:stress_fixed_metrics}で固定する．
+その後，計測方針（電力とQoSの同時評価）について述べる．
+本研究では，電力とQoSを同一試行で同時に評価する．電力はTXSD，QoSはRXを主に用いる．ただし，動的切替では「イベント時刻の定義」と「時間同期」が結果を左右するため，指標定義（特にTL/Pout）は\secref{sec:stress_fixed_metrics}を参照して固定する．
 \noindent ON/OFF差分とスリープについて述べる．
-省電力指標$q_{\mathrm{event}}$は，電荷積分に基づくため，ログ欠損や単位不整合の影響を強く受ける．そのため，アドバタイジングON/OFF差分による基準補正や，生ログを用いた再積分による整合性確認が不可欠である．また，送信側がlight sleep等に入れる条件では，アドバタイジング間隔を伸ばすことが平均電力低下に直結する．sleepの有無は条件として明示し，同一コード系列で比較する（運用手順は\secref{sec:runbook}）．
+省電力指標$q_{\mathrm{event}}$は，電荷積分に基づくため，ログ欠損や単位不整合の影響を強く受ける．そのため，アドバタイジングON/OFF差分による基準補正や，生ログを用いた再積分による整合性確認が不可欠である．また，送信側がlight sleep等に入れる条件では，アドバタイジング間隔を伸ばすことが平均電力低下に直結する．sleepの有無は条件として明示し，同一コード系列で比較する（運用手順は\secref{sec:runbook}を参照）．
 
-受信側のスキャン挙動は端末・OS状態に依存するため，実験では運用手順を固定する必要がある．特に，スキャンモード，画面状態，電源状態等を統一し，端末内比較の前提を守る．実験前のチェックリストは\secref{sec:runbook}に示す．
+受信側のスキャン挙動は端末・OS状態に依存するため，実験では運用手順を固定する必要がある．特に，スキャンモード，画面状態，電源状態等を統一し，端末内比較の前提を守る．実験前のチェックリストは\secref{sec:runbook}を参照されたい．
 \noindent スキャンアプリと設定例について述べる．
-受信ログは，BLEスキャナアプリ（例：nRF Connect）等を用いて取得する．再現性の観点から，以下を固定する．
-\begin{itemize}
-  \item スキャンモード：LOW\_LATENCY相当（可能な範囲で最も積極的なスキャン）
-  \item フィルタ：対象UUID等でフィルタする場合は条件として明記し，条件間で統一する
-  \item 画面：試行中は画面ONを維持し，アプリを前面に置く
-\end{itemize}
+受信ログは，BLEスキャナアプリ（例：nRF Connect）等を用いて取得する．再現性の観点から，スキャンモード（LOW\_LATENCY相当，可能な範囲で最も積極的なスキャン），フィルタ（対象UUID等でフィルタする場合は条件として明記し条件間で統一する），および画面状態（試行中は画面ONを維持しアプリを前面に置く）を固定する．
 \noindent 端末状態の固定（端末内比較の前提）について述べる．
 OSの省電力機構によりバックグラウンド制約やスロットリングが生じ得るため，試行間で端末状態を揃えることが重要である．具体的には，省電力設定の固定，機内モード・Wi-Fi状態の固定，バックグラウンド制限の解除等をRunbookに従って統一する．
 
-本研究の解析は，ログを読み込んで指標を算出し，条件ごとに集約して図表を生成する流れである．最小構成として，以下を満たすことを解析の妥当性判断基準とする．
-\begin{itemize}
-  \item 試行区間がSYNCで正しく切れている（期間$T$が想定と一致する）．
-  \item TXSDの集約値と後処理の再積分が同程度である（単位・欠損が健全）．
-  \item RXのPDR\_uniqueが0付近にならない（受信系が動作している）．
-  \item TL/Poutの算出に時間同期（定数オフセット補正）を適用できる．
-\end{itemize}
+本研究の解析は，ログを読み込んで指標を算出し，条件ごとに集約して図表を生成する流れである．最小構成として，試行区間がSYNCで正しく切れていること（期間$T$が想定と一致する），TXSDの集約値と後処理の再積分が同程度であること（単位・欠損が健全），RXのPDR\_uniqueが0付近にならないこと（受信系が動作している），およびTL/Poutの算出に時間同期（定数オフセット補正）を適用できることを解析の妥当性判断基準とする．
 
-\subsection{まとめ}
-本節では，実験装置の構成，同期設計，ログ設計，および運用上の前提を整理した．以降の節では，計測系の不具合要因と修正履歴を\secref{sec:measurement_system}にまとめ，評価の前提を固定する．
+最後にまとめを述べる．
+本節では，実験装置の構成，同期設計，ログ設計，および運用上の前提を整理した．以降の節では，計測系の不具合要因と修正履歴を\secref{sec:measurement_system}を参照してまとめ，評価の前提を固定する．
 
 
 

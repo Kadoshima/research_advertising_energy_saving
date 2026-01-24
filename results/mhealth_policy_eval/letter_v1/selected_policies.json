@@ -1,9 +1,9 @@
 {
   "inputs": {
-    "pareto_csv": "results/mhealth_policy_eval/pareto_front_v5_power_table/pareto_sweep.csv",
-    "fixed_metrics": "results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_enriched_scan90_v4.csv",
-    "power_table": "results/mhealth_policy_eval/power_table_sleep_eval_2025-12-13.csv",
-    "har_dir": "data/mhealth_synthetic_sessions_v1/sessions",
+    "pareto_csv": "results\\mhealth_policy_eval\\pareto_front_v5_power_table\\pareto_sweep.csv",
+    "fixed_metrics": "results\\stress_fixed\\scan90\\stress_causal_real_summary_1211_stress_agg_enriched_scan90_v4.csv",
+    "power_table": "results\\mhealth_policy_eval\\power_table_sleep_eval_2025-12-13.csv",
+    "har_dir": "data\\mhealth_synthetic_sessions_v1\\sessions",
     "transition_ccs_thresh": 0.3
   },
   "context_weights": {

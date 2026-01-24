@@ -32,7 +32,7 @@ def load_config(config_path: str) -> dict:
     return config
 
 
-def run_simulation(algorithm, reward_model, constraint_model, T, rng):
+def run_simulation(algorithm, reward_model, constraint_model, T, epsilon, rng):
     """シミュレーション実行"""
     history = {
         "t": [],
@@ -49,8 +49,7 @@ def run_simulation(algorithm, reward_model, constraint_model, T, rng):
 
         # 報酬と制約をサンプル
         reward = reward_model.sample(action, rng)
-        pout_actual = constraint_model.predict(action)
-        constraint_violation = float(pout_actual > constraint_model.tau)
+        constraint_violation = constraint_model.sample_violation(action, rng)
 
         # 更新
         algorithm.update(action, reward, constraint_violation)
@@ -81,7 +80,6 @@ def plot_results(results, output_dir: Path, epsilon: float):
 
     plt.xlabel("Time step t", fontsize=12)
     plt.ylabel("Cumulative Regret", fontsize=12)
-    plt.title("Regret vs Oracle (lower is better)", fontsize=14)
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
@@ -97,10 +95,8 @@ def plot_results(results, output_dir: Path, epsilon: float):
         violation_rate = violations / t_array
         plt.plot(t_array, violation_rate, label=method, linewidth=2)
 
-    plt.axhline(y=epsilon, color="r", linestyle="--", label=f"epsilon={epsilon} (constraint)")
     plt.xlabel("Time step t", fontsize=12)
     plt.ylabel("Violation Rate", fontsize=12)
-    plt.title("Constraint Violation Rate (should be <= epsilon)", fontsize=14)
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
@@ -118,7 +114,6 @@ def plot_results(results, output_dir: Path, epsilon: float):
 
     plt.xlabel("Time step t", fontsize=12)
     plt.ylabel("Average Energy [μJ/event]", fontsize=12)
-    plt.title("Energy Consumption (lower is better)", fontsize=14)
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
@@ -214,7 +209,7 @@ def main():
     for method, algorithm in algorithms.items():
         print(f"  {method}...", end="", flush=True)
         results[method] = run_simulation(
-            algorithm, reward_model, constraint_model, T, rng
+            algorithm, reward_model, constraint_model, T, epsilon, rng
         )
         print(" done")
 

@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
 Build a single "letter-ready" plot:
-- x: avg_power_mW (optionally overridden by power_table)
-- y: pout_1s
-- draw δ lines (default: 0.13/0.15/0.17)
+- x: pout_1s
+- y: avg_power_mW (optionally overridden by power_table)
+- draw eps lines (default: 0.13/0.15/0.17)
 - show all Pareto sweep points (U+CCS grid)
 - overlay fixed baselines (Fixed 100/500/1000/2000) computed with the same stable/transition mixing rule
 - highlight 3 selected policies:
-    - P_minPower at δ=0.13
-    - P_mid at δ=0.15 (power + switch penalty)
-    - P_safe at δ=0.17 (min switch_rate)
+    - P_minPower at eps=0.13
+    - P_mid at eps=0.15 (power + switch penalty)
+    - P_safe at eps=0.17 (min switch_rate)
 
 This is for Phase 1 (letter) narrative: "constraint boundary exists and a simple rule can trade off QoS vs power".
 """
@@ -83,7 +83,7 @@ def fixed_point(
     transition_ratio: float,
 ) -> Tuple[float, float]:
     """
-    Returns (avg_power_mW, pout_1s) for Fixed interval, using stable->S1 / transition->S4 mixing.
+    Returns (pout_1s, avg_power_mW) for Fixed interval, using stable->S1 / transition->S4 mixing.
     """
     s1 = fixed_metrics[fixed_metrics["session"] == "S1"].set_index("interval_ms")
     s4 = fixed_metrics[fixed_metrics["session"] == "S4"].set_index("interval_ms")
@@ -93,7 +93,7 @@ def fixed_point(
     power = float(power_map.get(interval_ms, np.nan))
     if not np.isfinite(power):
         raise SystemExit(f"interval_ms={interval_ms} missing in power_table.")
-    return power, pout
+    return pout, power
 
 
 @dataclass(frozen=True)
@@ -112,14 +112,14 @@ def pick_policies(pareto: pd.DataFrame) -> List[Selected]:
         df = pareto[pareto["pout_1s"] <= delta].copy()
         df = df.sort_values(["avg_power_mW", "pout_1s", "switch_rate", "adv_rate"]).head(1)
         if df.empty:
-            raise SystemExit(f"No feasible policies for δ={delta}")
+            raise SystemExit(f"No feasible policies for eps={delta}")
         r = df.iloc[0].to_dict()
         return Selected(name="P_minPower", delta=delta, row=r)
 
     def pick_mid(delta: float, power_slack_mw: float = 2.5) -> Selected:
         df = pareto[pareto["pout_1s"] <= delta].copy()
         if df.empty:
-            raise SystemExit(f"No feasible policies for δ={delta}")
+            raise SystemExit(f"No feasible policies for eps={delta}")
         min_power = float(df["avg_power_mW"].min())
         # "Balanced": keep power near the minimum, then minimize switching.
         cand = df[df["avg_power_mW"] <= (min_power + power_slack_mw)].copy()
@@ -134,7 +134,7 @@ def pick_policies(pareto: pd.DataFrame) -> List[Selected]:
         df = pareto[pareto["pout_1s"] <= delta].copy()
         df = df.sort_values(["switch_rate", "avg_power_mW", "pout_1s", "adv_rate"]).head(1)
         if df.empty:
-            raise SystemExit(f"No feasible policies for δ={delta}")
+            raise SystemExit(f"No feasible policies for eps={delta}")
         r = df.iloc[0].to_dict()
         return Selected(name="P_safe", delta=delta, row=r)
 
@@ -157,13 +157,13 @@ def pick_policies_for_deltas(pareto: pd.DataFrame, select_deltas: List[float], s
         df = pareto[pareto["pout_1s"] <= delta].copy()
         df = df.sort_values(["avg_power_mW", "pout_1s", "switch_rate", "adv_rate"]).head(1)
         if df.empty:
-            raise SystemExit(f"No feasible policies for δ={delta}")
+            raise SystemExit(f"No feasible policies for eps={delta}")
         return Selected(name="P_minPower", delta=delta, row=df.iloc[0].to_dict())
 
     def pick_mid(delta: float, power_slack_mw: float = 2.5) -> Selected:
         df = pareto[pareto["pout_1s"] <= delta].copy()
         if df.empty:
-            raise SystemExit(f"No feasible policies for δ={delta}")
+            raise SystemExit(f"No feasible policies for eps={delta}")
         min_power = float(df["avg_power_mW"].min())
         cand = df[df["avg_power_mW"] <= (min_power + power_slack_mw)].copy()
         if cand.empty:
@@ -177,7 +177,7 @@ def pick_policies_for_deltas(pareto: pd.DataFrame, select_deltas: List[float], s
         df = pareto[pareto["pout_1s"] <= delta].copy()
         df = df.sort_values(["switch_rate", "avg_power_mW", "pout_1s", "adv_rate"]).head(1)
         if df.empty:
-            raise SystemExit(f"No feasible policies for δ={delta}")
+            raise SystemExit(f"No feasible policies for eps={delta}")
         return Selected(name="P_safe", delta=delta, row=df.iloc[0].to_dict())
 
     ds = list(select_deltas)[:3]
@@ -230,8 +230,8 @@ def main() -> None:
 
     fixed_points = []
     for i in [100, 500, 1000, 2000]:
-        x, y = fixed_point(fixed, power_map, i, stable_ratio, transition_ratio)
-        fixed_points.append({"interval_ms": i, "avg_power_mW": x, "pout_1s": y})
+        pout, power = fixed_point(fixed, power_map, i, stable_ratio, transition_ratio)
+        fixed_points.append({"interval_ms": i, "avg_power_mW": power, "pout_1s": pout})
     fixed_df = pd.DataFrame(fixed_points)
 
     selected = pick_policies_for_deltas(pareto, select_deltas, args.select_style)
@@ -288,10 +288,14 @@ def main() -> None:
 
     fig, ax = plt.subplots(figsize=(7.4, 4.8), dpi=180)
 
+    # constraint band (feasible region)
+    if deltas:
+        ax.axvspan(0.0, min(deltas), color="#d1fae5", alpha=0.18, zorder=0)
+
     # all grid points
     ax.scatter(
-        pareto["avg_power_mW"],
         pareto["pout_1s"],
+        pareto["avg_power_mW"],
         s=16,
         c="#999999",
         alpha=0.25,
@@ -301,12 +305,12 @@ def main() -> None:
 
     # delta lines
     for d in deltas:
-        ax.axhline(d, linestyle="--", linewidth=1.2, color="#333333", alpha=0.8)
+        ax.axvline(d, linestyle="--", linewidth=1.2, color="#333333", alpha=0.8)
 
     # fixed points
     ax.scatter(
-        fixed_df["avg_power_mW"],
         fixed_df["pout_1s"],
+        fixed_df["avg_power_mW"],
         s=90,
         marker="s",
         c="#1f77b4",
@@ -318,7 +322,7 @@ def main() -> None:
     for _, r in fixed_df.iterrows():
         ax.annotate(
             f"Fixed {int(r['interval_ms'])}",
-            (r["avg_power_mW"], r["pout_1s"]),
+            (r["pout_1s"], r["avg_power_mW"]),
             xytext=(6, 4),
             textcoords="offset points",
             fontsize=8,
@@ -328,8 +332,8 @@ def main() -> None:
     # selected policies
     colors = {"P_minPower": "#d62728", "P_mid": "#ff7f0e", "P_safe": "#2ca02c"}
     for s in selected:
-        x = float(s.row["avg_power_mW"])
-        y = float(s.row["pout_1s"])
+        x = float(s.row["pout_1s"])
+        y = float(s.row["avg_power_mW"])
         key = "P_minPower" if s.name.startswith("P_minPower") else ("P_mid" if s.name.startswith("P_mid") else ("P_safe" if s.name.startswith("P_safe") else s.name))
         ax.scatter(
             [x],
@@ -340,10 +344,10 @@ def main() -> None:
             edgecolors="white",
             linewidths=1.4,
             zorder=6,
-            label=f"{s.name} (δ={s.delta:.2f})",
+            label=f"{s.name} (eps={s.delta:.2f})",
         )
         ax.annotate(
-            f"{s.name}\nδ={s.delta:.2f}",
+            f"{s.name}\neps={s.delta:.2f}",
             (x, y),
             xytext=(8, -18),
             textcoords="offset points",
@@ -351,21 +355,23 @@ def main() -> None:
             color=colors.get(key, "#000000"),
         )
 
-    ax.set_xlabel("avg_power_mW (power table applied)")
-    ax.set_ylabel("pout_1s (context mixing: stable→S1, transition→S4)")
-    ax.set_title("QoS (pout_1s) vs Power: Rule-based (U/CCS) with δ bands")
+    ax.set_xlabel("pout_1s (context mixing: stable->S1, transition->S4)")
+    ax.set_ylabel("avg_power_mW (power table)")
     ax.grid(True, alpha=0.25)
-    y_min = min(
+    x_min = min(
         float(min(deltas)) if deltas else float(pareto["pout_1s"].min()),
         float(fixed_df["pout_1s"].min()),
         float(pareto["pout_1s"].min()),
     )
-    y_max = max(
+    x_max = max(
         float(max(deltas)) if deltas else float(pareto["pout_1s"].max()),
         float(fixed_df["pout_1s"].max()),
         float(pareto["pout_1s"].max()),
     )
-    ax.set_ylim(max(0.0, y_min - 0.01), min(1.0, y_max + 0.02))
+    y_min = min(float(fixed_df["avg_power_mW"].min()), float(pareto["avg_power_mW"].min()))
+    y_max = max(float(fixed_df["avg_power_mW"].max()), float(pareto["avg_power_mW"].max()))
+    ax.set_xlim(max(0.0, x_min - 0.01), min(1.0, x_max + 0.02))
+    ax.set_ylim(y_min - 1.0, y_max + 1.0)
     ax.legend(loc="best", fontsize=8, framealpha=0.9)
     fig.tight_layout()
     fig.savefig(out_png)
@@ -374,3 +380,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

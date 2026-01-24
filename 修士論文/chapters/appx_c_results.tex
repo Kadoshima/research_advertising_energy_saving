@@ -2,19 +2,19 @@
 \section{追加結果}
 \label{sec:extra_results}
 
-\subsection{オフライン評価の比較表}
-\tabref{tab:policy_table}に，固定とルールベース方策の比較表（例）を示す．
+まず，オフライン評価の比較表について述べる．
+\tabref{tab:policy_table}に，固定とルールベース方策の比較表（例）を示す．表中の各行は方策（固定間隔およびルールベース），各列は滞在比率（share100/500/1000/2000），PDR\_unique，期限超過率$P_{\mathrm{out}}(1\,\mathrm{s})$，平均遅延$TL_{\mathrm{mean}}$，イベントあたりエネルギー（E/adv），および平均電力（P）を表す．
 
 \begin{table}[tb]
   \centering
-  \caption{方策の比較表（オフライン評価, mHealth合成）}
+  \caption{方策の比較表（各方策の滞在比率・PDR・Pout・TL・エネルギー・電力，mHealth合成）}
   \label{tab:policy_table}
   {\small
   \setlength{\tabcolsep}{3pt}
   \resizebox{\linewidth}{!}{%
   \begin{tabular}{lrrrrrrrrr}
     \toprule
-    方策 & share100 & share500 & share1000 & share2000 & PDR\_u & $P_{\mathrm{out}}(1\,\mathrm{s})$ & $TL_{\mathrm{mean}}$[s] & E/adv[μJ] & P[mW] \\
+    方策 & share100 & share500 & share1000 & share2000 & PDR\_unique & $P_{\mathrm{out}}(1\,\mathrm{s})$ & $TL_{\mathrm{mean}}$[s] & E/adv[μJ] & P[mW] \\
     \midrule
     Fixed 100 & 1.000 & 0.000 & 0.000 & 0.000 & 0.807 & 0.004 & 0.45 & 20054.1 & 198.56 \\
     Fixed 500 & 0.000 & 1.000 & 0.000 & 0.000 & 1.000 & 0.031 & 3.40 & 100668.1 & 180.80 \\
@@ -29,7 +29,7 @@
   }
 \end{table}
 
-\subsection{備考}
+最後に備考を述べる．
 本節の図表は，本文の主張に直接必要でないが，読者が条件や比較対象を追跡できるように掲載する．
 
 

@@ -2,10 +2,10 @@
 \section{計測系の健全化と再現性確保}
 \label{sec:measurement_system}
 
-\subsection{目的}
+まず，目的について述べる．
 本研究の主張は，電力とQoSを同時に評価した上で，固定間隔より良い運用点が存在することを示す点にある．したがって，計測精度が不十分であれば，得られる知見の妥当性が損なわれる．本節では，計測系の構成と，過去に発生した代表的な不具合（異常値）の原因と対策を整理し，再現性確保のための運用ルールを述べる．
 
-\subsection{三ノード構成（TX/TXSD/RX）}
+次に，三ノード構成（TX/TXSD/RX）について述べる．
 電力計測はTX（被測定対象）の消費電流・電圧を計測し，受信品質はRXログから算出する．両者を同一試行で取得するために，同期信号で区間を揃える．この三ノード構成により，方策（固定/動的/学習）を差し替えても，同一の評価パイプラインで比較できる．
 
 計測装置の外観は\figref{fig:measurement_setup_overview}に計測系の全体構成を，\figref{fig:measurement_nodes}に各ノードの外観を示す．以降の評価では，この三ノード構成（TX/TXSD/RX）を前提として，同一試行で電力と受信品質を取得する．
@@ -13,7 +13,7 @@
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.85\linewidth]{figures/measurement_setup_overview_02}
-  \caption{計測系の外観（TX/TXSD/RXの三ノード構成）}
+  \caption{計測系の外観（TX/TXSD/RXの三ノード構成，外部電源・INA219・同期信号配線を含む）}
   \label{fig:measurement_setup_overview}
 \end{figure}
 
@@ -21,23 +21,23 @@
   \centering
   \begin{minipage}{0.48\linewidth}
     \centering
-    \includegraphics[width=\linewidth]{figures/measurement_rx}
-    \vspace{1mm}
-    {\small (a) RXロガ（受信ログ）}
+    \includegraphics[width=0.9\linewidth,height=0.28\textheight,keepaspectratio,angle=90]{figures/measurement_rx.png}
+    \par\vspace{1mm}
+    {\small (a) RXロガ（受信ログ取得）}
   \end{minipage}
   \hfill
   \begin{minipage}{0.48\linewidth}
     \centering
-    \includegraphics[width=\linewidth]{figures/measurement_tx_txsd}
-    \vspace{1mm}
-    {\small (b) TX + TXSD（DUT + 電力ログ）}
+    \includegraphics[width=0.95\linewidth,height=0.30\textheight,keepaspectratio]{figures/measurement_tx_txsd}
+    \par\vspace{1mm}
+    {\small (b) TX + TXSD（DUT + 電力計測）}
   \end{minipage}
-  \caption{計測ノードの外観}
+  \caption{計測ノードの外観（(a) 受信ログ取得装置，(b) 送信DUTおよび電力計測装置）}
   \label{fig:measurement_nodes}
 \end{figure}
 
-\subsection{計測系の不具合要因（Failure Modes）とその対策}
-計測系の問題は，「値が揺れる」だけではなく，結論を逆転させる（例：OFFがONより大きい）形で顕在化し得る．\tabref{tab:measurement_failures}に，代表的な不具合要因と対策をまとめる．
+続いて，計測系の不具合要因（Failure Modes）とその対策について述べる．
+計測系の問題は，「値が揺れる」だけではなく，結論を逆転させる（例：OFFがONより大きい）形で顕在化し得る．\tabref{tab:measurement_failures}に，代表的な不具合要因（I/Oボトルネック，単位換算誤り，条件混在，時間軸不整合）とその兆候・代表的対策をまとめる．
 
 \begin{table}[tb]
   \centering
@@ -58,18 +58,13 @@
 代表的な異常として，「アドバタイジングOFFの方がアドバタイジングONより消費が大きい」という理論値と矛盾する実測値が観察された．この問題は，無線スタックそのものではなく，PowerLogger側の処理能力不足（I/Oボトルネック）や，単位換算の不整合，UART通信エラーによる欠損が原因となり得る．
 
 \noindent
-本研究では，代表的要因と対策を\tabref{tab:measurement_failures}に要点化し，運用上は以下をチェックポイントとして確認した．
-\begin{itemize}
-  \item I/Oボトルネック：欠損増加$\rightarrow$dtの歪み$\rightarrow$積分破綻を引き起こすため，塊書き込み等で追従性を確保する．
-  \item 単位換算：mV/$\mu$A/ms等の桁ずれは結論を逆転させ得るため，生ログ再積分とsummary整合で整合性を確認する．
-  \item UART通信：文字混入や欠損を厳密パースで検出し，異常trialはその場で再試行して混在を避ける．
-\end{itemize}
+本研究では，代表的要因と対策を\tabref{tab:measurement_failures}に要点化し，運用上は，I/Oボトルネック（欠損増加$\rightarrow$dtの歪み$\rightarrow$積分破綻を引き起こすため塊書き込み等で追従性を確保），単位換算（mV/$\mu$A/ms等の桁ずれは結論を逆転させ得るため生ログ再積分とsummary整合で整合性を確認），およびUART通信（文字混入や欠損を厳密パースで検出し異常trialはその場で再試行して混在を避ける）をチェックポイントとして確認した．
 
 実装上の問題と対策を「問題→症状→対策→再発防止」の観点で整理する．ここで扱う内容は，欠損や時間軸ずれによる評価の歪みを避けるための前提条件である．
 
 \begin{table}[tb]
   \centering
-  \caption{代表的な実装トラブルと対策（要点）}
+  \caption{代表的な実装トラブルと対策（UARTデータ化け，SYNC検出失敗，試行境界不一致，SD I/O失敗）}
   \label{tab:implementation_troubles_summary}
   \begin{tabularx}{\linewidth}{p{0.26\linewidth}X p{0.28\linewidth}}
     \toprule
@@ -83,20 +78,15 @@
   \end{tabularx}
 \end{table}
 \noindent
-これらは研究の主張そのものではないが，欠損や試行区間のずれによる結論の崩壊を避けるために不可欠である．対策はRunbook（\secref{sec:runbook}）に固定し，試行ごとにms\_total/adv\_count/欠損率等を確認して再現性を担保した．
+これらは研究の主張そのものではないが，欠損や試行区間のずれによる結論の崩壊を避けるために不可欠である．対策はRunbook（\secref{sec:runbook}を参照）に固定し，試行ごとにms\_total/adv\_count/欠損率等を確認して再現性を担保した．
 
-\subsection{基準構成（Reference Configuration）}
+その後，基準構成（Reference Configuration）について述べる．
 比較実験では，ON/OFFや条件間でコード系列が混在すると，LEDや同期信号の扱いの差が定常オフセットとなり，純粋なアドバタイジング間隔の差分を評価できない．したがって，基準構成（Reference Configuration）を定め，これを基準としてデータを蓄積する．本研究では，役割ごとにスケッチを分割し，ファイル名の接頭辞（RX\_/TX\_/TXSD\_）で役割を明確化する．
 
-\subsection{運用ルール}
-再現性確保のため，以下を原則とする．
-\begin{itemize}
-  \item 解析対象の選別はマニフェストで明示し，除外理由を記録する．
-  \item 単位整合の確認（再積分とsummaryの一致）を定期的に実行し，桁ずれや欠損を早期に検知する．
-  \item 重要な作業は作業ログに追記し，生成物のパスとコマンドを残す．
-\end{itemize}
+運用ルールについて述べる．
+再現性確保のため，解析対象の選別はマニフェストで明示し除外理由を記録すること，単位整合の確認（再積分とsummaryの一致）を定期的に実行し桁ずれや欠損を早期に検知すること，および重要な作業は作業ログに追記し生成物のパスとコマンドを残すことを原則とする．
 
-\subsection{まとめ}
+最後にまとめを述べる．
 本節では，計測系の健全化と再現性確保のための要点を整理した．これにより，固定間隔と動的制御の比較が「同一の評価系で再現可能」であることを担保し，次段階（オンライン最適化）へ接続する基盤とする．
 
 

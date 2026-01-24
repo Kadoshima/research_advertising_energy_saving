@@ -167,7 +167,8 @@ def write_svg(out_svg: Path, title: str, pts: List[Pt]) -> None:
     svg: List[str] = []
     svg.append(f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">')
     svg.append(f'<rect x="0" y="0" width="{width}" height="{height}" fill="{bg}"/>')
-    svg.append(f'<text x="{width/2:.1f}" y="38" font-size="20" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">{_svg_escape(title)}</text>')
+    if title:
+        svg.append(f'<text x="{width/2:.1f}" y="38" font-size="20" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">{_svg_escape(title)}</text>')
     svg.append(f'<rect x="{ml}" y="{mt}" width="{pw}" height="{ph}" fill="none" stroke="{axis}" stroke-width="1.2"/>')
 
     for tx in x_ticks:
@@ -241,7 +242,7 @@ def main() -> None:
     ap.add_argument("--d4", type=Path, default=Path("uccs_d4_scan90/metrics/01/summary_by_condition.csv"))
     ap.add_argument("--d3", type=Path, default=Path("uccs_d3_scan70/metrics/01/summary_by_condition.csv"))
     ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--title", type=str, default="Estimated 100ms share ρ̂100 vs QoS (S4)")
+    ap.add_argument("--title", type=str, default="")
     args = ap.parse_args()
 
     d4b = read_summary(args.d4b)

@@ -1,16 +1,11 @@
 ﻿% chapters/ch8_experiment_design.tex --- 構成要素：実験設計
-\section{実験設計}
+実験設計について述べる．
 \label{sec:experiment_design}
 
-\subsection{実験の目的}
-Phase 1の実験目的は，ルールベース方策（CCS→アドバタイジング間隔切替）が，固定間隔に対して省電力とQoSのトレードオフ上で優位な運用点になり得ることを示すことである．具体的には，以下を検証する．
-\begin{enumerate}
-  \item 省電力：固定\SI{100}{\milli\second}よりも$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）が低い運用点が存在する．
-  \item QoS維持：代表的な期限$\tau$に対して$P_{\mathrm{out}}(\tau)$が過度に悪化しない．
-  \item トレードオフ：固定点と動的点を同一平面（$P_{\mathrm{out}}(\tau)$--$q_{\mathrm{event}}$）で比較し，Pareto最適性の観点から位置づけを明らかにする．
-\end{enumerate}
+まず，実験の目的について述べる．
+Phase 1の実験目的は，ルールベース方策（CCS→アドバタイジング間隔切替）が，固定間隔に対して省電力とQoSのトレードオフ上で優位な運用点になり得ることを示すことである．具体的な検証項目として，第一に省電力（固定\SI{100}{\milli\second}よりも$q_{\mathrm{event}}$すなわち$\si{\micro\coulomb}/\text{event}$が低い運用点が存在する），第二にQoS維持（代表的な期限$\tau$に対して$P_{\mathrm{out}}(\tau)$が過度に悪化しない），第三にトレードオフ（固定点と動的点を同一平面すなわち$P_{\mathrm{out}}(\tau)$--$q_{\mathrm{event}}$で比較しPareto最適性の観点から位置づけを明らかにする）を挙げる．
 
-\subsection{実験条件}
+次に，実験条件について述べる．
 \noindent 環境条件について述べる．
 実験は，距離，受信端末，スキャン設定等を固定し，端末内比較として実施する．干渉状況の違いは外的要因として扱い，必要に応じて環境を分けて評価する．
 
@@ -33,11 +28,11 @@ BLEとWi-Fiは同一の2.4\,GHz帯を共有するため，Wi-Fi干渉がBLE通�
 \end{table}
 
 受信設定\par
-\tabref{tab:env_conditions}に，主結果で固定した受信端末とスキャン設定を整理する．
+\tabref{tab:env_conditions}に，主結果で固定した受信端末とスキャン設定を整理する．表中の各行は設定項目，各列は主結果（ESP32 RX）および補助（Android）の設定内容を表す．
 
 \begin{table}[tb]
   \centering
-  \caption{環境条件と受信設定（主結果）}
+  \caption{環境条件と受信設定（各設定項目の主結果・補助条件別）}
   \label{tab:env_conditions}
   \begin{tabularx}{\linewidth}{l>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X}
     \toprule
@@ -80,13 +75,13 @@ BLEとWi-Fiは同一の2.4\,GHz帯を共有するため，Wi-Fi干渉がBLE通�
 
 また，運用シナリオに近い評価としては，環境（例：E1/E2）を分け，3条件（例：FIXED-100/FIXED-2000/POLICY）$\times$ 2環境 $\times$ 10セッション＝60セッション程度を計画し，端末内比較の前提を維持しながら分散（端末状態の非定常）を平均化する．
 
-\subsection{セッション構成とイベント定義}
+続いて，セッション構成とイベント定義について述べる．
 \noindent セッションについて述べる．
 セッションは一定時間の試行（trial）の集合として構成する．実機の動的切替では，短い試行（例：\SI{60}{\second}）を連続して取り，条件間比較を端末内で完結させる設計が有効である．一方，運用シナリオに近い評価として，\SI{10}{\minute}程度の長いセッションを用い，活動遷移イベントでTL/Poutを評価する設計も重要である．
 \noindent イベントについて述べる．
 イベントは，状態遷移（活動の切替）など「QoS評価の基準点」となる時刻である．固定間隔ではアドバタイジングイベントの列から遅延分布を評価できるが，動的切替では開始位相ずれや切替タイミングが影響するため，truthに基づくイベント定義と時間同期が必要となる（次章）．
 
-\subsection{指標算出}
+その後，指標算出について述べる．
 \noindent 電力指標について述べる．
 一次KPIの省電力指標は$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）である．$q_{\mathrm{event}}$は，TXSDログの電流系列を積分して得た総電荷を，イベント数$N_{\mathrm{event}}$で正規化して算出する（定義は\secref{sec:metrics_detail}）．必要に応じてアドバタイジングOFFの基準を差し引き，アドバタイジングによる増分を評価する．
 
@@ -99,22 +94,16 @@ BLEとWi-Fiは同一の2.4\,GHz帯を共有するため，Wi-Fi干渉がBLE通�
 \end{equation}
 である．実装では，RXログの時刻とtruthの時刻の定数オフセットを補正し，$\mathrm{TL}_j$を計算する（次章）．
 \noindent 理論モデル（参考）について述べる．
-固定間隔における$P_{\mathrm{out}}(\tau)$は，1アドバタイジングの受信成功確率$p_d$を仮定すると，
+固定間隔における$P_{\mathrm{out}}(\tau)$は，1アドバタイジングの受信成功確率$p_d$を仮定すると，期限$\tau$内のアドバタイジング回数$\lfloor \tau/a \rfloor$を用いて
 \begin{equation}
   P_{\mathrm{out}}(\tau\mid a)\approx(1-p_d)^{\lfloor \tau/a \rfloor}
 \end{equation}
 のように近似できる．ただし，非理想スキャンや開始位相の影響を含むため，本研究では理論値は補助的に用い，主張は実測に基づく．
 
-\subsection{リスクと対策}
-実験の主要リスクと対策を以下にまとめる．
-\begin{itemize}
-  \item 同期ずれ：SYNC/TICKの取りこぼしにより試行区間が崩れる．対策として，preambleで条件IDを通知し，ログ末尾のsummaryで監査する．
-  \item 条件混在：LED/SYNCの扱い等が異なるコードを跨いで比較すると定常オフセットが入る．比較は同一コード系列で統一する．
-  \item 欠損・単位不整合：UART/SDボトルネックや単位換算ミスは結論を逆転させ得る．パススルー化と再積分監査を行う．
-  \item 端末状態の変動：受信端末のOS状態は非定常である．端末内比較を徹底し，実験前チェックリスト（\secref{sec:runbook}）を運用する．
-\end{itemize}
+リスクと対策について述べる．
+実験の主要リスクと対策として，同期ずれ（SYNC/TICKの取りこぼしにより試行区間が崩れるため，preambleで条件IDを通知しログ末尾のsummaryで監査する），条件混在（LED/SYNCの扱い等が異なるコードを跨いで比較すると定常オフセットが入るため，比較は同一コード系列で統一する），欠損・単位不整合（UART/SDボトルネックや単位換算ミスは結論を逆転させ得るため，パススルー化と再積分監査を行う），および端末状態の変動（受信端末のOS状態は非定常であるため，端末内比較を徹底し実験前チェックリスト（\secref{sec:runbook}を参照）を運用する）を挙げる．
 
-\subsection{まとめ}
+最後にまとめを述べる．
 本節では，Phase 1における実験目的と条件，セッション構成，指標算出，およびリスク対策を整理した．次章では，TL/Poutの定義を実測に基づいて固定し，時間同期の手順（v5）を示す．
 
 

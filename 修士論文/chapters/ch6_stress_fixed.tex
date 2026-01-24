@@ -2,65 +2,59 @@
 \section{ストレス固定実験と指標定義の確立}
 \label{sec:stress_fixed_metrics}
 
-\subsection{目的}
+まず，目的について述べる．
 本節では，ストレス固定（stress\_fixed）実験を用いて，QoS指標（TLおよび$P_{\mathrm{out}}(\tau)$）の定義を「論文で説明できる形」に固定し，実測結果を再現可能に整理する．特に，受信ログの時間軸と真値（truth）の開始位相ずれがTL/Poutに与える影響を明確化し，補正手順を定式化する．
 
-\subsection{実験条件の概要}
-ストレス固定実験では，既知のラベル系列（truth）をTX側で再生し，受信側（RX）がそれをどの程度の遅延で観測できるかを測定する．主な比較軸は以下である．
-\begin{itemize}
-  \item 受信設定：scan50（duty 50\% 相当）とscan90（duty 90\% 相当）
-  \item 固定アドバタイジング間隔：\SI{100}{\milli\second}，\SI{500}{\milli\second}，\SI{1000}{\milli\second}，\SI{2000}{\milli\second}
-  \item ストレス列：代表的な2条件（例：S1，S4）を中心に評価
-\end{itemize}
-各trialについて，TXSDログとRXログを対応付け，PDR，TL，$P_{\mathrm{out}}(\tau)$，平均電力などを出力する．
+次に，実験条件の概要について述べる．
+ストレス固定実験では，既知のラベル系列（truth）をTX側で再生し，受信側（RX）がそれをどの程度の遅延で観測できるかを測定する．主な比較軸として，受信設定（scan50すなわちduty 50\% 相当，およびscan90すなわちduty 90\% 相当），固定アドバタイジング間隔（\SI{100}{\milli\second}，\SI{500}{\milli\second}，\SI{1000}{\milli\second}，\SI{2000}{\milli\second}），ならびにストレス列（代表的な2条件，例：S1，S4）を中心に評価する．各trialについて，TXSDログとRXログを対応付け，PDR，TL，$P_{\mathrm{out}}(\tau)$，平均電力などを出力する．
 
-\subsection{問題と時間同期手法（v4→v5）}
+続いて，問題と時間同期手法（v4→v5）について述べる．
 scan90のv4集計では，固定\SI{2000}{\milli\second}において$P_{\mathrm{out}}(1\,\mathrm{s})$が理論下限より小さく見える等，理論的予測と整合しない挙動が観察された．原因は，RXログの`ms`とtruthの時間軸が一致している前提でTL/Poutを計算していた点にある．実機では試行開始のタイミングがずれ得るため，この時間誤差を補正しない場合，TL/Poutが過小評価される．
 
-v5では，TL/Pout算出前に定数オフセットを推定し，RXログの時刻を補正する．アドバタイジング間隔を$\Delta t$（ms），受信ログから得られるseqの初回観測時刻を$\mathrm{first\_ms}(\mathrm{seq})$とすると，seqに対応する期待時刻は$\mathrm{seq}\cdot\Delta t$である．複数のseqに対し，
+v5では，TL/Pout算出前に定数オフセットを推定し，RXログの時刻を補正する．アドバタイジング間隔$\Delta t$（ms）と受信ログから得られるseqの初回観測時刻$\mathrm{first\_ms}(\mathrm{seq})$を用いると，seqに対応する期待時刻は$\mathrm{seq}\cdot\Delta t$である．複数のseqに対する期待時刻と実測時刻の差分の中央値として
 \begin{equation}
   \mathrm{offset\_ms} = \mathrm{median}_{\mathrm{seq}>0}\left(\mathrm{seq}\cdot\Delta t - \mathrm{first\_ms}(\mathrm{seq})\right)
 \end{equation}
-としてオフセットを推定し，補正後の時刻を$\mathrm{ms\_aligned}=\mathrm{ms}+\mathrm{offset\_ms}$とする．TL/Poutは$\mathrm{ms\_aligned}$に基づいて算出する．この補正により，非同期な開始タイミング（開始位相）に起因する過小評価を抑制できる．
+によりオフセットを推定し，補正後の時刻を$\mathrm{ms\_aligned}=\mathrm{ms}+\mathrm{offset\_ms}$とする．TL/Poutは$\mathrm{ms\_aligned}$に基づいて算出する．この補正により，非同期な開始タイミング（開始位相）に起因する過小評価を抑制できる．
 
 v5では，per-trialの集計に加え，modes/agg/enrichedの集約表を再現可能に生成するパイプラインを整備した．また，scan50とscan90の比較結果も同一の定義で出力し，受信設定の違いがPDRやTL/Poutに与える影響を整理できるようにした．
 \noindent PDRの扱いについて述べる．
-PDRは受信ログの行数に基づく指標（重複含む）と，seqでユニーク化した指標（重複除外）の2種類を区別する．QoS比較では，アドバタイジングイベントの「何割を一度でも拾えたか」を表すPDR\_uniqueを優先する（\secref{sec:metrics_detail}）．
+PDRは受信ログの行数に基づく指標（重複含む）と，seqでユニーク化した指標（重複除外）の2種類を区別する．QoS比較では，アドバタイジングイベントの「何割を一度でも拾えたか」を表すPDR\_uniqueを優先する（\secref{sec:metrics_detail}を参照）．
 \noindent 有効データ長（Effective Length）と終端処理について述べる．
 真値（truth）は有限長のラベル系列であり，試行時間のクランプにより末端の遷移が試行区間外に出る場合がある．その場合，末端遷移を含めた評価は不安定になるため，truth側も同じ長さにクリップし，イベント数$N_{\mathrm{event}}$の分母を揃える．この処理は，試行間比較と再現性の観点で重要である．
 
-\subsection{結果（図表）}
+結果（図表）について述べる．
 \noindent scan90の指標サマリについて述べる．
-\figref{fig:stress_fixed_scan90_metrics}に，scan90における主要指標の例を示す．この図は，v5の時間同期を反映したものであり，長間隔側でTL/Poutが不自然に小さくなる問題が緩和される．
+\figref{fig:stress_fixed_scan90_metrics}に，scan90における主要指標の例（v4とv5の比較）を示す．図中の横軸はアドバタイジング間隔（ms），縦軸は各指標（PDR\_unique，TL\_p95，$P_{\mathrm{out}}(1\,\mathrm{s})$，平均電力等）を表す．v4とv5の差分を同一図に重ねることで，時間同期補正がTL/Poutに与える影響を確認できる．
 
 \begin{figure}[tb]
   \centering
-  \includegraphics[width=0.95\linewidth]{figures/stress_scan90_metrics_v5.png}
-  \caption{ストレス固定（scan90）の主要指標（v5）}
+  \includegraphics[width=0.95\linewidth]{figures/stress_scan90_metrics_v4_v5.png}
+  \caption{ストレス固定（scan90）の主要指標（v4/v5比較，横軸：間隔，縦軸：PDR/TL\_p95/Pout/電力）}
   \label{fig:stress_fixed_scan90_metrics}
 \end{figure}
 \noindent 実測と簡易モデルの比較について述べる．
-\figref{fig:stress_fixed_real_vs_sim}に，ストレス固定における実測と簡易モデル（比較用）の例を示す．簡易モデルは，スキャンの非理想性や開始位相ずれの影響を完全には表現できないため，実測との差分が残る．ただし，固定間隔の相対関係（短間隔ほど遅延が改善しやすい等）のトレンドを説明する補助として利用できる．
+\figref{fig:stress_fixed_real_vs_sim}に，ストレス固定における実測と簡易モデル（比較用）の例を示す．図中の棒は$P_{\mathrm{out}}(1\,\mathrm{s})$（実測とモデルの比較），折れ線は固定\SI{100}{\milli\second}で正規化した平均電力であり，左軸が$P_{\mathrm{out}}(1\,\mathrm{s})$，右軸が相対電力に対応する．簡易モデルは，スキャンの非理想性や開始位相ずれの影響を完全には表現できないため，実測との差分が残る．ただし，固定間隔の相対関係（短間隔ほど遅延が改善しやすい等）のトレンドを説明する補助として利用できる．
 
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.95\linewidth]{figures/stress_real_vs_sim.png}
-  \caption{ストレス固定における実測と簡易モデルの比較（例）}
+  \caption{ストレス固定における実測と簡易モデルの比較（棒：$P_{\mathrm{out}}(1\,\mathrm{s})$，折れ線：相対電力，左軸：$P_{\mathrm{out}}$，右軸：相対電力）}
   \label{fig:stress_fixed_real_vs_sim}
 \end{figure}
 \noindent scan50とscan90の比較について述べる．
-\figref{fig:stress_fixed_scan50_vs_scan90_pdr}に，scan50とscan90の比較（例：PDR\_unique）を示す．duty比を上げることで短間隔側の受信品質が改善することが確認できる．
+\figref{fig:stress_fixed_scan50_vs_scan90_pdr}に，scan50とscan90の比較（PDR\_unique，$P_{\mathrm{out}}(1\,\mathrm{s})$，TL\_p95）を示す．図中の横軸はアドバタイジング間隔（ms），縦軸は各指標を表し，系列はscan50（低duty）とscan90（高duty）である．duty比を上げることで短間隔側の受信品質が改善し，Pout/TLにも差が出ることが確認できる．
 
 \begin{figure}[tb]
   \centering
-  \includegraphics[width=0.85\linewidth]{figures/stress_scan50_vs_scan90_pdr_unique_v5.png}
-  \caption{ストレス固定におけるscan50とscan90の比較（例：PDR\_unique，v5）}
+  \includegraphics[width=0.85\linewidth]{figures/stress_scan50_vs_scan90_metrics_v5.png}
+  \caption{ストレス固定におけるscan50とscan90の比較（横軸：間隔，縦軸：PDR/Pout/TL\_p95，系列：scan50/90）}
   \label{fig:stress_fixed_scan50_vs_scan90_pdr}
 \end{figure}
 
 時間同期の導入により，TL/Poutが大きく変化する条件が存在する．例えば，固定\SI{2000}{\milli\second}の$P_{\mathrm{out}}(1\,\mathrm{s})$や，固定\SI{100}{\milli\second}のTL平均値が大きく更新される場合がある．本研究では，v5を正式な定義として扱い，以降の評価および図表においては，この補正済み定義（v5）を一貫して採用する．
 
-\subsection{まとめ}
+最後にまとめを述べる．
 本節では，ストレス固定実験を用いてTL/Poutの定義と実装を固定し，開始位相ずれを補正するv5の時間同期手順を示した．以降では，この指標定義を前提として，固定間隔および動的制御の評価を行う．
 
 

@@ -104,7 +104,6 @@ def main() -> None:
     ax2.set_ylim(0, max(rel_energy + [1.0]) * 1.2)
     ax1.legend(loc="upper left")
     ax2.legend(loc="upper right")
-    ax1.set_title("Stress causal: Real vs Sim (Pout and Relative Energy)")
     args.out.parent.mkdir(parents=True, exist_ok=True)
     fig.tight_layout()
     fig.savefig(args.out, dpi=200)

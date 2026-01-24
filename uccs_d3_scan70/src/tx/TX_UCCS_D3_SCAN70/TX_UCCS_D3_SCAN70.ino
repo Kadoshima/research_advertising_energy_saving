@@ -8,7 +8,8 @@
 //   3) Policy(U+CCS, 100↔500)  ※D2bと同一ロジック
 //
 // 動的でもTL/Poutが評価できるよう、payloadに step_idx（100msグリッド）を入れる。
-// TXSDへは SYNC(25) + preamble TICK(27) で cond_id を通知し、trial中は「更新（=現在の広告間隔）ごと」に
+// TXSD/RXへは SYNC_START(26) + SYNC_END(25) で開始/終了を通知し、TXSDへは preamble TICK(27) で cond_id を通知する。
+// trial中は「更新（=現在の広告間隔）ごと」に
 // TICKを1発出して adv_count近似とする（D2bと同じ定義）。
 //
 // Payload (ManufacturerData):
@@ -34,7 +35,8 @@ static const uint8_t REPEAT = 3;
 static const uint16_t EFFECTIVE_LEN_STEPS = 1800; // 180s @ 100ms
 
 // ==== pins ====
-static const int SYNC_OUT_PIN = 25;
+static const int SYNC_START_PIN = 26;
+static const int SYNC_END_PIN = 25;
 static const int TICK_OUT_PIN = 27;
 static const int LED_PIN = 2;
 
@@ -45,7 +47,8 @@ static const bool ENABLE_TICK_PER_UPDATE = true;
 static const bool RESTART_ADV_ON_INTERVAL_CHANGE = true;
 
 static const uint32_t PREAMBLE_WINDOW_MS = 800; // TXSD window
-static const uint32_t PREAMBLE_GUARD_MS = 100;  // after SYNC HIGH before preamble
+static const uint32_t PREAMBLE_GUARD_MS = 100;  // after SYNC_START pulse before preamble
+static const uint16_t SYNC_PULSE_MS = 50;
 
 // ==== actions ====
 static const uint16_t ACTIONS[] = {100, 500};
@@ -123,12 +126,16 @@ static uint16_t clamp_interval(uint16_t interval_ms) {
 
 static void syncStart() {
   if (USE_LED) digitalWrite(LED_PIN, HIGH);
-  digitalWrite(SYNC_OUT_PIN, HIGH);
+  digitalWrite(SYNC_START_PIN, HIGH);
   syncRiseMs = millis();
+  delay(SYNC_PULSE_MS);
+  digitalWrite(SYNC_START_PIN, LOW);
 }
 
 static void syncEnd() {
-  digitalWrite(SYNC_OUT_PIN, LOW);
+  digitalWrite(SYNC_END_PIN, HIGH);
+  delay(SYNC_PULSE_MS);
+  digitalWrite(SYNC_END_PIN, LOW);
   if (USE_LED) digitalWrite(LED_PIN, LOW);
 }
 
@@ -279,8 +286,10 @@ static void endTrial() {
 void setup() {
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, LOW);
-  pinMode(SYNC_OUT_PIN, OUTPUT);
-  digitalWrite(SYNC_OUT_PIN, LOW);
+  pinMode(SYNC_START_PIN, OUTPUT);
+  pinMode(SYNC_END_PIN, OUTPUT);
+  digitalWrite(SYNC_START_PIN, LOW);
+  digitalWrite(SYNC_END_PIN, LOW);
   pinMode(TICK_OUT_PIN, OUTPUT);
   digitalWrite(TICK_OUT_PIN, LOW);
 

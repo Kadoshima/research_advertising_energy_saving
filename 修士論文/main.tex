@@ -10,6 +10,9 @@
 % 参考文献ファイル
 \addbibresource{references.bib}
 
+% 構成切替（A: 現行, B: 実験中心）
+\newcommand{\thesisstructure}{B}
+
 \begin{document}
 
 % page anchor の重複警告を避ける（表紙・要旨はページ番号なし）
@@ -25,23 +28,13 @@
 \pagenumbering{roman}
 \setcounter{page}{1}
 \thesistableofcontents
-\thesislistoffigures
-\thesislistoftables
 
 % --- 本文（アラビア数字 1 から） ---
 \hypersetup{pageanchor=true}
 \pagenumbering{arabic}
 \setcounter{page}{1}
 
-\input{chapters/ch0_introduction}
-\input{chapters/ch2_background_related}
-\input{chapters/ch3_system_and_method}
-\input{chapters/ch4_measurement_metrics_repro}
-\input{chapters/ch5_evaluation}
-\input{chapters/ch5_publicroad}
-
-\input{chapters/conclusion}
-\input{chapters/acknowledgements}
+\input{chapters/_order_\thesisstructure}
 
 % --- 参考文献・参考URL ---
 % 本文中で未引用でも，提出版では重要文献を一覧に含める

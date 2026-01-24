@@ -1,6 +1,6 @@
 // TXSD_UCCS_D3_SCAN70.ino (uccs_d3_scan70)
 // INA219 logger for Step D3 (scan70 on RX).
-// Start/stop via SYNC (TX GPIO25 -> TXSD GPIO26).
+// Start/stop via SYNC_START/SYNC_END (TX GPIO26/25 -> TXSD GPIO26/25).
 // TX sends preamble pulses on TICK (TX GPIO27 -> TXSD GPIO33) to encode cond_id.
 // During trial, TX additionally emits 1 tick per payload update; TXSD uses tick_count as adv_count (approx).
 //
@@ -20,8 +20,8 @@ static const int SD_CS   = 5;
 static const int SD_SCK  = 18;
 static const int SD_MISO = 19;
 static const int SD_MOSI = 23;
-static const int SYNC_IN = 26;
-static const int SYNC_OFF_IN = -1; // unused
+static const int SYNC_START_IN = 26;
+static const int SYNC_END_IN = 25;
 static const int TICK_IN = 33;
 static const int I2C_SDA = 21;
 static const int I2C_SCL = 22;
@@ -32,10 +32,13 @@ static const uint32_t FALLBACK_MS  = 2400000; // safety fallback
 static const uint32_t MIN_TRIAL_MS = 1000;
 static const uint32_t TICK_PER_TRIAL = 0;     // 0=disabled (use SYNC to end)
 static const char SUBJECT_ID[] = "uccs_d3_scan70";
+static const char PROGRAM_ID[] = "TXSD_UCCS_D3_SCAN70_v1";
 
 // Preamble window (count TICK pulses after SYNC rising edge)
 static const uint32_t PREAMBLE_WINDOW_MS = 800;
 static const uint8_t PREAMBLE_MAX_ID = 16;
+static const uint32_t START_DEBOUNCE_MS = 100;
+static const uint32_t END_DEBOUNCE_MS = 100;
 
 HardwareSerial Debug(0);
 Adafruit_INA219 ina;
@@ -48,10 +51,13 @@ bool logging=false;
 bool pendingStart=false;
 uint32_t t0_ms=0, nextSampleUs=0;
 uint32_t badLines=0;
-uint32_t syncLowSince=0;
 uint32_t pendingSinceMs=0;
 uint32_t tickAtSync=0;
 uint8_t condId=0;
+int lastSyncStart = LOW;
+int lastSyncEnd = LOW;
+uint32_t lastStartEdgeMs=0;
+uint32_t lastEndEdgeMs=0;
 
 // Stats
 double sumP=0.0; double sumV=0.0; double sumI=0.0; uint32_t sampN=0;
@@ -88,7 +94,7 @@ static void startTrial(uint8_t id){
   String path = nextPath(id);
   f = SD.open(path, FILE_WRITE);
   if (!f){ Debug.println("[SD] open FAIL"); return; }
-  f.println("ms,mV,uA,p_mW");
+  f.println("ms,mV,uA,p_mW,program_id");
 
   f.printf("# meta, firmware=TXSD_UCCS_D3_SCAN70, cond_id=%u, tag=%s, subject=%s\r\n",
            (unsigned)condId, tag, SUBJECT_ID);
@@ -147,8 +153,8 @@ void setup(){
   SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
   if (!SD.begin(SD_CS)){ Debug.println("[SD] init FAIL"); while(1) delay(1000); }
 
-  pinMode(SYNC_IN, INPUT_PULLDOWN);
-  if (SYNC_OFF_IN >= 0) pinMode(SYNC_OFF_IN, INPUT_PULLDOWN);
+  pinMode(SYNC_START_IN, INPUT_PULLDOWN);
+  pinMode(SYNC_END_IN, INPUT_PULLDOWN);
   pinMode(TICK_IN, INPUT_PULLDOWN);
   attachInterrupt(digitalPinToInterrupt(TICK_IN), onTickRaw, RISING);
 
@@ -162,28 +168,28 @@ void setup(){
 
 void loop(){
   uint32_t nowMs = millis();
-  int syncIn = digitalRead(SYNC_IN);
-  int syncOff = (SYNC_OFF_IN >= 0) ? digitalRead(SYNC_OFF_IN) : HIGH;
+  int syncStart = digitalRead(SYNC_START_IN);
+  int syncEnd = digitalRead(SYNC_END_IN);
+  bool startRise = (syncStart == HIGH) && (lastSyncStart == LOW);
+  bool endRise = (syncEnd == HIGH) && (lastSyncEnd == LOW);
+  lastSyncStart = syncStart;
+  lastSyncEnd = syncEnd;
 
-  if (!logging && !pendingStart && syncIn == HIGH){
+  if (!logging && !pendingStart && startRise && (nowMs - lastStartEdgeMs) >= START_DEBOUNCE_MS){
     pendingStart = true;
     pendingSinceMs = nowMs;
     tickAtSync = tickCountRaw;
-    syncLowSince = 0;
-    Debug.printf("[PWR] SYNC high, wait preamble %lums (tick_raw=%lu)\n",
+    lastStartEdgeMs = nowMs;
+    Debug.printf("[PWR] SYNC_START pulse, wait preamble %lums (tick_raw=%lu)\n",
                  (unsigned long)PREAMBLE_WINDOW_MS, (unsigned long)tickCountRaw);
   }
 
   if (pendingStart){
-    if (syncIn == LOW){
-      pendingStart = false;
-      Debug.println("[PWR] pending start canceled (SYNC LOW)");
-    } else if ((nowMs - pendingSinceMs) >= PREAMBLE_WINDOW_MS){
+    if ((nowMs - pendingSinceMs) >= PREAMBLE_WINDOW_MS){
       uint32_t pulses = tickCountRaw - tickAtSync;
       uint8_t id = (pulses >= 1 && pulses <= PREAMBLE_MAX_ID) ? (uint8_t)pulses : 0;
       startTrial(id);
       pendingStart = false;
-      syncLowSince = 0;
       Debug.printf("[PWR] trigger start by preamble pulses=%lu -> cond_id=%u\n",
                    (unsigned long)pulses, (unsigned)id);
       nowMs = millis();
@@ -191,16 +197,11 @@ void loop(){
   }
 
   if (logging){
-    bool syncLow = (syncIn == LOW) || (syncOff == LOW);
-    if (syncLow){
-      if (syncLowSince == 0) syncLowSince = nowMs;
-      if ((nowMs - syncLowSince) >= 100){
-        Debug.printf("[PWR] end by SYNC/SYNC_OFF sync=%d sync_off=%d\n", syncIn, syncOff);
-        endTrial();
-        syncLowSince = 0;
-      }
+    if (endRise && (nowMs - lastEndEdgeMs) >= END_DEBOUNCE_MS){
+      Debug.printf("[PWR] end by SYNC_END pulse sync_end=%d\n", syncEnd);
+      endTrial();
+      lastEndEdgeMs = nowMs;
     } else {
-      syncLowSince = 0;
       tickCount = tickCountRaw - tickStart;
       if (TICK_PER_TRIAL > 0 && tickCount >= TICK_PER_TRIAL){
         Debug.printf("[PWR] force end by TICK (count=%lu)\n", (unsigned long)tickCount);
@@ -227,9 +228,9 @@ void loop(){
       sumI += i;
       sampN++;
 
-      char buf[64];
-      int n = snprintf(buf, sizeof(buf), "%lu,%ld,%ld,%.1f\r\n",
-                       (unsigned long)relMs, (long)mv, (long)uA, p_mW);
+      char buf[96];
+      int n = snprintf(buf, sizeof(buf), "%lu,%ld,%ld,%.1f,%s\r\n",
+                       (unsigned long)relMs, (long)mv, (long)uA, p_mW, PROGRAM_ID);
       if (n > 0) f.write((uint8_t*)buf, n); else badLines++;
       nowUs = micros();
     }

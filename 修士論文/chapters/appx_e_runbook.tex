@@ -1,10 +1,10 @@
 ﻿% chapters/appx_e_runbook.tex --- 付録E 実験Runbook（チェックリスト）
-\section{実験Runbook（チェックリスト）}
+実験Runbook（チェックリスト）について述べる．
 \label{sec:runbook}
 
 本節では，実験の再現性を担保するための最小チェックリストを示す．運用中に発見された落とし穴（条件混在，欠損，単位不整合など）を避けることを目的とする．
 
-\subsection{実験前の確認項目}
+まず，実験前の確認項目について述べる．
 \begin{itemize}
   \item 役割の確認：TX/RX/TXSDでスケッチが正しい（接頭辞，設定値）．
   \item 配線の確認：GND共通，SYNC入力，必要ならTICK入力（GPIO番号）．
@@ -13,7 +13,7 @@
   \item ログ命名：\texttt{\detokenize{trial_XXX.csv}}の連番と，条件IDの対応が追跡できる．
 \end{itemize}
 
-\subsection{試行（trial）実行}
+次に，試行（trial）実行について述べる．
 \begin{enumerate}
   \item SYNCで試行開始が一致していることを目視（LED等）で確認する．
   \item 試行中は条件（アドバタイジング間隔，スキャン設定）を変更しない．
@@ -21,7 +21,7 @@
   \item 明らかな異常（rate低下，欠損，桁ズレ）があれば，その試行は破棄し，再試行する．除外理由を作業ログに残す．
 \end{enumerate}
 
-\subsection{データ整理}
+続いて，データ整理について述べる．
 \begin{itemize}
   \item 生データの退避：\texttt{\detokenize{data/}}へコピーし，取得条件と紐付ける．
   \item 解析対象の選別：含めるtrialと除外trialを明示し，理由（欠損，条件混在等）を記録する．
@@ -29,7 +29,7 @@
   \item 作業ログ追記：生成物のパスと実行コマンドを\texttt{\detokenize{logs/worklog_YYYY-MM-DD_*.txt}}へ追記する．
 \end{itemize}
 
-\subsection{解析と図表生成}
+その後，解析と図表生成について述べる．
 \begin{itemize}
   \item trial集計：ログを読み込み，欠損と単位を確認し，指標（PDR, TL, Pout, 平均電力）を算出する．
   \item 集約：条件ごとに平均と分散を計算し，図表（固定点，制約充足領域，Pareto等）を生成する．
@@ -37,7 +37,7 @@
   \item 図の固定：提出用には\texttt{\detokenize{修士論文/figures/}}へコピーし，相対パス参照を解消する．
 \end{itemize}
 
-\subsection{既知の注意点}
+最後に既知の注意点を述べる．
 \begin{itemize}
   \item 文字列中の\texttt{\detokenize{_}}（アンダースコア）は，LaTeX本文では\texttt{\detokenize{...}}で扱う．
   \item TL/Poutは開始位相ずれで歪むため，定数オフセット補正を適用した定義（v5）を基準にする（\secref{sec:stress_fixed_metrics}）．

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Plot Step D4B tradeoff: avg_power_mW vs pout_1s with share100 annotation (S4 only).
+Plot Step D4B tradeoff: pout_1s vs avg_power_mW with share100 annotation (S4 only).
 
 This script prefers matplotlib, but falls back to a dependency-free SVG output when
 matplotlib is not available in the current Python environment.
@@ -51,12 +51,12 @@ def get_point(
     key: str,
 ) -> Tuple[float, float, float, float, Optional[float], Optional[float], Optional[float]]:
     r = rows.get(key, {})
-    x = r.get("avg_power_mW_mean")
-    y = r.get("pout_1s_mean")
+    x = r.get("pout_1s_mean")
+    y = r.get("avg_power_mW_mean")
     if x is None or y is None:
         raise SystemExit(f"missing required metrics for {key} in summary csv")
-    xerr = r.get("avg_power_mW_std") or 0.0
-    yerr = r.get("pout_1s_std") or 0.0
+    xerr = r.get("pout_1s_std") or 0.0
+    yerr = r.get("avg_power_mW_std") or 0.0
     adv = r.get("adv_count_mean")
     rx_share = r.get("rx_share100_mean")
     mix_share = r.get("share100_power_mix_mean")
@@ -107,8 +107,8 @@ def _write_svg(
     ymin = min(y - ye for y, ye in zip(ys, yerrs))
     ymax = max(y + ye for y, ye in zip(ys, yerrs))
 
-    xpad = max(0.5, (xmax - xmin) * 0.08)
-    ypad = max(0.002, (ymax - ymin) * 0.12)
+    xpad = max(0.005, (xmax - xmin) * 0.08)
+    ypad = max(0.5, (ymax - ymin) * 0.12)
     xmin -= xpad
     xmax += xpad
     ymin = max(0.0, ymin - ypad)
@@ -137,7 +137,8 @@ def _write_svg(
     svg_lines = []
     svg_lines.append(f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">')
     svg_lines.append(f'<rect x="0" y="0" width="{width}" height="{height}" fill="{bg}"/>')
-    svg_lines.append(f'<text x="{width/2:.1f}" y="34" font-size="20" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">{_svg_escape(title)}</text>')
+    if title:
+        svg_lines.append(f'<text x="{width/2:.1f}" y="34" font-size="20" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">{_svg_escape(title)}</text>')
     svg_lines.append(f'<rect x="{margin_l}" y="{margin_t}" width="{plot_w}" height="{plot_h}" fill="none" stroke="{axis}" stroke-width="1.2"/>')
 
     for i in range(6):
@@ -215,15 +216,15 @@ def main() -> None:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         _write_svg(
             args.out.with_suffix(".svg"),
-            title=args.title or "D4B scan90 (S4): CCS-off ablation",
+            title=args.title,
             points={
                 "S4_fixed100": {"x": x100, "y": y100, "xerr": x100e, "yerr": y100e, "adv": adv100 or 0.0, "rx_share": rx100 or float("nan"), "mix_share": mix100 or float("nan")},
                 "S4_fixed500": {"x": x500, "y": y500, "xerr": x500e, "yerr": y500e, "adv": adv500 or 0.0, "rx_share": rx500 or float("nan"), "mix_share": mix500 or float("nan")},
                 "S4_policy": {"x": xpol, "y": ypol, "xerr": xpole, "yerr": ypole, "adv": advpol or 0.0, "rx_share": rxpol or float("nan"), "mix_share": mixpol or float("nan")},
                 "S4_ablation_ccs_off": {"x": xub, "y": yub, "xerr": xube, "yerr": yube, "adv": advub or 0.0, "rx_share": rxub or float("nan"), "mix_share": mixub or float("nan")},
             },
-            x_label="avg_power_mW (mean±std)",
-            y_label="pout_1s (mean±std)",
+            x_label="pout_1s (mean+/-std)",
+            y_label="avg_power_mW (mean+/-std)",
         )
         return
 
@@ -244,8 +245,8 @@ def main() -> None:
     annotate(xpol, ypol, "policy", advpol, rxpol, mixpol)
     annotate(xub, yub, "ccs_off", advub, rxub, mixub)
 
-    ax.set_xlabel("avg_power_mW (TXSD)")
-    ax.set_ylabel("pout_1s")
+    ax.set_xlabel("Pout(1s)")
+    ax.set_ylabel("avg_power_mW (TXSD)")
     ax.grid(True, alpha=0.25)
     if args.title:
         ax.set_title(args.title)

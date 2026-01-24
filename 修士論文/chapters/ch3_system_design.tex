@@ -1,10 +1,10 @@
 ﻿% chapters/ch3_system_design.tex --- 構成要素：問題設定とシステム設計
 \section{問題設定とシステム設計}
 
-\subsection{世界モデル（World Model）}
+まず，世界モデル（World Model）について述べる．
 本研究は，アプリケーション層（HAR）と通信層（BLEアドバタイジング）を跨ぐクロスレイヤー制御である．このため，単にアドバタイジング間隔を調整するだけでなく，「どの情報がどこで生成され，どこで観測されるか」を明確にする必要がある．本節では，アクター（構成要素）とシステム要件（Capabilities）を整理し，議論の前提を固定する．
 \noindent アクター（構成要素）について述べる．
-\tabref{tab:actors}に，本研究で扱うアクターを示す．
+\tabref{tab:actors}に，本研究で扱うアクター（構成要素）とその役割を示す．本研究では送信側（Edge Node），受信側（Gateway），観測者（Observer），安全基準（Safety Oracle），および意思決定器（Policy Engine）の5つの構成要素を区別して扱う．
 
 \begin{table}[tb]
   \centering
@@ -23,17 +23,10 @@
   \end{tabular}
 \end{table}
 \noindent システム要件（Capabilities）について述べる．
-本研究の設計で重要となる要件を以下にまとめる．
-\begin{enumerate}
-  \item Perception：HAR推論から確率分布を得て，不確実度$U$と安定度$S$を計算する．
-  \item Decision：$U,S$からCCSを構成し，アドバタイジング間隔$a$を決定する．
-  \item Communication：BLEアドバタイジングとして送信し，受信側の非理想スキャン下で到達する．
-  \item Safety：QoS制約を守るため，危険兆候では短間隔へ移行できる．
-  \item Observability：意思決定の根拠（$U,S,\mathrm{CCS}$，閾値，切替理由）をログに残す．
-\end{enumerate}
+本研究の設計で重要となる要件として，第一にPerception（HAR推論から確率分布を得て不確実度$U$と安定度$S$を計算する能力），第二にDecision（$U,S$からCCSを構成しアドバタイジング間隔$a$を決定する能力），第三にCommunication（BLEアドバタイジングとして送信し受信側の非理想スキャン下で到達する能力），第四にSafety（QoS制約を守るため危険兆候では短間隔へ移行できる能力），第五にObservability（意思決定の根拠すなわち$U,S,\mathrm{CCS}$，閾値，切替理由をログに残す能力）が挙げられる．
 
-\subsection{主要評価指標と設計方針}
-本研究では，評価軸を明確化するため，主要評価指標を定義する．\tabref{tab:kpi}に主要・補助評価指標を示す．主要評価指標は「省電力」と「期限超過」の同時評価を担い，補助評価指標は補足指標として扱う．
+次に，主要評価指標と設計方針について述べる．
+本研究では，評価軸を明確化するため，主要評価指標を定義する．\tabref{tab:kpi}に主要・補助評価指標を示す．主要評価指標（Primary）は電荷消費の正規化指標$\si{\micro\coulomb}/\text{event}$，期限超過率$P_{\mathrm{out}}(\tau)$，遅延の95パーセンタイル$TL_{p95}$から構成され，「省電力」と「期限超過」の同時評価を担う．補助評価指標（Secondary）は平均電力，PDR，RSSI，切替頻度等から構成され，要因分析のための補足指標として扱う．
 
 \begin{table}[tb]
   \centering
@@ -49,26 +42,21 @@
   \end{tabular}
 \end{table}
 
-また，設計方針として以下を採用する．
-\begin{itemize}
-  \item 後方互換のIF：\texttt{decide\_interval(context) -> interval} の構造を保ち，ルールから学習へ差し替え可能にする．
-  \item 端末内比較：受信端末・設定を固定し，OS依存の影響は端末内で相殺して解釈する．
-  \item ログ優先：評価指標算出に必要な列を必ず残し，派生値は後処理で再計算できる形にする．
-\end{itemize}
+また，設計方針として，後方互換のインターフェース（\texttt{decide\_interval(context) -> interval} の構造を保ちルールから学習へ差し替え可能にする方針），端末内比較（受信端末・設定を固定しOS依存の影響は端末内で相殺して解釈する方針），およびログ優先（評価指標算出に必要な列を必ず残し派生値は後処理で再計算できる形にする方針）を採用する．
 
-\subsection{目的関数と制約}
-本研究の問題設定は，アドバタイジング間隔制御により電力（電荷消費）を下げつつ，期限超過率を制約することである．動的制御の方策$\pi$に対し，
+続いて，目的関数と制約について述べる．
+本研究の問題設定は，アドバタイジング間隔制御により電力（電荷消費）を下げつつ，期限超過率を制約することである．動的制御の方策$\pi$に対し，期待電荷消費$\mathbb{E}[q_{\mathrm{event}}(\pi)]$を目的関数，期限超過率$P_{\mathrm{out}}(\tau;\pi)$を制約として
 \begin{equation}
   \text{minimize}\quad \mathbb{E}[q_{\mathrm{event}}(\pi)]
   \quad \text{subject to}\quad P_{\mathrm{out}}(\tau;\pi)\le \epsilon
 \end{equation}
-として表せる．ここで$q_{\mathrm{event}}$（単位：$\si{\micro\coulomb}/\text{event}$）は，セッション中の電荷消費をイベント数で正規化した指標である（定義は\secref{sec:metrics_detail}）．コンテキストとしては$U,S$（またはCCS）を用い，Phase 1ではルール$\pi_{\mathrm{rule}}$，Phase 2では学習$\pi_{\mathrm{safe\_mab}}$を想定する．
+と表せる．ここで$q_{\mathrm{event}}$（単位：$\si{\micro\coulomb}/\text{event}$）はセッション中の電荷消費をイベント数で正規化した指標であり，eventはtruth系列の状態遷移イベントを指す．$\tau$は許容遅延，$\epsilon$は制約閾値である（定義は\secref{sec:metrics_detail}を参照）．コンテキストとしては$U,S$（またはCCS）を用い，Phase 1ではルール$\pi_{\mathrm{rule}}$，Phase 2では学習$\pi_{\mathrm{safe\_mab}}$を想定する．
 
-\subsection{フェイルセーフ機構}
+その後，フェイルセーフ機構について述べる．
 非理想スキャン環境では，受信品質が瞬間的に悪化する可能性がある．このため，実装では安全側への移行（短間隔）を設けることが望ましい．本研究では，切替規則の設計とログ化により，安全側に寄せた挙動を説明可能にする．
 具体的には，通常はCCSに応じてアドバタイジング間隔を選択し，QoS悪化の兆候がある場合は短間隔へ移行できる設計とする．また，移行の根拠（切替理由）をログに残し，監査可能にする．
 
-\subsection{フェーズ設計（Phase 1 → Phase 2）}
+最後にフェーズ設計（Phase 1 → Phase 2）を述べる．
 Phase 1では，ルールベース方策で「計測・指標・実機実装」を成立させることを優先する．特に，TL/Poutの定義と時間同期，電力計測の健全化は，学習以前に必須である．Phase 2では，コンテキスト（$U,S$）と行動（アドバタイジング間隔）の選択をSafe Contextual Banditとして定式化し，環境差に適応しつつQoS制約を守る枠組みを検証する．
 
 

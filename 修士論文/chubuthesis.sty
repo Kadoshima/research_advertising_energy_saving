@@ -13,8 +13,27 @@
 % --- 日本語（LuaLaTeX） ---
 
 \RequirePackage{luatexja}
+\RequirePackage{luatexja-fontspec}
+\RequirePackage{fix-cm}
 
-\RequirePackage[haranoaji]{luatexja-preset}
+% --- Font setup ---
+\setmainfont{Times New Roman}
+\newcommand{\thesisbodyjfont}{MS PMincho}
+\newjfontfamily{\thesisabstractjfont}{Yu Mincho}
+\setmainjfont{\thesisbodyjfont}
+\setsansjfont{MS PGothic}
+% 本文の和文フォントは明朝体に統一
+\renewcommand{\kanjifamilydefault}{\mcdefault}
+\renewcommand{\kanjiseriesdefault}{\mddefault}
+
+% --- Font sizes (pt) ---
+\newcommand{\thesistitleyearfont}{\fontsize{16}{24}\selectfont}
+\newcommand{\thesistitlefont}{\fontsize{18}{26}\selectfont}
+\newcommand{\thesistitleotherfont}{\fontsize{16}{24}\selectfont}
+\newcommand{\thesisabstractfont}{\fontsize{10.5}{16}\selectfont}
+\newcommand{\thesistocfont}{\fontsize{12}{18}\selectfont}
+\newcommand{\thesischapterfont}{\fontsize{16}{24}\selectfont}
+\newcommand{\thesissectionfont}{\fontsize{14}{21}\selectfont}
 
 
 
@@ -36,12 +55,12 @@
 
 \RequirePackage[
   a4paper,
-  textwidth=160mm,
   textheight=232mm,
   headheight=14.4pt,
   headsep=0.3in,
   footskip=30pt,
-  hmargin=25mm
+  left=25mm,
+  right=25mm
 ]{geometry}
 
 % --- 行間（master_thesis_cls.cls準拠：12pt/18pt） ---
@@ -94,8 +113,8 @@
 
 
 
-% 目次は subsection まで（先輩修論の見え方に寄せる）
-\setcounter{tocdepth}{2}
+% 目次は section まで（節数を抑えて見通しを良くする）
+\setcounter{tocdepth}{1}
 \setcounter{secnumdepth}{2}
 
 % 目次・図目次・表目次の表記
@@ -146,20 +165,58 @@
 }
 
 
-% --- 章見出し（左寄せ・太字） ---
-\RequirePackage{titlesec}
-\titleformat{\chapter}[display]
-  {\normalfont\huge\bfseries\raggedright}
-  {第　\arabic{chapter}　章}
-  {1\baselineskip}
-  {\Huge}
-\titleformat{name=\chapter,numberless}[display]
-  {\normalfont\huge\bfseries\raggedright}
-  {}
-  {0pt}
-  {\Huge}
-\titlespacing*{\chapter}{0pt}{0pt}{2\baselineskip}
-\titlespacing*{name=\chapter,numberless}{0pt}{0pt}{2\baselineskip}
+% --- 章見出し（中央・本文サイズ） ---
+\makeatletter
+\def\@makechapterhead#1{%
+  % 章番号は全角数字（1～20まで）
+  \def\fwchapnum{%
+    \ifcase\value{chapter}\or
+      \char"FF11\or\char"FF12\or\char"FF13\or\char"FF14\or\char"FF15\or
+      \char"FF16\or\char"FF17\or\char"FF18\or\char"FF19\or
+      \char"FF11\char"FF10\or
+      \char"FF11\char"FF11\or\char"FF11\char"FF12\or\char"FF11\char"FF13\or
+      \char"FF11\char"FF14\or\char"FF11\char"FF15\or\char"FF11\char"FF16\or
+      \char"FF11\char"FF17\or\char"FF11\char"FF18\or\char"FF11\char"FF19\or
+      \char"FF12\char"FF10%
+    \else
+      \number\value{chapter}%
+    \fi
+  }%
+  \vspace*{\fill}%
+  \begin{center}%
+    {\normalfont\thesischapterfont 第\fwchapnum{}章\par}%
+    \vspace{0.5\baselineskip}%
+    {\normalfont\thesischapterfont #1\par}%
+  \end{center}%
+  \vspace*{\fill}%
+  \clearpage
+}
+\def\@makeschapterhead#1{%
+  \vspace*{\fill}%
+  \begin{center}%
+    {\normalfont\thesischapterfont #1\par}%
+  \end{center}%
+  \vspace*{\fill}%
+  \clearpage
+}
+\makeatother
+
+% --- Section heading size (14pt) ---
+\makeatletter
+\if@twocolumn
+  \renewcommand{\section}{%
+    \@startsection{section}{1}{\z@}%
+    {0.6\Cvs}{0.4\Cvs}%
+    {\normalfont\thesissectionfont\headfont\raggedright}}
+\else
+  \renewcommand{\section}{%
+    \if@slide\clearpage\fi
+    \@startsection{section}{1}{\z@}%
+    {\Cvs \@plus.5\Cdp \@minus.2\Cdp}%
+    {.5\Cvs \@plus.3\Cdp}%
+    {\normalfont\thesissectionfont\headfont\raggedright}}
+\fi
+\makeatother
 
 
 % --- 図表 ---
@@ -211,8 +268,10 @@
 
 
 % --- キャプション：図 4-1 タイトル / 表 4-1 タイトル ---
-
-\RequirePackage{caption}
+\makeatletter
+\def\caption@documentclass{standard}
+\makeatother
+\RequirePackage[compatibility=false]{caption}
 
 \renewcommand{\thefigure}{\thechapter.\arabic{figure}}
 \renewcommand{\thetable}{\thechapter.\arabic{table}}
@@ -251,7 +310,7 @@
 
 % --- 参考文献（biblatex） ---
 
-\RequirePackage[backend=biber,style=numeric,sorting=none,urldate=iso]{biblatex}
+\RequirePackage[backend=biber,style=numeric,sorting=none,urldate=iso,seconds=true]{biblatex}
 \renewcommand{\bibname}{参考文献参考URL}
 
 
@@ -319,6 +378,7 @@
   \def\text#1{#1}%
   \def\hat#1{#1}%
   \def\bar#1{#1}%
+  \def\fwchapnum{\number\value{chapter}}%
 }
 
 
@@ -331,6 +391,8 @@
   \clearpage
   \thispagestyle{plain}%
   \pdfbookmark[0]{\contentsname}{toc}%
+  \begingroup
+  \thesistocfont
   % ltjsreport の \tableofcontents が行う幅計算をここでも実施
 
   % （これを省くと、章番号と見出しの間隔・インデントが崩れる）
@@ -354,10 +416,11 @@
   \fi
 
   \begin{center}
-    {\Large \contentsname\par}
+    {\contentsname\par}
   \end{center}
   \vspace{1em}
   \@starttoc{toc}%
+  \endgroup
   \clearpage
 }
 \makeatother
@@ -425,22 +488,28 @@
   \null\vfil
   \vskip -60pt
   \begin{center}
-    {\vspace{-5em}\LARGE \ThesisYearLabel\par}
+    {\vspace{-5em}\thesistitleyearfont \ThesisYearLabel\par}
     \vskip 3em%
 
     {\setlength{\fboxsep}{18pt}\fbox{%
       \begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule-6pt\relax}\centering
-        {\large \ThesisTitleLineOne\par}
-        {\large \ThesisTitleLineTwo\par}
+        {\thesistitlefont
+          \if\relax\detokenize{\ThesisTitleLineTwo}\relax
+            \ThesisTitleLineOne
+          \else
+            \ThesisTitleLineOne\\\ThesisTitleLineTwo
+          \fi
+          \par
+        }
       \end{minipage}
     }}
     \vskip 2.5in%
-    {\LARGE \University\ \GraduateSchool\par\vskip 1.0em}
-    {\LARGE \Department\ \Course\par\vskip 1.0em}
-    {\LARGE \AuthorFamily\ \AuthorGiven\par}
+    {\thesistitleotherfont \University\ \GraduateSchool\par\vskip 1.0em}
+    {\thesistitleotherfont \Department\ \Course\par\vskip 1.0em}
+    {\thesistitleotherfont \AuthorFamily\ \AuthorGiven\par}
     \vskip 2.5in%
     \begin{flushright}
-      {\LARGE
+      {\thesistitleotherfont
         \lineskip 4.75em%
         \begin{tabular}[t]{c}%
           {指導教授 \hspace{0.9em}\AdvisorFamily\ \AdvisorGiven}
@@ -455,24 +524,31 @@
 \newcommand{\makeabstractpage}{%
 \clearpage
 \thispagestyle{empty}
-\noindent {\small 修士論文題目}
+\begingroup
+\thesisabstractjfont
+\thesisabstractfont
+\noindent 修士論文題目
 
-\vspace{2mm}
-\noindent {\normalsize \ThesisTitleLineOne\\\ThesisTitleLineTwo}
+\vspace{0mm}
+\noindent
+\if\relax\detokenize{\ThesisTitleLineTwo}\relax
+  \ThesisTitleLineOne
+\else
+  \ThesisTitleLineOne\\\ThesisTitleLineTwo
+\fi
+\par
+% Tighten spacing under thesis title on abstract page.
+\vspace{-0.9\baselineskip}
+\noindent\rule{\linewidth}{0.4pt}\par
 
-\vspace{1mm}
-\noindent\rule{\linewidth}{0.4pt}
+\vspace{0mm}
+\centerline{\underline{\underline{情報工学}}専攻\hspace{2\zw}氏名\hspace{2\zw}\underline{\underline{\AuthorFamily\hspace{1\zw}\AuthorGiven}}}
 
-\vspace{2mm}
-\noindent {\normalsize \underline{\underline{情報工学専攻}}\hspace{2em}氏名\hspace{2em}\underline{\underline{\AuthorFamily\ \AuthorGiven}}}
-
-\vspace{2mm}
-\begin{center}
-  論\quad 文\quad 要\quad 旨
-\end{center}
-
-\vspace{2mm}
+\vspace{0mm}
+\noindent 論\hspace{1\zw}文\hspace{1\zw}要\hspace{1\zw}旨\par
+\vspace{0.2\baselineskip}
 \noindent\hspace*{1\zw}\input{frontmatter/abstract}
+\endgroup
 \clearpage
 }
 

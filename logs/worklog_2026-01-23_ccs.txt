@@ -46,3 +46,7 @@
 2026-01-24 02:56:31 JST Tightened abstract title-to-rule spacing (vspace 1mm -> 0mm) in chubuthesis.sty.
 2026-01-24 03:01:53 JST Tightened abstract title-to-rule spacing further (vspace -1.5mm) in chubuthesis.sty.
 2026-01-24 03:03:54 JST Removed forced line break in abstract title line (use ThesisTitleLineOne only) to reduce spacing before rule.
+2026-01-24 03:25:32 JST 論文の章/節整理（節数削減）を実施。
+- subsubsectionを文章化し、節見出しを統合（\noindent で文章化）。
+- 主要編集: 修士論文/chapters/ch8_measurement_system.tex, ch7_offline_eval.tex, ch6_stress_fixed.tex, ch3_oncampus.tex, ch9_har_uncertainty.tex, appx_b_assets.tex
+- 目的: 1章あたり節/項数を7以内に整理（必要箇所は統合・文章化）。

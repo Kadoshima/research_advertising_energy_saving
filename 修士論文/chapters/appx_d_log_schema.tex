@@ -1,14 +1,14 @@
 ﻿% chapters/appx_d_log_schema.tex --- 付録D ログスキーマ（詳細）
-\section{ログスキーマ（詳細）}
+ログスキーマ（詳細）について述べる．
 \label{sec:log_schema}
 
 本節では，本研究で扱うログ（TXSD/RX/TX）の列定義をまとめる．解析スクリプトは列追加に対して後方互換で拡張可能であるが，指標計算に必須な列は固定する．
 
-\subsection{TXSD（電力）ログ}
-TXSDログは，電流・電圧系列と，末尾のsummaryから構成される．生系列は後処理で再積分できるように保持し，summaryはquick checkとして利用する．
+まず，TXSD（電力）ログについて述べる．
+TXSDログは，電流・電圧系列と，末尾のsummaryから構成される．生系列は後処理で再積分できるように保持し，summaryはquick checkとして利用する．表中の各行は列名，各列は単位および意味を表す．
 
 \begin{longtable}{p{0.20\linewidth}p{0.16\linewidth}p{0.50\linewidth}}
-  \caption{TXSDログ（例）の列定義}\label{tab:txsd_schema}\\
+  \caption{TXSDログ（例）の列定義（列名・単位・意味）}\label{tab:txsd_schema}\\
   \toprule
   列 & 単位 & 意味 \\
   \midrule
@@ -31,11 +31,11 @@ TXSDログは，電流・電圧系列と，末尾のsummaryから構成される
   \bottomrule
 \end{longtable}
 
-\subsection{RX（受信）ログ}
-RXログは，受信時刻とペイロード識別子（seq等）を保持する．PDR\_unique，TL，$P_{\mathrm{out}}(\tau)$の算出に必須である．
+次に，RX（受信）ログについて述べる．
+RXログは，受信時刻とペイロード識別子（seq等）を保持する．PDR\_unique，TL，$P_{\mathrm{out}}(\tau)$の算出に必須である．表中の各行は列名，各列は単位および意味を表す．
 
 \begin{longtable}{p{0.20\linewidth}p{0.16\linewidth}p{0.50\linewidth}}
-  \caption{RXログ（例）の列定義}\label{tab:rx_schema}\\
+  \caption{RXログ（例）の列定義（列名・単位・意味）}\label{tab:rx_schema}\\
   \toprule
   列 & 単位 & 意味 \\
   \midrule
@@ -51,11 +51,11 @@ RXログは，受信時刻とペイロード識別子（seq等）を保持する
   \bottomrule
 \end{longtable}
 
-\subsection{TX（送信）ログ}
-TXログは，方策の状態（$U,S,\mathrm{CCS},a$等）を保持する．オフライン評価と実機評価を接続するため，方策の根拠（切替理由）を残すことが望ましい．
+続いて，TX（送信）ログについて述べる．
+TXログは，方策の状態（$U,S,\mathrm{CCS},a$等）を保持する．オフライン評価と実機評価を接続するため，方策の根拠（切替理由）を残すことが望ましい．表中の各行は列名，各列は単位および意味を表す．
 
 \begin{longtable}{p{0.20\linewidth}p{0.16\linewidth}p{0.50\linewidth}}
-  \caption{TXログ（例）の列定義}\label{tab:tx_schema}\\
+  \caption{TXログ（例）の列定義（列名・単位・意味）}\label{tab:tx_schema}\\
   \toprule
   列 & 単位 & 意味 \\
   \midrule
@@ -73,6 +73,6 @@ TXログは，方策の状態（$U,S,\mathrm{CCS},a$等）を保持する．オ�
   \bottomrule
 \end{longtable}
 
-\subsection{ファイル命名と配置}
-ログは，試行（trial）単位でファイルを分割し，\texttt{\detokenize{trial_XXX.csv}}等の連番で管理する．このとき，条件IDや実験日付をパスまたはファイル名に含め，作業ログに生成コマンドと出力先を残す（\secref{sec:runbook}）．
+最後にファイル命名と配置について述べる．
+ログは，試行（trial）単位でファイルを分割し，\texttt{\detokenize{trial_XXX.csv}}等の連番で管理する．このとき，条件IDや実験日付をパスまたはファイル名に含め，作業ログに生成コマンドと出力先を残す（\secref{sec:runbook}を参照）．
 

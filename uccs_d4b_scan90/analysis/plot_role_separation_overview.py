@@ -2,7 +2,7 @@
 """
 Single-figure overview to fix the narrative in one plot:
 
-  - Role of U: U-shuffle collapses toward 100ms behavior (power↑)
+  - Role of U: U-shuffle collapses toward 100ms behavior (power-heavy)
   - Role of CCS: CCS-off (U-only) degrades QoS at ~same power vs U+CCS
   - Robustness: scan70 degrades Fixed500 strongly, while Policy remains feasible
 
@@ -50,15 +50,15 @@ def read_summary(path: Path) -> Dict[str, Dict[str, float]]:
             cond = (row.get("condition") or "").strip()
             if not cond:
                 continue
-            x = f_or_none(row.get("avg_power_mW_mean") or "")
-            y = f_or_none(row.get("pout_1s_mean") or "")
+            x = f_or_none(row.get("pout_1s_mean") or "")
+            y = f_or_none(row.get("avg_power_mW_mean") or "")
             if x is None or y is None:
                 continue
             out[cond] = {
                 "x": float(x),
                 "y": float(y),
-                "xerr": float(f_or_none(row.get("avg_power_mW_std") or "") or 0.0),
-                "yerr": float(f_or_none(row.get("pout_1s_std") or "") or 0.0),
+                "xerr": float(f_or_none(row.get("pout_1s_std") or "") or 0.0),
+                "yerr": float(f_or_none(row.get("avg_power_mW_std") or "") or 0.0),
             }
     return out
 
@@ -113,10 +113,10 @@ def write_svg(out_svg: Path, title: str, points: List[Point], arrows: List[Tuple
     yerrs = [p.yerr for p in points]
     # Use round axis bounds so tick marks align with plot edges.
     # NOTE: x error bars are omitted in this overview to keep the frame clean.
-    xmin, xmax = 185.0, 210.0
-    ymin, ymax = 0.0, 0.35
-    x_ticks = [185, 190, 195, 200, 205, 210]
-    y_ticks = [i * 0.05 for i in range(int(round(ymax / 0.05)) + 1)]
+    xmin, xmax = 0.0, 0.35
+    ymin, ymax = 185.0, 210.0
+    x_ticks = [i * 0.05 for i in range(int(round(xmax / 0.05)) + 1)]
+    y_ticks = [185, 190, 195, 200, 205, 210]
 
     def xpx(x: float) -> float:
         return ml + (x - xmin) * pw / (xmax - xmin) if xmax > xmin else ml + pw / 2
@@ -128,7 +128,8 @@ def write_svg(out_svg: Path, title: str, points: List[Point], arrows: List[Tuple
     svg.append(f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">')
     svg.append(f'<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="{axis}"/></marker></defs>')
     svg.append(f'<rect x="0" y="0" width="{width}" height="{height}" fill="{bg}"/>')
-    svg.append(f'<text x="{width/2:.1f}" y="38" font-size="20" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">{_svg_escape(title)}</text>')
+    if title:
+        svg.append(f'<text x="{width/2:.1f}" y="38" font-size="20" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">{_svg_escape(title)}</text>')
     svg.append(f'<rect x="{ml}" y="{mt}" width="{pw}" height="{ph}" fill="none" stroke="{axis}" stroke-width="1.2"/>')
 
     for tx in x_ticks:
@@ -140,15 +141,15 @@ def write_svg(out_svg: Path, title: str, points: List[Point], arrows: List[Tuple
         svg.append(f'<line x1="{ml}" y1="{py:.2f}" x2="{ml+pw}" y2="{py:.2f}" stroke="{grid}" stroke-width="1"/>')
         svg.append(f'<text x="{ml-10}" y="{py+4:.2f}" font-size="12" text-anchor="end" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">{_fmt_tick(ty, 2)}</text>')
 
-    svg.append(f'<text x="{ml+pw/2:.1f}" y="{height-26}" font-size="14" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">avg_power_mW (lower=better)</text>')
-    svg.append(f'<text x="22" y="{mt+ph/2:.1f}" font-size="14" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system" transform="rotate(-90 22 {mt+ph/2:.1f})">pout_1s (lower=better)</text>')
+    svg.append(f'<text x="{ml+pw/2:.1f}" y="{height-26}" font-size="14" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">pout_1s (lower=better)</text>')
+    svg.append(f'<text x="22" y="{mt+ph/2:.1f}" font-size="14" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system" transform="rotate(-90 22 {mt+ph/2:.1f})">avg_power_mW (lower=better)</text>')
 
-    # ε=0.1 guideline
-    y_eps = 0.1
-    if y_eps >= ymin and y_eps <= ymax:
-        py = ypx(y_eps)
-        svg.append(f'<line x1="{ml}" y1="{py:.2f}" x2="{ml+pw}" y2="{py:.2f}" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6 4"/>')
-        svg.append(f'<text x="{ml+pw-10}" y="{py-8:.2f}" font-size="12" text-anchor="end" fill="#6b7280" font-family="ui-sans-serif, system-ui, -apple-system">ε=0.1</text>')
+    # eps=0.1 guideline (Pout constraint)
+    x_eps = 0.1
+    if x_eps >= xmin and x_eps <= xmax:
+        px = xpx(x_eps)
+        svg.append(f'<line x1="{px:.2f}" y1="{mt}" x2="{px:.2f}" y2="{mt+ph}" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6 4"/>')
+        svg.append(f'<text x="{px-6:.2f}" y="{mt+14}" font-size="12" text-anchor="end" fill="#6b7280" font-family="ui-sans-serif, system-ui, -apple-system">eps=0.1</text>')
 
     # Index points by key for arrows.
     by_key: Dict[str, Point] = {p.key: p for p in points}
@@ -216,7 +217,7 @@ def main() -> None:
     ap.add_argument("--d4b-csv", type=Path, default=Path("uccs_d4b_scan90/metrics/01/summary_by_condition.csv"))
     ap.add_argument("--d3-csv", type=Path, default=Path("uccs_d3_scan70/metrics/01/summary_by_condition.csv"))
     ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--title", type=str, default="Role separation overview (scan90/scan70, S4)")
+    ap.add_argument("--title", type=str, default="")
     args = ap.parse_args()
 
     d4 = read_summary(args.d4_csv)
@@ -252,3 +253,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

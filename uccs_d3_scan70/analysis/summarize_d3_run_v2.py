@@ -7,7 +7,7 @@ and is not globally monotonic.
 
 Step D3 (scan duty down):
   - S4 only
-  - 3 conditions × 3 repeats = 9 trials
+  - 3 conditions × n_per_cond repeats
     - S4_fixed100
     - S4_fixed500
     - S4_policy
@@ -153,23 +153,28 @@ def rx_bucket(t: RxTrial) -> str:
     return f"F4_{t.fixed_itv}"
 
 
-def select_balanced_window(trials: List[RxTrial]) -> List[RxTrial]:
+def select_balanced_window(trials: List[RxTrial], n_per_cond: int) -> List[RxTrial]:
     candidates = [t for t in trials if t.duration_ms >= VALID_MIN_DURATION_MS]
     candidates.sort(key=lambda t: t.rx_id)
-    if len(candidates) < 9:
-        raise SystemExit(f"not enough valid RX trials (>= {VALID_MIN_DURATION_MS}ms): {len(candidates)}")
+    total = n_per_cond * 3
+    if len(candidates) < total:
+        raise SystemExit(
+            f"not enough valid RX trials (>= {VALID_MIN_DURATION_MS}ms): {len(candidates)} < {total}"
+        )
 
     want = {"F4_100", "F4_500", "P4"}
     best: Optional[List[RxTrial]] = None
-    for start in range(0, len(candidates) - 9 + 1):
-        window = candidates[start : start + 9]
+    for start in range(0, len(candidates) - total + 1):
+        window = candidates[start : start + total]
         counts: Dict[str, int] = {}
         for t in window:
             counts[rx_bucket(t)] = counts.get(rx_bucket(t), 0) + 1
-        if set(counts.keys()) == want and counts.get("F4_100", 0) == 3 and counts.get("F4_500", 0) == 3 and counts.get("P4", 0) == 3:
+        if set(counts.keys()) == want and all(counts.get(k, 0) == n_per_cond for k in want):
             best = window
     if not best:
-        raise SystemExit("could not find balanced 9-trial RX window (F4_100/F4_500/P4 × 3 repeats)")
+        raise SystemExit(
+            f"could not find balanced RX window (F4_100/F4_500/P4 × {n_per_cond} repeats)"
+        )
     return best
 
 
@@ -362,7 +367,10 @@ def main() -> None:
     ap.add_argument("--out-dir", type=Path, required=True)
     ap.add_argument("--truth-s4", type=Path, default=Path("Mode_C_2_シミュレート_causal/ccs/stress_causal_S4.csv"))
     ap.add_argument("--n-steps", type=int, default=1800)
+    ap.add_argument("--n-per-cond", type=int, default=3)
     args = ap.parse_args()
+    if args.n_per_cond <= 0:
+        raise SystemExit("--n-per-cond must be >= 1")
 
     truth = read_truth_labels(args.truth_s4, args.n_steps)
 
@@ -372,7 +380,7 @@ def main() -> None:
             rx_all.append(read_rx_trial(p))
         except Exception:
             continue
-    rx_trials = select_balanced_window(rx_all)
+    rx_trials = select_balanced_window(rx_all, args.n_per_cond)
     rx_trials.sort(key=lambda t: t.rx_id)
 
     txsd_all: List[TxsdTrial] = []
@@ -389,7 +397,7 @@ def main() -> None:
 
     groups = classify_txsd_groups_by_adv_count(txsd_all)
     # pick exactly 3 trials per condition (closest to median power)
-    picked: Dict[str, List[TxsdTrial]] = {k: pick_n_typical_by_power(v, 3) for k, v in groups.items()}
+    picked: Dict[str, List[TxsdTrial]] = {k: pick_n_typical_by_power(v, args.n_per_cond) for k, v in groups.items()}
     for k in picked:
         picked[k].sort(key=lambda t: t.path.name)
 
@@ -524,7 +532,11 @@ def main() -> None:
     uniq_adv = sorted({tx.adv_count for _, tx in pairs})
     lines.append(f"- selected TXSD trials: grouped by adv_count={uniq_adv} (n={len(pairs)})\n")
     lines.append(f"- generated: {datetime.now().strftime('%Y-%m-%d %H:%M')} (local)\n")
-    lines.append(f"- command: `python3 uccs_d3_scan70/analysis/summarize_d3_run_v2.py --rx-dir {args.rx_dir} --txsd-dir {args.txsd_dir} --out-dir {args.out_dir}`\n")
+    lines.append(
+        "- command: `python3 uccs_d3_scan70/analysis/summarize_d3_run_v2.py "
+        f"--rx-dir {args.rx_dir} --txsd-dir {args.txsd_dir} --out-dir {args.out_dir} "
+        f"--n-per-cond {args.n_per_cond}`\n"
+    )
 
     lines.append("\n## Summary (mean ± std)\n")
     lines.append("| condition | pout_1s | tl_mean_s | pdr_unique | avg_power_mW | adv_count | share100_time_est (RX tags) | share100_power_mix |\n")
@@ -549,8 +561,13 @@ def main() -> None:
         )
 
     lines.append("\n## Notes\n")
-    lines.append("- RX window: latest 9 trials that form 3 conditions × 3 repeats (duration>=160s).\n")
-    lines.append("- TXSD pairing: mtimeが信頼できないため、adv_count（tick_count）でクラスタリングして各条件3本を割り当て。\n")
+    total = args.n_per_cond * 3
+    lines.append(
+        f"- RX window: latest {total} trials that form 3 conditions × {args.n_per_cond} repeats (duration>=160s).\n"
+    )
+    lines.append(
+        "- TXSD pairing: mtimeが信頼できないため、adv_count（tick_count）でクラスタリングして各条件を割り当て。\n"
+    )
     lines.append(f"  - filter: avg_power_mW >= {TXSD_MIN_AVG_POWER_MW:.1f}（古いログ混在を除外）\n")
     lines.append("- TL/Pout alignment: per-trial constant offset estimated from (step_idx*100ms - first_rx_ms(step_idx)).\n")
     lines.append("- TXSD adv_count is tick_count (1 tick per payload update); used as denominator for pdr_unique.\n")
