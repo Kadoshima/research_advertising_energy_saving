@@ -77,3 +77,10 @@ esults/phase2_offline_studies_2026-01-26_v05/gateb_pareto_cap25.mdj
 2026-01-26 15:10 JST: Collected TXSD logs (D4B scan90) from D:\\logs -> uccs_d4b_scan90/data/02_n10_run01/TX (trial_050-087, c1-4, firmware=TXSD_UCCS_D4B_SCAN90). SHA256.txt generated. RX/manifest pending.
 2026-01-26 15:34:17 JST ä¿®è«–æœ¬æ–‡ã®ã‚³ãƒ¼ãƒ‰è¡¨è¨˜æ•´ç†: ch2_proposed.tex ã® reason è¡¨è¨˜ã‚’ç†ç”±ã‚¿ã‚°ã¸ã€ch3_oncampus.tex ã® trial_XXX.csv è¡¨è¨˜ã‚’é€£ç•ªCSVã¸ç½®æ›ã€‚ch10_phase2_concept.tex ã®ãƒ‡ãƒ¼ã‚¿è­˜åˆ¥å­ã‚’è‡ªç„¶è¨€èªåŒ–ï¼ˆv02ãƒ‡ãƒ¼ã‚¿è¡¨ç¾ï¼‰ã€‚
 2026-01-26 15:43 JST: ??????? docs/????2/phase2_bandit_offline_studies_2026-01-24/????.md ????Phase0-1???????Gate B/C?Phase2???????????????
+2026-01-26 15:47 JST: ????/chapters/ch10_phase2_concept.tex ? Gate B/C ????????????????default???????
+2026-01-26 16:05 JST: ????/chapters/ch7_offline_eval.tex ?Gate B/C???????????????????Gate B/C?????
+2026-01-26 16:08 JST: ????/chapters/ch5_experiments.tex ???Phase0-1???????Phase2??????????
+[2026-01-26 16:11 JST] Cm˜_•¶ƒrƒ‹ƒh‘Î‰: ch6_stress_fixed.tex ‚ğ UTF-8 ‰» (CP932->UTF-8) ‚µAfigures/rho100_vs_pout_overview.pdf ‚ªSVG‚¾‚Á‚½‚½‚ß PNG ‚ğ”z’u‚µ‚Ä includegraphics ‚ğ .png w’è‚É•ÏXB
+[2026-01-26 16:11 JST] Cm˜_•¶QÆC³: chapters/ch5_experiments.tex ‚É ch:evaluation ƒ‰ƒxƒ‹’Ç‰ÁB
+[2026-01-26 16:11 JST] latexmk Às: main.pdf ¶¬¬Œ÷iŒx‚ÍƒtƒHƒ“ƒgŒ`ó‚Ì’uŠ·‚Ì‚İjB
+2026-01-26 16:13 JST: ????/chapters/ch5_publicroad.tex ? conclusion.tex ?Gate B/C?????????????????
