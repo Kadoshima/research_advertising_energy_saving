@@ -15,8 +15,8 @@
     \toprule
     ノード & 役割 & 主なログ \\
     \midrule
-    TX & BLEアドバタイジング送信・間隔制御 & ペイロード（時刻/タグ），制御状態 \\
-    TXSD & 電力計測（INA219） & 電圧・電流系列，集約指標 \\
+    TX & BLEアドバタイジング送信・間隔制御 & ペイロード時刻/タグ，制御状態 \\
+    TXSD & 電力計測INA219 & 電圧・電流系列，集約指標 \\
     RX & 受信ログ取得 & 受信時刻，RSSI，ペイロード \\
     \bottomrule
   \end{tabular}
@@ -33,10 +33,10 @@
     \toprule
     要素 & 役割 \\
     \midrule
-    ESP32（TX） & BLEアドバタイジング送信，アドバタイジング間隔制御，ペイロード生成 \\
-    ESP32（TXSD） & INA219計測データの収集，SD保存，エネルギー集約 \\
-    ESP32（RX）/スマートフォン & 受信ログの取得（時刻，RSSI，seq） \\
-    INA219 & 電流・電圧の計測（サンプリング周期は試行条件に依存） \\
+    ESP32 TX & BLEアドバタイジング送信，アドバタイジング間隔制御，ペイロード生成 \\
+    ESP32 TXSD & INA219計測データの収集，SD保存，エネルギー集約 \\
+    ESP32 RX/スマートフォン & 受信ログの取得。時刻，RSSI，seqを含む \\
+    INA219 & 電流・電圧の計測。サンプリング周期は試行条件に依存する \\
     SYNC/TICK & 試行区間の同期，アドバタイジング回数の物理カウント \\
     \bottomrule
   \end{tabularx}
@@ -59,7 +59,7 @@ TICKはアドバタイジング回数の物理カウントに用いる．アド�
   \label{tab:wiring_example}
   \begin{tabular}{lll}
     \toprule
-    信号 & TX（GPIO） & 受け側（GPIO） \\
+    信号 & TX GPIO & 受け側 GPIO \\
     \midrule
     SYNC & 25 & RX:26, TXSD:26 \\
     TICK & 27 & TXSD:33 \\

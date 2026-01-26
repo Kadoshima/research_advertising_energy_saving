@@ -3,3 +3,8 @@
 - 移動: 修士論文/chapters/_order_a.tex, 修士論文/chapters/appx_b_assets.tex, 修士論文/chapters/appx_f_symbols.tex, 修士論文/chapters/ch0_introduction.tex, 修士論文/chapters/ch5_evaluation.tex
 - 先: 修士論文/archive/unused_chapters_20260127
 
+2026-01-27 01:01 JST
+- ch10_phase2_concept.tex の文字化けを repomix-thesis.txt から復元（UTF-8で再保存）
+- latexmk -lualatex でビルド確認（build/main.pdf生成）
+- 未解決参照: sec:assets, sec:phase2_gatebc
+
