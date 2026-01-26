@@ -340,16 +340,14 @@
 
 
 % \scite{a,b} で [1][2] 形式を作る（普通の \cite は [1,2]）
-
 \DeclareCiteCommand{\scite}
-
   {}
-
   {\mkbibbrackets{\usebibmacro{citeindex}\usebibmacro{cite}}}
-
   {}
-
   {}
+% 行末禁則・和文欧文間グルーが \scite の直前で改行しないようにする
+\let\thesis@scite\scite
+\renewcommand{\scite}{\unskip\thesis@scite}
 
 
 
