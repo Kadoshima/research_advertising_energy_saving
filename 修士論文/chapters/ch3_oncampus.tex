@@ -1,65 +1,65 @@
-% chapters/ch3_oncampus.tex --- �\���v�f�F�������u�E�v������
-\section{�������u�E�v������}
+% chapters/ch3_oncampus.tex --- 構成要素：実験装置・計測方式
+\section{実験装置・計測方式}
 \label{sec:measurement_setup}
 
-�{�����̈ꎟKPI�͏ȓd�͎w�W$q_{\mathrm{event}}$��QoS�w�WTL�����$P_{\mathrm{out}}(\tau)$�ł���D$q_{\mathrm{event}}$�̒P�ʂ�$\si{\micro\coulomb}/\text{event}$�Ƃ���D�����𓯈ꎎ�s�ŕ]�����邽�߁C���MTX�C�d��TXSD�C��MRX�̎O�m�[�h�\�����̗p���C�����M���Ŏ��s��Ԃ𑵂���D�{�߂ł́C�v�������ƃ��O�݌v���Č��\�Ȍ`�Ő�������D
+本研究の一次目標は省電力指標$q_{\mathrm{event}}$とQoS指標TLおよび$P_{\mathrm{out}}(\tau)$である．$q_{\mathrm{event}}$の単位は$\si{\micro\coulomb}/\text{event}$とする．これらを同一試行で評価するため，送信TX，電力TXSD，受信RXの三ノード構成を採用し，同期信号で試行区間を揃える．本節では，計測方式とログ設計を再現可能な形で整理する．
 
-�܂��C�O�m�[�h�\��TX/TXSD/RX�ɂ��ďq�ׂ�D
-���M�m�[�hTX��BLE�A�h�o�^�C�W���O�ƊԊu�����S���C�d�͌v���m�[�hTXSD��INA219��p���ēd���E�d���n��ƏW��w�W���L�^���C��M�m�[�hRX����M�����ERSSI�E�y�C���[�h�����O�Ƃ��ĕێ�����D�e�m�[�h�̖�����\tabref{tab:nodes}�Ɏ����D
+まず，三ノード構成TX/TXSD/RXについて述べる．
+送信ノードTXがBLEアドバタイジングと間隔制御を担い，電力計測ノードTXSDがINA219を用いて電圧・電流系列と集約指標を記録し，受信ノードRXが受信時刻・RSSI・ペイロードをログとして保持する．各ノードの役割を\tabref{tab:nodes}に示す．
 
 \begin{table}[tb]
   \centering
-  \caption{�]���n�̃m�[�h�\��}
+  \caption{評価系のノード構成}
   \label{tab:nodes}
   \begin{tabular}{lll}
     \toprule
-    �m�[�h & ���� & ��ȃ��O \\
+    ノード & 役割 & 主なログ \\
     \midrule
-    TX & BLE�A�h�o�^�C�W���O���M�E�Ԋu���� & �y�C���[�h�i����/�^�O�j�C������ \\
-    TXSD & �d�͌v���iINA219�j & �d���E�d���n��C�W��w�W \\
-    RX & ��M���O�擾 & ��M�����CRSSI�C�y�C���[�h \\
+    TX & BLEアドバタイジング送信・間隔制御 & ペイロード（時刻/タグ），制御状態 \\
+    TXSD & 電力計測（INA219） & 電圧・電流系列，集約指標 \\
+    RX & 受信ログ取得 & 受信時刻，RSSI，ペイロード \\
     \bottomrule
   \end{tabular}
 \end{table}
-\noindent �@�ނƌv���p�����[�^�ɂ��ďq�ׂ�D
+\noindent 機材と計測パラメータについて述べる．
 
-�{�����̌v���́C�ėp�}�C�R��ESP32�n�Ɠd���Z���TINA219�𒆐S�ɍ\������D\tabref{tab:hw}�Ɍv���V�X�e���̎�v�\���v�f�Ɩ����������D�e�v�f�́CBLE�A�h�o�^�C�W���O���M��TX�C�d�͌v����TXSD�C��M���O�擾��RX�C�d���E�d���v����INA219�C�����M����SYNC/TICK���S���D
+本研究の計測は，汎用マイコンESP32系と電流センサINA219を中心に構成する．\tabref{tab:hw}に計測システムの主要構成要素と役割を示す．各要素は，BLEアドバタイジング送信はTX，電力計測はTXSD，受信ログ取得はRX，電流・電圧計測はINA219，同期信号はSYNC/TICKが担う．
 
 \begin{table}[tb]
   \centering
-  \caption{�v���V�X�e���̎�v�\��}
+  \caption{計測システムの主要構成}
   \label{tab:hw}
   \begin{tabularx}{\linewidth}{l>{\raggedright\arraybackslash}X}
     \toprule
-    �v�f & ���� \\
+    要素 & 役割 \\
     \midrule
-    ESP32�iTX�j & BLE�A�h�o�^�C�W���O���M�C�A�h�o�^�C�W���O�Ԋu����C�y�C���[�h���� \\
-    ESP32�iTXSD�j & INA219�v���f�[�^�̎��W�CSD�ۑ��C�G�l���M�[�W�� \\
-    ESP32�iRX�j/�X�}�[�g�t�H�� & ��M���O�̎擾�i�����CRSSI�Cseq�j \\
-    INA219 & �d���E�d���̌v���i�T���v�����O�����͎��s�����Ɉˑ��j \\
-    SYNC/TICK & ���s��Ԃ̓����C�A�h�o�^�C�W���O�񐔂̕����J�E���g \\
+    ESP32（TX） & BLEアドバタイジング送信，アドバタイジング間隔制御，ペイロード生成 \\
+    ESP32（TXSD） & INA219計測データの収集，SD保存，エネルギー集約 \\
+    ESP32（RX）/スマートフォン & 受信ログの取得（時刻，RSSI，seq） \\
+    INA219 & 電流・電圧の計測（サンプリング周期は試行条件に依存） \\
+    SYNC/TICK & 試行区間の同期，アドバタイジング回数の物理カウント \\
     \bottomrule
   \end{tabularx}
 \end{table}
 
-���ɁC�����݌vSYNC/TICK�ɂ��ďq�ׂ�D
-\noindent SYNC�ɂ��ďq�ׂ�D
+次に，同期設計SYNC/TICKについて述べる．
+\noindent SYNCについて述べる．
 
-���s�̊J�n�E�I���𑵂��邽�߂ɓ����M��SYNC��p����DTX�͎��s��Ԃ̋��E��SYNC�M�����o�͂��CTXSD��RX�͂��̐M���ɓ������ă��O�擾��Ԃ���؂�DSYNC�ɂ��C�ǂ̋�Ԃ̓d�́E��M���O���r���邩�𖾊m���ł���D
-\noindent TICK�ɂ��ďq�ׂ�D
+試行の開始・終了を揃えるために同期信号SYNCを用いる．TXは試行区間の境界でSYNC信号を出力し，TXSDとRXはこの信号に同期してログ取得区間を区切る．SYNCにより，どの区間の電力・受信ログを比較するかを明確化できる．
+\noindent TICKについて述べる．
 
-TICK�̓A�h�o�^�C�W���O�񐔂̕����J�E���g�ɗp����D�A�h�o�^�C�W���O�C�x���g��$N_{\mathrm{adv}}$�͓��B���w�W�̕���Ƃ��ďd�v�ł���C��`��\secref{sec:metrics_detail}���Q�Ƃ���D�\�ł����TX��TICK�M�����o�͂��CTXSD���Ŋ��荞�݂ɂ��A�h�o�^�C�W���O�񐔂𕨗��J�E���g����DTICK�����p�ł��Ȃ��ꍇ�́C���s���ԂƃA�h�o�^�C�W���O�Ԋu������Ғl���Z�o����D�������C���I���䉺�ł͐���덷��������\��������_�ɗ��ӂ���D
-\noindent �z����ɂ��ďq�ׂ�D
+TICKはアドバタイジング回数の物理カウントに用いる．アドバタイジングイベント数$N_{\mathrm{adv}}$は到達率指標の分母として重要であり，定義は\secref{sec:metrics_detail}を参照する．可能であればTXがTICK信号を出力し，TXSD側で割り込みによりアドバタイジング回数を物理カウントする．TICKが利用できない場合は，試行時間とアドバタイジング間隔から期待値を算出する．ただし，動的制御下では推定誤差が生じる可能性がある点に留意する．
+\noindent 配線例について述べる．
 
-�{�����ŗp�����z�����\tabref{tab:wiring_example}�Ɏ����D�������Y�ꗗ�ɏ������C�t�^\secref{sec:assets}�ɋL�ڂ����D�s���ԍ��͎����Ɉˑ����邽�߁C�^�p����Runbook�ɋL�^���ČŒ肷��D�ڍׂ�\secref{sec:runbook}���Q�Ƃ���D
+本研究で用いた配線例を\tabref{tab:wiring_example}に示す．実験資産一覧に準拠し，付録\secref{sec:assets}に記載した．ピン番号は実装に依存するため，運用時はRunbookに記録して固定する．詳細は\secref{sec:runbook}を参照する．
 
 \begin{table}[tb]
   \centering
-  \caption{UCCS�]���̔z����}
+  \caption{UCCS評価の配線例}
   \label{tab:wiring_example}
   \begin{tabular}{lll}
     \toprule
-    �M�� & TX�iGPIO�j & �󂯑��iGPIO�j \\
+    信号 & TX（GPIO） & 受け側（GPIO） \\
     \midrule
     SYNC & 25 & RX:26, TXSD:26 \\
     TICK & 27 & TXSD:33 \\
@@ -67,45 +67,45 @@ TICK�̓A�h�o�^�C�W���O�񐔂̕����J�E���g�ɗp����D�A�h�o�^�C�W���O�C�x���g��$N_{
   \end{tabular}
 \end{table}
 
-\figref{fig:measurement_architecture_esp32_three_node}�ɁC�O���d�������INA219���܂ގO�m�[�h�v���nTX/TXSD/RX�̔z���E�M���\���������D�}���̔j�����͓����M���̐ڑ��������C�������͓d�͋����o�H���C�~���`�A�C�R���̓��O�ۑ����\���D
+\figref{fig:measurement_architecture_esp32_three_node}に，外部電源およびINA219を含む三ノード計測系TX/TXSD/RXの配線・信号構成を示す．図中の破線矢印は同期信号の接続を示し，実線矢印は電力供給経路を，円筒形アイコンはログ保存先を表す．
 
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.98\linewidth]{figures/measurement_architecture_esp32_three_node}
-  \caption{�O�m�[�h�v���n�̃V�X�e���A�[�L�e�N�`���B�j���͓����M���C�����͓d�͋����C�~���̓��O�ۑ�������}
+  \caption{三ノード計測系のシステムアーキテクチャ。破線は同期信号，実線は電力供給，円筒はログ保存を示す}
   \label{fig:measurement_architecture_esp32_three_node}
 \end{figure}
 
-�����āC���O�݌v�ƃX�L�[�}�ɂ��ďq�ׂ�D
-��͂̍Č�����S�ۂ��邽�߁C���O�̗�i�J�����j���Œ肷��D�{�����ł́CTXSD���O������summary�i��F$N_{\mathrm{adv}}$�C$E$�C$\overline{P}$�j���ꎟ���Ƃ��Ĉ����CRX���O��PDR/TL�]���̊�b�Ƃ���D���O�X�L�[�}�̏ڍׂ�\secref{sec:log_schema}���Q�Ƃ��ꂽ���D
-\noindent TXSD�i�d�́j���O�ɂ��ďq�ׂ�D
+続いて，ログ設計とスキーマについて述べる．
+解析の再現性を担保するため，ログの列（カラム）を固定する．本研究では，TXSDログ末尾のsummary（例：$N_{\mathrm{adv}}$，$E$，$\overline{P}$）を一次情報として扱い，RXログはPDR/TL評価の基礎とする．ログスキーマの詳細は\secref{sec:log_schema}を参照されたい．
+\noindent TXSD（電力）ログについて述べる．
 
-TXSD���O�́C�����ƌv���l�i�d���E�d���j���s���Ƃɕێ����C�����ɏW��l���o�͂���D�ϕ���$\Delta t$��p���������ϕ��Ƃ��C�㏈���ł��Đϕ����Đ��������m�F����i�v���n�̌��S����\secref{sec:measurement_system}���Q�Ɓj�D
-\noindent RX�i��M�j���O�ɂ��ďq�ׂ�D
+TXSDログは，時刻と計測値（電圧・電流）を行ごとに保持し，末尾に集約値を出力する．積分は$\Delta t$を用いた逐次積分とし，後処理でも再積分して整合性を確認する（計測系の健全化は\secref{sec:measurement_system}を参照）．
+\noindent RX（受信）ログについて述べる．
 
-RX���O�́C��M�����CRSSI�C�y�C���[�h�iseq���j��ێ�����D�d����M�����邽�߁Cseq�Ń��j�[�N�����������𕹋L����i\secref{sec:metrics_detail}���Q�Ɓj�D�܂��CTL/Pout�Z�o�ɂ�RX���O�Ɛ^�l�̎��Ԏ��������K�v�ł���C�萔�I�t�Z�b�g�␳��p����i��`�Ǝ�����\secref{sec:stress_fixed_metrics}���Q�Ɓj�D
-\noindent �t�@�C�������ɂ��ďq�ׂ�D
+RXログは，受信時刻，RSSI，ペイロード（seq等）を保持する．重複受信があるため，seqでユニーク化した件数を併記する（\secref{sec:metrics_detail}を参照）．また，TL/Pout算出にはRXログと真値の時間軸整合が必要であり，定数オフセット補正を用いる（定義と実装は\secref{sec:stress_fixed_metrics}を参照）．
+\noindent ファイル命名について述べる．
 
-���O�͎��s�P�ʂŕ������Ctrial�̘A��CSV�ŊǗ�����D����ID��X�L�����ݒ�̈Ⴂ�́Cpreamble�̏���ID�iTICK�p���X���j�ƍ�ƃ��O�ɂ��ǐՂ���D
+ログは試行単位で分割し，trialの連番CSVで管理する．条件IDやスキャン設定の違いは，preambleの条件ID（TICKパルス等）と作業ログにより追跡する．
 
-���̌�C�v�����j�i�d�͂�QoS�̓����]���j�ɂ��ďq�ׂ�D
-�{�����ł́C�d�͂�QoS�𓯈ꎎ�s�œ����ɕ]������D�d�͂�TXSD�CQoS��RX����ɗp����D�������C���I�ؑւł́u�C�x���g�����̒�`�v�Ɓu���ԓ����v�����ʂ����E���邽�߁C�w�W��`�i����TL/Pout�j��\secref{sec:stress_fixed_metrics}���Q�Ƃ��ČŒ肷��D
-\noindent ON/OFF�����ƃX���[�v�ɂ��ďq�ׂ�D
+その後，計測方針（電力とQoSの同時評価）について述べる．
+本研究では，電力とQoSを同一試行で同時に評価する．電力はTXSD，QoSはRXを主に用いる．ただし，動的切替では「イベント時刻の定義」と「時間同期」が結果を左右するため，指標定義（特にTL/Pout）は\secref{sec:stress_fixed_metrics}を参照して固定する．
+\noindent ON/OFF差分とスリープについて述べる．
 
-�ȓd�͎w�W$q_{\mathrm{event}}$�́C�d�אϕ��Ɋ�Â����߁C���O������P�ʕs�����̉e���������󂯂�D���̂��߁C�A�h�o�^�C�W���OON/OFF�����ɂ���␳��C�����O��p�����Đϕ��ɂ�鐮�����m�F���s���ł���D�܂��C���M����light sleep���ɓ��������ł́C�A�h�o�^�C�W���O�Ԋu��L�΂����Ƃ����ϓd�͒ቺ�ɒ�������Dsleep�̗L���͏����Ƃ��Ė������C����R�[�h�n��Ŕ�r����i�^�p�菇��\secref{sec:runbook}���Q�Ɓj�D
+省電力指標$q_{\mathrm{event}}$は，電荷積分に基づくため，ログ欠損や単位不整合の影響を強く受ける．そのため，アドバタイジングON/OFF差分による基準補正や，生ログを用いた再積分による整合性確認が不可欠である．また，送信側がlight sleep等に入れる条件では，アドバタイジング間隔を伸ばすことが平均電力低下に直結する．sleepの有無は条件として明示し，同一コード系列で比較する（運用手順は\secref{sec:runbook}を参照）．
 
-��M���̃X�L���������͒[���EOS��ԂɈˑ����邽�߁C�����ł͉^�p�菇���Œ肷��K�v������D���ɁC�X�L�������[�h�C��ʏ�ԁC�d����ԓ��𓝈ꂵ�C�[������r�̑O����ێ�����D�����O�̃`�F�b�N���X�g��\secref{sec:runbook}���Q�Ƃ��ꂽ���D
-\noindent �X�L�����A�v���Ɛݒ��ɂ��ďq�ׂ�D
+受信側のスキャン挙動は端末・OS状態に依存するため，実験では運用手順を固定する必要がある．特に，スキャンモード，画面状態，電源状態等を統一し，端末内比較の前提を維持する．実験前のチェックリストは\secref{sec:runbook}を参照されたい．
+\noindent スキャンアプリと設定例について述べる．
 
-��M���O�́CBLE�X�L���i�A�v���i��FnRF Connect�j����p���Ď擾����D�Č����̊ϓ_����C�X�L�������[�h�iLOW\_LATENCY�����C�\�Ȕ͈͂ōł��ϋɓI�ȃX�L�����j�C�t�B���^�i�Ώ�UUID���Ńt�B���^����ꍇ�͏����Ƃ��Ė��L�������Ԃœ��ꂷ��j�C����щ�ʏ�ԁi���s���͉��ON���ێ����A�v����O�ʂɒu���j���Œ肷��D
-\noindent �[����Ԃ̌Œ�i�[������r�̑O��j�ɂ��ďq�ׂ�D
+受信ログは，BLEスキャナアプリ（例：nRF Connect）等を用いて取得する．再現性の観点から，スキャンモード（LOW\_LATENCY相当，可能な範囲で最も積極的なスキャン），フィルタ（対象UUID等でフィルタする場合は条件として明記し条件間で統一する），および画面状態（試行中は画面ONを維持しアプリを前面に置く）を固定する．
+\noindent 端末状態の固定（端末内比較の前提）について述べる．
 
-OS�̏ȓd�͋@�\�ɂ��o�b�N�O���E���h�����X���b�g�����O���������邽�߁C���s�ԂŒ[����Ԃ𑵂��邱�Ƃ��d�v�ł���D��̓I�ɂ́C�ȓd�͐ݒ�̌Œ�C�@�����[�h�EWi-Fi��Ԃ̌Œ�C�o�b�N�O���E���h�����̉�������Runbook�ɏ]���ē��ꂷ��D
+OSの省電力機構によりバックグラウンド制約やスロットリングが生じ得るため，試行間で端末状態を揃えることが重要である．具体的には，省電力設定の固定，機内モード・Wi-Fi状態の固定，バックグラウンド制限の解除等をRunbookに従って統一する．
 
-�{�����̉�͂́C���O��ǂݍ���Ŏw�W���Z�o���C�������ƂɏW�񂵂Đ}�\�𐶐����闬��ł���D�ŏ��\���Ƃ��āC���s��Ԃ�SYNC�Ő������؂�Ă��邱�Ɓi����$T$���z��ƈ�v����j�CTXSD�̏W��l�ƌ㏈���̍Đϕ��������x�ł��邱�Ɓi�P�ʁE���������S�j�CRX��PDR\_unique��0�t�߂ɂȂ�Ȃ����Ɓi��M�@�\�����삵�Ă���j�C�����TL/Pout�̎Z�o�Ɏ��ԓ����i�萔�I�t�Z�b�g�␳�j��K�p�ł��邱�Ƃ���͂̑Ó������f��Ƃ���D
+本研究の解析は，ログを読み込んで指標を算出し，条件ごとに集約して図表を生成する流れである．最小構成として，試行区間がSYNCで正しく切れていること（期間$T$が想定と一致する），TXSDの集約値と後処理の再積分が同程度であること（単位・欠損が健全），RXのPDR\_uniqueが0付近にならないこと（受信機能が動作している），およびTL/Poutの算出に時間同期（定数オフセット補正）を適用できることを解析の妥当性判断基準とする．
 
-�Ō�ɂ܂Ƃ߂��q�ׂ�D
-�{�߂ł́C�������u�̍\���C�����݌v�C���O�݌v�C����щ^�p��̑O��𐮗������D�ȍ~�̐߂ł́C�v���n�̕s��v���ƏC��������\secref{sec:measurement_system}���Q�Ƃ��Ă܂Ƃ߁C�]���̑O��𖾊m�ɂ���D
+最後にまとめを述べる．
+本節では，実験装置の構成，同期設計，ログ設計，および運用上の前提を整理した．以降の節では，計測系の不具合要因と修正履歴を\secref{sec:measurement_system}を参照してまとめ，評価の前提を明確にする．
 
 
 

@@ -1,19 +1,19 @@
-% chapters/ch8_measurement_system.tex --- �\���v�f�F�v���n�̌��S���ƍČ���
-\section{�v���n�̌��S���ƍČ����m��}
+% chapters/ch8_measurement_system.tex --- 構成要素：計測系の健全化と再現性
+\section{計測系の健全化と再現性確保}
 \label{sec:measurement_system}
 
-�܂��C�ړI�ɂ��ďq�ׂ�D
-�{�����̎咣�́C�d�͂�QoS�𓯎��ɕ]��������ŁC�Œ�Ԋu���ǂ��^�p�_�����݂��邱�Ƃ������_�ɂ���D���������āC�v�����x���s�\���ł���΁C������m���̑Ó��������Ȃ���D�{�߂ł́C�v���n�̍\���ƁC�ߋ��ɔ���������\�I�ȕs��i�ُ�l�j�̌����Ƒ΍�𐮗����C�Č����m�ۂ̂��߂̉^�p���[�����q�ׂ�D
+まず，目的について述べる．
+本研究の主張は，電力とQoSを同時に評価した上で，固定間隔より良い運用点が存在することを示す点にある．したがって，計測精度が不十分であれば，得られる知見の妥当性が損なわれる．本節では，計測系の構成と，過去に発生した代表的な不具合（異常値）の原因と対策を整理し，再現性確保のための運用ルールを述べる．
 
-���ɁC�O�m�[�h�\���iTX/TXSD/RX�j�ɂ��ďq�ׂ�D
-�d�͌v����TX�i�푪��Ώہj�̏���d���E�d�����v�����C��M�i����RX���O����Z�o����D�d�̓��O�Ǝ�M���O�𓯈ꎎ�s�Ŏ擾���邽�߂ɁC�����M���ŋ�Ԃ𑵂���D���̎O�m�[�h�\���ɂ��C����i�Œ�/���I/�w�K�j�������ւ��Ă��C����̕]���p�C�v���C���Ŕ�r�ł���D
+次に，三ノード構成（TX/TXSD/RX）について述べる．
+電力計測はTX（被測定対象）の消費電流・電圧を計測し，受信品質はRXログから算出する．電力ログと受信ログを同一試行で取得するために，同期信号で区間を揃える．この三ノード構成により，方策（固定/動的/学習）を差し替えても，同一の評価パイプラインで比較できる．
 
-�v�����u�̊O�ς�\figref{fig:measurement_setup_overview}�Ɍv���n�̑S�̍\�����C\figref{fig:measurement_nodes}�Ɋe�m�[�h�̊O�ς������D�ȍ~�̕]���ł́C���̎O�m�[�h�\���iTX/TXSD/RX�j��O��Ƃ��āC���ꎎ�s�œd�͂Ǝ�M�i�����擾����D
+計測装置の外観は\figref{fig:measurement_setup_overview}に計測系の全体構成を，\figref{fig:measurement_nodes}に各ノードの外観を示す．以降の評価では，この三ノード構成（TX/TXSD/RX）を前提として，同一試行で電力と受信品質を取得する．
 
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.85\linewidth]{figures/measurement_setup_overview_02}
-  \caption{�v���n�̊O�ρiTX/TXSD/RX�̎O�m�[�h�\���C�O���d���EINA219�E�����M���z�����܂ށj}
+  \caption{計測系の外観（TX/TXSD/RXの三ノード構成，外部電源・INA219・同期信号配線を含む）}
   \label{fig:measurement_setup_overview}
 \end{figure}
 
@@ -23,70 +23,70 @@
     \centering
     \includegraphics[width=0.9\linewidth,height=0.28\textheight,keepaspectratio,angle=90]{figures/measurement_rx.png}
     \par\vspace{1mm}
-    {\small (a) RX���K�i��M���O�擾�j}
+    {\small (a) RXロガ（受信ログ取得）}
   \end{minipage}
   \hfill
   \begin{minipage}{0.48\linewidth}
     \centering
     \includegraphics[width=0.95\linewidth,height=0.30\textheight,keepaspectratio,angle=90]{figures/measurement_tx_txsd}
     \par\vspace{1mm}
-    {\small (b) TX + TXSD�iDUT + �d�͌v���j}
+    {\small (b) TX + TXSD（DUT + 電力計測）}
   \end{minipage}
-  \caption{�v���m�[�h�̊O��}
+  \caption{計測ノードの外観}
   \label{fig:measurement_nodes}
 \end{figure}
 
-�����āC�v���n�̕s��v���iFailure Modes�j�Ƃ��̑΍�ɂ��ďq�ׂ�D
-�v���n�̖��́C�u�l���h���v�����ł͂Ȃ��C���_���t�]������i��FOFF��ON���傫���j�`�Ō���邱�Ƃ�����D\tabref{tab:measurement_failures}�ɁC��\�I�ȕs��v���iI/O�{�g���l�b�N�C�P�ʊ��Z���C�������݁C���Ԏ��s�����j�Ƃ��̒���E��\�I�΍���܂Ƃ߂�D
+続いて，計測系の不具合要因（Failure Modes）とその対策について述べる．
+計測系の問題は，「値が揺れる」だけではなく，結論を逆転させる（例：OFFがONより大きい）形で現れることがある．\tabref{tab:measurement_failures}に，代表的な不具合要因（I/Oボトルネック，単位換算誤り，条件混在，時間軸不整合）とその兆候・代表的対策をまとめる．
 
 \begin{table}[tb]
   \centering
-  \caption{�v���n�̑�\�I�ȕs��v���Ƒ΍�}
+  \caption{計測系の代表的な不具合要因と対策}
   \label{tab:measurement_failures}
   \begin{tabular}{p{0.30\linewidth}p{0.30\linewidth}p{0.30\linewidth}}
     \toprule
-    �s��v�� & ���� & ��\�I�΍� \\
+    不具合要因 & 兆候 & 代表的対策 \\
     \midrule
-    ���o�̓{�g���l�b�N�iUART/SD�j & ���������C���[�g�ቺ�C���ݘc�� & �p�X�X���[���C�򏑂����݁C����CSV�� \\
-    �P�ʊ��Z�̌�� & ���Y���CON/OFF�̋t�] & �����O����Đϕ������������m�F�C���ƃ��x�����Œ� \\
-    �������݁iLED/SYNC�̈Ⴂ���j & �����Ԃɒ��I�t�Z�b�g & ��r�͓���R�[�h�n��Ɍ���C�����𖾕��� \\
-    ���Ԏ��s�����iRX�Ɛ^�l�j & TL/Pout���s���R�ɏ����� & �萔�I�t�Z�b�g�Ŏ��ԓ����i\secref{sec:stress_fixed_metrics}�j \\
+    入出力ボトルネック（UART/SD） & 欠損増加，レート低下，刻み歪み & パススルー化，塊書き込み，整数CSV化 \\
+    単位換算の誤り & 桁ズレ，ON/OFFの逆転 & 生ログから再積分し整合性を確認，式とラベルを固定 \\
+    条件混在（LED/SYNCの違い等） & 条件間に定常オフセット & 比較は同一コード系列に限定，条件を明文化 \\
+    時間軸不整合（RXと真値） & TL/Poutが不自然に小さい & 定数オフセットで時間同期（\secref{sec:stress_fixed_metrics}） \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-��\�I�Ȉُ�Ƃ��āC�u�A�h�o�^�C�W���OOFF�̕����A�h�o�^�C�W���OON������傫���v�Ƃ������_�l�Ɩ�����������l���ώ@���ꂽ�D���̖��́C�����X�^�b�N���̂��̂ł͂Ȃ��CPowerLogger���̏����\�͕s���iI/O�{�g���l�b�N�j��C�P�ʊ��Z�̕s�����CUART�ʐM�G���[�ɂ�錇���������ƂȂ蓾��D
+代表的な異常として，「アドバタイジングOFFの方がアドバタイジングONより消費が大きい」という理論値と矛盾する実測値が観察された．この問題は，無線スタックそのものではなく，PowerLogger側の処理能力不足（I/Oボトルネック）や，単位換算の不整合，UART通信エラーによる欠損が原因となり得る．
 
 \noindent
-�{�����ł́C��\�I�v���Ƒ΍��\tabref{tab:measurement_failures}�ɗv�_�����C�^�p��́CI/O�{�g���l�b�N�i��������$\rightarrow$dt�̘c��$\rightarrow$�ϕ��j�]�������N�������߉򏑂����ݓ��ŒǏ]�����m�ہj�C�P�ʊ��Z�imV/$\mu$A/ms���̌�����͌��_���t�]�������邽�ߐ����O�Đϕ���summary�����Ő��������m�F�j�C�����UART�ʐM�i���������⌇���������p�[�X�Ō��o���ُ�trial�͂��̏�ōĎ��s���č��݂������j���`�F�b�N�|�C���g�Ƃ��Ċm�F�����D
+本研究では，代表的要因と対策を\tabref{tab:measurement_failures}に要点化し，運用上は，I/Oボトルネック（欠損増加$\rightarrow$dtの歪み$\rightarrow$積分破綻を引き起こすため塊書き込み等で追従性を確保），単位換算（mV/$\mu$A/ms等の桁ずれは結論を逆転させ得るため生ログ再積分とsummary整合で整合性を確認），およびUART通信（文字混入や欠損を厳密パースで検出し異常trialはその場で再試行して混在を避ける）をチェックポイントとして確認した．
 
-������̖��Ƒ΍�𐮗�����D�����ň������e�́C�����⎞�Ԏ�����ɂ��]���̘c�݂�����邽�߂̑O������ł���D
+実装上の問題と対策を整理する．ここで扱う内容は，欠損や時間軸ずれによる評価の歪みを避けるための前提条件である．
 
 \begin{table}[tb]
   \centering
-  \caption{��\�I�Ȏ����g���u���Ƒ΍�iUART�f�[�^�����CSYNC���o���s�C���s���E�s��v�CSD I/O���s�j}
+  \caption{代表的な実装トラブルと対策（UARTデータ化け，SYNC検出失敗，試行境界不一致，SD I/O失敗）}
   \label{tab:implementation_troubles_summary}
   \begin{tabularx}{\linewidth}{p{0.26\linewidth}X p{0.28\linewidth}}
     \toprule
-    ��� & �΍�i�v�_�j & �Ĕ��h�~�i�m�F�j \\
+    問題 & 対策（要点） & 再発防止（確認） \\
     \midrule
-    UART�f�[�^���� & �{�[���[�g�ቺ�C�����p�[�X�C�����������Ȃ�summary�݌v & �s���E�������E�P�ʐ����̊m�F \\
-    SYNC���o���s�i�Z�p���X�j & HIGH�ێ��⃉�b�`�Ŋm���Ɍ��o�ł���M���݌v�֕ύX & TX/RX/TXSD�̋��E��v���m�F \\
-    ���s���E�̕s��v & SYNC\_END���Ŏ��s��Ԃ���v������ & ms\_total��adv\_count�̐��� \\
-    SD I/O���s & SPI�N���b�N�����C�򏑂����݁Copen���s���̑�����~ & ����summary�̗L�����m�F \\
+    UARTデータ化け & ボーレート低下，厳密パース，欠損を許さないsummary設計 & 行数・欠損率・単位整合の確認 \\
+    SYNC検出失敗（短パルス） & HIGH保持やラッチで確実に検出できる信号設計へ変更 & TX/RX/TXSDの境界一致を確認 \\
+    試行境界の不一致 & SYNC\_END等で試行区間を一致させる & ms\_totalとadv\_countの整合 \\
+    SD I/O失敗 & SPIクロック調整，塊書き込み，open失敗時の即時停止 & 末尾summaryの有無を確認 \\
     \bottomrule
   \end{tabularx}
 \end{table}
 \noindent
-�����͌����̎咣���̂��̂ł͂Ȃ����C�����⎎�s��Ԃ̂���ɂ�錋�_�̕��������邽�߂ɕs���ł���D�΍��Runbook�i\secref{sec:runbook}���Q�Ɓj�ɌŒ肵�C���s���Ƃ�ms\_total/adv\_count/�����������m�F���čČ�����S�ۂ����D
+これらは研究の主張そのものではないが，欠損や試行区間のずれによる結論の崩壊を避けるために不可欠である．対策はRunbook（\secref{sec:runbook}を参照）に固定し，試行ごとにms\_total/adv\_count/欠損率等を確認して再現性を担保した．
 
-���̌�C��\���iReference Configuration�j�ɂ��ďq�ׂ�D
-��r�����ł́CON/OFF������ԂŃR�[�h�n�񂪍��݂���ƁCLED�⓯���M���̈����̍������I�t�Z�b�g�ƂȂ�C�����ȃA�h�o�^�C�W���O�Ԋu�̍�����]���ł��Ȃ��D���������āC��\���iReference Configuration�j���߁C�������Ƃ��ăf�[�^��~�ς���D�{�����ł́C�������ƂɃX�P�b�`�𕪊����C�t�@�C�����̐ړ����iRX\_/TX\_/TXSD\_�j�Ŗ����𖾊m������D
+その後，基準構成（Reference Configuration）について述べる．
+比較実験では，ON/OFFや条件間でコード系列が混在すると，LEDや同期信号の扱いの差が定常オフセットとなり，純粋なアドバタイジング間隔の差分を評価できない．したがって，基準構成（Reference Configuration）を定め，これを基準としてデータを蓄積する．本研究では，役割ごとにスケッチを分割し，ファイル名の接頭辞（RX\_/TX\_/TXSD\_）で役割を明確化する．
 
-�^�p���[���ɂ��ďq�ׂ�D
-�Č����m�ۂ̂��߁C��͑Ώۂ̑I�ʂ̓}�j�t�F�X�g�Ŗ��������O���R���L�^���邱�ƁC�P�ʐ����̊m�F�i�Đϕ���summary�̈�v�j�����I�Ɏ��s��������⌇���𑁊��Ɍ��m���邱�ƁC����яd�v�ȍ�Ƃ͍�ƃ��O�ɒǋL���������̃p�X�ƃR�}���h���c�����Ƃ������Ƃ���D
+運用ルールについて述べる．
+再現性確保のため，解析対象の選別はマニフェストで明示し除外理由を記録すること，単位整合の確認（再積分とsummaryの一致）を定期的に実行し桁ずれや欠損を早期に検知すること，および重要な作業は作業ログに追記し生成物のパスとコマンドを残すことを原則とする．
 
-�Ō�ɂ܂Ƃ߂��q�ׂ�D
-�{�߂ł́C�v���n�̌��S���ƍČ����m�ۂ̂��߂̗v�_�𐮗������D����ɂ��C�Œ�Ԋu�Ɠ��I����̔�r���u����̕]���n�ōČ��\�v�ł��邱�Ƃ�S�ۂ��C���i�K�i�I�����C���œK���j�֐ڑ������ՂƂ���D
+最後にまとめを述べる．
+本節では，計測系の健全化と再現性確保のための要点を整理した．これにより，固定間隔と動的制御の比較が「同一の評価系で再現可能」であることを担保し，次段階（オンライン最適化）へ接続する基盤とする．
 
 

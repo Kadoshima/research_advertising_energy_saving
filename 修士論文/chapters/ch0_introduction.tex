@@ -1,56 +1,56 @@
-% chapters/ch0_introduction.tex --- ��1�� ���_
-\chapter{���_}
+% chapters/ch0_introduction.tex --- 第1章 序論
+\chapter{序論}
 \label{ch:introduction}
 \clearpage
 
-\section{�����w�i�Ɖۑ�}
-�E�F�A���u���[����G�b�W�f�o�C�X�ɂ����āC���_���ʂ��ߖT�̃X�}�[�g�t�H���֒�x���ɒʒm����d�g�݂́C������J�����S�ȂǑ����̉��p�ŏd�v�ł���D�������C���p�x�ŒʐM��������Ɠd�͏�����債�C���^�o�b�e���ł̒����ԉ^�p������ƂȂ�DBluetooth Low Energy�iBLE�j�̃A�h�o�^�C�W���O�iAdvertising�j�͐ڑ���O��Ƃ��Ȃ��y�ʂȋߋ����ʐM��i�Ƃ��čL�����p����Ă��邪�C��M���i�X�}�[�g�t�H���j�̃X�L���������OS��[����ԂɈˑ����C�A���X�L�����̎��s���ۏ؂���Ȃ��D
+\section{研究背景と課題}
+ウェアラブル端末やエッジデバイスにおいて，推論結果を近傍のスマートフォンへ低遅延に通知する仕組みは，見守りや労働安全など多くの応用で重要である．しかし，高頻度で通信し続けると電力消費が増大し，小型バッテリでの長時間運用が困難となる．Bluetooth Low Energy（BLE）のアドバタイジング（Advertising）は接続を前提としない軽量な近距離通信手段として広く利用されているが，受信側（スマートフォン）のスキャン動作はOSや端末状態に依存し，連続スキャンの実行が保証されない．
 
-���������[���ł́C�����Z���T�����琄�肵���l�̏�Ԃɂ��āC�ُ��d�v�ȕω����ߖT�̃X�}�[�g�t�H���֒ʒm����K�v������D���̂Ƃ��C�A�v���P�[�V�����w�ł́u���_������C�\�Ȍ����x���Œʒm���s�������v�Ƃ����v��������C�ʐM�w�ł͍��p�x���M���d�͏���𑝂₷���߁C��x���ʒm�Əȓd�͂̊ԂɃg���[�h�I�t��������D
+こうした端末では，慣性センサ等から推定した人の状態について，異常や重要な変化を近傍のスマートフォンへ通知する必要がある．このとき，アプリケーション層では「推論完了後，可能な限り低遅延で通知を行いたい」という要求があり，通信層では高頻度送信が電力消費を増やすため，低遅延通知と省電力の間にトレードオフが生じる．
 
-����CBLE�A�h�o�^�C�W���O�͑��M���̐��䂪�e�Ղł��锽�ʁC��M���X�L�����̔񗝑z���ɂ��Œ�Ԋu�̐݌v�ł͊��ω��Łu�K�v�ȂƂ��ɓ͂��Ȃ��v���u�͂����d�͂��g��������v�󋵂�������\��������D
+一方，BLEアドバタイジングは送信側の制御が容易である反面，受信側スキャンの非理想性により固定間隔の設計では環境変化で「必要なときに届かない」か「届くが電力を使いすぎる」状況が生じる可能性がある．
 
-�����Ŗ{�����ł́C�l�Ԋ����F���iHuman Activity Recognition: HAR�j�ɂ����鐄�_�s�m���x��ʐM����Ɋ��p���C�T�[�r�X�i���iQuality of Service: QoS�j����i��莞�Ԉȓ��Ɏ�M����邱�Ɓj�𖞂�����BLE�A�h�o�^�C�W���O�ʐM�̏ȓd�͉���}��g�g�݂��Ă���D���_�s�m���x�Ǝ��ԓI����x���畡���X�R�A�iComposite Confidence Score: CCS�j���\�����C���̒l�ɉ����ăA�h�o�^�C�W���O�Ԋu��i�K�I�ɐ؂�ւ��郋�[���x�[�X������`����D�܂��C���M�E��M�E�d�͌v���𓝍������v����Ղ��\�z���C�d�͎w�W��QoS�w�W�𓯈ꎎ�s�ŕ]���ł���悤�ɂ���D
+そこで本研究では，人間活動認識（Human Activity Recognition: HAR）における推論不確実度を通信制御に活用し，サービス品質（Quality of Service: QoS）制約（一定時間以内に受信されること）を満たしつつBLEアドバタイジング通信の省電力化を図る枠組みを提案する．推論不確実度と時間的安定度から複合スコア（Composite Confidence Score: CCS）を構成し，その値に応じてアドバタイジング間隔を段階的に切り替えるルールベース方策を定義する．また，送信・受信・電力計測を統合した計測基盤を構築し，電力指標とQoS指標を同一試行で評価できるようにする．
 
-\section{�����ړI�Ǝ咣}
-�{�����̊j�ƂȂ�咣�͎���\mbox{�Ƃ���ł���}�DHAR�̐��_�s�m���x�Ɋ�Â�BLE�A�h�o�^�C�W���O�Ԋu�̓K������ɂ����āC�P����臒l���[���ł��Œ�Ԋu�Ɣ�r���ē�����QoS���񉺂ŕ��ϓd�͂�ጸ�ł���^�p�_�ioperating point�F�d�͂�QoS�̃g���[�h�I�t��̈ʒu�j�����݂��邱�Ƃ������Ŏ����D����ɁC���̒m�������S����t���R���e�L�X�g�o���f�B�b�g�iSafe Contextual Bandit�j�ɂ��œK���֐ڑ����邽�߂̊�ՂƂ���D
+\section{研究目的と主張}
+本研究の核となる主張は次の\mbox{とおりである}．HARの推論不確実度に基づくBLEアドバタイジング間隔の適応制御において，単純な閾値ルールでも固定間隔と比較して同等のQoS制約下で平均電力を低減できる運用点（operating point：電力とQoSのトレードオフ上の位置）が存在することを実測で示す．さらに，この知見を安全制約付きコンテキストバンディット（Safe Contextual Bandit）による最適化へ接続するための基盤とする．
 
-�{�����̖ړI�́C��M�x���Ɋ�Â�QoS����𖞂����C�d�͏����}�����邱�Ƃł���D��\�I��QoS�Ƃ��āC�C�x���g������ɍŏ��Ɏ�M�����܂ł̒x���iTL�j��p���C����$\tau$�𒴂���m����
+本研究の目的は，受信遅延に基づくQoS制約を満たしつつ，電力消費を抑制することである．代表的なQoSとして，イベント発生後に最初に受信されるまでの遅延（TL）を用い，期限$\tau$を超える確率を
 \begin{equation}
   P_{\mathrm{out}}(\tau)=P(\mathrm{TL}>\tau)
 \end{equation}
-�Ƃ��Ē�`����i�ڍׂ�\secref{sec:metrics_detail}�j�D���̂Ƃ��C�A�h�o�^�C�W���O�Ԋu$a$�̑I���i�Œ�܂��͓��I�ؑցj���܂ޕ���$\pi$�ɑ΂��āC�ȉ��̌`�Ő����ł���D
+として定義する（詳細は\secref{sec:metrics_detail}）．このとき，アドバタイジング間隔$a$の選択（固定または動的切替）を含む方策$\pi$に対して，以下の形で整理できる．
 \begin{equation}
   \text{minimize}\quad \mathbb{E}[q_{\mathrm{event}}(\pi)]
   \quad \text{subject to}\quad P_{\mathrm{out}}(\tau;\pi)\le \epsilon
 \end{equation}
-������$\epsilon$�͋��e����������ߗ��̏���ł���C$q_{\mathrm{event}}$�i�P�ʁF$\si{\micro\coulomb}/\text{event}$�j�̓Z�b�V�������̓d�׏�����C�x���g���Ő��K�������w�W�ł���D���ϓd��$\overline{P}$��$\Delta E/N_{\mathrm{adv}}$���͏]���w�W�Ƃ��ĕ��p���C�P�ʐ����̊m�F��v�����͂ɗp����i\secref{sec:metrics_detail}�j�D
+ここで$\epsilon$は許容する期限超過率の上限であり，$q_{\mathrm{event}}$（単位：$\si{\micro\coulomb}/\text{event}$）はセッション中の電荷消費をイベント数で正規化した指標である．平均電力$\overline{P}$や$\Delta E/N_{\mathrm{adv}}$等は従属指標として併用し，単位整合の確認や要因分析に用いる（\secref{sec:metrics_detail}）．
 
-\section{�{�����̍v��}
-�{�����̍v�����ȉ��ɂ܂Ƃ߂�D
+\section{本研究の貢献}
+本研究の貢献を以下にまとめる．
 \begin{enumerate}
-  \item ���_�s�m���x$U$�ƈ���x$S$���畡���X�R�ACCS���\�����C�����p���ăA�h�o�^�C�W���O�Ԋu��i�K�I�ɐ؂�ւ��郋�[���x�[�X������Ă����D
-  \item ���M�iTX�j�E�d�́iTXSD�j�E��M�iRX�j�̎O�m�[�h�\���Ɠ����M���iSYNC/TICK�j�ɂ��C���ꎎ�s�œd�͂�QoS�iTL�C$P_{\mathrm{out}}(\tau)$�j��]���ł���v����Ղ𐮔������D
-  \item TL/Pout�̎Z�o�ɂ����ĊJ�n�����̂��ꂪ���ʂ�c�߂�\�������邱�Ƃ������C�萔�I�t�Z�b�g�␳��p�������ԓ����菇�Ƃ��Ďw�W��`���m�������D
-  \item �I�t���C���]���imHealth�����j�ɂ��C�Œ�Ԋu�_�ƌ������_�̃g���[�h�I�t�i����сE�p���[�g�j���������C���@�����̒T����Ԃ��k������g�g�݂��������D
-  \item Phase 2�̊g���Ƃ��āC$U,S$���R���e�L�X�g�C�A�h�o�^�C�W���O�Ԋu���s���C$P_{\mathrm{out}}(\tau)$�𐧖�Ƃ���Safe Contextual Bandit�֐ڑ��ł���`�Ŗ��ݒ�𐮗������D
+  \item 推論不確実度$U$と安定度$S$から複合スコアCCSを構成し，それを用いてアドバタイジング間隔を段階的に切り替えるルールベース方策を提案した．
+\item 送信TX・電力TXSD・受信RXの三ノード構成と同期信号SYNC/TICKにより，同一試行で電力とQoS指標であるTLと$P_{\mathrm{out}}(\tau)$を評価できる計測基盤を整備した．
+  \item TL/Poutの算出において開始時刻のずれが結果を歪める可能性があることを示し，定数オフセット補正を用いた時間同期手順として指標定義を確立した．
+  \item オフライン評価（mHealth合成）により，固定間隔点と候補方策点のトレードオフ（制約帯・パレート）を可視化し，実機実験の探索空間を縮小する枠組みを示した．
+  \item Phase 2の拡張として，$U,S$をコンテキスト，アドバタイジング間隔を行動，$P_{\mathrm{out}}(\tau)$を制約とするSafe Contextual Banditへ接続できる形で問題設定を整理した．
 \end{enumerate}
 
-\section{�X�R�[�v�ƑO��iPhase 1 / Phase 2�j}
-�{�����ł́CPhase 2�ł�Safe Contextual Bandit�œK�����������CPhase 1�Ƃ��āu�Œ胋�[���ŕ]���w�W�ƌv���n���m������v�i�K�ɏœ_�𓖂Ă�D���������āC�{�_���̃X�R�[�v�͎��̂Ƃ���ł���D
+\section{スコープと前提（Phase 1 / Phase 2）}
+本研究では，Phase 2でのSafe Contextual Bandit最適化を見据えつつ，Phase 1として「固定ルールで評価指標と計測系を確立する」段階に焦点を当てる．したがって，本論文のスコープは次のとおりである．
 
 \begin{itemize}
-  \item $U,S,\mathrm{CCS}$�̒�`�ƃ��O���i���_�s�m���x��ʐM����Ɋ��p���邽�߂̍ŏ��v�f�j�D
-  \item ���[���x�[�X����i臒l�C�q�X�e���V�X�C�ŏ��؍ݎ��ԁj�ƁC���@�ł̓���m�F�D
-  \item �ꎟKPI�i$\si{\micro\coulomb}/\text{event}$�C$P_{\mathrm{out}}(\tau)$�C$TL_{p95}$�j�̑�����@�ƍČ����̊m���D
+  \item $U,S,\mathrm{CCS}$の定義とログ化（推論不確実度を通信制御に活用するための最小要素）．
+  \item ルールベース方策（閾値，ヒステリシス，最小滞在時間）と，実機での動作確認．
+  \item 一次目標（$\si{\micro\coulomb}/\text{event}$，$P_{\mathrm{out}}(\tau)$，$TL_{p95}$）の測定方法と再現性の確立．
 \end{itemize}
 
-�{�_���ł͐[�@�肵�Ȃ����e�͎��̂Ƃ���ł���D
+本論文では深掘りしない内容は次のとおりである．
 \begin{itemize}
-  \item Safe Contextual Bandit�̊w�K�A���S���Y�����̂��̂̎����E�I�����C���w�K�i�����ۑ�Ƃ��Ē莮���܂ł������j�D
-  \item �X�L�������̐���ȂǁC��M��OS�����̓���i�񗝑z�X�L�����O��Œ[������r���s���j�D
-  \item HAR���f���̐��\���セ�̂��́iTinyML�̎c�ۑ�͖������C�]���n�̘g�g�݂��咣����j�D
+  \item Safe Contextual Banditの学習アルゴリズムそのものの実装・オンライン学習（将来課題として定式化までを示す）．
+  \item スキャン窓の推定など，受信側OS挙動の同定（非理想スキャン前提で端末内比較を行う）．
+  \item HARモデルの性能向上そのもの（TinyMLの残課題は明示し，評価系の枠組みを主張する）．
 \end{itemize}
 
-\section{�{�_���̍\��}
-�{�_���͑S7�͂���\�������D�Č����m�ۂ̂��߁C���O�݌v�E�w�W��`�E�^�p�菇�E�j�]���[�h��{�����Ŗ�������\���Ƃ���D\chapref{ch:background_related}�ł͔w�i�Ɗ֘A�����𓝍����CBLE�A�h�o�^�C�W���O�E�񗝑z�X�L�����Esleep�̈ʒu�Â��Ɗ֘A�A�v���[�`�𐮗�����D\chapref{ch:system_method}�ł̓V�X�e���݌v�ƒ�Ď�@���܂Ƃ߁CWorld Model�C�ꎟKPI�CHAR�s�m���x�CCCS�ʑ��ƃp�����[�^�𐮗�����D\chapref{ch:measurement_repro}�ł͌v���n�E���O�݌v�E�w�W��`�ERunbook�E�g���u���V���[�e�B���O�𓝍����C�Č����̂��߂̑O��𖾊m�ɂ���D\chapref{ch:evaluation}�ł̓X�g���X�Œ�C�I�t���C���]���C���@�]�����ʂ��܂Ƃ߁C�Œ�_�ƒ�ĕ���̔�r�������D\chapref{ch:discussion}�ł͍l�@�Ƃ��āC�񗝑z�X�L�������ł̉��߁Csleep�̈����C���s�E�c�ۑ�̈ʒu�Â��C�����Phase 2�iSafe Contextual Bandit�j�ւ̓W�]���q�ׂ�D�Ō�ɑ�7�͂Ŗ{�_�����܂Ƃ߂�D
+\section{本論文の構成}
+本論文は全7章から構成される．再現性確保のため，ログ設計・指標定義・運用手順・破綻モードを本文内で明示する構成とする．\chapref{ch:background_related}では背景と関連研究を統合し，BLEアドバタイジング・非理想スキャン・sleepの位置づけと関連アプローチを整理する．\chapref{ch:system_method}ではシステム設計と提案手法をまとめ，World Model，一次目標，HAR不確実度，CCS写像とパラメータを整理する．\chapref{ch:measurement_repro}では計測系・ログ設計・指標定義・Runbook・トラブルシューティングを統合し，再現性のための前提を明確にする．\chapref{ch:evaluation}ではストレス固定，オフライン評価，実機評価結果をまとめ，固定点と提案方策の比較を示す．\chapref{ch:discussion}では考察として，非理想スキャン下での解釈，sleepの扱い，失敗・残課題の位置づけ，およびPhase 2（Safe Contextual Bandit）への展望を述べる．最後に第7章で本論文をまとめる．
