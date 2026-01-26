@@ -1,5 +1,23 @@
-% chapters/appx_e_runbook.tex --- 付録E 実験Runbook（チェックリスト）
-実験Runbook（チェックリスト）について述べる．
+﻿% chapters/appx_e_runbook.tex --- 付録E 実験Runbook（チェックリスト）
+\section{実験資産一覧}
+\label{sec:assets}
+
+本研究で参照した実験資産を表にまとめる．本文中の参照先として，資産名と生成物を対応付ける．
+
+\begin{table}[tb]
+  \centering
+  \caption{実験資産一覧}
+  \label{tab:assets}
+  \begin{tabularx}{\linewidth}{p{0.28\linewidth}X}
+    \toprule
+    資産名 & 内容 \\
+    \midrule
+    CCSパラメータ感度確認 & 既存のCCS時系列に対し$\alpha=0.6$〜$0.8$，$W=3$〜$7$をスイープし，間隔分布と切替率の変化を確認する．入力は\texttt{\detokenize{data/ccs_sequences/}}，出力は\texttt{\detokenize{results/ccs_param_sensitivity_2026-01-26_v01/}}にまとめた． \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{実験Runbook}
 \label{sec:runbook}
 
 本節では，実験の再現性を担保するための最小チェックリストを示す．運用中に発見された落とし穴（条件混在，欠損，単位不整合など）を避けることを目的とする．
@@ -43,6 +61,7 @@
   \item TL/Poutは開始時刻のずれで歪むため，定数オフセット補正を適用した定義を基準にする．
   \item 条件混在は定常オフセットとなるため，比較は同一コード系列に限定する．
 \end{itemize}
+
 
 
 

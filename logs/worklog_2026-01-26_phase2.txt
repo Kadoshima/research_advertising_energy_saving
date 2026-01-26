@@ -242,3 +242,5 @@ esults/phase2_offline_studies_2026-01-26_v05/gateb_pareto_cap25.md）
 
 [2026-01-27 00:45:56 +0900] Thesis: reduce parentheses in Gate B/C section
 - Updated: 修士論文/chapters/ch10_phase2_concept.tex (rewrote Gate B/C text and table caption/header to remove excess parentheses)
+2026-01-27 03:32:03 JST\n- 文言修正: ch1_background, ch6_stress_fixed, ch7_offline_eval, ch8_experiment_design, ch10_phase2_concept, ch5_publicroad, ch3_oncampus\n- Gate B/C 参照パスを \detokenize に変更し LaTeX ビルドエラー解消\n- latexmk ビルド実行（main.pdf 更新、Overfull hbox 警告あり）\n
+2026-01-27 03:40:27 JST\n- Overfull hbox解消: chapters/*.tex の区切り線を削除、Gate B表を短縮＋\scriptsize化\n- latexmk 再実行、Overfull警告解消（main.pdf更新）\n

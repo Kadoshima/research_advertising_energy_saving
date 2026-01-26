@@ -1,4 +1,4 @@
-% chapters/appx_a_metrics.tex --- 付録A 指標定義（詳細）
+﻿% chapters/appx_a_metrics.tex --- 付録A 指標定義（詳細）
 指標定義（詳細）について述べる．
 \label{sec:metrics_detail}
 
@@ -26,9 +26,8 @@ TLは，イベント後に最初に受信されるまでの遅延である．$P_
 P_{\mathrm{out}}(\tau)=\frac{1}{N_{\mathrm{event}}}\sum_{j=1}^{N_{\mathrm{event}}}\mathbb{I}[\mathrm{TL}_j>\tau]
 \end{equation}
 で定義する．
-\noindent
 試行時間が真値系列の全長より短い場合は末端遷移が試行区間外に出るため，真値系列側も有効長（EFFECTIVE\_LEN）でクリップし，$N_{\mathrm{event}}$の分母を揃える．
-\noindent EFFECTIVE\_LEN（評価に用いる真値系列の有効長）について述べる．
+EFFECTIVE\_LEN（評価に用いる真値系列の有効長）について述べる．
 
 真値系列の全長を$T_{\mathrm{truth}}$，trialの計測区間長を$T_{\mathrm{trial}}$とする．このとき評価に用いる真値系列の有効長を
 \begin{equation}
@@ -53,15 +52,15 @@ P_{\mathrm{out}}(\tau)=\frac{1}{N_{\mathrm{event}}}\sum_{j=1}^{N_{\mathrm{event}
 \begin{equation}
   \Delta Q = Q_{\mathrm{on}}-Q_{\mathrm{off}}
 \end{equation}
-を用いて，アドバタイジングによる増分を評価する．OFF計測では，sleep状態や無線スタック状態がONと一致するよう，同一コード系列で条件を固定する必要がある（\secref{sec:runbook}）．
+を用いて，アドバタイジングによる増分を評価する．OFF計測では，省電力状態や無線スタック状態がONと一致するよう，同一コード系列で条件を固定する必要がある（\secref{sec:runbook}）．
 
 TL/Poutの評価対象となるイベント数を$N_{\mathrm{event}}$とすると，
 \begin{equation}
   q_{\mathrm{event}}=\frac{\Delta Q}{N_{\mathrm{event}}}
 \end{equation}
 で定義する．$\Delta Q$の代わりに$Q_{\mathrm{on}}$を用いる場合は，ベースライン補正を行わないため，条件間比較の解釈に注意する．
-\noindent
 なお，平均電力$\overline{P}$や$\Delta E/N_{\mathrm{adv}}$等は従属指標として併用し，単位整合の確認や原因切り分けに用いる．
+
 
 
 
