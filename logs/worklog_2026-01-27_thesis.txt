@@ -1,0 +1,5 @@
+﻿2026-01-27 00:49 JST
+- main.tex (thesisstructure=B) の参照から未使用章ファイルをアーカイブ化
+- 移動: 修士論文/chapters/_order_a.tex, 修士論文/chapters/appx_b_assets.tex, 修士論文/chapters/appx_f_symbols.tex, 修士論文/chapters/ch0_introduction.tex, 修士論文/chapters/ch5_evaluation.tex
+- 先: 修士論文/archive/unused_chapters_20260127
+
