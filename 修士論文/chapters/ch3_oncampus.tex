@@ -5,7 +5,7 @@
 本研究の一次KPIは，省電力指標$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）とQoS（TL，$P_{\mathrm{out}}(\tau)$）である．これらを同一試行で評価するため，送信（TX），電力（TXSD），受信（RX）の三ノード構成を採用し，同期信号で試行区間を揃える．本節では，計測方式とログ設計を「再現できる手順」として整理する．
 
 まず，三ノード構成（TX/TXSD/RX）について述べる．
-各ノードの役割を\tabref{tab:nodes}に示す．本研究では，送信ノード（TX）がBLEアドバタイジングと間隔制御を担い，電力計測ノード（TXSD）がINA219を用いて電圧・電流系列と集約指標を記録し，受信ノード（RX）が受信時刻・RSSI・ペイロードをログとして保持する．
+送信ノード（TX）がBLEアドバタイジングと間隔制御を担い，電力計測ノード（TXSD）がINA219を用いて電圧・電流系列と集約指標を記録し，受信ノード（RX）が受信時刻・RSSI・ペイロードをログとして保持する．各ノードの役割を\tabref{tab:nodes}に示す．
 
 \begin{table}[tb]
   \centering
@@ -47,7 +47,7 @@
 \noindent TICK（アドバタイジング回数の物理カウント）について述べる．
 アドバタイジングイベント数$N_{\mathrm{adv}}$（定義は\secref{sec:metrics_detail}を参照）は，到達性指標の分母として重要である．可能であれば，TXがTICK信号を出力し，TXSD側で割り込みによりアドバタイジング回数を物理カウントする．TICKが利用できない場合は，試行時間とアドバタイジング間隔から期待値を算出するが，動的制御下では推定誤差が生じる可能性がある点に留意が必要である．
 \noindent 配線例（UCCS評価）について述べる．
-本研究で用いた配線例を\tabref{tab:wiring_example}に示す（実験ディレクトリのREADMEに準拠）．ピン番号は実装に依存するため，運用時はRunbookに記録して固定する（\secref{sec:runbook}を参照）．
+本研究で用いた配線例を\tabref{tab:wiring_example}に示す（実験資産一覧に準拠，付録\secref{sec:assets}）．ピン番号は実装に依存するため，運用時はRunbookに記録して固定する（\secref{sec:runbook}を参照）．
 
 \begin{table}[tb]
   \centering

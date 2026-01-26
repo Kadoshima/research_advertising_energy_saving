@@ -29,10 +29,11 @@ CCSは推論誤差やセンサノイズにより変動するため，単純な�
 なお，Phase 1で用いる代表的なパラメータ（$\alpha,W,\theta_{\mathrm{low/high}}$，ヒステリシス幅，最小滞在時間）は\secref{sec:ccs_params}を参照されたい．
 \noindent 切替ロジックについて述べる．
 実装は，現在の間隔$a_t$とCCSの観測値$\mathrm{CCS}_t$から次の間隔$a_{t+1}$を決定する有限状態機械として表せる．本研究では，単調性（CCSが高いほど長いアドバタイジング間隔が選択されやすくなる性質），安全側への移行（QoS悪化の兆候がある場合は短間隔へ戻す余地を残す設計），および振動抑制（ヒステリシスと最小滞在時間で切替頻度を抑える機構）を満たす設計とする．切替規則の具体例は，実験装置・計測方式（\secref{sec:measurement_setup}を参照）および実験設計（\secref{sec:experiment_design}を参照）で示す条件（閾値，滞在時間）と併せて具体化する．
+遷移の概要を\tabref{tab:ccs_fsm}に示す．
 
 \begin{table}[tb]
   \centering
-  \caption{切替ロジックの状態遷移（概略）}
+  \caption{有限状態機械としての切替ロジックの状態遷移表（概略）}
   \label{tab:ccs_fsm}
   \begin{tabular}{p{0.22\linewidth}p{0.70\linewidth}}
     \toprule

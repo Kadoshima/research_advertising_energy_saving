@@ -5,7 +5,7 @@
 まず，固定間隔の基準特性について述べる．
 固定間隔における$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）と受信品質を基準として整理する．本節の実機評価はtrial長とイベント数$N_{\mathrm{event}}$を固定しているため，$q_{\mathrm{event}}$は平均電力$\overline{P}$と単調対応する．したがって，図表では視認性の高い$\overline{P}$を主に併記し，省電力の解釈は一次KPIである$q_{\mathrm{event}}$と同じ結論になる．特に，\SI{100}{\milli\second}から\SI{500}{\milli\second}への変更により電力が低下する一方で，受信率や遅延分布が変化するため，制約$\epsilon$に対する可行性が境界条件として現れる．
 \noindent 固定間隔の平均電力（例）について述べる．
-本研究では，固定間隔の平均電力を実測し，オフライン評価で用いる電力テーブルとして利用する．\tabref{tab:power_table_example}に，\SI{100}{\milli\second}から\SI{2000}{\milli\second}までの固定間隔における平均電力の一例を示す．表中の各行は固定間隔条件，各列はアドバタイジング間隔（ms），平均電力（mW），および試行数（sleep\_on条件）を表す．
+本研究では，固定間隔の平均電力を実測し，オフライン評価で用いる電力テーブルとして利用した．\tabref{tab:power_table_example}に，\SI{100}{\milli\second}から\SI{2000}{\milli\second}までの固定間隔における平均電力の一例を示す．表中の各行は固定間隔条件，各列はアドバタイジング間隔（ms），平均電力（mW），および試行数（sleep\_on条件）を表す．
 
 \begin{table}[tb]
   \centering
@@ -28,12 +28,12 @@
 次に，動的制御（2値切替）の実機検証について述べる．
 動的制御の最小構成として，\SI{100}{\milli\second}と\SI{500}{\milli\second}の切替を実装し，固定\SI{100}{\milli\second}および固定\SI{500}{\milli\second}と比較する．平均電力が両固定条件の中間に位置し，受信率も中間的になることを確認し，動的制御が正常に機能していることを検証する．
 
-動的制御の確認としては，平均電力が両固定条件の中間に位置し，かつログ上でinterval切替が発生することを確認すれば十分である．以降では，TLと$P_{\mathrm{out}}(\tau)$を用いて，QoS制約下での省電力効果を定量評価する．
+動的制御の確認としては，平均電力が両固定条件の中間に位置し，かつログ上でinterval切替が発生することを確認すれば十分である．続いてTLと$P_{\mathrm{out}}(\tau)$を用いて，QoS制約下での省電力効果を定量評価する．
 
 続いて，実測のQoS指標（TLとPout）について述べる．
 本研究では，受信品質をPDRだけでなく，遅延分布と期限超過率$P_{\mathrm{out}}(\tau)$で評価する．特に，非理想スキャン環境では平均受信率が同程度でも，遅延の裾が悪化する場合があるため，$P_{\mathrm{out}}(\tau)$が重要となる（\secref{sec:metrics_detail}を参照）．
 \noindent 実測例（D2b，scan duty 90\%）について述べる．
-\tabref{tab:d2_summary}に，D2b（scan duty 90\%）における実測例を示す．本表は，S1/S4の2条件について，固定\SI{100}{\milli\second}，固定\SI{500}{\milli\second}，および方策（2値切替）の比較をまとめたものである．ここでは初期試行（run B, n=3）と追加試行（B/02, n=3）を統合し，各条件n=6として集計した．各表の$q_{\mathrm{event}}$は$10^3\,\si{\micro\coulomb}/\text{event}$単位で併記し，$\rho_{100}$は短間隔\SI{100}{\milli\second}の滞在比率を表す．
+\tabref{tab:d2_summary}に，D2b（scan duty 90\%）における実測例を示す．本表は，S1/S4の2条件について，固定\SI{100}{\milli\second}，固定\SI{500}{\milli\second}，および方策（2値切替）の比較をまとめたものである．ここでは初期試行（run B, n=3）と追加試行（B/02, n=3）を統合し，各条件n=6として集計した．各表の$q_{\mathrm{event}}$は$10^3\,\si{\micro\coulomb}/\text{event}$単位で併記し，$\rho_{100}$は短間隔\SI{100}{\milli\second}の滞在比率（$\rho_{100}=T_{100}/T$）を表す．
 
 \begin{table}[tb]
   \centering
@@ -67,7 +67,7 @@
   \label{fig:d2b_power_vs_pout}
 \end{figure}
 \noindent E2（高干渉）におけるBaseline/CCS/TailGuardの比較について述べる．
-E2環境（高干渉，RSSI $-40$--$-25$ dBm）で比較実験を実施した．比較対象は固定間隔（Baseline: 固定\SI{100}{\milli\second}/固定\SI{2000}{\milli\second}），CCS方策，およびCCS+TailGuardである．AP近接で最大約$-20$ dBmの強信号が観測されており，本条件はE2より強い干渉（E2+相当）の可能性がある．高干渉下の遅延悪化を重視し，E2比較では$P_{\mathrm{out}}(2\mathrm{s})$を主要KPIとして用いた．PDR/TL/Poutの定義は\secref{sec:metrics_detail}に従う．試行長は約600秒とする．実験記録と再現情報は付録Bに整理した．
+E2環境（高干渉，RSSI $-40$--$-25$ dBm）で比較実験を実施した．比較対象は固定間隔（Baseline: 固定\SI{100}{\milli\second}/固定\SI{2000}{\milli\second}），CCS方策，およびCCS+TailGuardとした．AP近接で最大約$-20$ dBmの強信号が観測されており，本条件はE2より強い干渉（E2+相当）の可能性がある．高干渉下の遅延悪化を重視し，E2比較では$P_{\mathrm{out}}(2\mathrm{s})$を主要KPIとして用いた．PDR/TL/Poutの定義は\secref{sec:metrics_detail}に従う．試行長は約600秒とする．実験記録と再現情報は付録Bに整理した．
 \tabref{tab:e2_ccs_tail_guard}に結果を示す．CCSは固定\SI{100}{\milli\second}より低電力だが，$P_{\mathrm{out}}(2\mathrm{s})$と$TL_{p95}$が大幅に悪化する．これに対し，TailGuardを追加したCCS+TailGuardは，$P_{\mathrm{out}}(2\mathrm{s})$を1.28\%，$TL_{p95}$を944.5 msまで改善し，固定\SI{100}{\milli\second}と固定\SI{2000}{\milli\second}の間の運用点を実現した．PDRは全条件で0.80--0.82の範囲であった．
 
 \begin{table}[tb]
@@ -197,7 +197,7 @@ CCSの寄与を切り分けるため，制御則の構造は固定したままCC
   }
 \end{table}
 \noindent 解釈（D4/D4B）について述べる．
-D4の結果は，制御器の構造と閾値を固定したまま入力$U$の時系列構造を乱すと，制御が短間隔側に固定され，適応的な切替機能が喪失することを示している．対してD4Bの結果は，平均電力（=短間隔滞在量）をほぼ同一に保ったまま，CCSの有効化によって$P_{\mathrm{out}}(1\mathrm{s})$と$TL_{\mathrm{mean}}$が改善することを示している．したがって，本研究の2値制御では，$U$が「どれだけ短間隔を使うか（電力）」を決め，CCSが「いつ短間隔を使うか（QoS）」を改善する，という役割分担が示唆される．
+D4の結果は，制御器の構造と閾値を固定したまま入力$U$の時系列構造を乱すと，制御が短間隔側に固定され，適応的な切替機能が喪失することを示している．対してD4Bの結果は，平均電力（短間隔滞在量に対応）をほぼ同一に保ったまま，CCSの有効化によって$P_{\mathrm{out}}(1\mathrm{s})$と$TL_{\mathrm{mean}}$が改善することを示している．したがって，本研究の2値制御では，$U$が「どれだけ短間隔を使うか（電力）」を決め，CCSが「いつ短間隔を使うか（QoS）」を改善する，という役割分担が示唆される．
 \noindent 効果量のブートストラップCI（追加検証）について述べる．
 各条件$n=3$のため，trial単位の差分に対してpercentile bootstrap（$n_{\mathrm{boot}}=20000$）で効果量の不確かさを確認した．D4Bでは，$\Delta P_{\mathrm{out}}(1\mathrm{s})$（U+CCS $-$ U-only）$=-0.0163$で，95\%CIは$[-0.0244, 0.0000]$となった．上端が0.0000を含むため統計的有意水準（$\alpha=0.05$）にはわずかに届かないものの，ブートストラップ分布の96\%以上が改善側（負の値）に分布しており，工学的な有効性は高いと判断できる．また，$\Delta power$は\SI{-0.0235}{\milli\watt}で，95\%CIは\SIrange{-0.2332}{0.1886}{\milli\watt}となった．
 D4では，$\Delta power$（policy $-$ U-shuf）は\SI{-7.58}{\milli\watt}（95\%CI \SIrange{-8.39}{-6.93}{\milli\watt}），$\Delta P_{\mathrm{out}}(1\mathrm{s})=+0.0488$（95\%CI $[0.0244,0.0732]$）であり，U-shuffleが短間隔寄りに偏ることが定量で確認できる．

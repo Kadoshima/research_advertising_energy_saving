@@ -84,3 +84,13 @@ esults/phase2_offline_studies_2026-01-26_v05/gateb_pareto_cap25.md）
 [2026-01-26 16:11 JST] 修士論文参照修正: chapters/ch5_experiments.tex に ch:evaluation ラベル追加。
 [2026-01-26 16:11 JST] latexmk 実行: main.pdf 生成成功（警告はフォント形状の置換のみ）。
 2026-01-26 16:13 JST: ????/chapters/ch5_publicroad.tex ? conclusion.tex ?Gate B/C?????????????????
+2026-01-26 16:22 JST: latexmk -lualatex main.tex ????????????build/main.pdf????
+2026-01-26 16:48:30 JST thesis: Updated Phase2 text for x-fixed note and violation rate percent table; clarified FSM transition table caption; adjusted phase2 violation-rate caption. Files: 修士論文\chapters\ch10_phase2_concept.tex, 修士論文\chapters\ch2_proposed.tex, 修士論文\chapters\appx_j_phase2_figs.tex
+2026-01-26 16:49:40 JST thesis: Added appx_b_assets to structure B reproducibility appendix to resolve sec:assets refs and rebuilt thesis (latexmk). Build warnings now limited to overfull hboxes in appx_b_assets and font shape fallback.
+2026-01-26 16:55:50 JST: latexmk -lualatex main.tex 再ビルド; build/main.log 警告なし（rgでWarningヒットなし）。
+2026-01-26 16:57 JST 内部パス記載を本文から排除（ch10_phase2_concept.tex のGate B/C参照を付録へ、ch3_oncampus.tex のREADME参照を付録へ変更）。本文内の結果参照は付録B（sec:assets）に統一。
+2026-01-26 16:58 JST Phase2表の制約違反率表記に注記追加（0.10=0.10%）および本文から内部パス参照除去を完了。
+2026-01-26 17:04:20 JST: Tone edits for clarity in thesis text (Gate B/C, bridges, intro). Files: 修士論文\chapters\ch10_phase2_concept.tex, 修士論文\chapters\ch7_offline_eval.tex, 修士論文\chapters\ch5_experiments.tex, 修士論文\chapters\ch5_publicroad.tex, 修士論文\chapters\conclusion.tex
+2026-01-26 17:45 JST: 修士論文一式を確認。対象: 修士論文/README.md, WRITING_RULES.md, テンプレ運用README.md, main.tex, meta.tex, frontmatter/abstract.tex, chapters/*（構成Bと再現性付録）。内容確認のみ、変更なし。
+2026-01-26 17:48:14 JST: Thesis tone revision aligned to prior theses (dearu style, section guidance). Files: 修士論文\chapters\ch10_phase2_concept.tex, 修士論文\chapters\ch7_offline_eval.tex, 修士論文\chapters\ch5_experiments.tex, 修士論文\chapters\ch5_publicroad.tex
+2026-01-26 18:02 JST: 修士論文アブストを最新論文内容に更新。変更: 修士論文アブスト/main.tex（CCS名称をCompositeへ、scan70/D3数値・n更新、E2 TailGuardのTLp95追記、Safe Contextual Banditへ整理、数値出所コメント追加）。

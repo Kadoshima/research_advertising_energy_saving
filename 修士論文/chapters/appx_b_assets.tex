@@ -7,8 +7,10 @@
 
 \subsection{主要な出力先（例）}
 \begin{itemize}
-  \item 固定間隔の電力テーブル：\texttt{\detokenize{results/mhealth_policy_eval/power_table_sleep_eval_2025-12-14_interval_sweep_sleep_on_n9_10.csv}}
-  \item オフライン評価（制約帯）：\texttt{\detokenize{results/mhealth_policy_eval/letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/}}
+  \item 固定間隔の電力テーブル：\\
+        \path{results/mhealth_policy_eval/power_table_sleep_eval_2025-12-14_interval_sweep_sleep_on_n9_10.csv}
+  \item オフライン評価（制約帯）：\\
+        \path{results/mhealth_policy_eval/letter_v4_scan90_v5_delta_tight_sleep_on_n9_10_actions_100_500/}
   \item ストレス固定（v5図）：\texttt{\detokenize{results/stress_fixed/figures_v5/}}
   \item 追加検証（ブートストラップCI）：\path{scripts/bootstrap_effects.py}
 \end{itemize}
@@ -45,12 +47,21 @@ CCS-offアブレーション（D4B, scan90）では，次のディレクトリ�
   \item 出力（指標, n=3×4条件）：\path{uccs_d4b_scan90/metrics/01/summary.md}
   \item 出力（集計CSV）：\path{uccs_d4b_scan90/metrics/01/summary_by_condition.csv}
   \item 出力（効果量CI）：\path{uccs_d4b_scan90/metrics/01/effects_ci.md} / \path{uccs_d4b_scan90/metrics/01/effects_ci.csv}
-  \item 出力（主張図）：\path{uccs_d4b_scan90/plots/d4b_01_power_vs_pout.pdf} / \path{uccs_d4b_scan90/plots/d4b_01_power_vs_pout.svg}
-  \item 出力（統合図）：\path{uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.pdf} / \path{uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.svg}
-  \item 出力（$\hat{\rho}_{100}$--$P_{\mathrm{out}}$俯瞰図）：\path{uccs_d4b_scan90/plots/alpha_vs_pout_overview.pdf} / \path{uccs_d4b_scan90/plots/alpha_vs_pout_overview.svg}
+  \item 出力（主張図）：\\
+        \path{uccs_d4b_scan90/plots/d4b_01_power_vs_pout.pdf} \\
+        \path{uccs_d4b_scan90/plots/d4b_01_power_vs_pout.svg}
+  \item 出力（統合図）：\\
+        \path{uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.pdf} \\
+        \path{uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.svg}
+  \item 出力（$\hat{\rho}_{100}$--$P_{\mathrm{out}}$俯瞰図）：\\
+        \path{uccs_d4b_scan90/plots/alpha_vs_pout_overview.pdf} \\
+        \path{uccs_d4b_scan90/plots/alpha_vs_pout_overview.svg}
   \item 出力（outage事例の追跡）：\path{uccs_d4b_scan90/plots/outage_story_01/fig_outage_timeline.pdf} / \path{uccs_d4b_scan90/plots/outage_story_01/fig_outage_timeline.svg}
   \item 出力（outage内訳CSV）：\path{uccs_d4b_scan90/plots/outage_story_01/outage_ranking.csv} / \path{uccs_d4b_scan90/plots/outage_story_01/per_transition.csv}
-  \item 出力（尾の寄与分解）：\path{uccs_d4b_scan90/plots/pout_tail_01/fig_outage_count_hist.pdf} / \path{uccs_d4b_scan90/plots/pout_tail_01/fig_delta_pout_cum.pdf} / \path{uccs_d4b_scan90/plots/pout_tail_01/pout_tail_decomposition.md}
+  \item 出力（尾の寄与分解）：\\
+        \path{uccs_d4b_scan90/plots/pout_tail_01/fig_outage_count_hist.pdf} \\
+        \path{uccs_d4b_scan90/plots/pout_tail_01/fig_delta_pout_cum.pdf} \\
+        \path{uccs_d4b_scan90/plots/pout_tail_01/pout_tail_decomposition.md}
   \item 出力（条件付きタイミング）：\path{uccs_d4b_scan90/plots/ccs_timing_conditional_01/fig_event_triggered_p100_conditional.pdf}
   \item 再現メモ（追加解析）：\path{uccs_d4b_scan90/metrics/01/extra_analysis.md}
 \end{itemize}
@@ -80,7 +91,8 @@ scan70条件でCCS-offアブレーション（D4B）の追試を行うための�
   \item 統合図生成：\path{uccs_d4b_scan90/analysis/plot_role_separation_overview.py}
   \item $\hat{\rho}_{100}$--$P_{\mathrm{out}}$俯瞰図生成：\path{uccs_d4b_scan90/analysis/plot_alpha_vs_pout.py}
   \item outage事例追跡（D4B run01）：\path{uccs_d4b_scan90/analysis/outage_story_trace.py}
-  \item 尾の寄与分解（D4B run01）：\path{uccs_d4b_scan90/analysis/pout_tail_decomposition.py}
+  \item 尾の寄与分解（D4B run01）：\\
+        \path{uccs_d4b_scan90/analysis/pout_tail_decomposition.py}
   \item 条件付きタイミング（D4B run01）：\path{uccs_d4b_scan90/analysis/ccs_timing_analysis_conditional.py}
   \item ブートストラップCI：\path{scripts/bootstrap_effects.py}
 \end{itemize}
