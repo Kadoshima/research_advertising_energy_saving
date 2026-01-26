@@ -1,66 +1,67 @@
-﻿% chapters/appx_a_metrics.tex --- 付録A 指標定義（詳細）
-指標定義（詳細）について述べる．
+% chapters/appx_a_metrics.tex --- �t�^A �w�W��`�i�ڍׁj
+�w�W��`�i�ڍׁj�ɂ��ďq�ׂ�D
 \label{sec:metrics_detail}
 
-本節では，本研究で用いる主要指標を，実装と集計の観点で最小限に定義する．本文の図表は本節の定義に従い，同一の処理パイプラインで端末内比較を行う．
+�{�߂ł́C�{�����ŗp�����v�w�W���C�����ƏW�v�̊ϓ_�ōŏ����ɒ�`����D�{���̐}�\�͖{�߂̒�`�ɏ]���C����̏����p�C�v���C���Œ[������r���s���D
 
-まず，PDR（到達率）について述べる．
-PDRは，アドバタイジングイベント数に対して受信できた割合である．重複受信がある場合，受信行数に基づくPDRは1を超え得るため，seq等でユニーク化した指標も併記する．
+�܂��CPDR�i���B���j�ɂ��ďq�ׂ�D
+PDR�́C�A�h�o�^�C�W���O�C�x���g���ɑ΂��Ď�M�ł��������ł���D�d����M������ꍇ�C��M�s���Ɋ�Â�PDR��1�𒴂����邽�߁Cseq���Ń��j�[�N�������w�W�����L����D
 
-本研究では，アドバタイジングイベント数（分母）を$N_{\mathrm{adv}}$，受信ログ行数（重複含む）を$N_{\mathrm{rx}}$，seqでユニーク化した受信数を$N_{\mathrm{rx,uniq}}$とする．
+�{�����ł́C�A�h�o�^�C�W���O�C�x���g���i����j��$N_{\mathrm{adv}}$�C��M���O�s���i�d���܂ށj��$N_{\mathrm{rx}}$�Cseq�Ń��j�[�N��������M����$N_{\mathrm{rx,uniq}}$�Ƃ���D
 \begin{equation}
   \mathrm{PDR}_{\mathrm{raw}} = \frac{N_{\mathrm{rx}}}{N_{\mathrm{adv}}},\qquad
   \mathrm{PDR}_{\mathrm{unique}} = \frac{N_{\mathrm{rx,uniq}}}{N_{\mathrm{adv}}}
 \end{equation}
-$\mathrm{PDR}_{\mathrm{raw}}$は重複受信により1を超え得るため，到達性の比較（QoS用途）では$\mathrm{PDR}_{\mathrm{unique}}$を優先する．分母$N_{\mathrm{adv}}$は，可能な場合はTICKにより物理カウントした値を正とし，利用できない場合は試行時間とアドバタイジング間隔から推定する（動的切替では誤差が入り得る）．
+$\mathrm{PDR}_{\mathrm{raw}}$�͏d����M�ɂ��1�𒴂����邽�߁C���B���̔�r�iQoS�p�r�j�ł�$\mathrm{PDR}_{\mathrm{unique}}$��D�悷��D����$N_{\mathrm{adv}}$�́C�\�ȏꍇ��TICK�ɂ�蕨���J�E���g�����l�𐳂Ƃ��C���p�ł��Ȃ��ꍇ�͎��s���ԂƃA�h�o�^�C�W���O�Ԋu���琄�肷��i���I�ؑւł͌덷�����蓾��j�D
 
-次に，\texorpdfstring{TLと$P_{\mathrm{out}}(\tau)$}{TLとPout(tau)}について述べる．
-TLは，イベント後に最初に受信されるまでの遅延である．$P_{\mathrm{out}}(\tau)$は，TLが期限$\tau$を超える確率として定義する．TL/Poutの算出では，受信ログの時間軸と真値の時間軸の一致が必要であり，開始時刻のずれがある場合は定数オフセットで補正する（\secref{sec:stress_fixed_metrics}）．
+���ɁC\texorpdfstring{TL��$P_{\mathrm{out}}(\tau)$}{TL��Pout(tau)}�ɂ��ďq�ׂ�D
+TL�́C�C�x���g��ɍŏ��Ɏ�M�����܂ł̒x���ł���D$P_{\mathrm{out}}(\tau)$�́CTL������$\tau$�𒴂���m���Ƃ��Ē�`����DTL/Pout�̎Z�o�ł́C��M���O�̎��Ԏ��Ɛ^�l�̎��Ԏ��̈�v���K�v�ł���C�J�n�����̂��ꂪ����ꍇ�͒萔�I�t�Z�b�g�ŕ␳����i\secref{sec:stress_fixed_metrics}�j�D
 
-真値における状態遷移（イベント）時刻を$t_{\mathrm{event},j}$，その後に初めて正しいラベル（または該当イベントに対応する識別子）が受信される時刻を$t_{\mathrm{rx},j}$とする．ログ上の時刻はmsで記録されるため，TLは秒単位に変換して扱う．
+�^�l�ɂ������ԑJ�ځi�C�x���g�j������$t_{\mathrm{event},j}$�C���̌�ɏ��߂Đ��������x���i�܂��͊Y���C�x���g�ɑΉ����鎯�ʎq�j����M����鎞����$t_{\mathrm{rx},j}$�Ƃ���D���O��̎�����ms�ŋL�^����邽�߁CTL�͕b�P�ʂɕϊ����Ĉ����D
 \begin{equation}
   \mathrm{TL}_j = \frac{t_{\mathrm{rx},j} - t_{\mathrm{event},j}}{1000}\quad [\mathrm{s}]
 \end{equation}
-である．期限$\tau$に対する期限超過率は，
+�ł���D����$\tau$�ɑ΂���������ߗ��́C
 \begin{equation}
 P_{\mathrm{out}}(\tau)=\frac{1}{N_{\mathrm{event}}}\sum_{j=1}^{N_{\mathrm{event}}}\mathbb{I}[\mathrm{TL}_j>\tau]
 \end{equation}
-で定義する．
+�Œ�`����D
 \noindent
-試行時間が真値系列の全長より短い場合は末端遷移が試行区間外に出るため，真値系列側も有効長（EFFECTIVE\_LEN）でクリップし，$N_{\mathrm{event}}$の分母を揃える．
-\noindent EFFECTIVE\_LEN（評価に用いる真値系列の有効長）について述べる．
-真値系列の全長を$T_{\mathrm{truth}}$，trialの計測区間長を$T_{\mathrm{trial}}$とする．このとき評価に用いる真値系列の有効長を
+���s���Ԃ��^�l�n��̑S�����Z���ꍇ�͖��[�J�ڂ����s��ԊO�ɏo�邽�߁C�^�l�n�񑤂��L�����iEFFECTIVE\_LEN�j�ŃN���b�v���C$N_{\mathrm{event}}$�̕���𑵂���D
+\noindent EFFECTIVE\_LEN�i�]���ɗp����^�l�n��̗L�����j�ɂ��ďq�ׂ�D
+
+�^�l�n��̑S����$T_{\mathrm{truth}}$�Ctrial�̌v����Ԓ���$T_{\mathrm{trial}}$�Ƃ���D���̂Ƃ��]���ɗp����^�l�n��̗L������
 \begin{equation}
   \mathrm{EFFECTIVE\_LEN}=\min(T_{\mathrm{trial}},T_{\mathrm{truth}})
 \end{equation}
-と定義し，真値系列を$[0,\mathrm{EFFECTIVE\_LEN}]$にクリップしてイベント数$N_{\mathrm{event}}$を数える．これにより，「末端遷移が試行区間外に出る」ことによる$N_{\mathrm{event}}$の不一致を避け，trial間比較の安定性を確保する．動的切替では試行の切り出し条件が揺らぎやすいため，EFFECTIVE\_LENを明示して分母を固定することが重要である（背景と実装上の理由は\secref{sec:stress_fixed_metrics}）．
+�ƒ�`���C�^�l�n���$[0,\mathrm{EFFECTIVE\_LEN}]$�ɃN���b�v���ăC�x���g��$N_{\mathrm{event}}$�𐔂���D����ɂ��C�u���[�J�ڂ����s��ԊO�ɏo��v���Ƃɂ��$N_{\mathrm{event}}$�̕s��v������Ctrial�Ԕ�r�̈��萫���m�ۂ���D���I�ؑւł͎��s�̐؂�o���������h�炬�₷�����߁CEFFECTIVE\_LEN�𖾎����ĕ�����Œ肷�邱�Ƃ��d�v�ł���i�w�i�Ǝ�����̗��R��\secref{sec:stress_fixed_metrics}�j�D
 
-最後に，\texorpdfstring{電荷と$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）}{電荷とq_event（uC/event）}について述べる．
-本研究の一次KPIである$q_{\mathrm{event}}$は，セッション中の電荷消費をイベント数で正規化した指標である．電力やエネルギーは電圧に依存するため，バッテリ消費の観点では電荷（Coulomb count）で整理すると解釈が容易である．
+�Ō�ɁC\texorpdfstring{�d�ׂ�$q_{\mathrm{event}}$�i$\si{\micro\coulomb}/\text{event}$�j}{�d�ׂ�q_event�iuC/event�j}�ɂ��ďq�ׂ�D
+�{�����̈ꎟKPI�ł���$q_{\mathrm{event}}$�́C�Z�b�V�������̓d�׏�����C�x���g���Ő��K�������w�W�ł���D�d�͂�G�l���M�[�͓d���Ɉˑ����邽�߁C�o�b�e������̊ϓ_�ł͓d�ׁiCoulomb count�j�Ő�������Ɖ��߂��e�Ղł���D
 
-電流を$I(t)$とすると，総電荷$Q$は
+�d����$I(t)$�Ƃ���ƁC���d��$Q$��
 \begin{equation}
   Q=\int I(t)\,dt
 \end{equation}
-で定義する．TXSDログでは電流が$\mu$A，時刻がmsで記録されるため，離散近似として
+�Œ�`����DTXSD���O�ł͓d����$\mu$A�C������ms�ŋL�^����邽�߁C���U�ߎ��Ƃ���
 \begin{equation}
   Q_{\si{\micro\coulomb}} \approx \sum_{i} I_{\si{\micro\ampere},i}\cdot \frac{\Delta t_{\si{\milli\second},i}}{1000}
 \end{equation}
-により$\si{\micro\coulomb}$単位の電荷を算出できる．
+�ɂ��$\si{\micro\coulomb}$�P�ʂ̓d�ׂ��Z�o�ł���D
 
-計測系の定常負荷（ロギング，LED等）が大きい場合，アドバタイジング間隔による差分が総電荷に埋もれる．このため，アドバタイジングONとOFFの差分
+�v���n�̒�핉�ׁi���M���O�CLED���j���傫���ꍇ�C�A�h�o�^�C�W���O�Ԋu�ɂ�鍷�������d�ׂɖ������D���̂��߁C�A�h�o�^�C�W���OON��OFF�̍���
 \begin{equation}
   \Delta Q = Q_{\mathrm{on}}-Q_{\mathrm{off}}
 \end{equation}
-を用いて，アドバタイジングによる増分を評価する．OFF計測では，sleep状態や無線スタック状態がONと一致するよう，同一コード系列で条件を固定する必要がある（\secref{sec:runbook}）．
+��p���āC�A�h�o�^�C�W���O�ɂ�鑝����]������DOFF�v���ł́Csleep��Ԃ△���X�^�b�N��Ԃ�ON�ƈ�v����悤�C����R�[�h�n��ŏ������Œ肷��K�v������i\secref{sec:runbook}�j�D
 
-TL/Poutの評価対象となるイベント数を$N_{\mathrm{event}}$とすると，
+TL/Pout�̕]���ΏۂƂȂ�C�x���g����$N_{\mathrm{event}}$�Ƃ���ƁC
 \begin{equation}
   q_{\mathrm{event}}=\frac{\Delta Q}{N_{\mathrm{event}}}
 \end{equation}
-で定義する．$\Delta Q$の代わりに$Q_{\mathrm{on}}$を用いる場合は，ベースライン補正を行わないため，条件間比較の解釈に注意する．
+�Œ�`����D$\Delta Q$�̑����$Q_{\mathrm{on}}$��p����ꍇ�́C�x�[�X���C���␳���s��Ȃ����߁C�����Ԕ�r�̉��߂ɒ��ӂ���D
 \noindent
-なお，平均電力$\overline{P}$や$\Delta E/N_{\mathrm{adv}}$等は従属指標として併用し，単位整合の確認や原因切り分けに用いる．
+�Ȃ��C���ϓd��$\overline{P}$��$\Delta E/N_{\mathrm{adv}}$���͏]���w�W�Ƃ��ĕ��p���C�P�ʐ����̊m�F�⌴���؂蕪���ɗp����D
 
 
 

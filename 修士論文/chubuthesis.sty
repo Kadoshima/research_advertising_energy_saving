@@ -346,8 +346,10 @@
   {}
   {}
 % 行末禁則・和文欧文間グルーが \scite の直前で改行しないようにする
+\makeatletter
 \let\thesis@scite\scite
 \renewcommand{\scite}{\unskip\thesis@scite}
+\makeatother
 
 
 
@@ -529,10 +531,14 @@
 
 \vspace{0mm}
 \noindent
-\if\relax\detokenize{\ThesisTitleLineTwo}\relax
-  \ThesisTitleLineOne
+\if\relax\detokenize{\ThesisTitleAbstract}\relax
+  \if\relax\detokenize{\ThesisTitleLineTwo}\relax
+    \ThesisTitleLineOne
+  \else
+    \ThesisTitleLineOne\\\ThesisTitleLineTwo
+  \fi
 \else
-  \ThesisTitleLineOne\\\ThesisTitleLineTwo
+  \ThesisTitleAbstract
 \fi
 \par
 % Tighten spacing under thesis title on abstract page.

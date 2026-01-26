@@ -1,47 +1,47 @@
-﻿% chapters/appx_e_runbook.tex --- 付録E 実験Runbook（チェックリスト）
-実験Runbook（チェックリスト）について述べる．
+% chapters/appx_e_runbook.tex --- �t�^E ����Runbook�i�`�F�b�N���X�g�j
+����Runbook�i�`�F�b�N���X�g�j�ɂ��ďq�ׂ�D
 \label{sec:runbook}
 
-本節では，実験の再現性を担保するための最小チェックリストを示す．運用中に発見された落とし穴（条件混在，欠損，単位不整合など）を避けることを目的とする．
+�{�߂ł́C�����̍Č�����S�ۂ��邽�߂̍ŏ��`�F�b�N���X�g�������D�^�p���ɔ������ꂽ���Ƃ����i�������݁C�����C�P�ʕs�����Ȃǁj������邱�Ƃ�ړI�Ƃ���D
 
-まず，実験前の確認項目について述べる．
+�܂��C�����O�̊m�F���ڂɂ��ďq�ׂ�D
 \begin{itemize}
-  \item 役割の確認：TX/RX/TXSDでスケッチが正しい（接頭辞，設定値）．
-  \item 配線の確認：GND共通，SYNC入力，必要ならTICK入力（GPIO番号）．
-  \item 受信端末の状態：スキャンモード，画面状態，省電力設定を固定し，端末内比較の前提を維持する．
-  \item SD空き容量：試行本数に対して十分な空きがある．
-  \item ログ命名：\texttt{\detokenize{trial_XXX.csv}}の連番と，条件IDの対応が追跡できる．
+  \item �����̊m�F�FTX/RX/TXSD�ŃX�P�b�`���������i�ړ����C�ݒ�l�j�D
+  \item �z���̊m�F�FGND���ʁCSYNC���́C�K�v�Ȃ�TICK���́iGPIO�ԍ��j�D
+  \item ��M�[���̏�ԁF�X�L�������[�h�C��ʏ�ԁC�ȓd�͐ݒ���Œ肵�C�[������r�̑O����ێ�����D
+  \item SD�󂫗e�ʁF���s�{���ɑ΂��ď\���ȋ󂫂�����D
+  \item ���O�����F\texttt{\detokenize{trial_XXX.csv}}�̘A�ԂƁC����ID�̑Ή����ǐՂł���D
 \end{itemize}
 
-次に，試行（trial）実行について述べる．
+���ɁC���s�itrial�j���s�ɂ��ďq�ׂ�D
 \begin{enumerate}
-  \item SYNCで試行開始が一致していることを目視（LED等）で確認する．
-  \item 試行中は条件（アドバタイジング間隔，スキャン設定）を変更しない．
-  \item 試行終了後，TXSDログ末尾のsummary（ms\_total, adv\_count, E\_total等）を確認する．
-  \item 明らかな異常（rate低下，欠損，桁ズレ）があれば，その試行は破棄し，再試行する．除外理由を作業ログに残す．
+  \item SYNC�Ŏ��s�J�n����v���Ă��邱�Ƃ�ڎ��iLED���j�Ŋm�F����D
+  \item ���s���͏����i�A�h�o�^�C�W���O�Ԋu�C�X�L�����ݒ�j��ύX���Ȃ��D
+  \item ���s�I����CTXSD���O������summary�ims\_total, adv\_count, E\_total���j���m�F����D
+  \item ���炩�Ȉُ�irate�ቺ�C�����C���Y���j������΁C���̎��s�͔j�����C�Ď��s����D���O���R����ƃ��O�Ɏc���D
 \end{enumerate}
 
-続いて，データ整理について述べる．
+�����āC�f�[�^�����ɂ��ďq�ׂ�D
 \begin{itemize}
-  \item 生データの退避：\texttt{\detokenize{data/}}へコピーし，取得条件と紐付ける．
-  \item 解析対象の選別：含めるtrialと除外trialを明示し，理由（欠損，条件混在等）を記録する．
-  \item ハッシュ記録：重要データセットはSHA256を記録し，後から同一入力で再現できるようにする．
-  \item 作業ログ追記：生成物のパスと実行コマンドを\texttt{\detokenize{logs/worklog_YYYY-MM-DD_*.txt}}へ追記する．
+  \item ���f�[�^�̑ޔ��F\texttt{\detokenize{data/}}�փR�s�[���C�擾�����ƕR�t����D
+  \item ��͑Ώۂ̑I�ʁF�܂߂�trial�Ə��Otrial�𖾎����C���R�i�����C�������ݓ��j���L�^����D
+  \item �n�b�V���L�^�F�d�v�f�[�^�Z�b�g��SHA256���L�^���C�ォ�瓯����͂ōČ��ł���悤�ɂ���D
+  \item ��ƃ��O�ǋL�F�������̃p�X�Ǝ��s�R�}���h��\texttt{\detokenize{logs/worklog_YYYY-MM-DD_*.txt}}�֒ǋL����D
 \end{itemize}
 
-その後，解析と図表生成の手順を示す．
+���̌�C��͂Ɛ}�\�����̎菇�������D
 \begin{itemize}
-  \item trial集計：ログを読み込み，欠損と単位を確認し，指標（PDR, TL, Pout, 平均電力）を算出する．
-  \item 集約：条件ごとに平均と分散を計算し，図表（固定点，制約充足領域，パレート等）を生成する．
-  \item 再現確認：同一入力・同一コマンドで同じ図表が出ることを確認する（乱数がある場合はseed固定）．
-  \item 図の固定：提出用には\texttt{\detokenize{修士論文/figures/}}へコピーし，相対パス参照を解消する．
+  \item trial�W�v�F���O��ǂݍ��݁C�����ƒP�ʂ��m�F���C�w�W�iPDR, TL, Pout, ���ϓd�́j���Z�o����D
+  \item �W��F�������Ƃɕ��ςƕ��U���v�Z���C�}�\�i�Œ�_�C����[���̈�C�p���[�g���j�𐶐�����D
+  \item �Č��m�F�F������́E����R�}���h�œ����}�\���o�邱�Ƃ��m�F����i����������ꍇ��seed�Œ�j�D
+  \item �}�̌Œ�F��o�p�ɂ�\texttt{\detokenize{�C�m�_��/figures/}}�փR�s�[���C���΃p�X�Q�Ƃ���������D
 \end{itemize}
 
-最後に既知の注意点を述べる．
+�Ō�Ɋ��m�̒��ӓ_���q�ׂ�D
 \begin{itemize}
-  \item 文字列中の\texttt{\detokenize{_}}（アンダースコア）は，LaTeX本文では\texttt{\detokenize{...}}で扱う．
-  \item TL/Poutは開始時刻のずれで歪むため，定数オフセット補正を適用した定義を基準にする（\secref{sec:stress_fixed_metrics}）．
-  \item 条件混在（LED/SYNCの扱いの違い等）は定常オフセットとなるため，比較は同一コード系列に限定する（\secref{sec:measurement_system}）．
+  \item �����񒆂�\texttt{\detokenize{_}}�i�A���_�[�X�R�A�j�́CLaTeX�{���ł�\texttt{\detokenize{...}}�ň����D
+  \item TL/Pout�͊J�n�����̂���Řc�ނ��߁C�萔�I�t�Z�b�g�␳��K�p������`����ɂ���i\secref{sec:stress_fixed_metrics}�j�D
+  \item �������݁iLED/SYNC�̈����̈Ⴂ���j�͒��I�t�Z�b�g�ƂȂ邽�߁C��r�͓���R�[�h�n��Ɍ��肷��i\secref{sec:measurement_system}�j�D
 \end{itemize}
 
 

@@ -1,61 +1,40 @@
-% chapters/ch6_stress_fixed.tex --- 構成要素：ストレス固定実験と指標定義（scan50/scan90）
-\section{ストレス固定実験と指標定義の確立}
+% chapters/ch6_stress_fixed.tex --- 構�E要素�E�ストレス固定実験と持E��定義�E�Ecan50/scan90�E�E
+\section{ストレス固定実験と持E��定義の確立}
 \label{sec:stress_fixed_metrics}
 
-本節では，ストレス固定実験を用いて，QoS指標（発見遅延（Time-to-first-Receive; TL）および$P_{\mathrm{out}}(\tau)$）の定義を一貫した形で確立し，実測結果を再現性を確保した形でまとめることを目的とする．特に，受信ログの時間軸と真値の開始時刻のずれがTL/Poutに与える影響を明確化し，補正手順を定式化する．
-
-次に，実験条件の概要を示す．
-ストレス固定実験では，既知のラベル系列（真値系列）をTX側で再生し，受信側（RX）がそれをどの程度の遅延で観測できるかを測定する．主な比較軸として，受信設定（スキャンデューティ比50\%/90\%），固定アドバタイジング間隔（\SI{100}{\milli\second}，\SI{500}{\milli\second}，\SI{1000}{\milli\second}，\SI{2000}{\milli\second}），ならびにストレス列（代表的な2条件；S1は遷移が少ない条件，S4は遷移が多い条件）を中心に評価する．各trialについて，TXSDログとRXログを対応付け，PDR，TL，$P_{\mathrm{out}}(\tau)$，平均電力などを出力する．
-
-続いて，問題点と時間同期手法（補正前/補正後）を示す．
-スキャンデューティ比90\%の補正前集計では，固定\SI{2000}{\milli\second}において$P_{\mathrm{out}}(1\,\mathrm{s})$が理論下限より小さく見える等，理論的予測と整合しない結果が得られた．原因は，RXログの時刻列（ms）と真値の時間軸が一致している前提でTL/Poutを計算していた点にある．実機では試行開始のタイミングがずれ得るため，この時間誤差を補正しない場合，TL/Poutが過小評価される．
-
-補正後の定義では，TL/Pout算出前に定数オフセットを推定し，RXログの時刻を補正する．アドバタイジング間隔$\Delta t$（ms）と受信ログから得られるseqの初回観測時刻$t_{\mathrm{first}}(\mathrm{seq})$を用いると，seqに対応する期待時刻は$\mathrm{seq}\cdot\Delta t$である．複数のseqに対する期待時刻と実測時刻の差分の中央値として
+本節では�E�ストレス固定実験を用ぁE���E�QoS持E��として発見遅延TLと$P_{\mathrm{out}}(\tau)$の定義を一貫した形で確立し�E�実測結果を�E現性を確保した形でまとめることを目皁E��する�E�特に�E�受信ログの時間軸と真値の開始時刻のずれがTL/Poutに与える影響を�E確化し�E�補正手頁E��定式化する�E�E
+次に�E�実験条件の概要を示す！Eストレス固定実験では�E�既知のラベル系列である真値系列をTX側で再生し，受信側RXがそれをどの程度の遁E��で観測できるかを測定する．主な比輁E��として�E�受信設定�EスキャンチE��ーチE��毁E0\%/90\%とし，固定アドバタイジング間隔は\SI{100}{\milli\second}�E�\SI{500}{\milli\second}�E�\SI{1000}{\milli\second}�E�\SI{2000}{\milli\second}を用ぁE���E�ストレス列�E代表皁E��2条件とし，S1は遷移が少なぁE��件�E�S4は遷移が多い条件である�E�各trialにつぁE���E�TXSDログとRXログを対応付け�E�PDR�E�TL�E�EP_{\mathrm{out}}(\tau)$�E�平坁E��力などを�E力する！E
+続いて�E�補正前後�E時間同期手法と問題点を示す！EスキャンチE��ーチE��毁E0\%の補正前集計では�E�固定\SI{2000}{\milli\second}において$P_{\mathrm{out}}(1\,\mathrm{s})$が理論下限より小さく見える等，理論的予測と整合しなぁE��果が得られた�E�原因は�E�RXログの時刻列がms単位であり�E�真値の時間軸と一致してぁE��前提でTL/Poutを計算してぁE��点にある�E�実機では試行開始�Eタイミングがずれ得るため�E�この時間誤差を補正しなぁE��合，TL/Poutが過小評価される！E
+補正後�E定義では�E�TL/Pout算�E前に定数オフセチE��を推定し�E�RXログの時刻を補正する�E�アドバタイジング間隔$\Delta t$�E�Es�E�と受信ログから得られるseqの初回観測時刻$t_{\mathrm{first}}(\mathrm{seq})$を用ぁE��と�E�seqに対応する期征E��刻は$\mathrm{seq}\cdot\Delta t$である�E�褁E��のseqに対する期征E��刻と実測時刻の差刁E�E中央値として
 \begin{equation}
   \mathrm{offset\_ms} = \mathrm{median}_{\mathrm{seq}>0}\left(\mathrm{seq}\cdot\Delta t - t_{\mathrm{first}}(\mathrm{seq})\right)
 \end{equation}
-によりオフセットを推定し，補正後の時刻を$\mathrm{ms\_aligned}=\mathrm{ms}+\mathrm{offset\_ms}$とする．TL/Poutは$\mathrm{ms\_aligned}$に基づいて算出する．この補正により，非同期な開始タイミング（開始時刻のずれ）に起因する過小評価を抑制できる．
-
-補正後の定義では，per-trialの集計に加え，集約表を再現可能に生成するパイプラインを整備した．また，スキャンデューティ比50\%/90\%の比較結果も同一の定義で出力し，受信設定の違いがPDRやTL/Poutに与える影響を整理できるようにした．
-\noindent PDRの扱いを示す．
-PDRは受信ログの行数に基づく指標（重複含む）と，seqでユニーク化した指標（重複除外）の2種類を区別する．QoS比較では，アドバタイジングイベントの「何割を一度でも拾えたか」を表す$\mathrm{PDR}_{\mathrm{unique}}$を優先する（\secref{sec:metrics_detail}を参照）．
-\noindent 有効データ長（Effective Length）と終端処理を示す．
-真値は有限長のラベル系列であり，試行時間のクランプにより末端の遷移が試行区間外に出る場合がある．その場合，末端遷移を含めた評価は不安定になるため，真値側も同じ長さにクリップし，イベント数$N_{\mathrm{event}}$の分母を揃える．この処理は，試行間比較と再現性の観点で重要である．
-
-結果（図表）を示す．
-\noindent スキャンデューティ比90\%の指標サマリを示す．
-\figref{fig:stress_fixed_scan90_metrics}に，スキャンデューティ比90\%における主要指標の例（補正前/補正後の比較）を示す．図中の横軸はアドバタイジング間隔（ms），縦軸は各指標（$\mathrm{PDR}_{\mathrm{unique}}$，$TL_{p95}$，$P_{\mathrm{out}}(1\,\mathrm{s})$，平均電力等）を表す．色はS1/S4，線種は補正前（v4）/補正後（v5）を表し，$TL_{p95}$の縦軸は対数スケールを用いた．補正前と補正後の差分を同一図に重ねることで，時間同期補正がTL/Poutに与える影響を確認できる．
-
+によりオフセチE��を推定し�E�補正後�E時刻めE\mathrm{ms\_aligned}=\mathrm{ms}+\mathrm{offset\_ms}$とする�E�TL/Poutは$\mathrm{ms\_aligned}$に基づぁE��算�Eする�E�この補正により�E�非同期な開始タイミング�E�開始時刻のずれ�E�に起因する過小評価を抑制できる�E�E
+補正後�E定義では�E�per-trialの雁E��に加え，集紁E��を�E現可能に生�Eするパイプラインを整備した．また，スキャンチE��ーチE��毁E0\%/90\%の比輁E��果も同一の定義で出力し�E�受信設定�E違いがPDRやTL/Poutに与える影響を整琁E��きるようにした�E�E\noindent PDRの扱ぁE��示す！EPDRは受信ログの行数に基づく指標と�E�seqでユニ�Eク化した指標�E2種類を区別する�E�前老E�E重褁E��含み�E�後老E�E重褁E��除外する．QoS比輁E��は�E�アドバタイジングイベント�E「何割を一度でも拾えたか」を表ぁE\mathrm{PDR}_{\mathrm{unique}}$を優先する．詳細は\secref{sec:metrics_detail}に示す！E\noindent 有効チE�Eタ長�E�Effective Length�E�と終端処琁E��示す！E真値は有限長のラベル系列であり�E�試行時間�Eクランプにより末端の遷移が試行区間外に出る場合がある�E�その場合，末端遷移を含めた評価は不安定になるためE��真値側も同じ長さにクリチE�Eし，イベント数$N_{\mathrm{event}}$の刁E��を揁E��る．この処琁E�E�E�試行間比輁E��再現性の観点で重要である�E�E
+結果�E�図表�E�を示す！E\noindent スキャンチE��ーチE��毁E0\%の持E��サマリを示す．以降，補正前�E雁E��をv4�E�定数オフセチE��補正後をv5と呼ぶ�E�E\figref{fig:stress_fixed_scan90_metrics}に�E�スキャンチE��ーチE��毁E0\%における主要指標�E例（補正剁E補正後�E比輁E��を示す．図中の横軸はアドバタイジング間隔�E�Es�E�，縦軸は吁E��標！E\mathrm{PDR}_{\mathrm{unique}}$�E�ETL_{p95}$�E�EP_{\mathrm{out}}(1\,\mathrm{s})$�E�平坁E��力等）を表す．色はS1/S4�E�線種は補正前！E4�E�E補正後！E5�E�を表し！ETL_{p95}$の縦軸は対数スケールを用ぁE���E�補正前と補正後�E差刁E��同一図に重�Eることで�E�時間同期補正がTL/Poutに与える影響を確認できる�E�E
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.95\linewidth]{figures/stress_scan90_metrics_v4_v5.png}
-  \caption{ストレス固定（スキャンデューティ比90\%）の主要指標（補正前/補正後の比較）．色はS1/S4，線種はv4/v5，$TL_{p95}$の縦軸は対数スケール．}
+  \caption{ストレス固定（スキャンチE��ーチE��毁E0\%�E��E主要指標（補正剁E補正後�E比輁E��．�E例�E色がS1/S4�E�線種がv4/v5を表す！ETL_{p95}$のみ縦軸を対数スケールとする�E�}
   \label{fig:stress_fixed_scan90_metrics}
 \end{figure}
-\noindent 実測と簡易モデルの比較を示す．
-\figref{fig:stress_fixed_real_vs_sim}に，ストレス固定における実測と簡易モデル（比較用）の例を示す．図中の棒は$P_{\mathrm{out}}(1\,\mathrm{s})$（実測とモデルの比較），折れ線は固定\SI{100}{\milli\second}で正規化した平均電力であり，左軸が$P_{\mathrm{out}}(1\,\mathrm{s})$，右軸が相対電力に対応する．簡易モデルは，スキャンの非理想性や開始時刻のずれの影響を完全には表現できないため，実測との差分が残る．ただし，固定間隔の相対関係（短間隔ほど遅延が改善しやすい等）のトレンドを説明する補助として利用できる．
-
+\noindent 実測と簡易モチE��の比輁E��示す！E\figref{fig:stress_fixed_real_vs_sim}に�E�ストレス固定における実測と簡易モチE���E�比輁E���E��E例を示す．図中の棒�E$P_{\mathrm{out}}(1\,\mathrm{s})$�E�実測とモチE��の比輁E��，折れ線�E固定\SI{100}{\milli\second}で正規化した平坁E��力であり�E�左軸ぁEP_{\mathrm{out}}(1\,\mathrm{s})$�E�右軸が相対電力に対応する．簡易モチE��は�E�スキャンの非理想性めE��始時刻のずれの影響を完�Eには表現できなぁE��めE��実測との差刁E��残る�E�ただし，固定間隔�E相対関係（短間隔ほど遁E��が改喁E��めE��ぁE��）�Eトレンドを説明する補助として利用できる�E�E
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.95\linewidth]{figures/stress_real_vs_sim.png}
-  \caption{ストレス固定における実測と簡易モデルの比較（棒：$P_{\mathrm{out}}(1\,\mathrm{s})$，折れ線：相対電力，左軸：$P_{\mathrm{out}}$，右軸：相対電力）}
+  \caption{ストレス固定における実測と簡易モチE��の比輁E��棒！EP_{\mathrm{out}}(1\,\mathrm{s})$�E�折れ線：相対電力，左軸�E�EP_{\mathrm{out}}$�E�右軸�E�相対電力）}
   \label{fig:stress_fixed_real_vs_sim}
 \end{figure}
-\noindent スキャンデューティ比50\%と90\%の比較を示す．
-\figref{fig:stress_fixed_scan50_vs_scan90_pdr}に，スキャンデューティ比50\%と90\%の比較（$\mathrm{PDR}_{\mathrm{unique}}$，$P_{\mathrm{out}}(1\,\mathrm{s})$，$TL_{p95}$）を示す．図中の横軸はアドバタイジング間隔（ms），縦軸は各指標を表し，系列はスキャンデューティ比50\%/90\%である（凡例参照）．$TL_{p95}$の縦軸は対数スケールを用いた．スキャンデューティ比を上げることで短間隔側の受信品質が改善し，Pout/TLにも差が出ることが確認できる．
-
+\noindent スキャンチE��ーチE��毁E0\%と90\%の比輁E��示す！E\figref{fig:stress_fixed_scan50_vs_scan90_pdr}に�E�スキャンチE��ーチE��毁E0\%と90\%の比輁E��E\mathrm{PDR}_{\mathrm{unique}}$�E�EP_{\mathrm{out}}(1\,\mathrm{s})$�E�ETL_{p95}$�E�を示す．図中の横軸はアドバタイジング間隔�E�Es�E�，縦軸は吁E��標を表し，系列�EスキャンチE��ーチE��毁E0\%/90\%である�E��E例参照�E�！ETL_{p95}$の縦軸は対数スケールを用ぁE���E�スキャンチE��ーチE��比を上げることで短間隔側の受信品質が改喁E���E�Pout/TLにも差が�Eることが確認できる�E�E
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.85\linewidth]{figures/stress_scan50_vs_scan90_metrics_v5.png}
-  \caption{ストレス固定におけるスキャンデューティ比50\%/90\%の比較（横軸：間隔，縦軸：PDR/Pout/$TL_{p95}$，系列：低duty/高duty，$TL_{p95}$は対数スケール）}
+  \caption{ストレス固定におけるスキャンチE��ーチE��毁E0\%/90\%の比輁E��横軸�E�間隔，縦軸�E�PDR/Pout/$TL_{p95}$�E�系列：低duty/高duty�E�ETL_{p95}$は対数スケール�E�}
   \label{fig:stress_fixed_scan50_vs_scan90_pdr}
 \end{figure}
 
-時間同期の導入により，TL/Poutが大きく変化する条件が存在する．例えば，固定\SI{2000}{\milli\second}の$P_{\mathrm{out}}(1\,\mathrm{s})$や，固定\SI{100}{\milli\second}のTL平均値が大きく更新される場合がある．本研究では，補正後の定義を正式な定義として扱い，以降の評価および図表においては，この補正済み定義を一貫して採用する．
-
-最後にまとめを述べる．
-本節では，ストレス固定実験を用いてTL/Poutの定義と実装を固定し，開始時刻のずれを補正する定数オフセット補正の時間同期手順を示した．以降では，この指標定義を前提として，固定間隔および動的制御の評価を行う．
-
+時間同期の導�Eにより�E�TL/Poutが大きく変化する条件が存在する�E�例えば�E�固定\SI{2000}{\milli\second}の$P_{\mathrm{out}}(1\,\mathrm{s})$めE��固定\SI{100}{\milli\second}のTL平坁E��が大きく更新される場合がある�E�本研究では�E�補正後�E定義を正式な定義として扱ぁE��以降�E評価および図表においては�E�この補正済み定義を一貫して採用する�E�E
+最後にまとめを述べる！E本節では�E�ストレス固定実験を用ぁE��TL/Poutの定義と実裁E��固定し�E�開始時刻のずれを補正する定数オフセチE��補正の時間同期手頁E��示した�E�以降では�E�この持E��定義を前提として�E�固定間隔およ�E動的制御の評価を行う�E�E
 
 
 

@@ -172,3 +172,44 @@ esults/phase2_offline_studies_2026-01-26_v05/gateb_pareto_cap25.md�j
 2026-01-26 20:10 結果節のD2b表記を削除し、scan90条件として簡約化 / 修士論文アブスト/main.tex
 2026-01-26 20:18 考察節の表現修正（滞留→割合、QoSの解釈、須健性→安定性、この式より） / 修士論文アブスト/main.tex
 2026-01-26 21:07 引用コマンド\sciteの再定義（直前のグルー除去）で改行抑制対応 / 修士論文/chubuthesis.sty
+2026-01-26 21:26 JST: Varied sentence endings to reduce repeated wording in ch4_rain results section. File: 修士論文/chapters/ch4_rain.tex
+2026-01-26 21:36 JST: Adjusted acknowledgement formatting by removing leading fullwidth spaces and splitting into paragraphs. File: 修士論文/chapters/acknowledgements.tex
+2026-01-26 21:49 JST: Prevented stretch before "??????" by wrapping with \mbox in intro. File: 修士論文/chapters/ch0_introduction.tex
+2026-01-26 21:48 JST
+- Wording updates: random-delay sentence, arrival-rate wording, truth->shinchi, Gate B/C wording, violation-rate unit.
+  Files: 修士論文/chapters/ch1_background.tex, ch2_related_work.tex, ch3_system_design.tex, ch3_oncampus.tex,
+         ch8_measurement_system.tex, ch8_experiment_design.tex, ch10_phase2_concept.tex, conclusion.tex,
+         appx_a_metrics.tex, appx_g_troubleshooting.tex
+- build: latexmk -lualatex failed because main.pdf is locked (likely open).
+2026-01-26 21:58 JST: Defined v4/v5 labels (pre/post time-sync correction) in stress fixed section. File: 修士論文/chapters/ch6_stress_fixed.tex
+2026-01-26 21:59 JST: Moved v4/v5 definition closer to Fig.5.1 intro for flow. File: 修士論文/chapters/ch6_stress_fixed.tex
+2026-01-26 22:01 JST: Defined TL on first mention as 'Time-to-first-Receive: TL' and simplified subsequent TL usage. File: 修士論文/chapters/ch1_background.tex
+2026-01-26 22:08 JST: Standardized TL wording by keeping English only at first mention; updated related work, stress fixed, phase2 concept, abstract, and symbols table. Files: 修士論文/chapters/ch2_related_work.tex, 修士論文/chapters/ch6_stress_fixed.tex, 修士論文/chapters/ch10_phase2_concept.tex, 修士論文/frontmatter/abstract.tex, 修士論文/chapters/appx_f_symbols.tex
+2026-01-26 22:13 JST: Unified related-work wording to use "????? P_out(tau)" instead of outage probability. File: 修士論文/chapters/ch2_related_work.tex
+2026-01-26 22:46 JST: Shortened I/O bottleneck row wording in measurement failures table to reduce spacing. File: 修士論文/chapters/ch8_measurement_system.tex
+2026-01-26 22:48 JST: Rotated Fig 4.3 (b) image to landscape and shortened caption text. File: 修士論文/chapters/ch8_measurement_system.tex
+2026-01-26 22:49 JST: Clarified Fig.5.1 legend mapping and TL_p95 log-axis note in caption. File: 修士論文/chapters/ch6_stress_fixed.tex
+
+[2026-01-26 22:51:24 +0900] CCS parameter sensitivity (alpha/W) simulation
+- Added script: scripts/ccs_param_sensitivity.py
+- Ran: python scripts/ccs_param_sensitivity.py
+- Output: results/ccs_param_sensitivity_2026-01-26_v01/{summary_by_subject.csv, summary_overall.csv, summary_delta_vs_base.csv, README.md}
+- Data: data/ccs_sequences/subject*_ccs.csv (SHA256 in README)
+
+[2026-01-26 22:57:16 +0900] Thesis: add alpha/W sensitivity justification
+- Updated: �C�m�_��/chapters/ch9_har_uncertainty.tex
+  - Added simulation-based note for alpha/W range stability with source path results/ccs_param_sensitivity_2026-01-26_v01/summary_overall.csv
+
+[2026-01-26 23:01:25 +0900] Thesis: moved alpha/W sensitivity source to assets list
+- Updated: �C�m�_��/chapters/ch9_har_uncertainty.tex (refers to sec:assets)
+- Updated: �C�m�_��/chapters/appx_b_assets.tex (added results/ccs_param_sensitivity_2026-01-26_v01/)
+2026-01-26 23:03 JST: Updated thesis title spacing and kept cover line break; adjusted abstract title size to avoid line break. Files: 修士論文アブスト/meta.tex, 修士論文アブスト/main.tex, 修士論文/meta.tex
+2026-01-26 23:12 JST: Added single-line abstract-page thesis title and used it in makeabstractpage while keeping cover line breaks. Files: 修士論文/meta.tex, 修士論文/chubuthesis.sty
+2026-01-26 23:19 JST: Reduced parentheses in 3.1 World Model/actors section and updated actor table caption. File: 修士論文/chapters/ch3_system_design.tex
+
+[2026-01-26 23:27:53 +0900] Thesis: reduced parentheses in measurement setup text
+- Updated: �C�m�_��/chapters/ch3_oncampus.tex (rewrote KPI intro, sync/TICK, wiring example, figure caption to reduce parentheses)
+
+[2026-01-26 23:38:21 +0900] Thesis: insert paragraph breaks after \noindent lead-ins
+- Updated multiple files under �C�m�_��/chapters to add blank lines after \noindent lead-in sentences so following paragraphs indent.
+- Scope: 35 files in �C�m�_��/chapters

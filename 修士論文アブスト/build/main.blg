@@ -1,15 +1,15 @@
 [0] Config.pm:328> INFO - This is Biber 2.21
 [0] Config.pm:331> INFO - Logfile is 'build/main.blg'
-[78] biber-MSWIN64:342> INFO - === 
-[110] Biber.pm:421> INFO - Reading 'build/main.bcf'
-[186] Biber.pm:1002> INFO - Found 3 citekeys in bib section 0
-[194] Biber.pm:4487> INFO - Processing section 0
-[202] Biber.pm:4678> INFO - Looking for bibtex file 'references.bib' for section 0
-[246] bibtex.pm:1713> INFO - LaTeX decoding ...
-[251] bibtex.pm:1519> INFO - Found BibTeX data source 'references.bib'
-[286] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
-[286] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
-[286] Biber.pm:4307> INFO - Sorting list 'none/global//global/global/global' of type 'entry' with template 'none' and locale 'en-US'
-[286] Biber.pm:4313> INFO - No sort tailoring available for locale 'en-US'
-[291] bbl.pm:676> INFO - Writing 'build/main.bbl' with encoding 'UTF-8'
-[293] bbl.pm:779> INFO - Output to build/main.bbl
+[85] biber-MSWIN64:342> INFO - === 
+[127] Biber.pm:421> INFO - Reading 'build/main.bcf'
+[212] Biber.pm:1002> INFO - Found 3 citekeys in bib section 0
+[220] Biber.pm:4487> INFO - Processing section 0
+[228] Biber.pm:4678> INFO - Looking for bibtex file 'references.bib' for section 0
+[300] bibtex.pm:1713> INFO - LaTeX decoding ...
+[306] bibtex.pm:1519> INFO - Found BibTeX data source 'references.bib'
+[342] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[342] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[342] Biber.pm:4307> INFO - Sorting list 'none/global//global/global/global' of type 'entry' with template 'none' and locale 'en-US'
+[342] Biber.pm:4313> INFO - No sort tailoring available for locale 'en-US'
+[347] bbl.pm:676> INFO - Writing 'build/main.bbl' with encoding 'UTF-8'
+[348] bbl.pm:779> INFO - Output to build/main.bbl

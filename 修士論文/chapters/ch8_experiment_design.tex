@@ -1,110 +1,118 @@
-﻿% chapters/ch8_experiment_design.tex --- 構成要素：実験設計
-実験設計について述べる．
+% chapters/ch8_experiment_design.tex --- �\���v�f�F�����݌v
+�����݌v�ɂ��ďq�ׂ�D
 \label{sec:experiment_design}
 
-まず，実験の目的を示す．
-Phase 1の実験目的は，ルールベース方策（CCS→アドバタイジング間隔切替）が，固定間隔に対して省電力とQoSのトレードオフ上で優位な運用点として成立することを示すことである．具体的な検証項目として，第一に省電力（固定\SI{100}{\milli\second}よりも$q_{\mathrm{event}}$すなわち$\si{\micro\coulomb}/\text{event}$が低い運用点が存在する），第二にQoS維持（代表的な期限$\tau$に対して$P_{\mathrm{out}}(\tau)$が過度に悪化しない），第三にトレードオフ（固定点と動的点を同一平面すなわち$P_{\mathrm{out}}(\tau)$--$q_{\mathrm{event}}$で比較しパレート最適性の観点から位置づけを明らかにする）を挙げる．
+�܂��C�����̖ړI�������D
+Phase 1�̎����ړI�́C���[���x�[�X����iCCS���A�h�o�^�C�W���O�Ԋu�ؑցj���C�Œ�Ԋu�ɑ΂��ďȓd�͂�QoS�̃g���[�h�I�t��ŗD�ʂȉ^�p�_�Ƃ��Đ������邱�Ƃ��������Ƃł���D��̓I�Ȍ��؍��ڂƂ��āC���ɏȓd�́i�Œ�\SI{100}{\milli\second}����$q_{\mathrm{event}}$���Ȃ킿$\si{\micro\coulomb}/\text{event}$���Ⴂ�^�p�_�����݂���j�C����QoS�ێ��i��\�I�Ȋ���$\tau$�ɑ΂���$P_{\mathrm{out}}(\tau)$���ߓx�Ɉ������Ȃ��j�C��O�Ƀg���[�h�I�t�i�Œ�_�Ɠ��I�_�𓯈ꕽ�ʂ��Ȃ킿$P_{\mathrm{out}}(\tau)$--$q_{\mathrm{event}}$�Ŕ�r���p���[�g�œK���̊ϓ_����ʒu�Â��𖾂炩�ɂ���j��������D
 
-次に，実験条件について述べる．
-\noindent 環境条件について述べる．
-実験は，距離，受信端末，スキャン設定等を固定し，端末内比較として実施する．干渉状況の違いは外的要因として扱い，必要に応じて環境を分けて評価する．
+���ɁC���������ɂ��ďq�ׂ�D
+\noindent �������ɂ��ďq�ׂ�D
 
-干渉環境の分類\par
-BLEとWi-Fiは同一の2.4\,GHz帯を共有するため，Wi-Fi干渉がBLE通信品質に影響する．本研究では，Wi-Fiアナライザアプリ（Analiti等）で計測した最強APのRSSIに基づき，干渉環境を\tabref{tab:env_interference}のように分類する．主結果はE1（低干渉）で取得し，E2/E2+は干渉耐性の補足評価として扱う．
+�����́C�����C��M�[���C�X�L�����ݒ蓙���Œ肵�C�[������r�Ƃ��Ď��{����D���󋵂̈Ⴂ�͊O�I�v���Ƃ��Ĉ����C�K�v�ɉ����Ċ��𕪂��ĕ]������D
+
+�����̕���\par
+BLE��Wi-Fi�͓����2.4\,GHz�т����L���邽�߁CWi-Fi����BLE�ʐM�i���ɉe������D�{�����ł́CWi-Fi�A�i���C�U�A�v���iAnaliti���j�Ōv�������ŋ�AP��RSSI�Ɋ�Â��C������\tabref{tab:env_interference}�̂悤�ɕ��ނ���D�匋�ʂ�E1�i�኱�j�Ŏ擾���CE2/E2+�͊��ϐ��̕⑫�]���Ƃ��Ĉ����D
 
 \begin{table}[tb]
   \centering
-  \caption{干渉環境の分類}
+  \caption{�����̕���}
   \label{tab:env_interference}
   \begin{tabular}{llll}
     \toprule
-    環境ID & 名称 & Wi-Fi最強AP RSSI & 想定シナリオ \\
+    ��ID & ���� & Wi-Fi�ŋ�AP RSSI & �z��V�i���I \\
     \midrule
-    E1 & 低干渉環境 & $\le -40\,\si{\decibelmilliwatt}$ & 通常オフィス \\
-    E2 & 高干渉環境 & $-40 \sim -25\,\si{\decibelmilliwatt}$ & ルーター近接 \\
-    E2+ & 極強干渉環境 & $> -25\,\si{\decibelmilliwatt}$ & AP直下 \\
+    E1 & �኱�� & $\le -40\,\si{\decibelmilliwatt}$ & �ʏ�I�t�B�X \\
+    E2 & ������ & $-40 \sim -25\,\si{\decibelmilliwatt}$ & ���[�^�[�ߐ� \\
+    E2+ & �ɋ����� & $> -25\,\si{\decibelmilliwatt}$ & AP���� \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-受信設定\par
-\tabref{tab:env_conditions}に，主結果で固定した受信端末とスキャン設定を整理する．主結果（ESP32 RX）と補助（Android）の設定を対比して示す．
+��M�ݒ�\par
+\tabref{tab:env_conditions}�ɁC�匋�ʂŌŒ肵����M�[���ƃX�L�����ݒ�𐮗�����D�匋�ʁiESP32 RX�j�ƕ⏕�iAndroid�j�̐ݒ��Δ䂵�Ď����D
 
 \begin{table}[tb]
   \centering
-  \caption{環境条件と受信設定（各設定項目の主結果・補助条件別）}
+  \caption{�������Ǝ�M�ݒ�i�e�ݒ荀�ڂ̎匋�ʁE�⏕�����ʁj}
   \label{tab:env_conditions}
   \begin{tabularx}{\linewidth}{l>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X}
     \toprule
-    項目 & 主結果（ESP32 RX） & 補助（Android） \\
+    ���� & �匋�ʁiESP32 RX�j & �⏕�iAndroid�j \\
     \midrule
-    距離 & \SI{1}{\meter} & \SI{1}{\meter} \\
+    ���� & \SI{1}{\meter} & \SI{1}{\meter} \\
     TxPower & \SI{0}{\decibelmilliwatt} & \SI{0}{\decibelmilliwatt} \\
-    受信端末 & ESP32-WROVER-E（NimBLE passive scan） & Galaxy S9（SCV38）, Android 10（One UI 2.1） \\
-    受信アプリ & RXログ（SD保存） & nRF Connect for Mobile \\
-    スキャンモード & passive scan & Android LOW\_LATENCY \\
-    フィルタ & ペイロード識別子（seq） & デバイス名 ``TXM\_ESP32'' \\
-    スキャンデューティ比90\%設定 & interval \SI{100}{\milli\second}, window \SI{90}{\milli\second}（duty 90\%） & OS制御（固定不可） \\
-    スキャンデューティ比70\%設定 & interval \SI{100}{\milli\second}, window \SI{70}{\milli\second}（duty 70\%） & OS制御（固定不可） \\
+    ��M�[�� & ESP32-WROVER-E�iNimBLE passive scan�j & Galaxy S9�iSCV38�j, Android 10�iOne UI 2.1�j \\
+    ��M�A�v�� & RX���O�iSD�ۑ��j & nRF Connect for Mobile \\
+    �X�L�������[�h & passive scan & Android LOW\_LATENCY \\
+    �t�B���^ & �y�C���[�h���ʎq�iseq�j & �f�o�C�X�� ``TXM\_ESP32'' \\
+    �X�L�����f���[�e�B��90\%�ݒ� & interval \SI{100}{\milli\second}, window \SI{90}{\milli\second}�iduty 90\%�j & OS����i�Œ�s�j \\
+    �X�L�����f���[�e�B��70\%�ݒ� & interval \SI{100}{\milli\second}, window \SI{70}{\milli\second}�iduty 70\%�j & OS����i�Œ�s�j \\
     \bottomrule
   \end{tabularx}
 \end{table}
-\noindent 制御条件について述べる．
-制御条件は，固定間隔（ベースライン）と動的制御（提案）を含む．Phase 1の基本方針は，行動集合を$\{100,500,1000,2000\}\,\si{\milli\second}$とし，短間隔（QoS重視）と長間隔（省電力重視）の間を段階的に探索できる形にすることである．
+\noindent ��������ɂ��ďq�ׂ�D
 
-ただし，実機実験の初期段階では，計測系の同期とログ整合を優先し，行動集合を$\{100,500\}\,\si{\milli\second}$に縮退した2値切替で動作成立を確認する．以降，計測の堅牢性が担保できた段階で，$\{100,500,1000,2000\}\,\si{\milli\second}$へ拡張する．
+��������́C�Œ�Ԋu�i�x�[�X���C���j�Ɠ��I����i��āj���܂ށDPhase 1�̊�{���j�́C�s���W����$\{100,500,1000,2000\}\,\si{\milli\second}$�Ƃ��C�Z�Ԋu�iQoS�d���j�ƒ��Ԋu�i�ȓd�͏d���j�̊Ԃ�i�K�I�ɒT���ł���`�ɂ��邱�Ƃł���D
+
+�������C���@�����̏����i�K�ł́C�v���n�̓����ƃ��O������D�悵�C�s���W����$\{100,500\}\,\si{\milli\second}$�ɏk�ނ���2�l�ؑւœ��쐬�����m�F����D�ȍ~�C�v���̌��S�����S�ۂł����i�K�ŁC$\{100,500,1000,2000\}\,\si{\milli\second}$�֊g������D
 
 \begin{table}[tb]
   \centering
-  \caption{制御条件（例）}
+  \caption{��������i��j}
   \label{tab:control_conditions}
   \begin{tabular}{lll}
     \toprule
-    条件ID & 条件名 & アドバタイジング間隔 \\
+    ����ID & ������ & �A�h�o�^�C�W���O�Ԋu \\
     \midrule
-    C1 & 固定\SI{100}{\milli\second} & \SI{100}{\milli\second} \\
-    C2 & 固定\SI{500}{\milli\second} & \SI{500}{\milli\second} \\
-    C3 & 固定\SI{2000}{\milli\second} & \SI{2000}{\milli\second} \\
-    C4 & POLICY（2値） & \SI{100}{\milli\second}/\SI{500}{\milli\second} \\
-    C5 & POLICY（3値） & \SI{100}{\milli\second}/\SI{500}{\milli\second}/\SI{2000}{\milli\second} \\
+    C1 & �Œ�\SI{100}{\milli\second} & \SI{100}{\milli\second} \\
+    C2 & �Œ�\SI{500}{\milli\second} & \SI{500}{\milli\second} \\
+    C3 & �Œ�\SI{2000}{\milli\second} & \SI{2000}{\milli\second} \\
+    C4 & POLICY�i2�l�j & \SI{100}{\milli\second}/\SI{500}{\milli\second} \\
+    C5 & POLICY�i3�l�j & \SI{100}{\milli\second}/\SI{500}{\milli\second}/\SI{2000}{\milli\second} \\
     \bottomrule
   \end{tabular}
 \end{table}
-\noindent 反復設計について述べる．
-統計的な揺らぎと端末状態のばらつきを抑えるため，各条件は複数回反復する．最低限の確認として各条件$n\ge3$とし，差が小さい場合に反復数を増やす．
+\noindent �����݌v�ɂ��ďq�ׂ�D
 
-また，運用シナリオに近い評価としては，環境（例：E1/E2）を分け，3条件（例：固定\SI{100}{\milli\second}/固定\SI{2000}{\milli\second}/方策）$\times$ 2環境 $\times$ 10セッション＝60セッション程度を計画し，端末内比較の前提を維持しながら分散（端末状態の非定常）を平均化する．
+���v�I�ȗh�炬�ƒ[����Ԃ̂΂����}���邽�߁C�e�����͕����񔽕�����D�Œ���̊m�F�Ƃ��Ċe����$n\ge3$�Ƃ��C�����������ꍇ�ɔ������𑝂₷�D
 
-続いて，セッション構成とイベント定義について述べる．
-\noindent セッションについて述べる．
-セッションは一定時間の試行（trial）の集合として構成する．実機の動的切替では，短い試行（例：\SI{60}{\second}）を連続して取り，条件間比較を端末内で完結させる設計が有効である．一方，運用シナリオに近い評価として，\SI{10}{\minute}程度の長いセッションを用い，活動遷移イベントでTL/Poutを評価する設計も重要である．
-\noindent イベントについて述べる．
-イベントは，状態遷移（活動の切替）など「QoS評価の基準点」となる時刻である．固定間隔ではアドバタイジングイベントの列から遅延分布を評価できるが，動的切替では開始時刻のずれや切替タイミングが影響するため，truthに基づくイベント定義と時間同期が必要となる（次章）．
+�܂��C�^�p�V�i���I�ɋ߂��]���Ƃ��ẮC���i��FE1/E2�j�𕪂��C3�����i��F�Œ�\SI{100}{\milli\second}/�Œ�\SI{2000}{\milli\second}/����j$\times$ 2�� $\times$ 10�Z�b�V������60�Z�b�V�������x���v�悵�C�[������r�̑O����ێ����Ȃ��番�U�i�[����Ԃ̔���j�𕽋ω�����D
 
-その後，指標算出について述べる．
-\noindent 電力指標について述べる．
-一次KPIの省電力指標は$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）である．$q_{\mathrm{event}}$は，TXSDログの電流系列を積分して得た総電荷を，イベント数$N_{\mathrm{event}}$で正規化して算出する（定義は\secref{sec:metrics_detail}）．必要に応じてアドバタイジングOFFの基準を差し引き，アドバタイジングによる増分を評価する．
+�����āC�Z�b�V�����\���ƃC�x���g��`�ɂ��ďq�ׂ�D
+\noindent �Z�b�V�����ɂ��ďq�ׂ�D
 
-平均電力$\overline{P}$や総エネルギー$E$，およびアドバタイジング回数で正規化した$\Delta E/N_{\mathrm{adv}}$等は従属指標として併用し，計測健全性の監査（単位・欠損）と原因切り分けに用いる．
+�Z�b�V�����͈�莞�Ԃ̎��s�itrial�j�̏W���Ƃ��č\������D���@�̓��I�ؑւł́C�Z�����s�i��F\SI{60}{\second}�j��A�����Ď��C�����Ԕ�r��[�����Ŋ���������݌v���L���ł���D����C�^�p�V�i���I�ɋ߂��]���Ƃ��āC\SI{10}{\minute}���x�̒����Z�b�V������p���C�����J�ڃC�x���g��TL/Pout��]������݌v���d�v�ł���D
+\noindent �C�x���g�ɂ��ďq�ׂ�D
 
-\noindent TLと$P_{\mathrm{out}}(\tau)$について述べる．
-イベント$j$の遅延を$\mathrm{TL}_j$とすると，
+�C�x���g�́C��ԑJ�ځi�����̐ؑցj�ȂǁuQoS�]���̊�_�v�ƂȂ鎞���ł���D�Œ�Ԋu�ł̓A�h�o�^�C�W���O�C�x���g�̗񂩂�x�����z��]���ł��邪�C���I�ؑւł͊J�n�����̂����ؑփ^�C�~���O���e�����邽�߁C�^�l�Ɋ�Â��C�x���g��`�Ǝ��ԓ������K�v�ƂȂ�i���́j�D
+
+���̌�C�w�W�Z�o�ɂ��ďq�ׂ�D
+\noindent �d�͎w�W�ɂ��ďq�ׂ�D
+
+�ꎟKPI�̏ȓd�͎w�W��$q_{\mathrm{event}}$�i$\si{\micro\coulomb}/\text{event}$�j�ł���D$q_{\mathrm{event}}$�́CTXSD���O�̓d���n���ϕ����ē������d�ׂ��C�C�x���g��$N_{\mathrm{event}}$�Ő��K�����ĎZ�o����i��`��\secref{sec:metrics_detail}�j�D�K�v�ɉ����ăA�h�o�^�C�W���OOFF�̊�����������C�A�h�o�^�C�W���O�ɂ�鑝����]������D
+
+���ϓd��$\overline{P}$�⑍�G�l���M�[$E$�C����уA�h�o�^�C�W���O�񐔂Ő��K������$\Delta E/N_{\mathrm{adv}}$���͏]���w�W�Ƃ��ĕ��p���C�v�����S���̊č��i�P�ʁE�����j�ƌ����؂蕪���ɗp����D
+
+\noindent TL��$P_{\mathrm{out}}(\tau)$�ɂ��ďq�ׂ�D
+
+�C�x���g$j$�̒x����$\mathrm{TL}_j$�Ƃ���ƁC
 \begin{equation}
   P_{\mathrm{out}}(\tau)=\frac{1}{N_{\mathrm{event}}}\sum_{j=1}^{N_{\mathrm{event}}}\mathbb{I}[\mathrm{TL}_j>\tau]
 \end{equation}
-である．実装では，RXログの時刻とtruthの時刻の定数オフセットを補正し，$\mathrm{TL}_j$を計算する（次章）．
-\noindent 理論モデル（参考）について述べる．
-固定間隔における$P_{\mathrm{out}}(\tau)$は，1アドバタイジングの受信成功確率$p_d$を仮定すると，期限$\tau$内のアドバタイジング回数$\lfloor \tau/a \rfloor$を用いて
+�ł���D�����ł́CRX���O�̎����Ɛ^�l�̎����̒萔�I�t�Z�b�g��␳���C$\mathrm{TL}_j$���v�Z����i���́j�D
+\noindent ���_���f���i�Q�l�j�ɂ��ďq�ׂ�D
+
+�Œ�Ԋu�ɂ�����$P_{\mathrm{out}}(\tau)$�́C1�A�h�o�^�C�W���O�̎�M�����m��$p_d$�����肷��ƁC����$\tau$���̃A�h�o�^�C�W���O��$\lfloor \tau/a \rfloor$��p����
 \begin{equation}
   P_{\mathrm{out}}(\tau\mid a)\approx(1-p_d)^{\lfloor \tau/a \rfloor}
 \end{equation}
-のように近似できる．ただし，非理想スキャンや開始時刻のずれの影響を含むため，本研究では理論値は補助的に用い，主張は実測に基づく．
+�̂悤�ɋߎ��ł���D�������C�񗝑z�X�L������J�n�����̂���̉e�����܂ނ��߁C�{�����ł͗��_�l�͕⏕�I�ɗp���C�咣�͎����Ɋ�Â��D
 
-リスクと対策について述べる．
-実験の主要リスクと対策として，同期ずれ（SYNC/TICKの取りこぼしにより試行区間が崩れるため，preambleで条件IDを通知しログ末尾のsummaryで監査する），条件混在（LED/SYNCの扱い等が異なるコードを跨いで比較すると定常オフセットが入るため，比較は同一コード系列で統一する），欠損・単位不整合（UART/SDボトルネックや単位換算ミスは結論を逆転させ得るため，パススルー化と再積分監査を行う），および端末状態の変動（受信端末のOS状態は非定常であるため，端末内比較を徹底し実験前チェックリスト（\secref{sec:runbook}を参照）を運用する）を挙げる．
+���X�N�Ƒ΍�ɂ��ďq�ׂ�D
+�����̎�v���X�N�Ƒ΍�Ƃ��āC��������iSYNC/TICK�̎�肱�ڂ��ɂ�莎�s��Ԃ�����邽�߁Cpreamble�ŏ���ID��ʒm�����O������summary�Ŋč�����j�C�������݁iLED/SYNC�̈��������قȂ�R�[�h���ׂ��Ŕ�r����ƒ��I�t�Z�b�g�����邽�߁C��r�͓���R�[�h�n��œ��ꂷ��j�C�����E�P�ʕs�����iUART/SD�{�g���l�b�N��P�ʊ��Z�~�X�͌��_���t�]�������邽�߁C�p�X�X���[���ƍĐϕ��č����s���j�C����ђ[����Ԃ̕ϓ��i��M�[����OS��Ԃ͔���ł��邽�߁C�[������r��O�ꂵ�����O�`�F�b�N���X�g�i\secref{sec:runbook}���Q�Ɓj���^�p����j��������D
 
-最後にまとめを述べる．
-本節では，Phase 1における実験目的と条件，セッション構成，指標算出，およびリスク対策を整理した．次章では，TL/Poutの定義を実測に基づいて固定し，定数オフセット補正による時間同期手順を示す．
+�Ō�ɂ܂Ƃ߂��q�ׂ�D
+�{�߂ł́CPhase 1�ɂ���������ړI�Ə����C�Z�b�V�����\���C�w�W�Z�o�C����у��X�N�΍�𐮗������D���͂ł́CTL/Pout�̒�`�������Ɋ�Â��ČŒ肵�C�萔�I�t�Z�b�g�␳�ɂ�鎞�ԓ����菇�������D
 
 
 

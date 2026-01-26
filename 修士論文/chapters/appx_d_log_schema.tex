@@ -1,78 +1,78 @@
-﻿% chapters/appx_d_log_schema.tex --- 付録D ログスキーマ（詳細）
-ログスキーマ（詳細）について述べる．
+% chapters/appx_d_log_schema.tex --- �t�^D ���O�X�L�[�}�i�ڍׁj
+���O�X�L�[�}�i�ڍׁj�ɂ��ďq�ׂ�D
 \label{sec:log_schema}
 
-本節では，本研究で扱うログ（TXSD/RX/TX）の列定義をまとめる．解析スクリプトは列追加に対して後方互換で拡張可能であるが，指標計算に必須な列は固定する．
+�{�߂ł́C�{�����ň������O�iTXSD/RX/TX�j�̗��`���܂Ƃ߂�D��̓X�N���v�g�͗�ǉ��ɑ΂��Č���݊��Ŋg���\�ł��邪�C�w�W�v�Z�ɕK�{�ȗ�͌Œ肷��D
 
-まず，TXSD（電力）ログについて述べる．
-TXSDログは，電流・電圧系列と，末尾のsummaryから構成される．生系列は後処理で再積分できるように保持し，summaryは簡易確認用として利用する．表では列名と単位・意味を対応付けて示す．
+�܂��CTXSD�i�d�́j���O�ɂ��ďq�ׂ�D
+TXSD���O�́C�d���E�d���n��ƁC������summary����\�������D���n��͌㏈���ōĐϕ��ł���悤�ɕێ����Csummary�͊ȈՊm�F�p�Ƃ��ė��p����D�\�ł͗񖼂ƒP�ʁE�Ӗ���Ή��t���Ď����D
 
 \begin{longtable}{p{0.20\linewidth}p{0.16\linewidth}p{0.50\linewidth}}
-  \caption{TXSDログ（例）の列定義（列名・単位・意味）}\label{tab:txsd_schema}\\
+  \caption{TXSD���O�i��j�̗��`�i�񖼁E�P�ʁE�Ӗ��j}\label{tab:txsd_schema}\\
   \toprule
-  列 & 単位 & 意味 \\
+  �� & �P�� & �Ӗ� \\
   \midrule
   \endfirsthead
   \toprule
-  列 & 単位 & 意味 \\
+  �� & �P�� & �Ӗ� \\
   \midrule
   \endhead
-  ms & ms & 試行開始からの相対時刻 \\
-  mv & mV & 計測電圧（整数） \\
-  uA & $\mu$A & 計測電流（整数） \\
-  p\_mW & mW & 瞬時電力（派生列，後処理で再計算可能） \\
+  ms & ms & ���s�J�n����̑��Ύ��� \\
+  mv & mV & �v���d���i�����j \\
+  uA & $\mu$A & �v���d���i�����j \\
+  p\_mW & mW & �u���d�́i�h����C�㏈���ōČv�Z�\�j \\
   \midrule
-  \multicolumn{3}{l}{summary（末尾に出力する集約値の例）} \\
+  \multicolumn{3}{l}{summary�i�����ɏo�͂���W��l�̗�j} \\
   \midrule
-  ms\_total & ms & 試行時間 \\
-  adv\_count & 回 & アドバタイジングイベント数（TICK物理カウント等） \\
-  E\_total\_mJ & mJ & 総エネルギー（積分値） \\
-  avg\_power\_mW & mW & 平均電力（$E/T$） \\
+  ms\_total & ms & ���s���� \\
+  adv\_count & �� & �A�h�o�^�C�W���O�C�x���g���iTICK�����J�E���g���j \\
+  E\_total\_mJ & mJ & ���G�l���M�[�i�ϕ��l�j \\
+  avg\_power\_mW & mW & ���ϓd�́i$E/T$�j \\
   \bottomrule
 \end{longtable}
 
-次に，RX（受信）ログについて述べる．
-RXログは，受信時刻とペイロード識別子（seq等）を保持する．PDR\_unique，TL，$P_{\mathrm{out}}(\tau)$の算出に必須である．表では列名と単位・意味を対応付けて示す．
+���ɁCRX�i��M�j���O�ɂ��ďq�ׂ�D
+RX���O�́C��M�����ƃy�C���[�h���ʎq�iseq���j��ێ�����DPDR\_unique�CTL�C$P_{\mathrm{out}}(\tau)$�̎Z�o�ɕK�{�ł���D�\�ł͗񖼂ƒP�ʁE�Ӗ���Ή��t���Ď����D
 
 \begin{longtable}{p{0.20\linewidth}p{0.16\linewidth}p{0.50\linewidth}}
-  \caption{RXログ（例）の列定義（列名・単位・意味）}\label{tab:rx_schema}\\
+  \caption{RX���O�i��j�̗��`�i�񖼁E�P�ʁE�Ӗ��j}\label{tab:rx_schema}\\
   \toprule
-  列 & 単位 & 意味 \\
+  �� & �P�� & �Ӗ� \\
   \midrule
   \endfirsthead
   \toprule
-  列 & 単位 & 意味 \\
+  �� & �P�� & �Ӗ� \\
   \midrule
   \endhead
-  t\_ms & ms & 受信時刻（試行開始からの相対，または端末時刻） \\
-  seq & --- & ペイロードに埋め込んだ識別子（アドバタイジングイベント由来） \\
-  rssi & dBm & 受信RSSI \\
-  dedup\_flag & --- & 重複除外のためのフラグ（ある場合） \\
+  t\_ms & ms & ��M�����i���s�J�n����̑��΁C�܂��͒[�������j \\
+  seq & --- & �y�C���[�h�ɖ��ߍ��񂾎��ʎq�i�A�h�o�^�C�W���O�C�x���g�R���j \\
+  rssi & dBm & ��MRSSI \\
+  dedup\_flag & --- & �d�����O�̂��߂̃t���O�i����ꍇ�j \\
   \bottomrule
 \end{longtable}
 
-続いて，TX（送信）ログについて述べる．
-TXログは，方策の状態（$U,S,\mathrm{CCS},a$等）を保持する．オフライン評価と実機評価を接続するため，方策の根拠（切替理由）を残すことが望ましい．表では列名と単位・意味を対応付けて示す．
+�����āCTX�i���M�j���O�ɂ��ďq�ׂ�D
+TX���O�́C����̏�ԁi$U,S,\mathrm{CCS},a$���j��ێ�����D�I�t���C���]���Ǝ��@�]����ڑ����邽�߁C����̍����i�ؑ֗��R�j���c�����Ƃ��]�܂����D�\�ł͗񖼂ƒP�ʁE�Ӗ���Ή��t���Ď����D
 
 \begin{longtable}{p{0.20\linewidth}p{0.16\linewidth}p{0.50\linewidth}}
-  \caption{TXログ（例）の列定義（列名・単位・意味）}\label{tab:tx_schema}\\
+  \caption{TX���O�i��j�̗��`�i�񖼁E�P�ʁE�Ӗ��j}\label{tab:tx_schema}\\
   \toprule
-  列 & 単位 & 意味 \\
+  �� & �P�� & �Ӗ� \\
   \midrule
   \endfirsthead
   \toprule
-  列 & 単位 & 意味 \\
+  �� & �P�� & �Ӗ� \\
   \midrule
   \endhead
-  t\_ms & ms & 時刻 \\
-  U & --- & 不確実度 \\
-  S & --- & 安定度 \\
-  CCS & --- & 複合スコア \\
-  adv\_interval\_ms & ms & 選択したアドバタイジング間隔 \\
-  reason & --- & 切替理由（閾値越え等） \\
+  t\_ms & ms & ���� \\
+  U & --- & �s�m���x \\
+  S & --- & ����x \\
+  CCS & --- & �����X�R�A \\
+  adv\_interval\_ms & ms & �I�������A�h�o�^�C�W���O�Ԋu \\
+  reason & --- & �ؑ֗��R�i臒l�z�����j \\
   \bottomrule
 \end{longtable}
 
-最後にファイル命名と配置について述べる．
-ログは，試行（trial）単位でファイルを分割し，\texttt{\detokenize{trial_XXX.csv}}等の連番で管理する．このとき，条件IDや実験日付をパスまたはファイル名に含め，作業ログに生成コマンドと出力先を残す（\secref{sec:runbook}を参照）．
+�Ō�Ƀt�@�C�������Ɣz�u�ɂ��ďq�ׂ�D
+���O�́C���s�itrial�j�P�ʂŃt�@�C���𕪊����C\texttt{\detokenize{trial_XXX.csv}}���̘A�ԂŊǗ�����D���̂Ƃ��C����ID��������t���p�X�܂��̓t�@�C�����Ɋ܂߁C��ƃ��O�ɐ����R�}���h�Əo�͐���c���i\secref{sec:runbook}���Q�Ɓj�D
 
