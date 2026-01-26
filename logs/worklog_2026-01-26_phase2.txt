@@ -94,3 +94,80 @@ esults/phase2_offline_studies_2026-01-26_v05/gateb_pareto_cap25.mdj
 2026-01-26 17:45 JST: Cm˜_•¶ˆê®‚ğŠm”FB‘ÎÛ: Cm˜_•¶/README.md, WRITING_RULES.md, ƒeƒ“ƒvƒŒ‰^—pREADME.md, main.tex, meta.tex, frontmatter/abstract.tex, chapters/*i\¬B‚ÆÄŒ»«•t˜^jB“à—eŠm”F‚Ì‚İA•ÏX‚È‚µB
 2026-01-26 17:48:14 JST: Thesis tone revision aligned to prior theses (dearu style, section guidance). Files: Cm˜_•¶\chapters\ch10_phase2_concept.tex, Cm˜_•¶\chapters\ch7_offline_eval.tex, Cm˜_•¶\chapters\ch5_experiments.tex, Cm˜_•¶\chapters\ch5_publicroad.tex
 2026-01-26 18:02 JST: Cm˜_•¶ƒAƒuƒXƒg‚ğÅV˜_•¶“à—e‚ÉXVB•ÏX: Cm˜_•¶ƒAƒuƒXƒg/main.texiCCS–¼Ì‚ğComposite‚ÖAscan70/D3”’lEnXVAE2 TailGuard‚ÌTLp95’Ç‹LASafe Contextual Bandit‚Ö®—A”’loŠƒRƒƒ“ƒg’Ç‰ÁjB
+2026-01-26 17:58:44 JST: Thesis tone revision for intro/discussion/results (dearu style, section guidance). Files: Cm˜_•¶\chapters\ch0_introduction.tex, Cm˜_•¶\chapters\ch5_publicroad.tex, Cm˜_•¶\chapters\ch6_stress_fixed.tex, Cm˜_•¶\chapters\ch4_rain.tex
+2026-01-26 18:00 JST: Cm˜_•¶ƒAƒuƒXƒg‚Ì}‚ğÅV‚ÉXVB·‚µ‘Ö‚¦: Cm˜_•¶/figures/role_separation_d3_d4_d4b.pdf -> Cm˜_•¶ƒAƒuƒXƒg/figures/fig_role_separation_overview.pdf, measurement_architecture_esp32_three_node.jpg -> fig_signal_relationship.jpg, measurement_setup_overview_02.jpg -> fig_experiment_setup.jpg, measurement_tx_txsd.jpg -> fig_txtxsd.jpg, measurement_rx.png -> fig_rx.pngi‹Œfig_rx.jpg/fig_txtxsd.pngíœjBƒrƒ‹ƒh: latexmk -lualatex main.texibuild/main.pdf, 3ƒy[ƒW‚É‚È‚Á‚½‚½‚ß—v’²®jB
+2026-01-26 18:01:53 JST: latexmk -g -lualatex main.tex Às‚Åbuild/main.pdfXVBbuild/main.log‚ÌWarning‚Í‹óB
+2026-01-26 18:11 JST: Cm˜_•¶ƒAƒuƒXƒg‚ÌÀŒ±Ê^3–‡‚ğ‰¡•À‚Ñ‚É®Œ`BC³: Cm˜_•¶ƒAƒuƒXƒg/main.teximinipage‚Å3•ªŠ„, top alignjBƒrƒ‹ƒh: latexmk -lualatex main.texibuild/main.pdf, 3ƒy[ƒW‚Ì‚Ü‚ÜjB
+2026-01-26 18:12 JST: image/ ‚©‚çƒAƒuƒXƒg}‚ğÄƒRƒs[B·‚µ‘Ö‚¦: image/RX.JPG -> Cm˜_•¶ƒAƒuƒXƒg/figures/fig_rx.jpg, image/TX&TXSD.png -> fig_txtxsd.png, image/ÀŒ±\¬02.JPG -> fig_experiment_setup.jpg, image/ESP32Oƒm[ƒhÀŒ±‘•’u.jpg -> fig_signal_relationship.jpgifig_rx.png, fig_txtxsd.jpgíœjBÄƒrƒ‹ƒh: latexmk -lualatex main.texibuild/main.pdf, 3ƒy[ƒWjB
+2026-01-26 18:15 JST: ƒAƒuƒXƒgÊ^‚ÌƒTƒCƒY·‚ğ‰ğÁ‚·‚é‚½‚ß‚‚³“ˆêi\photoh=30mmj‚ğ“±“üBC³: Cm˜_•¶ƒAƒuƒXƒg/main.texi3–‡Ê^‚Ìincludegraphics‚ğheightw’è+keepaspectratiojBƒrƒ‹ƒh: latexmk -lualatex main.texibuild/main.pdf, 3ƒy[ƒWjB
+2026-01-26 18:19 JST: }ƒLƒƒƒvƒVƒ‡ƒ“’²®BC³: Cm˜_•¶ƒAƒuƒXƒg/main.texiÀŒ±‘•’uƒLƒƒƒvƒVƒ‡ƒ“‚Ìw’†‰›FTX{TXSDx¨w’†‰›FTX“™xjB
+2026-01-26 18:23 JST: ƒAƒuƒXƒgÄƒrƒ‹ƒhiƒLƒƒƒvƒVƒ‡ƒ“XV”½‰fjBƒRƒ}ƒ“ƒh: latexmk -lualatex main.texBo—Í: Cm˜_•¶ƒAƒuƒXƒg/build/main.pdfi3ƒy[ƒWjB
+2026-01-26 18:27 JST: }‰º‚Ì—]”’‚ğk¬BC³: Cm˜_•¶ƒAƒuƒXƒg/main.texicaptionsetup skip=2pt, float sep’²®jBƒrƒ‹ƒh: latexmk -lualatex main.texibuild/main.pdf, 3ƒy[ƒWjB
+2026-01-26 18:31 JST: Cm˜_•¶ƒAƒuƒXƒg‚ÌŒ‹‰Êß‚ğ3šíŒ¸iwQl’l‚Æ‚µ‚Äx¨wQl’lxjBC³: Cm˜_•¶ƒAƒuƒXƒg/main.texB
+2026-01-26 18:34 JST: ƒAƒuƒXƒgŒ©o‚µ‚ğ’Zki’ñˆÄè–@¨’ñˆÄjBC³: Cm˜_•¶ƒAƒuƒXƒg/main.texB
+[2026-01-26 18:35:27 +0900] Thesis wording fixes per review list
+- C³: ŠJnˆÊ‘Š‚¸‚ê¨ŠJn‚Ì‚¸‚êiTL/PoutŠÖ˜A‚Ìà–¾‚ğ“ˆêj
+  - Cm˜_•¶/chapters/appx_a_metrics.tex
+  - Cm˜_•¶/chapters/appx_e_runbook.tex
+  - Cm˜_•¶/chapters/appx_g_troubleshooting.tex
+  - Cm˜_•¶/chapters/ch5_publicroad.tex
+  - Cm˜_•¶/chapters/ch8_experiment_design.tex
+  - Cm˜_•¶/chapters/conclusion.tex
+- C³: –¢Š®ƒ^ƒXƒN¨c‰Û‘è
+  - Cm˜_•¶/chapters/ch9_har_uncertainty.tex
+- C³: ’P’²‘Î‰¨”ä—áŠÖŒW
+  - Cm˜_•¶/chapters/ch4_rain.tex
+- C³: ‰^—p“_‚É‚È‚è“¾‚é‚ÌŒ¾‚¢‰ñ‚µ‚ğ®—
+  - Cm˜_•¶/chapters/ch4_rain.tex
+  - Cm˜_•¶/chapters/ch8_experiment_design.tex
+- C³: •]‰¿‚Ìd•¡•\Œ»/œ“ˆÓ«•\Œ»‚ÌŠÈŒ‰‰»
+  - Cm˜_•¶/chapters/ch5_publicroad.tex
+2026-01-26 18:36 JST: ƒAƒuƒXƒgŒ©o‚µ’ZkŒã‚ÉÄƒrƒ‹ƒhBƒRƒ}ƒ“ƒh: latexmk -lualatex main.texBo—Í: Cm˜_•¶ƒAƒuƒXƒg/build/main.pdfi3ƒy[ƒWjB
+2026-01-26 18:40 JST: Œ‹‰Êß‚Ì’Zk”÷’²®iw‚³‚ç‚Éscan90/S4x¨wscan90/S4xjBC³: Cm˜_•¶ƒAƒuƒXƒg/main.texB
+2026-01-26 18:43 JST: Œ‹‰Êß’ZkŒã‚ÉÄƒrƒ‹ƒhBƒRƒ}ƒ“ƒh: latexmk -lualatex main.texBo—Í: Cm˜_•¶ƒAƒuƒXƒg/build/main.pdfi3ƒy[ƒWjB
+2026-01-26 18:46 JST: ’ñˆÄß‚ğ3š’Zkiwƒ‰ƒxƒ‹‘JˆÚx¨w‘JˆÚxjBC³: Cm˜_•¶ƒAƒuƒXƒg/main.texB
+2026-01-26 18:48 JST: ’ñˆÄß’ZkŒã‚ÉÄƒrƒ‹ƒhBƒRƒ}ƒ“ƒh: latexmk -lualatex main.texBo—Í: Cm˜_•¶ƒAƒuƒXƒg/build/main.pdfi3ƒy[ƒWjB
+2026-01-26 18:52 JST: ÀŒ±ß‚ğ–ñ5š’Zkis‹æŠÔ¨‹æŠÔAs‚²‚Æ‚É¨Šes‚ÅA’è”ƒIƒtƒZƒbƒg¨ƒIƒtƒZƒbƒgjBC³: Cm˜_•¶ƒAƒuƒXƒg/main.texB
+2026-01-26 18:56 JST: ÀŒ±ß‚ÌŠ‡ŒÊà–¾‚ğíœ‚µŠÈŒ‰‰»iscan90/scan70‚ÌŠ‡ŒÊíœAtruthŠ‡ŒÊíœjBC³: Cm˜_•¶ƒAƒuƒXƒg/main.texB
+2026-01-26 18:59 JST: ÀŒ±ßŠÈŒ‰‰»Œã‚ÉÄƒrƒ‹ƒhBƒRƒ}ƒ“ƒh: latexmk -lualatex main.texBo—Í: Cm˜_•¶ƒAƒuƒXƒg/build/main.pdfi3ƒy[ƒWjB
+2026-01-26 19:03 JST: l@ß‚ÌŠ‡ŒÊğŒ‚ğíœiU-shuffle/CCS-off‚Ì’‹LŠÈ‘f‰»jBC³: Cm˜_•¶ƒAƒuƒXƒg/main.texB
+2026-01-26 19:07 JST: l@Š‡ŒÊíœŒã‚ÉÄƒrƒ‹ƒhBƒRƒ}ƒ“ƒh: latexmk -lualatex main.texBo—Í: Cm˜_•¶ƒAƒuƒXƒg/build/main.pdfi2ƒy[ƒW‚Éû‘©jB
+2026-01-26 19:08 }3(–ğŠ„•ª—£})‚Ìã’[Œ‡‚¯‘Î‰‚Åk¬EƒgƒŠƒ€’²®iwidth=0.98, trim=10mmjBXV: Cm˜_•¶ƒAƒuƒXƒg/main.texBƒrƒ‹ƒh: Cm˜_•¶ƒAƒuƒXƒg/build/main.pdfi2ƒy[ƒWjB
+2026-01-26 19:13 }3(–ğŠ„•ª—£})‚Ìã’[Œ‡‚¯‘Îô‚Æ‚µ‚Äk¬‚ÆƒgƒŠƒ€ŠÉ˜aiwidth=0.96, trim=6mmjBXV: Cm˜_•¶ƒAƒuƒXƒg/main.texBƒrƒ‹ƒh: Cm˜_•¶ƒAƒuƒXƒg/build/main.pdfi2ƒy[ƒWjB
+[2026-01-26 19:18:56 +0900] Thesis wording fixes (items 21-65)
+- Updated abstract wording and QoS/evaluation phrasing
+  - Cm˜_•¶/frontmatter/abstract.tex
+- Background/related/system/proposed text cleanup and term clarifications
+  - Cm˜_•¶/chapters/ch0_introduction.tex
+  - Cm˜_•¶/chapters/ch1_background.tex
+  - Cm˜_•¶/chapters/ch2_related_work.tex
+  - Cm˜_•¶/chapters/ch2_proposed.tex
+  - Cm˜_•¶/chapters/ch3_system_design.tex
+- Results/discussion/conclusion wording adjustments
+  - Cm˜_•¶/chapters/ch4_rain.tex
+  - Cm˜_•¶/chapters/ch5_evaluation.tex
+  - Cm˜_•¶/chapters/ch5_publicroad.tex
+  - Cm˜_•¶/chapters/conclusion.tex
+- Phase2 concept wording and marginalization phrasing
+  - Cm˜_•¶/chapters/ch10_phase2_concept.tex
+- Appendix/Runbook/log schema wording and pareto label cleanup
+  - Cm˜_•¶/chapters/appx_a_metrics.tex
+  - Cm˜_•¶/chapters/appx_d_log_schema.tex
+  - Cm˜_•¶/chapters/appx_e_runbook.tex
+  - Cm˜_•¶/chapters/appx_i_pareto.tex
+- Stress-fixed wording updates
+  - Cm˜_•¶/chapters/ch6_stress_fixed.tex
+- Measurement system wording update
+  - Cm˜_•¶/chapters/ch8_measurement_system.tex
+- Experiment design wording update
+  - Cm˜_•¶/chapters/ch8_experiment_design.tex
+2026-01-26 19:22 role-separation fig: top trim 4mm; width 0.94 to keep 2 pages. Updated: ä¿®å£«è«–æ–‡ã‚¢ãƒ–ã‚¹ãƒˆ/main.tex. Build: ä¿®å£«è«–æ–‡ã‚¢ãƒ–ã‚¹ãƒˆ/build/main.pdf (2 pages).
+2026-01-26 19:28 ????????????????????/????/??/100ms????/scan90??/U-shuffle??/?????/????/?????/?????????2????????: ????????/main.tex????: ????????/build/main.pdf?2?????
+2026-01-26 19:32 Rewrote encoding-corrupted file: Cm˜_•¶/chapters/appx_i_pareto.tex. Cleaned build artifacts (main.aux/main.bcf) and rebuilt: Cm˜_•¶/build/main.pdf.
+2026-01-26 19:35 Updated ä¿®å£«è«–æ–‡ã‚¢ãƒ–ã‚¹ãƒˆ/main.tex phrasing (power share, non-ideal scan, prior work ref, CCS low interval wording, scan90 clause, U-shuffle sentence split, discussion wording).
+2026-01-26 19:38 ã‚¢ãƒ–ã‚¹ãƒˆã®è¡¨ç¾ä¿®æ­£å¾Œã«ãƒ“ãƒ«ãƒ‰ç¢ºèªï¼ˆ2ãƒšãƒ¼ã‚¸ã«åã¾ã‚Šï¼‰ / ä¿®å£«è«–æ–‡ã‚¢ãƒ–ã‚¹ãƒˆ/main.tex, ä¿®å£«è«–æ–‡ã‚¢ãƒ–ã‚¹ãƒˆ/build/main.pdf
+2026-01-26 19:59 ç¬¬1ç« ã®è¡¨ç¾èª¿æ•´ã¨ç°¡ç´„ï¼ˆä¸€èˆ¬çš„ã€ã‚¹ã‚­ãƒ£ãƒ³å—ä¿¡ã€å°¾éƒ¨ã€1-2sè¨˜è¼‰ã€CCSè¨˜è¿°ç°¡ç´„ï¼‰ã§ã‚¢ãƒ–ã‚¹ãƒˆã‚’2ãƒšãƒ¼ã‚¸ã«å¾©å¸° / ä¿®å£«è«–æ–‡ã‚¢ãƒ–ã‚¹ãƒˆ/main.tex, ä¿®å£«è«–æ–‡ã‚¢ãƒ–ã‚¹ãƒˆ/build/main.pdf
+2026-01-26 19:46 Wording cleanup per review notes: frontmatter/abstract.tex; chapters/ch0_introduction.tex, ch1_background.tex, ch3_system_design.tex, ch4_rain.tex, ch5_publicroad.tex, ch6_stress_fixed.tex, ch7_offline_eval.tex, ch8_experiment_design.tex, ch10_phase2_concept.tex, conclusion.tex; appx_a_metrics.tex. Pending: update references.bib urldate (need date).
+2026-01-26 20:06 å®Ÿé¨“ç¯€ã®è¡¨ç¾èª¿æ•´ï¼ˆTX=BLEé€ä¿¡ã€S1/S4é™¤å»â†’2æ¡ä»¶ã®ç°¡æ˜“è¨˜è¼‰ã€çµæœç¯€ã®å¯¾å¿œæ›¸æ›ãˆï¼‰å¾Œã«2ãƒšãƒ¼ã‚¸ã®ãƒ“ãƒ«ãƒ‰ç¢ºèª / ä¿®å£«è«–æ–‡ã‚¢ãƒ–ã‚¹ãƒˆ/main.tex, ä¿®å£«è«–æ–‡ã‚¢ãƒ–ã‚¹ãƒˆ/build/main.pdf
+2026-01-26 20:10 çµæœç¯€ã®D2bè¡¨è¨˜ã‚’å‰Šé™¤ã—ã€scan90æ¡ä»¶ã¨ã—ã¦ç°¡ç´„åŒ– / ä¿®å£«è«–æ–‡ã‚¢ãƒ–ã‚¹ãƒˆ/main.tex
+2026-01-26 20:18 è€ƒå¯Ÿç¯€ã®è¡¨ç¾ä¿®æ­£ï¼ˆæ»ç•™â†’å‰²åˆã€QoSã®è§£é‡ˆã€é ˆå¥æ€§â†’å®‰å®šæ€§ã€ã“ã®å¼ã‚ˆã‚Šï¼‰ / ä¿®å£«è«–æ–‡ã‚¢ãƒ–ã‚¹ãƒˆ/main.tex

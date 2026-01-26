@@ -155166,7 +155166,7 @@ return {
     ["vrt2"]=2048,
    },
   },
-  ["filename"]="/usr/local/texlive/2025/texmf-dist/fonts/opentype/public/haranoaji/HaranoAjiMincho-Regular.otf",
+  ["filename"]="c:/texlive/2025/texmf-dist/fonts/opentype/public/haranoaji/HaranoAjiMincho-Regular.otf",
   ["foundtables"]={ "base", "cff", "cmap", "gdef", "gpos", "gsub", "head", "hhea", "hmtx", "maxp", "name", "os/2", "post", "vhea", "vmtx", "vorg" },
   ["markclasses"]={},
   ["marks"]={
@@ -178870,5 +178870,5 @@ return {
   },
  },
  ["tableversion"]=0.004,
- ["time"]=1696969431,
+ ["time"]=1753938353,
 }

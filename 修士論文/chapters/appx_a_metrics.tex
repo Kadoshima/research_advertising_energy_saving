@@ -15,9 +15,9 @@ PDRは，アドバタイジングイベント数に対して受信できた割�
 $\mathrm{PDR}_{\mathrm{raw}}$は重複受信により1を超え得るため，到達性の比較（QoS用途）では$\mathrm{PDR}_{\mathrm{unique}}$を優先する．分母$N_{\mathrm{adv}}$は，可能な場合はTICKにより物理カウントした値を正とし，利用できない場合は試行時間とアドバタイジング間隔から推定する（動的切替では誤差が入り得る）．
 
 次に，\texorpdfstring{TLと$P_{\mathrm{out}}(\tau)$}{TLとPout(tau)}について述べる．
-TLは，イベント後に最初に受信されるまでの遅延である．$P_{\mathrm{out}}(\tau)$は，TLが期限$\tau$を超える確率として定義する．TL/Poutの算出では，受信ログの時間軸と真値（truth）の時間軸の一致が必要であり，開始位相ずれがある場合は定数オフセットで補正する（\secref{sec:stress_fixed_metrics}）．
+TLは，イベント後に最初に受信されるまでの遅延である．$P_{\mathrm{out}}(\tau)$は，TLが期限$\tau$を超える確率として定義する．TL/Poutの算出では，受信ログの時間軸と真値の時間軸の一致が必要であり，開始時刻のずれがある場合は定数オフセットで補正する（\secref{sec:stress_fixed_metrics}）．
 
-真値（truth）における状態遷移（イベント）時刻を$t_{\mathrm{event},j}$，その後に初めて正しいラベル（または該当イベントに対応する識別子）が受信される時刻を$t_{\mathrm{rx},j}$とする．ログ上の時刻はmsで記録されるため，TLは秒単位に変換して扱う．
+真値における状態遷移（イベント）時刻を$t_{\mathrm{event},j}$，その後に初めて正しいラベル（または該当イベントに対応する識別子）が受信される時刻を$t_{\mathrm{rx},j}$とする．ログ上の時刻はmsで記録されるため，TLは秒単位に変換して扱う．
 \begin{equation}
   \mathrm{TL}_j = \frac{t_{\mathrm{rx},j} - t_{\mathrm{event},j}}{1000}\quad [\mathrm{s}]
 \end{equation}
@@ -42,7 +42,7 @@ P_{\mathrm{out}}(\tau)=\frac{1}{N_{\mathrm{event}}}\sum_{j=1}^{N_{\mathrm{event}
 \begin{equation}
   Q=\int I(t)\,dt
 \end{equation}
-で定義できる．TXSDログでは電流が$\mu$A，時刻がmsで記録されるため，離散近似として
+で定義する．TXSDログでは電流が$\mu$A，時刻がmsで記録されるため，離散近似として
 \begin{equation}
   Q_{\si{\micro\coulomb}} \approx \sum_{i} I_{\si{\micro\ampere},i}\cdot \frac{\Delta t_{\si{\milli\second},i}}{1000}
 \end{equation}
@@ -54,11 +54,11 @@ P_{\mathrm{out}}(\tau)=\frac{1}{N_{\mathrm{event}}}\sum_{j=1}^{N_{\mathrm{event}
 \end{equation}
 を用いて，アドバタイジングによる増分を評価する．OFF計測では，sleep状態や無線スタック状態がONと一致するよう，同一コード系列で条件を固定する必要がある（\secref{sec:runbook}）．
 
-TL/Poutの評価起点となるイベント数を$N_{\mathrm{event}}$とすると，
+TL/Poutの評価対象となるイベント数を$N_{\mathrm{event}}$とすると，
 \begin{equation}
   q_{\mathrm{event}}=\frac{\Delta Q}{N_{\mathrm{event}}}
 \end{equation}
-で定義する．$\Delta Q$の代わりに$Q_{\mathrm{on}}$を用いる場合は，基準補正が入らないため，条件間比較の解釈に注意する．
+で定義する．$\Delta Q$の代わりに$Q_{\mathrm{on}}$を用いる場合は，ベースライン補正を行わないため，条件間比較の解釈に注意する．
 \noindent
 なお，平均電力$\overline{P}$や$\Delta E/N_{\mathrm{adv}}$等は従属指標として併用し，単位整合の確認や原因切り分けに用いる．
 

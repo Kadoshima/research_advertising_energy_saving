@@ -5583,7 +5583,7 @@ return {
     ["zero"]=132,
    },
   },
-  ["filename"]="/usr/local/texlive/2025/texmf-dist/fonts/opentype/public/lm/lmmono9-regular.otf",
+  ["filename"]="c:/texlive/2025/texmf-dist/fonts/opentype/public/lm/lmmono9-regular.otf",
   ["foundtables"]={ "cff", "cmap", "gpos", "gsub", "head", "hhea", "hmtx", "maxp", "name", "os/2", "post" },
   ["markclasses"]={},
   ["marks"]={},
@@ -6781,5 +6781,5 @@ return {
   },
  },
  ["tableversion"]=0.004,
- ["time"]=1255129361,
+ ["time"]=1753938404,
 }

@@ -29,10 +29,10 @@
   \item 作業ログ追記：生成物のパスと実行コマンドを\texttt{\detokenize{logs/worklog_YYYY-MM-DD_*.txt}}へ追記する．
 \end{itemize}
 
-その後，解析と図表生成について述べる．
+その後，解析と図表生成の手順を示す．
 \begin{itemize}
   \item trial集計：ログを読み込み，欠損と単位を確認し，指標（PDR, TL, Pout, 平均電力）を算出する．
-  \item 集約：条件ごとに平均と分散を計算し，図表（固定点，制約充足領域，Pareto等）を生成する．
+  \item 集約：条件ごとに平均と分散を計算し，図表（固定点，制約充足領域，パレート等）を生成する．
   \item 再現確認：同一入力・同一コマンドで同じ図表が出ることを確認する（乱数がある場合はseed固定）．
   \item 図の固定：提出用には\texttt{\detokenize{修士論文/figures/}}へコピーし，相対パス参照を解消する．
 \end{itemize}
@@ -40,7 +40,9 @@
 最後に既知の注意点を述べる．
 \begin{itemize}
   \item 文字列中の\texttt{\detokenize{_}}（アンダースコア）は，LaTeX本文では\texttt{\detokenize{...}}で扱う．
-  \item TL/Poutは開始位相ずれで歪むため，定数オフセット補正を適用した定義を基準にする（\secref{sec:stress_fixed_metrics}）．
+  \item TL/Poutは開始時刻のずれで歪むため，定数オフセット補正を適用した定義を基準にする（\secref{sec:stress_fixed_metrics}）．
   \item 条件混在（LED/SYNCの扱いの違い等）は定常オフセットとなるため，比較は同一コード系列に限定する（\secref{sec:measurement_system}）．
 \end{itemize}
+
+
 
