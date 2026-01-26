@@ -213,3 +213,6 @@ esults/phase2_offline_studies_2026-01-26_v05/gateb_pareto_cap25.mdj
 [2026-01-26 23:38:21 +0900] Thesis: insert paragraph breaks after \noindent lead-ins
 - Updated multiple files under Cm˜_•¶/chapters to add blank lines after \noindent lead-in sentences so following paragraphs indent.
 - Scope: 35 files in Cm˜_•¶/chapters
+
+[2026-01-26 23:55:18 +0900] Thesis: add Gate B candidate table in Phase2 concept
+- Updated: Cm˜_•¶/chapters/ch10_phase2_concept.tex (inserted Gate B candidates table)
