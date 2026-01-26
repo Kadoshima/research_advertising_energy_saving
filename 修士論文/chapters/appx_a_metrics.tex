@@ -1,23 +1,23 @@
-﻿% chapters/appx_a_metrics.tex --- 付録A 指標定義（詳細）
-指標定義（詳細）について述べる．
+﻿% chapters/appx_a_metrics.tex --- 付録A 指標定義(詳細)
+指標定義(詳細)を整理する．
 \label{sec:metrics_detail}
 
 本節では，本研究で用いる主要指標を，実装と集計の観点で最小限に定義する．本文の図表は本節の定義に従い，同一の処理パイプラインで端末内比較を行う．
 
-まず，PDR（到達率）について述べる．
-PDRは，アドバタイジングイベント数に対して受信できた割合である．重複受信がある場合，受信行数に基づくPDRは1を超え得るため，seq等でユニーク化した指標も併記する．
+まず，PDR(到達率)を整理する．
+PDRは，アドバタイジングイベント数で正規化した受信割合である．重複受信がある場合，受信行数に基づくPDRは1を超え得るため，seq等でユニーク化した指標も併記する．
 
 本研究では，アドバタイジングイベント数を$N_{\mathrm{adv}}$，受信ログ行数を$N_{\mathrm{rx}}$，seqでユニーク化した受信数を$N_{\mathrm{rx,uniq}}$とする．
 \begin{equation}
   \mathrm{PDR}_{\mathrm{raw}} = \frac{N_{\mathrm{rx}}}{N_{\mathrm{adv}}},\qquad
   \mathrm{PDR}_{\mathrm{unique}} = \frac{N_{\mathrm{rx,uniq}}}{N_{\mathrm{adv}}}
 \end{equation}
-$\mathrm{PDR}_{\mathrm{raw}}$は重複受信により1を超え得るため，到達率の比較では$\mathrm{PDR}_{\mathrm{unique}}$を優先する．分母$N_{\mathrm{adv}}$は，可能な場合はTICKにより物理カウントした値を正とし，利用できない場合は試行時間とアドバタイジング間隔から推定する（動的切替では誤差が入り得る）．
+$\mathrm{PDR}_{\mathrm{raw}}$は重複受信により1を超え得るため，到達率の比較では$\mathrm{PDR}_{\mathrm{unique}}$を優先する．分母$N_{\mathrm{adv}}$は，可能な場合はTICKにより物理カウントした値を正とし，利用できない場合は試行時間とアドバタイジング間隔から推定する(動的切替では誤差が入り得る)．
 
-次に，\texorpdfstring{TLと$P_{\mathrm{out}}(\tau)$}{TLとPout(tau)}について述べる．
-TLは，イベント後に最初に受信されるまでの遅延である．$P_{\mathrm{out}}(\tau)$は，TLが期限$\tau$を超える確率として定義する．TL/Poutの算出では，受信ログの時間軸と真値の時間軸の一致が必要であり，開始時刻のずれがある場合は定数オフセットで補正する（\secref{sec:stress_fixed_metrics}）．
+次に，\texorpdfstring{TLと$P_{\mathrm{out}}(\tau)$}{TLとPout(tau)}を整理する．
+TLは，イベント後に最初に受信されるまでの遅延である．$P_{\mathrm{out}}(\tau)$は，TLが期限$\tau$を超える確率として定義する．TL/Poutの算出では，受信ログの時間軸と真値の時間軸の一致が必要であり，開始時刻のずれがある場合は定数オフセットで補正する(\secref{sec:stress_fixed_metrics})．
 
-真値における状態遷移時刻を$t_{\mathrm{event},j}$，その後に初めて正しいラベル（または該当イベントに対応する識別子）が受信される時刻を$t_{\mathrm{rx},j}$とする．ログ上の時刻はmsで記録されるため，TLは秒単位に変換して扱う．
+真値における状態遷移時刻を$t_{\mathrm{event},j}$，その後に初めて正しいラベル(または該当イベントに対応する識別子)が受信される時刻を$t_{\mathrm{rx},j}$とする．ログ上の時刻はmsで記録されるため，TLは秒単位に変換して扱う．
 \begin{equation}
   \mathrm{TL}_j = \frac{t_{\mathrm{rx},j} - t_{\mathrm{event},j}}{1000}\quad [\mathrm{s}]
 \end{equation}
@@ -25,41 +25,44 @@ TLは，イベント後に最初に受信されるまでの遅延である．$P_
 \begin{equation}
 P_{\mathrm{out}}(\tau)=\frac{1}{N_{\mathrm{event}}}\sum_{j=1}^{N_{\mathrm{event}}}\mathbb{I}[\mathrm{TL}_j>\tau]
 \end{equation}
-で定義する．
-試行時間が真値系列の全長より短い場合は末端遷移が試行区間外に出るため，真値系列側も有効長（EFFECTIVE\_LEN）でクリップし，$N_{\mathrm{event}}$の分母を揃える．
-EFFECTIVE\_LEN（評価に用いる真値系列の有効長）について述べる．
+と定義する．
+試行時間が真値系列の全長より短い場合は末端遷移が試行区間外に出るため，真値系列側も有効長(EFFECTIVE\_LEN)でクリップし，$N_{\mathrm{event}}$の分母を揃える．
+EFFECTIVE\_LEN(評価に用いる真値系列の有効長)を整理する．
 
 真値系列の全長を$T_{\mathrm{truth}}$，trialの計測区間長を$T_{\mathrm{trial}}$とする．このとき評価に用いる真値系列の有効長を
 \begin{equation}
   \mathrm{EFFECTIVE\_LEN}=\min(T_{\mathrm{trial}},T_{\mathrm{truth}})
 \end{equation}
-と定義し，真値系列を$[0,\mathrm{EFFECTIVE\_LEN}]$にクリップしてイベント数$N_{\mathrm{event}}$を数える．これにより，「末端遷移が試行区間外に出る」ことによる$N_{\mathrm{event}}$の不一致を避け，trial間比較の安定性を確保する．動的切替では試行の切り出し条件が揺らぎやすいため，EFFECTIVE\_LENを明示して分母を固定することが重要である（背景と実装上の理由は\secref{sec:stress_fixed_metrics}）．
+と定義し，真値系列を$[0,\mathrm{EFFECTIVE\_LEN}]$にクリップしてイベント数$N_{\mathrm{event}}$を数える．これにより，「末端遷移が試行区間外に出る」ことによる$N_{\mathrm{event}}$の不一致を避け，trial間比較の安定性を確保する．動的切替では試行の切り出し条件が揺らぎやすいため，EFFECTIVE\_LENを明示して分母を固定することが重要である(背景と実装上の理由は\secref{sec:stress_fixed_metrics})．
 
-最後に，\texorpdfstring{電荷と$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）}{電荷とq_event（uC/event）}について述べる．
+最後に，\texorpdfstring{電荷と$q_{\mathrm{event}}$($\si{\micro\coulomb}/\text{event}$)}{電荷とq_event(uC/event)}を整理する．
 本研究の一次目標である$q_{\mathrm{event}}$は，セッション中の電荷消費をイベント数で正規化した指標である．電力やエネルギーは電圧に依存するため，バッテリ消費の観点では電荷で整理すると解釈が容易である．
 
 電流を$I(t)$とすると，総電荷$Q$は
 \begin{equation}
   Q=\int I(t)\,dt
 \end{equation}
-で定義する．TXSDログでは電流が$\mu$A，時刻がmsで記録されるため，離散近似として
+と定義する．TXSDログでは電流が$\mu$A，時刻がmsで記録されるため，離散近似として
 \begin{equation}
   Q_{\si{\micro\coulomb}} \approx \sum_{i} I_{\si{\micro\ampere},i}\cdot \frac{\Delta t_{\si{\milli\second},i}}{1000}
 \end{equation}
 により$\si{\micro\coulomb}$単位の電荷を算出できる．
 
-計測系の定常負荷（ロギング，LED等）が大きい場合，アドバタイジング間隔による差分が総電荷に埋もれる．このため，アドバタイジングONとOFFの差分
+計測系の定常負荷(ロギング，LED等)が大きい場合，アドバタイジング間隔による差分が総電荷に検出されにくい．このため，アドバタイジングONとOFFの差分
 \begin{equation}
   \Delta Q = Q_{\mathrm{on}}-Q_{\mathrm{off}}
 \end{equation}
-を用いて，アドバタイジングによる増分を評価する．OFF計測では，省電力状態や無線スタック状態がONと一致するよう，同一コード系列で条件を固定する必要がある（\secref{sec:runbook}）．
+を用いて，アドバタイジングによる増分を評価する．OFF計測では，省電力状態や無線スタック状態がONと一致するよう，同一コード系列で条件を固定する必要がある(\secref{sec:runbook})．
 
 TL/Poutの評価対象となるイベント数を$N_{\mathrm{event}}$とすると，
 \begin{equation}
   q_{\mathrm{event}}=\frac{\Delta Q}{N_{\mathrm{event}}}
 \end{equation}
-で定義する．$\Delta Q$の代わりに$Q_{\mathrm{on}}$を用いる場合は，ベースライン補正を行わないため，条件間比較の解釈に注意する．
+と定義する．$\Delta Q$の代わりに$Q_{\mathrm{on}}$を用いる場合は，ベースライン補正を行わないため，条件間比較の解釈に注意する．
 なお，平均電力$\overline{P}$や$\Delta E/N_{\mathrm{adv}}$等は従属指標として併用し，単位整合の確認や原因切り分けに用いる．
+
+
+
 
 
 

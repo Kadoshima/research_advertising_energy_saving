@@ -1,4 +1,4 @@
-﻿% chapters/appx_e_runbook.tex --- 付録E 実験Runbook（チェックリスト）
+﻿% chapters/appx_e_runbook.tex --- 付録E 実験Runbook(チェックリスト)
 \section{実験資産一覧}
 \label{sec:assets}
 
@@ -20,26 +20,26 @@
 \section{実験Runbook}
 \label{sec:runbook}
 
-本節では，実験の再現性を担保するための最小チェックリストを示す．運用中に発見された落とし穴（条件混在，欠損，単位不整合など）を避けることを目的とする．
+本節では，実験の再現性を担保するための最小チェックリストを示す．運用中に発見された注意点(条件混在，欠損，単位不整合など)を避けることを目的とする．
 
-まず，実験前の確認項目について述べる．
+まず，実験前の確認項目を整理する．
 \begin{itemize}
   \item 役割の確認：TX/RX/TXSDでスケッチが正しい．
   \item 配線の確認：GND共通，SYNC入力，必要ならTICK入力．
   \item 受信端末の状態：スキャンモード，画面状態，省電力設定を固定し，端末内比較の前提を維持する．
-  \item SD空き容量：試行本数に対して十分な空きがある．
+  \item SD空き容量：試行本数に見合った空きがある．
   \item ログ命名：\texttt{\detokenize{trial_XXX.csv}}の連番と，条件IDの対応が追跡できる．
 \end{itemize}
 
-次に，試行（trial）実行について述べる．
+次に，試行(trial)実行を整理する．
 \begin{enumerate}
-  \item SYNCで試行開始が一致していることを目視（LED等）で確認する．
-  \item 試行中は条件（アドバタイジング間隔，スキャン設定）を変更しない．
+  \item SYNCで試行開始が一致していることを目視(LED等)で確認する．
+  \item 試行中は条件(アドバタイジング間隔，スキャン設定)を変更しない．
   \item 試行終了後，TXSDログ末尾のsummaryを確認する．
-  \item 明らかな異常があれば，その試行は破棄し，再試行する．除外理由を作業ログに残す．
+  \item 明らかな異常がある場合は，当該試行を破棄し，再試行する．除外理由を作業ログに残す．
 \end{enumerate}
 
-続いて，データ整理について述べる．
+続いて，データ整理を整理する．
 \begin{itemize}
   \item 生データの退避：\texttt{\detokenize{data/}}へコピーし，取得条件と紐付ける．
   \item 解析対象の選別：含めるtrialと除外trialを明示し，理由を記録する．
@@ -55,12 +55,14 @@
   \item 図の固定：提出用には\texttt{\detokenize{修士論文/figures/}}へコピーし，相対パス参照を解消する．
 \end{itemize}
 
-最後に既知の注意点を述べる．
+最後に既知の注意点を整理する．
 \begin{itemize}
   \item 文字列中の\texttt{\detokenize{_}}は，LaTeX本文では\texttt{\detokenize{...}}で扱う．
   \item TL/Poutは開始時刻のずれで歪むため，定数オフセット補正を適用した定義を基準にする．
   \item 条件混在は定常オフセットとなるため，比較は同一コード系列に限定する．
 \end{itemize}
+
+
 
 
 

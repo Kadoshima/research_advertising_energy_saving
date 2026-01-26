@@ -1,35 +1,35 @@
-% main.tex --- 修士論文テンプレート（LuaLaTeX）
+﻿% main.tex --- 修士論文テンプレート(LuaLaTeX)
 \documentclass[a4paper,12pt,twoside]{ltjsreport}
 
-% 体裁（図表キャプション、目次深さ、表紙/要旨ページ等）
+% 体裁(図表キャプション、目次深さ、表紙/要旨ページ等)
 \usepackage{chubuthesis}
 
-% メタ情報（タイトル等）
+% メタ情報(タイトル等)
 \input{meta}
 
 % 参考文献ファイル
 \addbibresource{references.bib}
 
-% 構成切替（A: 現行, B: 実験中心）
+% 構成切替(A: 現行, B: 実験中心)
 \newcommand{\thesisstructure}{B}
 
 \begin{document}
 
-% page anchor の重複警告を避ける（表紙・要旨はページ番号なし）
+% page anchor の重複警告を避ける(表紙・要旨はページ番号なし)
 \hypersetup{pageanchor=false}
 
-% --- 表紙（ページ番号なし） ---
+% --- 表紙(ページ番号なし) ---
 \makethesistitle
 
-% --- 要旨ページ（ページ番号なし） ---
+% --- 要旨ページ(ページ番号なし) ---
 \makeabstractpage
 
-% --- 目次（ローマ数字 i） ---
+% --- 目次(ローマ数字 i) ---
 \pagenumbering{roman}
 \setcounter{page}{1}
 \thesistableofcontents
 
-% --- 本文（アラビア数字 1 から） ---
+% --- 本文(アラビア数字 1 から) ---
 \hypersetup{pageanchor=true}
 \pagenumbering{arabic}
 \setcounter{page}{1}
@@ -59,3 +59,4 @@
 \thesisbibliography{参考文献参考URL}
 
 \end{document}
+

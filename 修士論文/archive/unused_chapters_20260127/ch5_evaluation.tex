@@ -1,9 +1,9 @@
-% chapters/ch5_evaluation.tex --- 第5章 評価（統合）
+﻿% chapters/ch5_evaluation.tex --- 第5章 評価(統合)
 \chapter{評価}
 \label{ch:evaluation}
 \clearpage
 
-本章では，ストレス固定実験に基づくTL/Pout指標の確立，オフライン評価による候補探索，および実機評価結果をまとめる．固定間隔と提案方策を同一の評価指標で比較し，省電力とQoSのトレードオフを示す．本来，BLEアドバタイジング通信のエネルギーコストはアドバタイジングイベントあたりの電荷量$q_{\mathrm{event}}$（すなわち$\Delta Q$）で評価すべきであるが，本実機評価では測定区間長（trial時間）とイベント数$N_{\mathrm{event}}$を統一しているため，平均電力$\overline{P}$は$q_{\mathrm{event}}$と線形な関係にあり，相対比較の代理指標として機能する．したがって，本文では比較しやすい$\overline{P}$を併記して議論する．
+本章では，ストレス固定実験に基づくTL/Pout指標の確立，オフライン評価による候補探索，および実機評価結果をまとめる．固定間隔と提案方策を同一の評価指標で比較し，省電力とQoSのトレードオフを示す．本来，BLEアドバタイジング通信のエネルギーコストはアドバタイジングイベントあたりの電荷量$q_{\mathrm{event}}$(すなわち$\Delta Q$)で評価すべきであるが，本実機評価では測定区間長(trial時間)とイベント数$N_{\mathrm{event}}$を統一しているため，平均電力$\overline{P}$は$q_{\mathrm{event}}$と線形な関係にあり，相対比較の代理指標として機能する．したがって，本文では比較しやすい$\overline{P}$を併記して議論する．
 
 \input{chapters/ch6_stress_fixed}
 \input{chapters/ch7_offline_eval}
@@ -17,4 +17,5 @@
 
 % 計測章の肥大化を避けるため，詳細資料は評価章末尾に移動
 \input{chapters/ch5_repro_appendix}
+
 

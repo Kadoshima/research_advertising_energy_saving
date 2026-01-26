@@ -1,14 +1,14 @@
-﻿% chapters/appx_d_log_schema.tex --- 付録D ログスキーマ（詳細）
-ログスキーマ（詳細）について述べる．
+﻿% chapters/appx_d_log_schema.tex --- 付録D ログスキーマ(詳細)
+ログスキーマ(詳細)を整理する．
 \label{sec:log_schema}
 
-本節では，本研究で扱うログの列定義をまとめる．解析スクリプトは列追加に対して後方互換で拡張可能であるが，指標計算に必須な列は固定する．
+本節では，本研究で扱うログの列定義をまとめる．解析スクリプトは列追加にも後方互換で拡張可能であるが，指標計算に必須な列は固定する．
 
-まず，電力計測ログについて述べる．
+まず，電力計測ログを整理する．
 電力計測ログは，電流・電圧系列と，末尾のsummaryから構成される．生系列は後処理で再積分できるように保持し，summaryは簡易確認用として利用する．表では列名と単位・意味を対応付けて示す．
 
 \begin{longtable}{p{0.20\linewidth}p{0.16\linewidth}p{0.50\linewidth}}
-  \caption{電力計測ログの列定義（列名・単位・意味）}\label{tab:txsd_schema}\\
+  \caption{電力計測ログの列定義(列名・単位・意味)}\label{tab:txsd_schema}\\
   \toprule
   列 & 単位 & 意味 \\
   \midrule
@@ -18,24 +18,24 @@
   \midrule
   \endhead
   ms & ms & 試行開始からの相対時刻 \\
-  mv & mV & 計測電圧（整数） \\
-  uA & $\mu$A & 計測電流（整数） \\
-  p\_mW & mW & 瞬時電力（派生列，後処理で再計算可能） \\
+  mv & mV & 計測電圧(整数) \\
+  uA & $\mu$A & 計測電流(整数) \\
+  p\_mW & mW & 瞬時電力(派生列，後処理で再計算可能) \\
   \midrule
   \multicolumn{3}{l}{末尾に出力する集約値の例} \\
   \midrule
   ms\_total & ms & 試行時間 \\
   adv\_count & 回 & アドバタイジングイベント数 \\
   E\_total\_mJ & mJ & 総エネルギー \\
-  avg\_power\_mW & mW & 平均電力（$E/T$） \\
+  avg\_power\_mW & mW & 平均電力($E/T$) \\
   \bottomrule
 \end{longtable}
 
-次に，受信ログについて述べる．
+次に，受信ログを整理する．
 受信ログは，受信時刻とペイロード識別子を保持する．PDR\_unique，TL，$P_{\mathrm{out}}(\tau)$の算出に必須である．表では列名と単位・意味を対応付けて示す．
 
 \begin{longtable}{p{0.20\linewidth}p{0.16\linewidth}p{0.50\linewidth}}
-  \caption{受信ログの列定義（列名・単位・意味）}\label{tab:rx_schema}\\
+  \caption{受信ログの列定義(列名・単位・意味)}\label{tab:rx_schema}\\
   \toprule
   列 & 単位 & 意味 \\
   \midrule
@@ -51,11 +51,11 @@
   \bottomrule
 \end{longtable}
 
-続いて，送信ログについて述べる．
-送信ログは，方策の状態（$U,S,\mathrm{CCS},a$等）を保持する．オフライン評価と実機評価を接続するため，切替理由を残すことが望ましい．表では列名と単位・意味を対応付けて示す．
+続いて，送信ログを整理する．
+送信ログは，方策の状態($U,S,\mathrm{CCS},a$等)を保持する．オフライン評価と実機評価を接続するため，切替理由を残すことが望ましい．表では列名と単位・意味を対応付けて示す．
 
 \begin{longtable}{p{0.20\linewidth}p{0.16\linewidth}p{0.50\linewidth}}
-  \caption{送信ログの列定義（列名・単位・意味）}\label{tab:tx_schema}\\
+  \caption{送信ログの列定義(列名・単位・意味)}\label{tab:tx_schema}\\
   \toprule
   列 & 単位 & 意味 \\
   \midrule
@@ -73,7 +73,9 @@
   \bottomrule
 \end{longtable}
 
-最後にファイル命名と配置について述べる．
+最後にファイル命名と配置を整理する．
 ログは，試行単位でファイルを分割し，\texttt{\detokenize{trial_XXX.csv}}等の連番で管理する．このとき，条件IDや実験日付をパスまたはファイル名に含め，作業ログに生成コマンドと出力先を残す．
+
+
 
 

@@ -8,3 +8,6 @@
 - latexmk -lualatex でビルド確認（build/main.pdf生成）
 - 未解決参照: sec:assets, sec:phase2_gatebc
 
+2026-01-27 04:55 JST
+- build/main.aux, build/main.toc, build/main.bcf-SAVE-ERROR, build/main.bbl-SAVE-ERROR を削除してTOC破損を復旧
+- latexmk -lualatex で再ビルド（biber実行、build/main.pdf更新）

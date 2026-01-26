@@ -1,4 +1,4 @@
-% chapters/appx_f_symbols.tex --- 付録F 記号表・略語
+﻿% chapters/appx_f_symbols.tex --- 付録F 記号表・略語
 \section{記号表・略語}
 \label{sec:symbols}
 
@@ -19,14 +19,14 @@
   $T_{\mathrm{adv}}$ & ms & アドバタイジング間隔 \\
   $T_{\mathrm{scan}}$ & ms & スキャン周期 \\
   $d_{\mathrm{scan}}$ & ms & スキャンウィンドウ \\
-  $\delta$ & --- & スキャンデューティ比（$d_{\mathrm{scan}}/T_{\mathrm{scan}}$） \\
+  $\delta$ & --- & スキャンデューティ比($d_{\mathrm{scan}}/T_{\mathrm{scan}}$) \\
   $\mathbf{p}(t)$ & --- & HAR出力のクラス確率分布 \\
-  $U(t)$ & --- & 不確実度（正規化エントロピー） \\
-  $S(t)$ & --- & 安定度（時間的一貫性） \\
-  $\mathrm{CCS}(t)$ & --- & 複合スコア（$U$と$S$の結合） \\
+  $U(t)$ & --- & 不確実度(正規化エントロピー) \\
+  $S(t)$ & --- & 安定度(時間的一貫性) \\
+  $\mathrm{CCS}(t)$ & --- & 複合スコア($U$と$S$の結合) \\
   $\alpha$ & --- & CCSの重み係数 \\
   $W$ & --- & 安定度の窓長 \\
-  $\theta_{\mathrm{low}},\theta_{\mathrm{high}}$ & --- & CCSの閾値（ヒステリシス） \\
+  $\theta_{\mathrm{low}},\theta_{\mathrm{high}}$ & --- & CCSの閾値(ヒステリシス) \\
   $t_{\mathrm{event},j}$ & ms & イベント$j$の真値時刻 \\
   $t_{\mathrm{rx},j}$ & ms & イベント$j$に対応する初回受信時刻 \\
   $\mathrm{TL}_j$ & s & イベント$j$の発見遅延 \\
@@ -36,17 +36,17 @@
   $\tau$ & s & 遅延期限 \\
   $N_{\mathrm{event}}$ & 回 & 評価対象のイベント数 \\
   $N_{\mathrm{adv}}$ & 回 & アドバタイジングイベント数 \\
-  $\hat{\rho}_{100}$ & --- & 短間隔（\SI{100}{\milli\second}）滞在比率の推定値（例：$(P-P_{500})/(P_{100}-P_{500})$） \\
+  $\hat{\rho}_{100}$ & --- & 短間隔(\SI{100}{\milli\second})滞在比率の推定値(例：$(P-P_{500})/(P_{100}-P_{500})$) \\
   $\mathrm{PDR}_{\mathrm{raw}}$ & --- & 受信行数に基づくPDR \\
   $\mathrm{PDR}_{\mathrm{unique}}$ & --- & seqでユニーク化したPDR \\
   $Q$ & $\si{\micro\coulomb}$ & 試行区間の総電荷 \\
   $\Delta Q$ & $\si{\micro\coulomb}$ & 電荷差分 \\
-  $q_{\mathrm{event}}$ & $\si{\micro\coulomb}/\text{event}$ & イベント当たり電荷（$\Delta Q/N_{\mathrm{event}}$） \\
+  $q_{\mathrm{event}}$ & $\si{\micro\coulomb}/\text{event}$ & イベント当たり電荷($\Delta Q/N_{\mathrm{event}}$) \\
   $E$ & mJ & 試行区間の総エネルギー \\
   $\Delta E$ & mJ & エネルギー差分 \\
   $\overline{P}$ & mW & 平均電力 \\
   $p_d$ & --- & 1アドバタイジングの受信成功確率 \\
-  RSSI & dBm & 受信強度（Received Signal Strength Indicator） \\
+  RSSI & dBm & 受信強度(Received Signal Strength Indicator) \\
   $t_{\mathrm{inf}}$ & ms & 推論時間 \\
   \bottomrule
 \end{longtable}
@@ -63,24 +63,25 @@
   \midrule
   \endhead
   BLE & Bluetooth Low Energy \\
-  HAR & Human Activity Recognition（人間活動認識） \\
-  MCU & Microcontroller Unit（マイコン） \\
-  QoS & Quality of Service（サービス品質） \\
+  HAR & Human Activity Recognition(人間活動認識) \\
+  MCU & Microcontroller Unit(マイコン) \\
+  QoS & Quality of Service(サービス品質) \\
   PDR & Packet Delivery Ratio \\
   RSSI & Received Signal Strength Indicator \\
   TL & 発見遅延 \\
-  outage & 期限超過（$P_{\mathrm{out}}(\tau)$） \\
+  outage & 期限超過($P_{\mathrm{out}}(\tau)$) \\
   PTQ & Post-Training Quantization \\
   TFLite & TensorFlow Lite \\
-  SD & Secure Digital（SDカード） \\
+  SD & Secure Digital(SDカード) \\
   UART & Universal Asynchronous Receiver-Transmitter \\
   SPI & Serial Peripheral Interface \\
   I\textsuperscript{2}C & Inter-Integrated Circuit \\
-  DUT & Device Under Test（被測定対象） \\
-  TX & 送信側（DUT） \\
-  RX & 受信側（ロガ） \\
-  TXSD & 電力ロガ（送信側の電力計測） \\
+  DUT & Device Under Test(被測定対象) \\
+  TX & 送信側(DUT) \\
+  RX & 受信側(ロガ) \\
+  TXSD & 電力ロガ(送信側の電力計測) \\
   SYNC/TICK & 試行境界・アドバタイジング回数の同期信号 \\
   \bottomrule
 \end{longtable}
+
 
