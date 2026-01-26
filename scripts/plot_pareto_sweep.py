@@ -33,7 +33,7 @@ POUT_LIMIT = float(os.environ.get("POUT_LIMIT", "0.2"))
 
 def scatter_plot(ax, df: pd.DataFrame, metric: str, selected_path: Path):
     ycol = "avg_power_mW" if metric == "power" else "E_per_adv_uJ"
-    ylabel = "avg_power (mW)" if metric == "power" else "E_per_adv (uJ)"
+    ylabel = "Average power (mW)" if metric == "power" else "Energy per adv (uJ)"
     if POUT_LIMIT > 0:
         ax.axvspan(0.0, POUT_LIMIT, color="#d1fae5", alpha=0.18, zorder=0)
         ax.axvline(POUT_LIMIT, linestyle="--", linewidth=1.2, color="#111827", alpha=0.8)
@@ -46,11 +46,11 @@ def scatter_plot(ax, df: pd.DataFrame, metric: str, selected_path: Path):
         alpha=0.7,
         edgecolor="none",
     )
-    ax.set_xlabel("Pout(1s)")
+    ax.set_xlabel(r"$P_{\mathrm{out}}(1\,\mathrm{s})$")
     ax.set_ylabel(ylabel)
     ax.grid(True, alpha=0.3)
     cbar = plt.colorbar(sc, ax=ax)
-    cbar.set_label("switch_rate")
+    cbar.set_label("switch rate")
     # annotate best few low-energy points
     best = df.sort_values(ycol).head(5)
     for _, r in best.iterrows():
@@ -110,7 +110,7 @@ def stacked_bar(ax, df: pd.DataFrame, metric: str):
         color="#9c27b0",
     )
     ax.set_ylabel("interval share")
-    ax.set_xlabel(f"top-10 under Pout(1s)<={POUT_LIMIT:.2f} (sorted by {metric})")
+    ax.set_xlabel(f"top-10 under P_out(1 s) <= {POUT_LIMIT:.2f} (sorted by {metric})")
     ax.set_ylim(0, 1.05)
     ax.legend(title="interval (ms)")
     ax.grid(True, axis="y", alpha=0.3)

@@ -1,0 +1,3 @@
+metric,cond_a,cond_b,label,n_a,n_b,mean_a,mean_b,delta_mean,ci_low,ci_high,p_two_sided,hedges_g,g_ci_low,g_ci_high,n_boot,alpha,seed,generated_local,source_csv
+pout_1s,S4_policy,S4_fixed500,Pout(1s): Policy - Fixed500,10,10,0.09756100000000001,0.307317,-0.209756,-0.24878030000000004,-0.1634146,0.0,-3.946635900627767,-9.335364537685411,-2.3973276159316224,20000,0.05,20260125,2026-01-25 14:23,uccs_d3_scan70\metrics\02_n10_run01\per_trial.csv
+avg_power_mW,S4_policy,S4_fixed100,Avg power: Policy - Fixed100,10,10,301.24139900718785,312.63871697573154,-11.397317968543689,-14.207955190280064,-8.79315449458437,0.0,-3.361506987116365,-6.200938412704335,-2.5749512564191344,20000,0.05,20260125,2026-01-25 14:23,uccs_d3_scan70\metrics\02_n10_run01\per_trial.csv

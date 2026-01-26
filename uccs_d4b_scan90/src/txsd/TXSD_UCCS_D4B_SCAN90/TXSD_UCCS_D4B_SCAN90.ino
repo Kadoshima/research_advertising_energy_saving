@@ -1,6 +1,6 @@
 // TXSD_UCCS_D4B_SCAN90.ino (uccs_d4b_scan90)
 // INA219 logger for Step D4B (CCS ablation).
-// Start/stop via SYNC (TX GPIO25 -> TXSD GPIO26).
+// Start/stop via SYNC (TX GPIO26 -> TXSD GPIO26).
 // TX sends preamble pulses on TICK (TX GPIO27 -> TXSD GPIO33) to encode cond_id.
 // During trial, TX additionally emits 1 tick per payload update; TXSD uses tick_count as adv_count (approx).
 //
@@ -158,8 +158,12 @@ void setup(){
 
   Wire.begin(I2C_SDA, I2C_SCL);
   Wire.setClock(400000);
-  ina.begin();
-  ina.setCalibration_16V_400mA();
+  if (!ina.begin()) {
+    Debug.println("[PWR] INA219 begin FAIL");
+  } else {
+    Debug.println("[PWR] INA219 begin OK");
+    ina.setCalibration_16V_400mA();
+  }
 
   Debug.println("[PWR] ready");
 }

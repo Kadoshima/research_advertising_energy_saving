@@ -113,7 +113,7 @@ def plot_results(results, output_dir: Path, epsilon: float):
         plt.plot(t_array, avg_energy, label=method, linewidth=2)
 
     plt.xlabel("Time step t", fontsize=12)
-    plt.ylabel("Average Energy [μJ/event]", fontsize=12)
+    plt.ylabel("Average Energy [uJ/event]", fontsize=12)
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()

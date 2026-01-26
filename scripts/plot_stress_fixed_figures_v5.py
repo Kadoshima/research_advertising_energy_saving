@@ -90,10 +90,10 @@ def main() -> None:
     # Fig 1: scan90 metrics (v4 vs v5)
     # ------------------------------ #
     metrics = [
-        ("pdr_unique_mean", "PDR unique"),
-        ("pout_1s_mean", "Pout(1s)"),
+        ("pdr_unique_mean", "PDR (unique)"),
+        ("pout_1s_mean", r"$P_{\mathrm{out}}(1\,\mathrm{s})$"),
         ("tl_p95_s_mean", "TL p95 (s)"),
-        ("avg_power_mW_mean", "avg power (mW)"),
+        ("avg_power_mW_mean", "Average power (mW)"),
     ]
 
     intervals = sorted({to_int(r["interval_ms"]) for r in rows90_v5})
@@ -124,7 +124,7 @@ def main() -> None:
             ax.plot(xs, ys_v5, linestyle="-", marker="o", color=colors.get(sess, None))
         ax.set_ylabel(title)
         ax.set_xticks(intervals)
-        ax.set_xlabel("interval_ms")
+        ax.set_xlabel("interval (ms)")
         if key == "tl_p95_s_mean":
             ax.set_yscale("log")
     axes[0][0].set_ylim(0, 1.05)
@@ -152,8 +152,8 @@ def main() -> None:
     # ------------------------------ #
     fig2, axes2 = plt.subplots(3, 1, figsize=(7, 9), sharex=True)
     compare_metrics = [
-        ("pdr_unique_mean", "PDR unique"),
-        ("pout_1s_mean", "Pout(1s)"),
+        ("pdr_unique_mean", "PDR (unique)"),
+        ("pout_1s_mean", r"$P_{\mathrm{out}}(1\,\mathrm{s})$"),
         ("tl_p95_s_mean", "TL p95 (s)"),
     ]
 
@@ -180,7 +180,7 @@ def main() -> None:
         ax.set_xticks(intervals)
         ax.grid(True, alpha=0.3)
 
-    axes2[-1].set_xlabel("interval_ms")
+    axes2[-1].set_xlabel("interval (ms)")
     axes2[0].legend(loc="lower right", fontsize=8)
 
     out3 = args.out_dir / "fig3_scan50_vs_scan90_metrics.png"

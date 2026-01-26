@@ -45,6 +45,9 @@ class EffectResult:
     ci_low: float
     ci_high: float
     p_two_sided: float
+    hedges_g: float
+    g_ci_low: float
+    g_ci_high: float
 
 
 def _mean(xs: Iterable[float]) -> float:
@@ -84,6 +87,35 @@ def _percentile(sorted_xs: List[float], p: float) -> float:
     return d0 + d1
 
 
+def _variance(xs: Iterable[float]) -> float:
+    xs = list(xs)
+    n = len(xs)
+    if n < 2:
+        return float("nan")
+    mean = _mean(xs)
+    return sum((x - mean) ** 2 for x in xs) / (n - 1)
+
+
+def _hedges_g(a: List[float], b: List[float]) -> float:
+    na, nb = len(a), len(b)
+    if na < 2 or nb < 2:
+        return float("nan")
+    var_a = _variance(a)
+    var_b = _variance(b)
+    if math.isnan(var_a) or math.isnan(var_b):
+        return float("nan")
+    pooled = ((na - 1) * var_a + (nb - 1) * var_b) / (na + nb - 2)
+    if pooled <= 0.0:
+        return float("nan")
+    s_pooled = math.sqrt(pooled)
+    g = (_mean(a) - _mean(b)) / s_pooled
+    df = na + nb - 2
+    if df <= 1:
+        return g
+    j = 1.0 - 3.0 / (4.0 * df - 1.0)
+    return g * j
+
+
 def _bootstrap_delta(
     a: List[float],
     b: List[float],
@@ -99,6 +131,27 @@ def _bootstrap_delta(
         sa = [a[rnd.randrange(na)] for _ in range(na)]
         sb = [b[rnd.randrange(nb)] for _ in range(nb)]
         out.append(_mean(sa) - _mean(sb))
+    return out
+
+
+def _bootstrap_hedges_g(
+    a: List[float],
+    b: List[float],
+    n_boot: int,
+    seed: int,
+) -> List[float]:
+    rnd = random.Random(seed)
+    na, nb = len(a), len(b)
+    if na <= 1 or nb <= 1:
+        return []
+    out: List[float] = []
+    for _ in range(n_boot):
+        sa = [a[rnd.randrange(na)] for _ in range(na)]
+        sb = [b[rnd.randrange(nb)] for _ in range(nb)]
+        g = _hedges_g(sa, sb)
+        if math.isnan(g) or math.isinf(g):
+            continue
+        out.append(g)
     return out
 
 
@@ -197,6 +250,11 @@ def main() -> None:
         ci_low = _percentile(deltas, args.alpha / 2.0)
         ci_high = _percentile(deltas, 1.0 - args.alpha / 2.0)
         p_two = _two_sided_p_from_bootstrap(deltas, obs)
+        g_obs = _hedges_g(a, b)
+        g_deltas = _bootstrap_hedges_g(a, b, n_boot=args.n_boot, seed=args.seed + 20011 * (i + 1))
+        g_deltas.sort()
+        g_ci_low = _percentile(g_deltas, args.alpha / 2.0)
+        g_ci_high = _percentile(g_deltas, 1.0 - args.alpha / 2.0)
         results.append(
             EffectResult(
                 metric=metric,
@@ -211,6 +269,9 @@ def main() -> None:
                 ci_low=ci_low,
                 ci_high=ci_high,
                 p_two_sided=p_two,
+                hedges_g=g_obs,
+                g_ci_low=g_ci_low,
+                g_ci_high=g_ci_high,
             )
         )
 
@@ -231,6 +292,9 @@ def main() -> None:
                 "ci_low",
                 "ci_high",
                 "p_two_sided",
+                "hedges_g",
+                "g_ci_low",
+                "g_ci_high",
                 "n_boot",
                 "alpha",
                 "seed",
@@ -249,11 +313,14 @@ def main() -> None:
                     r.n_b,
                     r.mean_a,
                     r.mean_b,
-                    r.delta,
-                    r.ci_low,
-                    r.ci_high,
-                    r.p_two_sided,
-                    args.n_boot,
+                r.delta,
+                r.ci_low,
+                r.ci_high,
+                r.p_two_sided,
+                r.hedges_g,
+                r.g_ci_low,
+                r.g_ci_high,
+                args.n_boot,
                     args.alpha,
                     args.seed,
                     now,
@@ -270,11 +337,11 @@ def main() -> None:
     lines.append(f"- source: `{args.in_csv}`")
     lines.append(f"- generated: {now} (local)")
     lines.append(f"- bootstrap: percentile CI, n_boot={args.n_boot}, alpha={args.alpha}, seed={args.seed}\n")
-    lines.append("| label | delta(mean) | 95% CI | p(two-sided) |")
-    lines.append("|---|---:|---:|---:|")
+    lines.append("| label | delta(mean) | 95% CI | p(two-sided) | hedges_g | g 95% CI |")
+    lines.append("|---|---:|---:|---:|---:|---:|")
     for r in results:
         lines.append(
-            f"| {r.label} | {_fmt(r.delta)} | [{_fmt(r.ci_low)}, {_fmt(r.ci_high)}] | {_fmt(r.p_two_sided, 4)} |"
+            f"| {r.label} | {_fmt(r.delta)} | [{_fmt(r.ci_low)}, {_fmt(r.ci_high)}] | {_fmt(r.p_two_sided, 4)} | {_fmt(r.hedges_g)} | [{_fmt(r.g_ci_low)}, {_fmt(r.g_ci_high)}] |"
         )
     out_md.write_text("\n".join(lines) + "\n", encoding="utf-8")
 

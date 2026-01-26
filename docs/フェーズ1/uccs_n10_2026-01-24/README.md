@@ -1,6 +1,6 @@
 ﻿# uccs_n10_2026-01-24（UCCS D3/D4B scan70 N=10 拡張）
 
-- 更新日: 2026-01-24
+- 更新日: 2026-01-25
 - 状態: draft
 
 ## 目的/範囲
@@ -13,7 +13,7 @@
 | データ | パス | 出所/版 | 行数 | SHA256 | 備考 |
 | --- | --- | --- | --- | --- | --- |
 | D3 scan70 RX/TXSD | `uccs_d3_scan70/data/02_n10_run01/` | 実測 | RX=33/7636行, TXSD=33/554213行, manifest=66行 | 51b013a097a3f9eca7b568f3fe9ddc16a448da0d2f92bace02877a0f6f40f99b | manifest.csv を作成済み |
-| D4B scan70 RX/TXSD | `uccs_d4b_scan70/data/` | 実測 | TBD | TBD | run_id/行数/SHA256は取得後に追記 |
+| D4B scan70 RX/TXSD | `uccs_d4b_scan70/data/02_n10_run01/` | 実測 | RX=40/10035行, TXSD=40/700940行, manifest=80行 | 82461bf48bd9f38b6af4b2bfc788e6ce35baff1334b98251a3f2ef6039e76746 | manifest.csv を作成済み |
 
 ## 出力物（生成日/生成スクリプト）
 
@@ -28,6 +28,34 @@
 - Policy: pout_1s=0.0976±0.0230, tl_mean=1.025±0.154, avg_power=301.2±2.5 mW
 - Policy vs Fixed500: pout_1s -0.2098（約-68%）, tl_mean -0.946 s, avg_power +16.9 mW（約+5.9%）
 - Policy vs Fixed100: pout_1s +0.0220（約+29%）, tl_mean -0.040 s, avg_power -11.4 mW（約-3.6%）
+
+### D4B scan70 n10 集計結果（02_n10_run01）
+
+- 出力: `uccs_d4b_scan70/metrics/02_n10_run01/summary.md`
+- Fixed100: pout_1s=0.1439±0.0334, tl_mean=3.952±0.446, avg_power=314.5±3.7 mW
+- Fixed500: pout_1s=0.3512±0.0611, tl_mean=4.872±0.305, avg_power=289.0±6.2 mW
+- Policy: pout_1s=0.1415±0.0154, tl_mean=3.827±0.304, avg_power=306.9±4.0 mW
+- U-only(CCS-off): pout_1s=0.1415±0.0321, tl_mean=3.897±0.515, avg_power=307.4±4.0 mW
+- Policy vs Fixed500: pout_1s -0.2098（約-60%）, tl_mean -1.045 s, avg_power +17.9 mW（約+6.2%）
+- Policy vs Fixed100: pout_1s -0.0024（約-1.7%）, tl_mean -0.125 s, avg_power -7.6 mW（約-2.4%）
+- Policy vs U-only: pout_1s 0.0000（約+0%）, tl_mean -0.070 s, avg_power -0.5 mW（約-0.2%）
+
+### D4B scan70 n10 詳細差分（CI/効果量）
+
+- 出力: `uccs_d4b_scan70/metrics/02_n10_run01/effects_ci.md`
+- まとめ表（差分=Policy - 比較対象、95% CI はブートストラップ）:
+
+| 比較 | 指標 | 差分 | 95% CI | Hedges g (95% CI) |
+| --- | ---:| ---:| ---:| ---:|
+| Policy - Fixed500 | Pout(1s) | -0.2098 | [-0.2463, -0.1732] | -4.5114 [-7.4795, -3.6685] |
+| Policy - Fixed500 | TL mean (s) | -1.0454 | [-1.2888, -0.7802] | -3.2843 [-6.3687, -2.1796] |
+| Policy - Fixed500 | Avg power (mW) | +17.9203 | [13.3875, 22.0038] | +3.2915 [2.1924, 7.2932] |
+| Policy - Fixed100 | Pout(1s) | -0.0024 | [-0.0220, 0.0195] | -0.0898 [-1.5582, 0.6501] |
+| Policy - Fixed100 | TL mean (s) | -0.1253 | [-0.4312, 0.2034] | -0.3143 [-1.6422, 0.4866] |
+| Policy - Fixed100 | Avg power (mW) | -7.5666 | [-10.7747, -4.4339] | -1.8811 [-3.1116, -1.2333] |
+| Policy - U-only | Pout(1s) | -0.0000 | [-0.0220, 0.0220] | -0.0000 [-0.9384, 0.9463] |
+| Policy - U-only | TL mean (s) | -0.0700 | [-0.4090, 0.2870] | -0.1585 [-1.2809, 0.7044] |
+| Policy - U-only | Avg power (mW) | -0.4816 | [-3.7152, 2.8327] | -0.1154 [-1.0944, 0.7411] |
 
 ## manifest.csv
 
@@ -64,6 +92,7 @@ python3 uccs_d4b_scan90/analysis/summarize_d4b_run_v2.py --rx-dir <RX_DIR> --txs
 
 ## 更新履歴
 
+- 2026-01-25: D4B scan70 n10 のCI/効果量を追記し、図表をn10データで更新。
 - 2026-01-24: D3 TXSD preamble window を 300ms に短縮（program_id v2）。
 - 2026-01-24: D3 scan70 n10 run01 のTXSDラベルずれ（preamble+1）を記録。解析はadv_count/RXタグで補正。
 - 2026-01-24: N=10拡張タスクの初版を作成

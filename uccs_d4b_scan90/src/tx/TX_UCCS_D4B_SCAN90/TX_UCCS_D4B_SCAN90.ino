@@ -8,7 +8,7 @@
 //   4) Ablation_CCS_off（= U-only, 100↔500）
 //
 // 動的でもTL/Poutが評価できるよう payload に step_idx（100msグリッド）を埋め込む。
-// TXSDへは SYNC(25) + preamble TICK(27) で cond_id を通知し、trial中は更新ごとにTICKを1発出して adv_count近似とする。
+// TXSDへは SYNC(26) + preamble TICK(27) で cond_id を通知し、trial中は更新ごとにTICKを1発出して adv_count近似とする。
 //
 // Payload (ManufacturerData):
 //   "<step_idx>_<tag>"
@@ -30,11 +30,11 @@
 
 // ==== schedule ====
 static const uint32_t GAP_MS = 5000;
-static const uint8_t REPEAT = 3;
+static const uint8_t REPEAT = 10;
 static const uint16_t EFFECTIVE_LEN_STEPS = 1800; // 180s @ 100ms grid
 
 // ==== pins ====
-static const int SYNC_OUT_PIN = 25;
+static const int SYNC_OUT_PIN = 26;
 static const int TICK_OUT_PIN = 27;
 static const int LED_PIN = 2;
 
@@ -280,7 +280,9 @@ static void startTrialNow(const Condition& c) {
   setPayload(0, tag);
 
   if (adv) adv->start();
-  if (ENABLE_TICK_PER_UPDATE) tickPulseOnce(200);
+  if (ENABLE_TICK_PER_UPDATE && (millis() - syncRiseMs) > (PREAMBLE_WINDOW_MS + 50)) {
+    tickPulseOnce(200);
+  }
 
   const uint16_t deltaSteps = (uint16_t)(currentIntervalMs / 100);
   stepIdx = (uint16_t)(stepIdx + deltaSteps);

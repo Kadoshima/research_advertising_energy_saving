@@ -1,0 +1,10 @@
+2026-01-25 13:48 JST D4B(scan70) n10: RX/TXSDログを uccs_d4b_scan70/data/02_n10_run01/{RX,TX} に取り込み（RX=188..227, TXSDはcond_id毎に最新10件）。manifest.csv作成、summary生成（uccs_d4b_scan70/metrics/02_n10_run01）、README更新（docs/フェーズ1/uccs_n10_2026-01-24/README.md, uccs_d4b_scan70/data/02_n10_run01/README.md）。
+2026-01-25 14:12 JST D4B(scan70) n10: 図更新（uccs_d4b_scan70/plots/d4b_scan70_01_power_vs_pout.svg, d4b_scan70_01_fixed_power_vs_pout.svg; uccs_d4b_scan90/plots/mainfig_scan70_scan90.svg, role_separation_d3_d4_d4b.svg; results/final/fig/fig_main_scan70_scan90.svg, fig_role_separation_d3_d4_d4b.svg）。CI/効果量を docs/フェーズ1/uccs_n10_2026-01-24/README.md に追記（参照: uccs_d4b_scan70/metrics/02_n10_run01/effects_ci.md）。
+2026-01-25 14:26 JST D3(scan70) n10: 論文のD3本文/表をn=10値に置換（修士論文/chapters/ch4_rain.tex）。q_event再計算（TXSD積分/N_event=41）とCI更新（uccs_d3_scan70/metrics/02_n10_run01/effects_ci.md）。統計的妥当性の参照先をD4/D4Bに更新（修士論文/chapters/ch5_publicroad.tex）。
+2026-01-25 14:32 JST role_separation図をPDF化（修士論文/figures/role_separation_d3_d4_d4b.pdf）し、latexmkでビルド確認（修士論文/build/main.pdf）。overfull/underfullなし、未解決参照はch:evaluationのみ。
+2026-01-25 14:34 JST role_separation図の軸レンジ拡張（uccs_d4b_scan90/analysis/plot_role_separation_overview.py）、SVG/PDF更新（uccs_d4b_scan90/plots/role_separation_d3_d4_d4b.svg, 修士論文/figures/role_separation_d3_d4_d4b.pdf, results/final/fig/fig_role_separation_d3_d4_d4b.svg）。latexmkで再ビルド確認（修士論文/build/main.pdf）。
+2026-01-25 14:37 JST role_separation矢印の透明度を低下（uccs_d4b_scan90/analysis/plot_role_separation_overview.py）。SVG/PDF更新とlatexmk再ビルド。
+2026-01-26 01:06 JST D4B(scan90) n10: Arduino_MCP_Sketches に RX/TX/TXSD_UCCS_D4B_SCAN90 を作成・書き込み、TX用ヘッダをリポジトリ参照で追加。COM6=TX, COM8=RX, COM9=TXSD に esp32:esp32:esp32wroverkit でアップロード完了。
+2026-01-26 01:53 JST D4B(scan90): TX SYNC pinをGPIO26に変更して再アップロード（Arduino_MCP_Sketches/TX_UCCS_D4B_SCAN90, uccs_d4b_scan90/src/tx/TX_UCCS_D4B_SCAN90）。RX/TXSDコメントも更新。COM6再書込完了。
+2026-01-26 02:08 JST D4B(scan90): TX REPEATを10に変更して本番用に再書き込み（Arduino_MCP_Sketches/TX_UCCS_D4B_SCAN90, uccs_d4b_scan90/src/tx/TX_UCCS_D4B_SCAN90; COM6）。
+2026-01-26 08:16 JST D4B(scan90): preamble誤カウント対策でTXのstart直後TICKをガード（TX_UCCS_D4B_SCAN90.ino）。COM6に再アップロード。

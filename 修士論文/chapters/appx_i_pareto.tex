@@ -1,12 +1,12 @@
-% chapters/appx_i_pareto.tex --- Pareto全体像
-\subsection{Paretoプロット（全体像）}
+% chapters/appx_i_pareto.tex --- 付録I Paretoプロットの全体像
+\subsection{Paretoプロットの全体像}
 \label{sec:pareto_full}
 
-本付録では，スイープ結果の全体像としてParetoプロットを示す．左図は横軸$P_{\mathrm{out}}(1\mathrm{s})$，縦軸平均電力で，各点の色が切替頻度（switch\_rate），点サイズが短間隔滞在比率（share100）に対応する．右図は制約域の上位候補（$P_{\mathrm{out}}(1\mathrm{s})\le0.2$）について，滞在比率の積み上げを示す．ここでは，行動集合を$\{100,500\}$に縮退した評価（実装の単純性を優先）を例とする．
+本節では，オフライン評価で得られたParetoプロットの全体像を示す．左図は$P_{\mathrm{out}}(1\,\mathrm{s})$と平均電力の散布図であり，色はswitch rate，点サイズは$\hat{\rho}_{100}$を表す．右図は制約$P_{\mathrm{out}}(1\,\mathrm{s})\le0.2$の下で平均電力が小さい上位10点について，間隔の割当比率（$\{100,500,2000\}\,\si{\milli\second}$）を棒グラフで示す．
 
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.95\linewidth]{figures/offline_pareto_plots.png}
-  \caption{Paretoプロット（左：色=switch\_rate，点サイズ=share100，縦線：$P_{\mathrm{out}}(1\mathrm{s})=0.2$，強調点：選定方策，右：上位候補の滞在比率，行動集合$\{100,500\}$）}
+  \caption{Paretoプロットの全体像（左：$P_{\mathrm{out}}(1\,\mathrm{s})$と平均電力，色はswitch rate，点サイズは$\hat{\rho}_{100}$．右：制約内上位10点の間隔割当比率）}
   \label{fig:pareto_plots}
 \end{figure}

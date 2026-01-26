@@ -355,8 +355,8 @@ def main() -> None:
             color=colors.get(key, "#000000"),
         )
 
-    ax.set_xlabel("pout_1s (context mixing: stable->S1, transition->S4)")
-    ax.set_ylabel("avg_power_mW (power table)")
+    ax.set_xlabel(r"$P_{\mathrm{out}}(1\,\mathrm{s})$")
+    ax.set_ylabel("Average power (mW)")
     ax.grid(True, alpha=0.25)
     x_min = min(
         float(min(deltas)) if deltas else float(pareto["pout_1s"].min()),

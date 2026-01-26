@@ -1,61 +1,62 @@
-﻿% chapters/ch6_stress_fixed.tex --- 構成要素：ストレス固定実験と指標定義（scan50/scan90, v5）
-\section{ストレス固定実験と指標定義の確立}
+% chapters/ch6_stress_fixed.tex --- �\���v�f�F�X�g���X�Œ�����Ǝw�W��`�iscan50/scan90�j
+\section{�X�g���X�Œ�����Ǝw�W��`�̊m��}
 \label{sec:stress_fixed_metrics}
 
-まず，目的について述べる．
-本節では，ストレス固定（stress\_fixed）実験を用いて，QoS指標（TLおよび$P_{\mathrm{out}}(\tau)$）の定義を「論文で説明できる形」に固定し，実測結果を再現可能に整理する．特に，受信ログの時間軸と真値（truth）の開始位相ずれがTL/Poutに与える影響を明確化し，補正手順を定式化する．
+�܂��C�ړI�ɂ��ďq�ׂ�D
+�{�߂ł́C�X�g���X�Œ������p���āCQoS�w�W�i�����x���iTime-to-first-Receive; TL�j�����$P_{\mathrm{out}}(\tau)$�j�̒�`���u�_���Ő����ł���`�v�ɌŒ肵�C�������ʂ��Č��\�ɐ�������D���ɁC��M���O�̎��Ԏ��Ɛ^�l�itruth�j�̊J�n�ʑ����ꂪTL/Pout�ɗ^����e���𖾊m�����C�␳�菇��莮������D
 
-次に，実験条件の概要について述べる．
-ストレス固定実験では，既知のラベル系列（truth）をTX側で再生し，受信側（RX）がそれをどの程度の遅延で観測できるかを測定する．主な比較軸として，受信設定（scan50すなわちduty 50\% 相当，およびscan90すなわちduty 90\% 相当），固定アドバタイジング間隔（\SI{100}{\milli\second}，\SI{500}{\milli\second}，\SI{1000}{\milli\second}，\SI{2000}{\milli\second}），ならびにストレス列（代表的な2条件，例：S1，S4）を中心に評価する．各trialについて，TXSDログとRXログを対応付け，PDR，TL，$P_{\mathrm{out}}(\tau)$，平均電力などを出力する．
+���ɁC���������̊T�v�ɂ��ďq�ׂ�D
+�X�g���X�Œ�����ł́C���m�̃��x���n��itruth�j��TX���ōĐ����C��M���iRX�j��������ǂ̒��x�̒x���Ŋϑ��ł��邩�𑪒肷��D��Ȕ�r���Ƃ��āC��M�ݒ�iscan duty 50\%/90\%�j�C�Œ�A�h�o�^�C�W���O�Ԋu�i\SI{100}{\milli\second}�C\SI{500}{\milli\second}�C\SI{1000}{\milli\second}�C\SI{2000}{\milli\second}�j�C�Ȃ�тɃX�g���X��i��\�I��2�����C��FS1�CS4�j�𒆐S�ɕ]������D�etrial�ɂ��āCTXSD���O��RX���O��Ή��t���CPDR�CTL�C$P_{\mathrm{out}}(\tau)$�C���ϓd�͂Ȃǂ��o�͂���D
 
-続いて，問題と時間同期手法（v4→v5）について述べる．
-scan90のv4集計では，固定\SI{2000}{\milli\second}において$P_{\mathrm{out}}(1\,\mathrm{s})$が理論下限より小さく見える等，理論的予測と整合しない挙動が観察された．原因は，RXログの`ms`とtruthの時間軸が一致している前提でTL/Poutを計算していた点にある．実機では試行開始のタイミングがずれ得るため，この時間誤差を補正しない場合，TL/Poutが過小評価される．
+�����āC���Ǝ��ԓ�����@�i�␳�O/�␳��j�ɂ��ďq�ׂ�D
+scan duty 90\%�̕␳�O�W�v�ł́C�Œ�\SI{2000}{\milli\second}�ɂ�����$P_{\mathrm{out}}(1\,\mathrm{s})$�����_������菬���������铙�C���_�I�\���Ɛ������Ȃ��������ώ@���ꂽ�D�����́CRX���O�̎�����ims�j��truth�̎��Ԏ�����v���Ă���O���TL/Pout���v�Z���Ă����_�ɂ���D���@�ł͎��s�J�n�̃^�C�~���O�����꓾�邽�߁C���̎��Ԍ덷��␳���Ȃ��ꍇ�CTL/Pout���ߏ��]�������D
 
-v5では，TL/Pout算出前に定数オフセットを推定し，RXログの時刻を補正する．アドバタイジング間隔$\Delta t$（ms）と受信ログから得られるseqの初回観測時刻$\mathrm{first\_ms}(\mathrm{seq})$を用いると，seqに対応する期待時刻は$\mathrm{seq}\cdot\Delta t$である．複数のseqに対する期待時刻と実測時刻の差分の中央値として
+�␳��̒�`�ł́CTL/Pout�Z�o�O�ɒ萔�I�t�Z�b�g�𐄒肵�CRX���O�̎�����␳����D�A�h�o�^�C�W���O�Ԋu$\Delta t$�ims�j�Ǝ�M���O���瓾����seq�̏���ϑ�����$t_{\mathrm{first}}(\mathrm{seq})$��p����ƁCseq�ɑΉ�������Ҏ�����$\mathrm{seq}\cdot\Delta t$�ł���D������seq�ɑ΂�����Ҏ����Ǝ��������̍����̒����l�Ƃ���
 \begin{equation}
-  \mathrm{offset\_ms} = \mathrm{median}_{\mathrm{seq}>0}\left(\mathrm{seq}\cdot\Delta t - \mathrm{first\_ms}(\mathrm{seq})\right)
+  \mathrm{offset\_ms} = \mathrm{median}_{\mathrm{seq}>0}\left(\mathrm{seq}\cdot\Delta t - t_{\mathrm{first}}(\mathrm{seq})\right)
 \end{equation}
-によりオフセットを推定し，補正後の時刻を$\mathrm{ms\_aligned}=\mathrm{ms}+\mathrm{offset\_ms}$とする．TL/Poutは$\mathrm{ms\_aligned}$に基づいて算出する．この補正により，非同期な開始タイミング（開始位相）に起因する過小評価を抑制できる．
+�ɂ��I�t�Z�b�g�𐄒肵�C�␳��̎�����$\mathrm{ms\_aligned}=\mathrm{ms}+\mathrm{offset\_ms}$�Ƃ���DTL/Pout��$\mathrm{ms\_aligned}$�Ɋ�Â��ĎZ�o����D���̕␳�ɂ��C�񓯊��ȊJ�n�^�C�~���O�i�J�n�ʑ��j�ɋN������ߏ��]����}���ł���D
 
-v5では，per-trialの集計に加え，modes/agg/enrichedの集約表を再現可能に生成するパイプラインを整備した．また，scan50とscan90の比較結果も同一の定義で出力し，受信設定の違いがPDRやTL/Poutに与える影響を整理できるようにした．
-\noindent PDRの扱いについて述べる．
-PDRは受信ログの行数に基づく指標（重複含む）と，seqでユニーク化した指標（重複除外）の2種類を区別する．QoS比較では，アドバタイジングイベントの「何割を一度でも拾えたか」を表すPDR\_uniqueを優先する（\secref{sec:metrics_detail}を参照）．
-\noindent 有効データ長（Effective Length）と終端処理について述べる．
-真値（truth）は有限長のラベル系列であり，試行時間のクランプにより末端の遷移が試行区間外に出る場合がある．その場合，末端遷移を含めた評価は不安定になるため，truth側も同じ長さにクリップし，イベント数$N_{\mathrm{event}}$の分母を揃える．この処理は，試行間比較と再現性の観点で重要である．
+�␳��̒�`�ł́Cper-trial�̏W�v�ɉ����C�W��\���Č��\�ɐ�������p�C�v���C���𐮔������D�܂��Cscan duty 50\%/90\%�̔�r���ʂ�����̒�`�ŏo�͂��C��M�ݒ�̈Ⴂ��PDR��TL/Pout�ɗ^����e���𐮗��ł���悤�ɂ����D
+\noindent PDR�̈����ɂ��ďq�ׂ�D
+PDR�͎�M���O�̍s���Ɋ�Â��w�W�i�d���܂ށj�ƁCseq�Ń��j�[�N�������w�W�i�d�����O�j��2��ނ���ʂ���DQoS��r�ł́C�A�h�o�^�C�W���O�C�x���g�́u��������x�ł��E�������v��\��$\mathrm{PDR}_{\mathrm{unique}}$��D�悷��i\secref{sec:metrics_detail}���Q�Ɓj�D
+\noindent �L���f�[�^���iEffective Length�j�ƏI�[�����ɂ��ďq�ׂ�D
+�^�l�itruth�j�͗L�����̃��x���n��ł���C���s���Ԃ̃N�����v�ɂ�薖�[�̑J�ڂ����s��ԊO�ɏo��ꍇ������D���̏ꍇ�C���[�J�ڂ��܂߂��]���͕s����ɂȂ邽�߁Ctruth�������������ɃN���b�v���C�C�x���g��$N_{\mathrm{event}}$�̕���𑵂���D���̏����́C���s�Ԕ�r�ƍČ����̊ϓ_�ŏd�v�ł���D
 
-結果（図表）について述べる．
-\noindent scan90の指標サマリについて述べる．
-\figref{fig:stress_fixed_scan90_metrics}に，scan90における主要指標の例（v4とv5の比較）を示す．図中の横軸はアドバタイジング間隔（ms），縦軸は各指標（PDR\_unique，TL\_p95，$P_{\mathrm{out}}(1\,\mathrm{s})$，平均電力等）を表す．v4とv5の差分を同一図に重ねることで，時間同期補正がTL/Poutに与える影響を確認できる．
+���ʁi�}�\�j�ɂ��ďq�ׂ�D
+\noindent scan duty 90\%�̎w�W�T�}���ɂ��ďq�ׂ�D
+\figref{fig:stress_fixed_scan90_metrics}�ɁCscan duty 90\%�ɂ������v�w�W�̗�i�␳�O/�␳��̔�r�j�������D�}���̉����̓A�h�o�^�C�W���O�Ԋu�ims�j�C�c���͊e�w�W�i$\mathrm{PDR}_{\mathrm{unique}}$�C$TL_{p95}$�C$P_{\mathrm{out}}(1\,\mathrm{s})$�C���ϓd�͓��j��\���D�F��S1/S4�C����͕␳�O�iv4�j/�␳��iv5�j��\���C$TL_{p95}$�̏c���͑ΐ��X�P�[����p�����D�␳�O�ƕ␳��̍����𓯈�}�ɏd�˂邱�ƂŁC���ԓ����␳��TL/Pout�ɗ^����e�����m�F�ł���D
 
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.95\linewidth]{figures/stress_scan90_metrics_v4_v5.png}
-  \caption{ストレス固定（scan90）の主要指標（v4/v5比較，横軸：間隔，縦軸：PDR/TL\_p95/Pout/電力）}
+  \caption{�X�g���X�Œ�iscan duty 90\%�j�̎�v�w�W�i�␳�O/�␳��̔�r�j�D�F��S1/S4�C�����v4/v5�C$TL_{p95}$�̏c���͑ΐ��X�P�[���D}
   \label{fig:stress_fixed_scan90_metrics}
 \end{figure}
-\noindent 実測と簡易モデルの比較について述べる．
-\figref{fig:stress_fixed_real_vs_sim}に，ストレス固定における実測と簡易モデル（比較用）の例を示す．図中の棒は$P_{\mathrm{out}}(1\,\mathrm{s})$（実測とモデルの比較），折れ線は固定\SI{100}{\milli\second}で正規化した平均電力であり，左軸が$P_{\mathrm{out}}(1\,\mathrm{s})$，右軸が相対電力に対応する．簡易モデルは，スキャンの非理想性や開始位相ずれの影響を完全には表現できないため，実測との差分が残る．ただし，固定間隔の相対関係（短間隔ほど遅延が改善しやすい等）のトレンドを説明する補助として利用できる．
+\noindent �����ƊȈՃ��f���̔�r�ɂ��ďq�ׂ�D
+\figref{fig:stress_fixed_real_vs_sim}�ɁC�X�g���X�Œ�ɂ���������ƊȈՃ��f���i��r�p�j�̗�������D�}���̖_��$P_{\mathrm{out}}(1\,\mathrm{s})$�i�����ƃ��f���̔�r�j�C�܂���͌Œ�\SI{100}{\milli\second}�Ő��K���������ϓd�͂ł���C������$P_{\mathrm{out}}(1\,\mathrm{s})$�C�E�������Γd�͂ɑΉ�����D�ȈՃ��f���́C�X�L�����̔񗝑z����J�n�ʑ�����̉e�������S�ɂ͕\���ł��Ȃ����߁C�����Ƃ̍������c��D�������C�Œ�Ԋu�̑��Ί֌W�i�Z�Ԋu�قǒx�������P���₷�����j�̃g�����h���������⏕�Ƃ��ė��p�ł���D
 
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.95\linewidth]{figures/stress_real_vs_sim.png}
-  \caption{ストレス固定における実測と簡易モデルの比較（棒：$P_{\mathrm{out}}(1\,\mathrm{s})$，折れ線：相対電力，左軸：$P_{\mathrm{out}}$，右軸：相対電力）}
+  \caption{�X�g���X�Œ�ɂ���������ƊȈՃ��f���̔�r�i�_�F$P_{\mathrm{out}}(1\,\mathrm{s})$�C�܂���F���Γd�́C�����F$P_{\mathrm{out}}$�C�E���F���Γd�́j}
   \label{fig:stress_fixed_real_vs_sim}
 \end{figure}
-\noindent scan50とscan90の比較について述べる．
-\figref{fig:stress_fixed_scan50_vs_scan90_pdr}に，scan50とscan90の比較（PDR\_unique，$P_{\mathrm{out}}(1\,\mathrm{s})$，TL\_p95）を示す．図中の横軸はアドバタイジング間隔（ms），縦軸は各指標を表し，系列はscan50（低duty）とscan90（高duty）である．duty比を上げることで短間隔側の受信品質が改善し，Pout/TLにも差が出ることが確認できる．
+\noindent scan duty 50\%��90\%�̔�r�ɂ��ďq�ׂ�D
+\figref{fig:stress_fixed_scan50_vs_scan90_pdr}�ɁCscan duty 50\%��90\%�̔�r�i$\mathrm{PDR}_{\mathrm{unique}}$�C$P_{\mathrm{out}}(1\,\mathrm{s})$�C$TL_{p95}$�j�������D�}���̉����̓A�h�o�^�C�W���O�Ԋu�ims�j�C�c���͊e�w�W��\���C�n���scan duty 50\%/90\%�ł���i�}��Q�Ɓj�D$TL_{p95}$�̏c���͑ΐ��X�P�[����p�����Dduty����グ�邱�ƂŒZ�Ԋu���̎�M�i�������P���CPout/TL�ɂ������o�邱�Ƃ��m�F�ł���D
 
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.85\linewidth]{figures/stress_scan50_vs_scan90_metrics_v5.png}
-  \caption{ストレス固定におけるscan50とscan90の比較（横軸：間隔，縦軸：PDR/Pout/TL\_p95，系列：scan50/90）}
+  \caption{�X�g���X�Œ�ɂ�����scan duty 50\%/90\%�̔�r�i�����F�Ԋu�C�c���FPDR/Pout/$TL_{p95}$�C�n��F��duty/��duty�C$TL_{p95}$�͑ΐ��X�P�[���j}
   \label{fig:stress_fixed_scan50_vs_scan90_pdr}
 \end{figure}
 
-時間同期の導入により，TL/Poutが大きく変化する条件が存在する．例えば，固定\SI{2000}{\milli\second}の$P_{\mathrm{out}}(1\,\mathrm{s})$や，固定\SI{100}{\milli\second}のTL平均値が大きく更新される場合がある．本研究では，v5を正式な定義として扱い，以降の評価および図表においては，この補正済み定義（v5）を一貫して採用する．
+���ԓ����̓����ɂ��CTL/Pout���傫���ω�������������݂���D�Ⴆ�΁C�Œ�\SI{2000}{\milli\second}��$P_{\mathrm{out}}(1\,\mathrm{s})$��C�Œ�\SI{100}{\milli\second}��TL���ϒl���傫���X�V�����ꍇ������D�{�����ł́C�␳��̒�`�𐳎��Ȓ�`�Ƃ��Ĉ����C�ȍ~�̕]������ѐ}�\�ɂ����ẮC���̕␳�ςݒ�`����т��č̗p����D
 
-最後にまとめを述べる．
-本節では，ストレス固定実験を用いてTL/Poutの定義と実装を固定し，開始位相ずれを補正するv5の時間同期手順を示した．以降では，この指標定義を前提として，固定間隔および動的制御の評価を行う．
+�Ō�ɂ܂Ƃ߂��q�ׂ�D
+�{�߂ł́C�X�g���X�Œ������p����TL/Pout�̒�`�Ǝ������Œ肵�C�J�n�ʑ������␳����萔�I�t�Z�b�g�␳�̎��ԓ����菇���������D�ȍ~�ł́C���̎w�W��`��O��Ƃ��āC�Œ�Ԋu����ѓ��I����̕]�����s���D
+
 
 
 

@@ -1,0 +1,79 @@
+[2026-01-26 03:02:11 +0900] Phase2 offline studies: Gate B(v04)
+- •ÏX: scripts/phase2_offline_eval/models/safe_ucb.py
+  - ilter_ucb_online(SafetyFilterUCB)‚ğ prior allow-list + online§–ñ(LCB)‚Åƒ}ƒXƒNXV‚·‚éİŒv‚É•ÏXisafe_set‹ó‚Åbaseline’£‚è•t‚«‚É‚È‚é–â‘è‚ğ‰ñ”ğj
+- •ÏX: scripts/phase2_offline_eval/run_offline_studies.py
+  - warm-start‚Å prior != target ‚ÌƒVƒiƒŠƒI‚Í switch_at=0 ‚Æ‚µ‚Äˆµ‚¢Aiolations_first_after_switch_k(k=50)‚ğí‚ÉZo
+- Às: python scripts/phase2_offline_eval/run_offline_studies.py --reward-mode per_60s --constraint-ci wilson --constraint-delta 0.05 --init-strategy safe_seed --T 1000 --n-reps 100 --base-seed 0xD4B40201 --out-dir results/phase2_offline_studies_2026-01-26_v04
+  - o—Í: 
+esults/phase2_offline_studies_2026-01-26_v04/
+  - Gate B(shift at start, E2 warm shift):
+    - filter_ucb: violation_rate_mean=0.11264, violations_first_after_switch_k_mean=5.45 (k=50)
+    - filter_ucb_online_w0_m0.03_r0: violation_rate_mean=0.00762, violations_first_after_switch_k_mean=3.07
+    - o“T: 
+esults/phase2_offline_studies_2026-01-26_v04/sim_summary.csv
+  - Gate B(explicit shift, E1->E2 mid-run):
+    - filter_ucb: violations_after_switch_mean=55.51, violations_first_after_switch_k_mean=5.75 (k=50)
+    - filter_ucb_online_w0_m0.03_r1: violations_after_switch_mean=7.41, violations_first_after_switch_k_mean=3.11, avg_cost_mean=1338.056
+    - o“T: 
+esults/phase2_offline_studies_2026-01-26_v04/sim_summary.csv
+- ƒhƒLƒ…ƒƒ“ƒgXV:
+  - docs/ƒtƒF[ƒY2/phase2_bandit_offline_studies_2026-01-24/README.md
+  - docs/ƒtƒF[ƒY2/phase2_bandit_offline_studies_2026-01-24/Œ»óÚ×.md
+  - docs/ƒtƒF[ƒY2/phase2_bandit_offline_studies_2026-01-24/l@.md
+  - docs/ƒtƒF[ƒY2/phase2_bandit_offline_studies_2026-01-24/TODO.md
+  - docs/TODO.md
+
+[2026-01-26 08:38:35 +0900] Phase2 offline studies: Gate B Pareto + Gate C shortlist check
+- ’Ç‰ÁƒXƒNƒŠƒvƒg: scripts/phase2_offline_eval/analyze_gateb_pareto.py
+  - v04‚Ì Gate B(shift at start / mid-run) ‚ğ“‡‚µAworst-case(p95)‚Å Pareto ‚ğo—Í
+  - o—Í: 
+esults/phase2_offline_studies_2026-01-26_v04/gateb_candidates.csv, 
+esults/phase2_offline_studies_2026-01-26_v04/gateb_pareto_front.csv, 
+esults/phase2_offline_studies_2026-01-26_v04/gateb_pareto.md
+- Gate C Œó•âƒ`ƒFƒbƒN: scripts/phase2_offline_eval/run_gatec_candidates.py
+  - Às: python scripts/phase2_offline_eval/run_gatec_candidates.py --gateb-run-dir results/phase2_offline_studies_2026-01-26_v04 --top-n 3 --out-dir results/phase2_gatec_candidates_2026-01-26_v01 --tau-s 2.0 --epsilon 0.10 --T 1000 --n-reps 100 --base-seed 0xD4B40201
+  - o—Í: 
+esults/phase2_gatec_candidates_2026-01-26_v01/
+  - Œ‹‰Ê(”²ˆ, scan90->scan70 tau=2.0):
+    - filter_ucb (500ms’£‚è•t‚«): violation_rate_mean=0.10278, violations_after_switch_mean=57.03
+    - filter_ucb_online_w0_m0_r1: violation_rate_mean=0.07436, violations_after_switch_mean=32.52, pull_500_mean=570.06
+    - filter_ucb_online_w0_m0.02_r1 / m0.03_r1: 100msŒÅ’è‚É‚È‚è avg_cost_mean=3368.598
+    - o“T: 
+esults/phase2_gatec_candidates_2026-01-26_v01/sim_summary.csv
+- ƒhƒLƒ…ƒƒ“ƒgXV:
+  - docs/ƒtƒF[ƒY2/phase2_bandit_offline_studies_2026-01-24/l@.mdiPareto•\ + Gate C’Z•]j
+  - docs/ƒtƒF[ƒY2/phase2_bandit_offline_studies_2026-01-24/TODO.mdiGate Cƒ`ƒFƒbƒN’Ç‹Lj
+
+[2026-01-26 09:40:43 +0900] Phase2 offline studies: Gate B cap + Gate C m-sweep + Gate B re-eval (v05)
+- •ÏX: scripts/phase2_offline_eval/analyze_gateb_pareto.py
+  - cap’Ç‰Á: --max-viol-after-worst-mean / --max-viol-after-worst-p95
+  - cap=25 ‚Å Gate B ‚ÌŒó•â’è‹`‚ğXVim=0 ‚ğ—‚Æ‚µ‚Ä m=0.01 ‚ğŒó•â‰»j
+- Àsicap=25j:
+  - 
+esults/phase2_offline_studies_2026-01-26_v04/gateb_pareto_cap25.md
+  - 
+esults/phase2_offline_studies_2026-01-26_v05/gateb_pareto_cap25.md
+- •ÏX: scripts/phase2_offline_eval/run_gatec_candidates.py
+  - --m-list / --w / --reset ‚ğ’Ç‰Á‚µAm×—±“x sweep ‚ğ‰Â”\‰»
+- ÀsiGate C m-sweep, tau=2.0 diagnosticj:
+  - 
+esults/phase2_gatec_sweep_m_2026-01-26_v02/sim_summary.csv
+  - ŠÏ‘ª: m>=0.015 ‚Å 100msŒÅ’èAm=0.005/0.01 ‚Å 500msˆÛ+ˆê•”100ms‘Ş”ğio“T: “¯CSVj
+- ÀsiGate B Ä•]‰¿j:
+  - python scripts/phase2_offline_eval/run_offline_studies.py ... --out-dir results/phase2_offline_studies_2026-01-26_v05
+  - Gate B Pareto(cap=25) shortlist: m=(0.03, 0.02, 0.01)io“T: 
+esults/phase2_offline_studies_2026-01-26_v05/gateb_pareto_cap25.mdj
+- ƒhƒLƒ…ƒƒ“ƒgXV:
+  - docs/ƒtƒF[ƒY2/phase2_bandit_offline_studies_2026-01-24/README.md
+  - docs/ƒtƒF[ƒY2/phase2_bandit_offline_studies_2026-01-24/Œ»óÚ×.md
+  - docs/ƒtƒF[ƒY2/phase2_bandit_offline_studies_2026-01-24/l@.md
+  - docs/ƒtƒF[ƒY2/phase2_bandit_offline_studies_2026-01-24/TODO.md
+  - docs/TODO.md
+
+2026-01-26 10:05 JST\n- \¬B—p‚ÌÀŒ±Íƒ‰ƒbƒp‚ğXV: Cm˜_•¶/chapters/ch5_experiments.texiÀŒ±Í“±“ü+“ü—Í®—j\n- \¬A/BØ‘Ö‚Ì‰^—pREADME‚ğÄì¬: Cm˜_•¶/ƒeƒ“ƒvƒŒ‰^—pREADME.md\n- —pŒê“ˆêiL¨ƒAƒhƒoƒ^ƒCƒWƒ“ƒOj: Cm˜_•¶/chapters/ch4_rain.tex\n
+[2026-01-26 11:01 JST] C˜_C³: Phase2•\‚Ì§–ñˆá”½—¦‚ğC³E•S•ª—¦•\‹L‚ğ–¾‹LiCm˜_•¶/chapters/ch10_phase2_concept.texjBPhase2•t˜^}ƒLƒƒƒvƒVƒ‡ƒ“‚ğ‰pŒêRegret•\‹L‚É®—iCm˜_•¶/chapters/appx_j_phase2_figs.texjBƒXƒgƒŒƒXŒÅ’è}‚Ì–}—á/‘Î”²à–¾‚ğ’Ç‹LiCm˜_•¶/chapters/ch6_stress_fixed.texjB
+2026-01-26 14:41 JST: Gate B/C ??????????? ???=docs/????2/phase2_bandit_offline_studies_2026-01-24/README.md, docs/????2/phase2_bandit_offline_studies_2026-01-24/??.md? ??=results/phase2_offline_studies_2026-01-26_v05/gateb_pareto_cap25.md?m=0.03/0.02/0.01?? results/phase2_gatec_sweep_m_2026-01-26_v02/sim_summary.csv?m>=0.015????
+2026-01-26 14:49 JST: README/???????????????????????????? ???=docs/????2/phase2_bandit_offline_studies_2026-01-24/README.md, docs/????2/phase2_bandit_offline_studies_2026-01-24/??.md? ??=results/phase2_offline_studies_2026-01-26_v05/gateb_pareto_cap25.md, results/phase2_gatec_sweep_m_2026-01-26_v02/sim_summary.csv?
+2026-01-26 15:10 JST: Collected TXSD logs (D4B scan90) from D:\\logs -> uccs_d4b_scan90/data/02_n10_run01/TX (trial_050-087, c1-4, firmware=TXSD_UCCS_D4B_SCAN90). SHA256.txt generated. RX/manifest pending.
+2026-01-26 15:34:17 JST ä¿®è«–æœ¬æ–‡ã®ã‚³ãƒ¼ãƒ‰è¡¨è¨˜æ•´ç†: ch2_proposed.tex ã® reason è¡¨è¨˜ã‚’ç†ç”±ã‚¿ã‚°ã¸ã€ch3_oncampus.tex ã® trial_XXX.csv è¡¨è¨˜ã‚’é€£ç•ªCSVã¸ç½®æ›ã€‚ch10_phase2_concept.tex ã®ãƒ‡ãƒ¼ã‚¿è­˜åˆ¥å­ã‚’è‡ªç„¶è¨€èªåŒ–ï¼ˆv02ãƒ‡ãƒ¼ã‚¿è¡¨ç¾ï¼‰ã€‚
+2026-01-26 15:43 JST: ??????? docs/????2/phase2_bandit_offline_studies_2026-01-24/????.md ????Phase0-1???????Gate B/C?Phase2???????????????

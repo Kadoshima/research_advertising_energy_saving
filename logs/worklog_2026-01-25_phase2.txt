@@ -1,0 +1,23 @@
+[2026-01-25 01:54 JST] Phase2 offline studies: reward_mode switch (per_adv <-> per_60s)
+- Updated reward model to support reward_mode=per_adv(uJ/adv) and per_60s(mJ/60s): scripts/phase2_offline_eval/models/reward_model.py
+- Updated study runner outputs to be unit-aware + added CLI flag --reward-mode: scripts/phase2_offline_eval/run_offline_studies.py
+- Ran v02 (per_60s): results/phase2_offline_studies_2026-01-25_v02/
+  - Key: E2 cold UCB violation_rate_mean~0.482 vs Safe-UCB~0.00069 (see results/phase2_offline_studies_2026-01-25_v02/sim_summary.csv)
+- Updated docs: docs/????2/phase2_bandit_offline_studies_2026-01-24/README.md, docs/????2/phase2_bandit_offline_studies_2026-01-24/??.md
+[2026-01-25 12:06 JST] Documented detailed current status for Phase2 offline studies
+- Added/updated detailed memo: docs/????2/phase2_bandit_offline_studies_2026-01-24/????.md
+- Linked from task README: docs/????2/phase2_bandit_offline_studies_2026-01-24/README.md
+[2026-01-25 14:01 JST] Phase2 offline studies docs/TODO rewrite (gate plan)
+- Updated docs/TODO.md Phase2 gate list + links
+- Added gate/TODO doc: docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/TODO.md
+- Rewrote analysis memo to follow gate flow: docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/考察.md
+- Updated detailed status + next steps: docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/現状詳細.md
+- Updated task index README: docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/README.md
+
+[2026-01-25 15:04 JST] Phase2 offline studies v03 (gate scenarios + diagnostics)
+- Updated Safe-UCB options/diagnostics: scripts/phase2_offline_eval/models/safe_ucb.py
+- Updated runner (new CLI flags, filter_ucb, new scenarios, sim_summary diagnostics/pulls): scripts/phase2_offline_eval/run_offline_studies.py
+- Ran v03 (per_60s, constraint_ci=hoeffding, delta=0.05, init_strategy=safe_seed): results/phase2_offline_studies_2026-01-25_v03/
+  - Gate A (E1_scan90 actions4): filter_ucb avg_cost_mean=1096.47 vs Oracle=1093.57, violation_rate_mean~0.0577; Safe-UCB stuck at 100ms (pull_100_mean=998.00)
+  - Gate B (filter_env=E1 -> target=E2): filter_ucb violation_rate_mean~0.1126
+- Updated docs: docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/README.md, docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/現状詳細.md, docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/考察.md, docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/TODO.md, docs/TODO.md

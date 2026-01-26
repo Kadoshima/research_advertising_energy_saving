@@ -1,0 +1,5 @@
+condition,n_trials,pout_1s_mean,pout_1s_std,tl_mean_s_mean,tl_mean_s_std,pdr_unique_mean,pdr_unique_std,rx_tag_share100_time_est_mean,rx_tag_share100_time_est_std,avg_power_mW_mean,avg_power_mW_std,adv_count_mean,adv_count_std,share100_power_mix_mean
+S4_ablation_ccs_off,10,0.141463,0.032111,3.896863,0.515182,0.206177,0.025482,0.400783,0.00778,307.406,3.972,1279.0,4.595,0.722015
+S4_fixed100,10,0.143902,0.033422,3.952186,0.446134,0.165117,0.017074,1.0,0.0,314.491,3.676,1754.5,4.503,
+S4_fixed500,10,0.35122,0.061057,4.872227,0.305395,0.520382,0.053214,0.0,0.0,289.004,6.181,349.4,0.966,
+S4_policy,10,0.141463,0.015426,3.826861,0.304283,0.21076,0.023688,0.400764,0.01012,306.925,4.021,1273.0,4.595,0.703143

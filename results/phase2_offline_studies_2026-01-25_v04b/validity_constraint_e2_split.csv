@@ -1,0 +1,4 @@
+action_ms,tau_s,pout_train_mean,pout_test_mean,abs_error,pred_safe,actual_safe,n_train_trials,n_test_trials
+500,1.0,0.0,0.0,0.0,True,True,3,2
+1000,1.0,0.14814814814814814,0.05555555555555555,0.09259259259259259,False,True,3,2
+2000,1.0,0.5555555555555556,0.5555555555555556,0.0,False,False,3,2

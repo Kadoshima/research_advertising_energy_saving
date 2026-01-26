@@ -16,7 +16,7 @@
   \midrule
   \endhead
   OFFがONより大きい（$\Delta E<0$） & 欠損，単位換算，条件混在 & 生ログ再積分とsummaryの一致，コード系列の統一 \\
-  TL/Poutが不自然に小さい & RXとtruthの時間軸ずれ & 定数オフセット補正（v5）を適用したか \\
+  TL/Poutが不自然に小さい & RXとtruthの時間軸ずれ & 定数オフセット補正を適用したか \\
   PDRが1を超える & 重複受信の混入 & seqユニーク化（PDR\_unique）を優先 \\
   adv\_countが期待値と乖離 & TICK未接続，推定の誤差 & TICK物理カウントの有無，推定式の前提 \\
   SDログが途中で途切れる & SD I/O，電源，ファイルopen & 末尾summaryの有無，open/initエラー \\
@@ -33,7 +33,7 @@
   \item 判断：監査を通過した上で$\Delta E<0$が再現する場合，電源ドメインや無線状態遷移など物理要因を再検討する．
 \end{itemize}
 \noindent TL/Poutの過小評価（開始位相ずれ）について述べる．
-RXログの開始がtruthより遅れる等の理由で，RXの時間軸とtruthの時間軸が一致しない場合がある．このずれを補正しないと，TLや$P_{\mathrm{out}}(\tau)$が過小評価される．本研究ではv5として，seqから定数オフセットを推定して補正する手順を採用する（\secref{sec:stress_fixed_metrics}）．
+RXログの開始がtruthより遅れる等の理由で，RXの時間軸とtruthの時間軸が一致しない場合がある．このずれを補正しないと，TLや$P_{\mathrm{out}}(\tau)$が過小評価される．本研究では，seqから定数オフセットを推定して補正する手順を採用する（\secref{sec:stress_fixed_metrics}）．
 \noindent UARTデータ化け（数値列への文字混入）について述べる．
 UARTログが壊れると，欠損や桁ズレが連鎖し，積分と分母（試行時間・アドバタイジング回数）が不整合になる．
 \begin{itemize}

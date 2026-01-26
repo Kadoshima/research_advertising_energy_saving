@@ -1,6 +1,6 @@
 // RX_UCCS_D4B_SCAN90.ino (uccs_d4b_scan90)
 // Receive TX_UCCS_D4B packets (MFD "<step_idx>_<tag>") and log to SD.
-// - SYNC gate: TX GPIO25 -> RX GPIO26.
+// - SYNC gate: TX GPIO26 -> RX GPIO26.
 // - NimBLE passive scan with scan90% (interval=100ms, window=90ms).
 
 #include <Arduino.h>
@@ -13,7 +13,7 @@ static const int SD_CS   = 5;
 static const int SD_SCK  = 18;
 static const int SD_MISO = 19;
 static const int SD_MOSI = 23;
-static const int SYNC_IN = 26; // TX GPIO25 -> RX GPIO26
+static const int SYNC_IN = 26; // TX GPIO26 -> RX GPIO26
 
 // scan90
 static const float SCAN_INTERVAL_MS = 100.0f;

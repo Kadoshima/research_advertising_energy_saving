@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Plot estimated 100ms occupancy ratio (rho-hat) vs QoS (pout_1s) with per-run normalization.
+Plot estimated 100ms occupancy ratio (rho-hat) vs QoS (P_out(1 s)) with per-run normalization.
 
-ρ̂100 = (P - P500) / (P100 - P500)
+rho_hat_100 = (P - P500) / (P100 - P500)
   - P100: fixed100 avg_power_mW_mean within the same run
   - P500: fixed500 avg_power_mW_mean within the same run
 
 This removes day-to-day drift and makes the "same energy allocation, better QoS"
 story for CCS (D4B: U-only vs U+CCS) visually crisp, while avoiding symbol clash
-with CCS weight α used in the thesis text.
+with CCS weight alpha used in the thesis text.
 
 Inputs: one or more summary_by_condition.csv files (no external deps).
 Output: dependency-free SVG.
@@ -148,7 +148,7 @@ def write_svg(out_svg: Path, title: str, pts: List[Pt]) -> None:
     xerrs = [p.rho_std for p in pts if not math.isnan(p.rho)]
     yerrs = [p.pout_std for p in pts if not math.isnan(p.pout)]
     # Axis bounds (stable and "nice" ticks for readability).
-    # ρ̂100 is share-like; keep it around [0, 1] with small margins.
+    # rho_hat_100 is share-like; keep it around [0, 1] with small margins.
     xmin, xmax = 0.0, 1.0
     ymin = 0.0
     ymax_raw = max((y + ye) for y, ye in zip(ys, yerrs)) if ys else 0.2
@@ -180,15 +180,15 @@ def write_svg(out_svg: Path, title: str, pts: List[Pt]) -> None:
         svg.append(f'<line x1="{ml}" y1="{py:.2f}" x2="{ml+pw}" y2="{py:.2f}" stroke="{grid}" stroke-width="1"/>')
         svg.append(f'<text x="{ml-10}" y="{py+4:.2f}" font-size="12" text-anchor="end" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">{_fmt_tick(ty)}</text>')
 
-    svg.append(f'<text x="{ml+pw/2:.1f}" y="{height-24}" font-size="14" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">Estimated 100ms share ρ̂100 (power-mix)</text>')
-    svg.append(f'<text x="22" y="{mt+ph/2:.1f}" font-size="14" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system" transform="rotate(-90 22 {mt+ph/2:.1f})">pout_1s (lower=better)</text>')
+    svg.append(f'<text x="{ml+pw/2:.1f}" y="{height-24}" font-size="14" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">Estimated 100 ms share rho_hat_100 (power-mix)</text>')
+    svg.append(f'<text x="22" y="{mt+ph/2:.1f}" font-size="14" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system" transform="rotate(-90 22 {mt+ph/2:.1f})">P_out(1 s) (lower is better)</text>')
 
-    # ε=0.1 guideline (for D3 scan70 story)
+    # eps=0.1 guideline (for D3 scan70 story)
     y_delta = 0.1
     if y_delta >= ymin and y_delta <= ymax:
         py = ypx(y_delta)
         svg.append(f'<line x1="{ml}" y1="{py:.2f}" x2="{ml+pw}" y2="{py:.2f}" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6 4"/>')
-        svg.append(f'<text x="{ml+pw-10}" y="{py-8:.2f}" font-size="12" text-anchor="end" fill="#6b7280" font-family="ui-sans-serif, system-ui, -apple-system">ε=0.1</text>')
+        svg.append(f'<text x="{ml+pw-10}" y="{py-8:.2f}" font-size="12" text-anchor="end" fill="#6b7280" font-family="ui-sans-serif, system-ui, -apple-system">eps=0.1</text>')
 
     label_cfg = {
         # keys: f"{group}_{cond}" (see main())

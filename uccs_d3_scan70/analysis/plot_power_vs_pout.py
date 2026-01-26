@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Plot Step D3 tradeoff: avg_power_mW vs pout_1s with share100 annotation (S4 only).
+Plot Step D3 tradeoff: P_out(1 s) vs average power with rho-hat annotation (S4 only).
 """
 
 from __future__ import annotations
@@ -63,12 +63,12 @@ def get_point(
     key: str,
 ) -> Tuple[float, float, float, float, Optional[float], Optional[float]]:
     r = rows.get(key, {})
-    x = r.get("avg_power_mW_mean")
-    y = r.get("pout_1s_mean")
+    x = r.get("pout_1s_mean")
+    y = r.get("avg_power_mW_mean")
     if x is None or y is None:
         raise SystemExit(f"missing required metrics for {key} in summary csv")
-    xerr = r.get("avg_power_mW_std") or 0.0
-    yerr = r.get("pout_1s_std") or 0.0
+    xerr = r.get("pout_1s_std") or 0.0
+    yerr = r.get("avg_power_mW_std") or 0.0
     adv = r.get("adv_count_mean")
     rx_share = r.get("rx_share100_mean")
     return float(x), float(y), float(xerr), float(yerr), adv, rx_share
@@ -78,7 +78,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--summary-csv", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--title", type=str, default="")
+    ap.add_argument("--title", type=str, default="", help="optional title (unused)")
     args = ap.parse_args()
 
     repo_root = Path.cwd()
@@ -106,16 +106,44 @@ def main() -> None:
     share_mix = rows.get(kpol, {}).get("share100_power_mix_mean")
 
     fig, ax = plt.subplots(figsize=(7.0, 4.6))
-    ax.errorbar([x100, x500], [y100, y500], xerr=[x100e, x500e], yerr=[y100e, y500e],
-                fmt="s", ms=7, color="#1f77b4", capsize=3, linestyle="none", label="fixed")
-    ax.errorbar([xpol], [ypol], xerr=[xpole], yerr=[ypole],
-                fmt="o", ms=8, color="#ff7f0e", capsize=3, linestyle="none", label="policy (U+CCS)")
+    ax.errorbar(
+        [x100, x500],
+        [y100, y500],
+        xerr=[x100e, x500e],
+        yerr=[y100e, y500e],
+        fmt="s",
+        ms=7,
+        color="#1f77b4",
+        capsize=3,
+        linestyle="none",
+        label="fixed",
+    )
+    ax.errorbar(
+        [xpol],
+        [ypol],
+        xerr=[xpole],
+        yerr=[ypole],
+        fmt="o",
+        ms=8,
+        color="#ff7f0e",
+        capsize=3,
+        linestyle="none",
+        label="policy (U+CCS)",
+    )
 
     share = share_mix if share_mix is not None else compute_share100_from_adv(advpol, adv100, adv500)
     if share is None:
         share = rx_share_pol
     if share is not None:
-        ax.annotate(f"share100≈{share:.2f}", (xpol, ypol), textcoords="offset points", xytext=(8, 8), ha="left", fontsize=10, color="#ff7f0e")
+        ax.annotate(
+            rf"$\hat{{\rho}}_{{100}}\approx{share:.2f}$",
+            (xpol, ypol),
+            textcoords="offset points",
+            xytext=(8, 8),
+            ha="left",
+            fontsize=10,
+            color="#ff7f0e",
+        )
 
     ax.annotate("100", (x100, y100), textcoords="offset points", xytext=(6, -12), fontsize=9, color="#1f77b4")
     ax.annotate("500", (x500, y500), textcoords="offset points", xytext=(6, -12), fontsize=9, color="#1f77b4")
@@ -127,25 +155,26 @@ def main() -> None:
     yerrs = [y100e, y500e, ypole]
     x_min = min(x - xe for x, xe in zip(xs, xerrs))
     x_max = max(x + xe for x, xe in zip(xs, xerrs))
+    y_min = min(y - ye for y, ye in zip(ys, yerrs))
     y_max = max(y + ye for y, ye in zip(ys, yerrs))
-    x_step = 5.0
-    y_step = 0.05
-    xmin = math.floor((x_min - 0.5) / x_step) * x_step
-    xmax = math.ceil((x_max + 0.5) / x_step) * x_step
-    ymax = math.ceil((y_max + 0.005) / y_step) * y_step
+    x_step = 0.05
+    y_step = 5.0
+    xmin = max(0.0, math.floor((x_min - 0.005) / x_step) * x_step)
+    xmax = min(1.0, math.ceil((x_max + 0.005) / x_step) * x_step)
+    ymin = math.floor((y_min - 0.5) / y_step) * y_step
+    ymax = math.ceil((y_max + 0.5) / y_step) * y_step
+    if ymin < 0:
+        ymin = 0.0
     ax.set_xlim(xmin, xmax)
-    ax.set_ylim(0.0, ymax)
+    ax.set_ylim(ymin, ymax)
     ax.set_xticks([xmin + i * x_step for i in range(int(round((xmax - xmin) / x_step)) + 1)])
-    ax.set_yticks([i * y_step for i in range(int(round(ymax / y_step)) + 1)])
+    ax.set_yticks([ymin + i * y_step for i in range(int(round((ymax - ymin) / y_step)) + 1)])
     ax.margins(x=0.0, y=0.0)
 
-    ax.set_xlabel("avg_power_mW (TXSD)")
-    ax.set_ylabel("pout_1s")
+    ax.set_xlabel(r"$P_{\mathrm{out}}(1\,\mathrm{s})$")
+    ax.set_ylabel("Average power (mW)")
     ax.set_axisbelow(True)
     ax.grid(True, alpha=0.3)
-    title = args.title.strip()
-    if title:
-        ax.set_title(title)
     ax.legend(loc="upper right", frameon=True, fontsize=9)
 
     args.out.parent.mkdir(parents=True, exist_ok=True)

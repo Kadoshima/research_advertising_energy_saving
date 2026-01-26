@@ -1,32 +1,26 @@
-% chapters/appx_h_ccs_params.tex --- 付録H CCS写像およびパラメータ設定
-\section{CCS写像およびパラメータ設定}
+% chapters/appx_h_ccs_params.tex --- 付録H CCSパラメータ
+\section{CCSパラメータと既定値}
 \label{sec:ccs_params}
 
-本節では，Phase 1（ルールベース）で用いるCCS写像と主要パラメータを一覧化し，モデル更新時の再調整（キャリブレーション）対象を明確化する．評価の再現性のため，パラメータは実験ログ（TX）に保存し，作業ログに変更履歴を残す．
-
-まず，主要パラメータ（Phase 1既定値）について述べる．
-\tabref{tab:ccs_params_phase1}に，Phase 1で用いる代表的パラメータを示す．表中の各パラメータは，CCSの構成係数$\alpha$，安定度の窓長$W$，閾値$\theta_{\mathrm{low/high}}$，ヒステリシス幅$h$，最小滞在時間$t_{\min}$，および行動集合（アドバタイジング間隔の候補）から構成される．これらはモデルの出力分布や量子化誤差に依存するため，モデル更新時には再調整（キャリブレーション）が必要となる．
+本節では，Phase 1で用いたCCSの既定パラメータを整理する．CCSは不確実度$U$と安定度$S$の線形結合であり，閾値とヒステリシスにより状態遷移を制御する．運用ではパラメータを固定し，ログに記録することで再現性を担保した．表\ref{tab:ccs_params_phase1}に既定値を示す．
 
 \begin{table}[tb]
   \centering
-  \caption{CCS写像と安定化の主要パラメータ（例）}
+  \caption{CCSパラメータと既定値（Phase 1）}
   \label{tab:ccs_params_phase1}
   \begin{tabular}{p{0.28\linewidth}p{0.18\linewidth}p{0.44\linewidth}}
     \toprule
-    パラメータ & 値（例） & 説明 \\
+    パラメータ & 既定値 & 説明 \\
     \midrule
-    $\alpha$ & 0.7 & $\mathrm{CCS}=\alpha(1-U)+(1-\alpha)S$ の重み \\
-    $W$ & 5 & 安定度$S$の窓長（遷移回数の正規化） \\
-    $\theta_{\mathrm{low}}$ & 0.80 & ACTIVE$\leftrightarrow$UNCERTAINの閾値（上り） \\
-    $\theta_{\mathrm{high}}$ & 0.90 & UNCERTAIN$\leftrightarrow$QUIETの閾値（上り） \\
-    $h$ & 0.05 & ヒステリシス幅（下りは$\theta-h$） \\
-    $t_{\min}$ & \SI{2}{\second} & 最小滞在時間（切替の振動抑制） \\
-    行動集合 & $\{100,\allowbreak 500,\allowbreak 2000\}\,\si{\milli\second}$ & Phase 1の最小構成\newline（拡張候補は$\{100,\allowbreak 500,\allowbreak 1000,\allowbreak 2000\}$） \\
+    $\alpha$ & 0.7 & $\mathrm{CCS}=\alpha(1-U)+(1-\alpha)S$ の混合係数 \\
+    $W$ & 5 & 安定度$S$の移動窓長 \\
+    $\theta_{\mathrm{low}}$ & 0.80 & ACTIVE$\leftrightarrow$UNCERTAINの閾値 \\
+    $\theta_{\mathrm{high}}$ & 0.90 & UNCERTAIN$\leftrightarrow$QUIETの閾値 \\
+    $h$ & 0.05 & ヒステリシス幅（$\theta-h$） \\
+    $t_{\min}$ & \SI{2}{\second} & 最小維持時間（短周期切替の抑制） \\
+    行動集合 & $\{100,\allowbreak 500,\allowbreak 2000\}\,\si{\milli\second}$ & Phase 1の既定値（固定比較では$\{100,\allowbreak 500,\allowbreak 1000,\allowbreak 2000\}$） \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-最後にログへの記録項目について述べる．
-方策の説明可能性と再現性のため，少なくとも，不確実度・安定度・複合スコア（$U,S,\mathrm{CCS}$）と選択したアドバタイジング間隔$a$，閾値$\theta_{\mathrm{low/high}}$，ヒステリシス幅$h$，最小滞在時間$t_{\min}$，および切替理由（\texttt{\detokenize{reason}}）をTXログに記録する．これにより，結果図表の背後にある意思決定とパラメータを監査できる．
-
-
+パラメータはPhase 1の実験設計に合わせて固定し，評価時のログに記録した．以降の解析では，行動集合と閾値が一致していることを確認した上で比較を行う．

@@ -124,3 +124,5 @@
 2026-01-25 00:53:03 JST summarize_d3_run_v2.py ã®TXSDåˆ†é¡ã‚’ adv_count ã‚¯ãƒ©ã‚¹ã‚¿(æœ€å¤§2ã‚®ãƒ£ãƒƒãƒ—åˆ†å‰²)ã«å¤‰æ›´ã€‚n=10ã§ 357/358, 1225/1226, 1789/1790 ã‚’åŒæ¡ä»¶æ‰±ã„ã§ãã‚‹ã‚ˆã†èª¿æ•´ã€‚
 2026-01-25 00:55:15 JST D3 02_n10_run01 é›†è¨ˆå‡ºåŠ›ã‚’ç¢ºèª: uccs_d3_scan70/metrics/02_n10_run01 ã« summary.md / summary_by_condition.csv / per_trial.csv ã‚’ç”Ÿæˆã€‚
 2026-01-25 01:00:56 JST docs/ãƒ•ã‚§ãƒ¼ã‚º1/uccs_n10_2026-01-24/README.md ã« D3 scan70 n10 é›†è¨ˆçµæœï¼ˆsummary.md ã®ä¸»è¦å€¤/å·®åˆ†ï¼‰ã‚’è¿½è¨˜ã€‚
+2026-01-25 02:17 JST D4B(scan70) Arduino_MCP_SketchesXV: TX_UCCS_D4B_SCAN70‚Éstress_causal_s1_s4_180s.h”z’uAREPEAT=10‚ÆincludeC³BRX/TXSD‚à‘BCOM6=TX, COM8=TXSD, COM9=RX‚Ö‘‚İŠ®—¹iFQBN=esp32:esp32:esp32wroverkitjB
+2026-01-25 13:28 JST D4B(scan70) n10: TXSDƒƒO‚ğD:\\logs‚©‚ç uccs_d4b_scan70/data/02_n10_run01/TX ‚ÉƒRƒs[icond_id 1-4 Še10ƒtƒ@ƒCƒ‹jB

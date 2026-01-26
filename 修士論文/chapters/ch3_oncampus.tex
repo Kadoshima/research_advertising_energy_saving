@@ -79,7 +79,7 @@ TXSDログは，時刻と計測値（電圧・電流）を行ごとに保持し�
 \noindent RX（受信）ログについて述べる．
 RXログは，受信時刻，RSSI，ペイロード（seq等）を保持する．重複受信があるため，seqでユニーク化した件数を併記する（\secref{sec:metrics_detail}を参照）．また，TL/Pout算出にはRXログとtruthの時間軸整合が必要であり，定数オフセット補正を用いる（定義と実装は\secref{sec:stress_fixed_metrics}を参照）．
 \noindent ファイル命名について述べる．
-ログは試行単位で分割し，\texttt{\detokenize{trial_XXX.csv}}等の連番で管理する．条件IDやスキャン設定の違いは，preambleの条件ID（TICKパルス等）と作業ログにより追跡する．
+ログは試行単位で分割し，trialの連番CSVで管理する．条件IDやスキャン設定の違いは，preambleの条件ID（TICKパルス等）と作業ログにより追跡する．
 
 その後，計測方針（電力とQoSの同時評価）について述べる．
 本研究では，電力とQoSを同一試行で同時に評価する．電力はTXSD，QoSはRXを主に用いる．ただし，動的切替では「イベント時刻の定義」と「時間同期」が結果を左右するため，指標定義（特にTL/Pout）は\secref{sec:stress_fixed_metrics}を参照して固定する．

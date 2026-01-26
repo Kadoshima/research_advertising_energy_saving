@@ -1,6 +1,6 @@
 # 統合TODO（Phase 1 / Phase 2）
 
-- 最終更新: 2026-01-14
+- 最終更新: 2026-01-26
 - 対象スコープ:
   - Phase 2（モデルベース適応制御）の綿密計画と論文化
   - **Mode C2′（ラベル再生）**を用いた「広告間隔制御」の評価（固定 vs 因果CCS vs self-UCB）
@@ -15,14 +15,24 @@
 
 ## Phase 2 TODO（統合）
 
-- 詳細計画は `docs/フェーズ2/Phase2_TODO_2026-01-14.md` を正とする
-- ここではPhase 2のゲートのみ列挙し、Phase 1系と同じ入口に統合する
+- 詳細計画は `docs/フェーズ2/Phase2完了ロードマップ_2026-01-21.md` を正とする
+- bandit導入（offline）に関する gate 設計は `docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/TODO.md` に集約する
 
-- [ ] QoS指標仕様を凍結する（Pout(1s)の算出仕様）
-- [ ] Hold-out分割とリーク監査を確定する（trainのみで境界を固定）
-- [ ] 空セルの扱いを固定する（prior/バックオフ/分割縮退）
-- [ ] Safe Setパラメータの初期値を決める（ε_hard, confidence）
-- [ ] ログスコアリングと主要指標の集計を実行する
+- [x] Gate-P0: Safe bandit が学習器として成立する土台を作る（制約CI/初期探索/診断指標）
+  - v03 で CI/初期探索をオプション化し、safe_set_empty_rate/pull_* を出力（出典: results/phase2_offline_studies_2026-01-25_v03/）
+- [x] Gate-A: safeが複数ある環境（E1 scan90, actions4）で「安全の中で省電力最適」できる
+  - v03 の filter_ucb（Safety Filter + UCB）で Oracle-safe に近づくことを確認（出典: results/phase2_offline_studies_2026-01-25_v03/sim_summary.csv）
+- [x] Gate-B: warm-start の環境シフトで序盤違反が出る状況を再現し、壊れ方を制御できる
+  - v04 で filter_ucb_online を追加し、w/m/reset の sweep と序盤違反メトリクス（after_switch_k=50）で比較できる形にした
+  - 出典: results/phase2_offline_studies_2026-01-26_v04/sim_summary.csv
+- [ ] Gate-C: 非定常っぽさ（env switch）に最低限追従できる
+  - 2026-01-26: tau=2.0（追従性診断）で scan90->scan70 の m 細粒度 sweep を実行（候補の過剰保守を検出）
+  - 出典: results/phase2_gatec_sweep_m_2026-01-26_v02/sim_summary.csv
+- [ ] 仕様/再現性: QoS指標仕様を凍結する（Pout(1s)の算出仕様）
+- [ ] 仕様/再現性: Hold-out分割とリーク監査を確定する（trainのみで境界を固定）
+- [ ] 仕様/再現性: 空セルの扱いを固定する（prior/バックオフ/分割縮退）
+- [ ] 仕様/再現性: Safe Setパラメータ（ε_hard, confidence/CI）の初期値を決める
+- [ ] 評価: ログスコアリングと主要指標の集計を実行する
 
 ## 0. TL;DR（いま何が言えるか）
 

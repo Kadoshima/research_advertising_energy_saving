@@ -306,7 +306,6 @@ def write_tradeoff_plot(
 
     ax.set_xlabel("Avg Current (mA)")
     ax.set_ylabel(y_label)
-    ax.set_title(title)
     if log_y:
         ax.set_yscale("log")
         ax.yaxis.set_major_locator(mticker.LogLocator(base=10))

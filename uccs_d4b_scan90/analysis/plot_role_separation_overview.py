@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import csv
 import math
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -106,17 +107,32 @@ def write_svg(out_svg: Path, title: str, points: List[Point], arrows: List[Tuple
     grid = "#e5e7eb"
     bg = "#ffffff"
 
-    # Axis bounds + ticks (fixed & "nice" to avoid awkward steps).
+    # Axis bounds + ticks.
     xs = [p.x for p in points]
     ys = [p.y for p in points]
     xerrs = [p.xerr for p in points]
     yerrs = [p.yerr for p in points]
-    # Use round axis bounds so tick marks align with plot edges.
-    # NOTE: x error bars are omitted in this overview to keep the frame clean.
+
+    # X range stays fixed for consistent eps=0.1 placement.
     xmin, xmax = 0.0, 0.35
-    ymin, ymax = 185.0, 210.0
     x_ticks = [i * 0.05 for i in range(int(round(xmax / 0.05)) + 1)]
-    y_ticks = [185, 190, 195, 200, 205, 210]
+
+    # Expand Y range to include scan70 (n=10) points.
+    y_min = min(y - ye for y, ye in zip(ys, yerrs))
+    y_max = max(y + ye for y, ye in zip(ys, yerrs))
+    y_pad = max(5.0, (y_max - y_min) * 0.1)
+    ymin = math.floor((y_min - y_pad) / 5.0) * 5.0
+    ymax = math.ceil((y_max + y_pad) / 5.0) * 5.0
+    ymin = min(ymin, 185.0)
+
+    y_span = ymax - ymin
+    if y_span <= 40:
+        y_step = 5.0
+    elif y_span <= 80:
+        y_step = 10.0
+    else:
+        y_step = 20.0
+    y_ticks = [ymin + i * y_step for i in range(int(round((ymax - ymin) / y_step)) + 1)]
 
     def xpx(x: float) -> float:
         return ml + (x - xmin) * pw / (xmax - xmin) if xmax > xmin else ml + pw / 2
@@ -141,8 +157,8 @@ def write_svg(out_svg: Path, title: str, points: List[Point], arrows: List[Tuple
         svg.append(f'<line x1="{ml}" y1="{py:.2f}" x2="{ml+pw}" y2="{py:.2f}" stroke="{grid}" stroke-width="1"/>')
         svg.append(f'<text x="{ml-10}" y="{py+4:.2f}" font-size="12" text-anchor="end" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">{_fmt_tick(ty, 2)}</text>')
 
-    svg.append(f'<text x="{ml+pw/2:.1f}" y="{height-26}" font-size="14" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">pout_1s (lower=better)</text>')
-    svg.append(f'<text x="22" y="{mt+ph/2:.1f}" font-size="14" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system" transform="rotate(-90 22 {mt+ph/2:.1f})">avg_power_mW (lower=better)</text>')
+    svg.append(f'<text x="{ml+pw/2:.1f}" y="{height-26}" font-size="14" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">P_out(1 s) (lower is better)</text>')
+    svg.append(f'<text x="22" y="{mt+ph/2:.1f}" font-size="14" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system" transform="rotate(-90 22 {mt+ph/2:.1f})">Average power (mW)</text>')
 
     # eps=0.1 guideline (Pout constraint)
     x_eps = 0.1
@@ -162,7 +178,7 @@ def write_svg(out_svg: Path, title: str, points: List[Point], arrows: List[Tuple
             continue
         x1, y1 = xpx(ps.x), ypx(ps.y)
         x2, y2 = xpx(pd.x), ypx(pd.y)
-        svg.append(f'<line x1="{x1:.2f}" y1="{y1:.2f}" x2="{x2:.2f}" y2="{y2:.2f}" stroke="{axis}" stroke-width="2" marker-end="url(#arrow)" opacity="0.85"/>')
+        svg.append(f'<line x1="{x1:.2f}" y1="{y1:.2f}" x2="{x2:.2f}" y2="{y2:.2f}" stroke="{axis}" stroke-width="2" marker-end="url(#arrow)" opacity="0.35"/>')
         if text:
             mx, my = (x1 + x2) / 2, (y1 + y2) / 2
             svg.append(f'<text x="{mx+6:.2f}" y="{my-6:.2f}" font-size="12" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">{_svg_escape(text)}</text>')
@@ -211,6 +227,133 @@ def write_svg(out_svg: Path, title: str, points: List[Point], arrows: List[Tuple
     out_svg.write_text("\n".join(svg), encoding="utf-8")
 
 
+def write_matplotlib(out_path: Path, title: str, points: List[Point], arrows: List[Tuple[str, str, str]]) -> None:
+    repo_root = Path.cwd()
+    xdg_cache = repo_root / ".cache"
+    xdg_cache.mkdir(exist_ok=True)
+    os.environ.setdefault("XDG_CACHE_HOME", str(xdg_cache))
+    mpl_dir = repo_root / ".mplconfig"
+    mpl_dir.mkdir(exist_ok=True)
+    os.environ.setdefault("MPLCONFIGDIR", str(mpl_dir))
+
+    import matplotlib  # type: ignore
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt  # type: ignore
+    from matplotlib.lines import Line2D  # type: ignore
+
+    fig, ax = plt.subplots(figsize=(9.8, 6.4), dpi=120)
+
+    # Axis bounds (match SVG layout, expanded for scan70 n=10).
+    ax.set_xlim(0.0, 0.35)
+    ax.set_xticks([i * 0.05 for i in range(8)])
+
+    ys = [p.y for p in points]
+    yerrs = [p.yerr for p in points]
+    y_min = min(y - ye for y, ye in zip(ys, yerrs))
+    y_max = max(y + ye for y, ye in zip(ys, yerrs))
+    y_pad = max(5.0, (y_max - y_min) * 0.1)
+    ymin = math.floor((y_min - y_pad) / 5.0) * 5.0
+    ymax = math.ceil((y_max + y_pad) / 5.0) * 5.0
+    ymin = min(ymin, 185.0)
+
+    y_span = ymax - ymin
+    if y_span <= 40:
+        y_step = 5.0
+    elif y_span <= 80:
+        y_step = 10.0
+    else:
+        y_step = 20.0
+    ax.set_ylim(ymin, ymax)
+    ax.set_yticks([ymin + i * y_step for i in range(int(round((ymax - ymin) / y_step)) + 1)])
+    ax.grid(True, color="#e5e7eb", linewidth=1.0)
+
+    ax.set_xlabel("P_out(1 s) (lower is better)")
+    ax.set_ylabel("Average power (mW)")
+    if title:
+        ax.set_title(title)
+
+    # eps=0.1 guideline
+    ax.axvline(0.1, color="#9ca3af", linestyle=(0, (6, 4)), linewidth=1.8)
+    ax.text(0.098, ymax - (ymax - ymin) * 0.03, "eps=0.1", ha="right", va="top", color="#6b7280", fontsize=10)
+
+    marker_map = {
+        "square": "s",
+        "triangle": "^",
+        "diamond": "D",
+        "circle": "o",
+    }
+
+    # Error bars + points
+    for p in points:
+        marker = marker_map.get(p.shape, "o")
+        ax.errorbar(
+            p.x,
+            p.y,
+            yerr=p.yerr,
+            fmt=marker,
+            ms=7,
+            color=p.color,
+            capsize=3,
+            linestyle="none",
+            alpha=0.95,
+        )
+
+    # Arrows
+    by_key: Dict[str, Point] = {p.key: p for p in points}
+    for src, dst, text in arrows:
+        ps = by_key.get(src)
+        pd = by_key.get(dst)
+        if ps is None or pd is None:
+            continue
+        ax.annotate(
+            "",
+            xy=(pd.x, pd.y),
+            xytext=(ps.x, ps.y),
+            arrowprops=dict(arrowstyle="->", color="#111827", lw=2.0, alpha=0.35),
+        )
+        if text:
+            mx, my = (ps.x + pd.x) / 2, (ps.y + pd.y) / 2
+            ax.text(mx + 0.005, my + 0.5, text, fontsize=10, color="#111827")
+
+    label_cfg = {
+        "scan70_fixed500": (10, -10, "left"),
+        "scan90_fixed500": (10, -10, "left"),
+        "scan70_policy": (12, -8, "left"),
+        "scan90_policy": (12, 22, "left"),
+        "scan90_ccs_off": (12, -8, "left"),
+        "scan90_fixed100": (-12, -10, "right"),
+        "scan70_fixed100": (-12, 18, "right"),
+        "scan90_u_shuf": (-12, 18, "right"),
+    }
+    for p in points:
+        if p.key not in label_cfg:
+            continue
+        dx, dy, align = label_cfg[p.key]
+        ax.annotate(
+            p.label,
+            (p.x, p.y),
+            textcoords="offset points",
+            xytext=(dx, dy),
+            ha=align,
+            fontsize=10,
+            color="#111827",
+            bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none", alpha=0.9),
+        )
+
+    legend = [
+        Line2D([0], [0], marker="s", color="none", markerfacecolor="#3b82f6", markeredgecolor="#3b82f6", label="scan90 fixed"),
+        Line2D([0], [0], marker="o", color="none", markerfacecolor="#10b981", markeredgecolor="#10b981", label="scan90 policy"),
+        Line2D([0], [0], marker="^", color="none", markerfacecolor="#f59e0b", markeredgecolor="#f59e0b", label="scan90 ablation"),
+        Line2D([0], [0], marker="D", color="none", markerfacecolor="#111827", markeredgecolor="#111827", label="scan70 (worse RX)"),
+    ]
+    ax.legend(handles=legend, loc="upper right", frameon=True, fontsize=9)
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.tight_layout()
+    fig.savefig(out_path)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--d4-csv", type=Path, default=Path("uccs_d4_scan90/metrics/01/summary_by_condition.csv"))
@@ -248,7 +391,10 @@ def main() -> None:
         ("scan90_policy", "scan70_policy", ""),
     ]
 
-    write_svg(args.out, title=args.title, points=pts, arrows=arrows)
+    if args.out.suffix.lower() == ".svg":
+        write_svg(args.out, title=args.title, points=pts, arrows=arrows)
+    else:
+        write_matplotlib(args.out, title=args.title, points=pts, arrows=arrows)
 
 
 if __name__ == "__main__":

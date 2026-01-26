@@ -1,45 +1,43 @@
-# テンプレ運用README（構成切替と編集運用）
+# テンプレ運用README（構成A/B切替）
 
-## 1. 目的
-- 構成Aと構成Bの切替手順と編集ルールを明文化する。
-- 章構成の切替と本文修正の混乱を避ける。
+本READMEは，修士論文の構成A/Bを切り替えるための運用手順と，構成編集時の注意点をまとめる．
 
-## 2. 構成Aと構成Bの概要
-### 構成A（従来構成）
-- 章の並びは `chapters/_order_a.tex` に定義する。
-- `main.tex` から `\input{chapters/_order_a}` を読み込む。
+## 1. 構成A/Bの概要
+- 構成A：現行の章構成（背景→提案→計測→評価→結論）を維持する構成．
+- 構成B：実験中心に整理する構成．実験を1章に集約し，目的・条件・結果・考察を実験単位で記述する．
 
-### 構成B（実験中心構成）
-- 章の並びは `chapters/_order_b.tex` に定義する。
-- 実験章は `chapters/ch5_experiments.tex` に集約し，個別実験は `\input{...}` で読み込む。
+具体的な章の順序は `chapters/_order_a.tex` / `chapters/_order_b.tex` に定義する．
 
-## 3. 構成の切替手順
-1. `修士論文/main.tex` の `\thesisstructure` を切り替える。
-   - `\newcommand{\thesisstructure}{a}` または `b`
-2. `main.tex` の `\input{chapters/_order_\thesisstructure}` により構成が切り替わる。
+## 2. 切替方法（main.tex）
+`main.tex` の `\thesisstructure` を `A` または `B` に設定する．
 
-## 4. 章の追加・移動ルール
-- 新規章は `chapters/chXX_*.tex` を作成し，必ず `\chapter{...}` と `\label{ch:...}` を付ける。
-- 参照は `\chapref{ch:...}` で統一し，ラベルの重複を避ける。
-- 参照先を変更した場合，本文の参照ラベルも合わせて更新する。
+```tex
+\newcommand{\thesisstructure}{A} % A または B
+...
+\input{chapters/_order_\thesisstructure}
+```
 
-## 5. 構成Bの編集ルール
-- 実験の追加は `chapters/ch5_experiments.tex` に `\section` 単位で追加し，本文は別ファイル化して `\input{...}` する。
-- 章内の節数は原則7以内，必要なら10以内を上限とする。
-- 章全体の考察は別章（考察章）に集約し，個別実験内の考察は簡潔にまとめる。
+## 3. 章順の管理（_order_A.tex / _order_B.tex）
+- `chapters/_order_a.tex`：構成Aの章順
+- `chapters/_order_b.tex`：構成Bの章順
 
-## 6. プロンプトルール（AI依頼時の指示）
-- 目的，構成（A/B），対象ファイルを明示する。
-- 変更範囲は指定されたファイルのみとする。
-- である調，句読点「，」「．」，用語は「アドバタイジング」に統一する。
-- 強調目的の太字導入句は使わず，完全な文章で記述する。
-- 章節番号と参照ラベルの整合を必ず確認する。
+章順を変更する場合は，`_order_*.tex` の `\input{...}` の順序を調整する．
 
-## 7. 切替後の確認手順
-1. `修士論文` 配下でビルドする。
-   - 例：`latexmk -g -lualatex -interaction=nonstopmode -halt-on-error main.tex`
-2. `??` 参照や警告が出た場合，該当ラベルを修正する。
-3. 目次の章並び，章扉，図表参照の整合を確認する。
+## 4. 構成Bの編集方針
+構成Bでは `chapters/ch5_experiments.tex` を実験章のラッパとして利用する．
+- `ch5_experiments.tex` の本文は短い導入のみとし，実験節は `\input{...}` で追加する．
+- 各実験ファイルは `\section{...}` で開始し，目的→条件→結果→考察の流れを維持する．
 
-## 8. 既知のラベル注意
-- 構成Bでは評価章が `ch:experiments` になるため，`ch:evaluation` を参照している場合は更新が必要になる。
+## 5. ビルド
+論文ルート（`修士論文/`）で以下を実行する．
+
+```bash
+latexmk -g -lualatex -interaction=nonstopmode -halt-on-error main.tex
+```
+
+## 6. 編集時のルール（プロンプトルール）
+- 内容の事実（数値・実験条件）は変更しない．
+- 章節の整理・見出しの統合は行うが，`\label` と `\ref` は保持する．
+- 付録に置く資料は本文に移さない（指示がある場合を除く）．
+- 文体は「である調」，句読点は「，」「．」に統一する．
+- ファイルパスやコード断片は本文から排除し，付録へ回す（必要な場合のみ）．
