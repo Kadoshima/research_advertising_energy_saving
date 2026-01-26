@@ -1,45 +1,45 @@
 % chapters/ch10_phase2_concept.tex --- Phase 2概念実証: Safe Contextual Bandit
-\section{Safe Contextual Banditへの拡張可能性（概念実証）}
+\section{Safe Contextual Banditへの拡張可能性�E�概念実証�E�}
 \label{sec:phase2_concept}
 
-本節では，Phase 2の問題設定と位置づけについて述べる．
-Phase 1では，ルールベース方策によって固定間隔より低電力で運用可能な領域を示した．そこで本節では，Phase 1の実測データを用いたシミュレーションにより，Safe Contextual Banditへの拡張可能性の概念実証を行い，実機実装への接続点を整理する．
-\noindent Phase 1との関係は次の通りである．
+本節では�E�Phase 2の問題設定と位置づけにつぁE��述べる！E
+Phase 1では�E�ルールベ�Eス方策によって固定間隔より低電力で運用可能な領域を示した�E�そこで本節では�E�Phase 1の実測チE�Eタを用ぁE��シミュレーションにより�E�Safe Contextual Banditへの拡張可能性の概念実証を行い�E�実機実裁E��の接続点を整琁E��る！E
+\noindent Phase 1との関係�E次の通りである�E�E
 
-Phase 1で確立した$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）と$P_{\mathrm{out}}(\tau)$の評価指標は，そのままSafe Contextual Banditの報酬関数と制約関数として利用できる．また，Phase 1のルールベース写像は，Warm-startの初期方策として活用可能である．
+Phase 1で確立しぁEq_{\mathrm{event}}$�E�E\si{\micro\coulomb}/\text{event}$�E�と$P_{\mathrm{out}}(\tau)$の評価持E���E�E�そのままSafe Contextual Banditの報酬関数と制紁E��数として利用できる�E�また，Phase 1のルールベ�Eス写像は�E�Warm-startの初期方策として活用可能である�E�E
 
-次に，Safe Contextual Banditの問題設定を示す．
+次に�E�Safe Contextual Banditの問題設定を示す！E
 \label{sec:safe_bandit_formulation}
-\noindent 定式化について述べる．
+\noindent 定式化につぁE��述べる！E
 
-Safe Contextual Banditは，コンテキスト$x$に応じて行動$a$を選択し，報酬$r(x,a)$を最大化しながら制約$g(x,a) \le \epsilon$を満たす問題として定式化される\scite{lattimore2020bandit}．
+Safe Contextual Banditは�E�コンチE��スチEx$に応じて行動$a$を選択し�E�報酬$r(x,a)$を最大化しながら制紁Eg(x,a) \le \epsilon$を満たす問題として定式化される\scite{lattimore2020bandit}�E�E
 
-本研究では次のように定義する．
+本研究では次のように定義する�E�E
 \begin{itemize}
-  \item コンテキスト $x$: CCS（複合スコア）$\in [0,1]$
-  \item 行動集合 $A$: アドバタイジング間隔 $\{500, 1000, 2000\}\,\si{\milli\second}$
-  \item 報酬 $r(x,a)$: $-e_{\mathrm{event}}(a)$（負のエネルギー消費，最大化＝省電力化）
-  \item 制約 $g(x,a)$: $P_{\mathrm{out}}(\tau \mid x,a) \le \epsilon$
-  \item 許容遅延 $\tau$: \SI{1.0}{\second}
-  \item 制約閾値 $\epsilon$: 0.10（10\%）
+  \item コンチE��スチE$x$: CCS�E�褁E��スコア�E�E\in [0,1]$
+  \item 行動雁E�� $A$: アドバタイジング間隔 $\{500, 1000, 2000\}\,\si{\milli\second}$
+  \item 報酬 $r(x,a)$: $-e_{\mathrm{event}}(a)$�E�負のエネルギー消費�E�最大化＝省電力化�E�E
+  \item 制紁E$g(x,a)$: $P_{\mathrm{out}}(\tau \mid x,a) \le \epsilon$
+  \item 許容遁E�� $\tau$: \SI{1.0}{\second}
+  \item 制紁E��値 $\epsilon$: 0.10�E�E0\%�E�E
 \end{itemize}
 
-行動集合から\SI{100}{\milli\second}を除外した理由は，Phase 1の結果から\SI{500}{\milli\second}以上で主な省電力効果が得られることが確認されたためである．なお，将来的には\SI{100}{\milli\second}を含む4行動への拡張も可能である．
-本節のシミュレーションでは，コンテキスト$x$を一定値に固定する．$r(x,a)$および$g(x,a)$は$x$に依存しない形に整理して扱う．以降は，この固定条件の下で$a$のみの関数として表記する．
-\noindent Safe-UCBアルゴリズムを説明する．
+行動雁E��から\SI{100}{\milli\second}を除外した理由は�E�Phase 1の結果から\SI{500}{\milli\second}以上で主な省E��力効果が得られることが確認されたためである�E�なお，封E��皁E��は\SI{100}{\milli\second}を含む4行動への拡張も可能である�E�E
+本節のシミュレーションでは�E�コンチE��スチEx$を一定値に固定する！Er(x,a)$および$g(x,a)$は$x$に依存しなぁE��に整琁E��て扱ぁE��以降�E�E�この固定条件の下で$a$のみの関数として表記する！E
+\noindent Safe-UCBアルゴリズムを説明する！E
 
-Safe-UCB（Safe Upper Confidence Bound）は，各行動の報酬UCB値を計算しつつ，制約違反の信頼区間上界が$\epsilon$以下となる「安全行動集合」$S(x)$を動的に構築し，その中で報酬UCB最大の行動を選択する\scite{lattimore2020bandit}．
+Safe-UCB�E�Eafe Upper Confidence Bound�E��E�E�各行動の報酬UCB値を計算しつつ�E�制紁E��反�E信頼区間上界ぁE\epsilon$以下となる「安�E行動雁E��、ES(x)$を動皁E��構築し�E�その中で報酬UCB最大の行動を選択する\scite{lattimore2020bandit}�E�E
 
-安全行動集合が空の場合は，フォールバック行動（本研究では最小間隔\SI{500}{\milli\second}）を選択する．これにより，未知環境においても制約違反を抑制しながら探索できる．
+安�E行動雁E��が空の場合�E�E�フォールバック行動�E�本研究では最小間隔\SI{500}{\milli\second}�E�を選択する．これにより�E�未知環墁E��おいても制紁E��反を抑制しながら探索できる�E�E
 
-続いて，シミュレーション設定を示す．
-\noindent 報酬モデル（実測データ）を示す．
+続いて�E�シミュレーション設定を示す！E
+\noindent 報酬モチE���E�実測チE�Eタ�E�を示す！E
 
-Phase 1のΔE基準実験（2026-01-21取得のv02データ）から，各アドバタイジング間隔のエネルギー消費実測値を報酬モデルとして使用する．\tabref{tab:phase2_reward_model}に，シミュレーションで使用した報酬モデルの値を示す．本シミュレーションでは電力計測から得たエネルギー（$\si{\micro\joule}/\text{event}$）を使用している．これは一次目標の電荷$q_{\mathrm{event}}$（$\si{\micro\coulomb}/\text{event}$）とは電圧を介した換算が必要となる．ただし一定電圧下では両者は線形関係にあるため，相対比較には影響しない．
+Phase 1のΔE基準実験！E026-01-21取得�Ev02チE�Eタ�E�から，各アドバタイジング間隔のエネルギー消費実測値を報酬モチE��として使用する�E�\tabref{tab:phase2_reward_model}に�E�シミュレーションで使用した報酬モチE��の値を示す．本シミュレーションでは電力計測から得たエネルギー�E�E\si{\micro\joule}/\text{event}$�E�を使用してぁE���E�これ�E一次目標�E電荷$q_{\mathrm{event}}$�E�E\si{\micro\coulomb}/\text{event}$�E�とは電圧を介した換算が忁E��となる．ただし一定電圧下では両老E�E線形関係にあるため�E�相対比輁E��は影響しなぁE��E
 
 \begin{table}[tb]
   \centering
-  \caption{報酬モデル（Phase 1実測データ，各n=10，$x$固定による周辺化）}
+  \caption{報酬モチE���E�Ehase 1実測チE�Eタ�E�各n=10�E�Ex$固定による周辺化）}
   \label{tab:phase2_reward_model}
   \begin{tabular}{lrr}
     \toprule
@@ -51,13 +51,13 @@ Phase 1のΔE基準実験（2026-01-21取得のv02データ）から，各アド
     \bottomrule
   \end{tabular}
 \end{table}
-\noindent 制約モデル（推定値）を示す．
+\noindent 制紁E��チE���E�推定値�E�を示す！E
 \label{sec:constraint_model_limitation}
-制約モデルのPout値は，Phase 1実験データから直接抽出できなかったため，アドバタイジング間隔と遅延の理論的関係に基づく推定値を使用した．\tabref{tab:phase2_constraint_model}に，アドバタイジング間隔ごとの期限超過率$P_{\mathrm{out}}(1\mathrm{s})$と標準偏差の推定値を示す．
+制紁E��チE��のPout値は�E�Phase 1実験データから直接抽出できなかったためE��アドバタイジング間隔と遁E��の琁E��的関係に基づく推定値を使用した�E�\tabref{tab:phase2_constraint_model}に�E�アドバタイジング間隔ごとの期限趁E��玁EP_{\mathrm{out}}(1\mathrm{s})$と標準偏差の推定値を示す！E
 
 \begin{table}[tb]
   \centering
-  \caption{制約モデル（推定値，$x$固定による周辺化）}
+  \caption{制紁E��チE���E�推定値�E�Ex$固定による周辺化）}
   \label{tab:phase2_constraint_model}
   \begin{tabular}{lrr}
     \toprule
@@ -71,29 +71,29 @@ Phase 1のΔE基準実験（2026-01-21取得のv02データ）から，各アド
 \end{table}
 
 \noindent
-この推定値は，間隔が大きいほど受信遅延が増加し，$P_{\mathrm{out}}(\tau)$が悪化するという定性的な傾向を反映している．実測データを用いた評価は今後の課題である．
-\noindent 比較手法を示す．
+こ�E推定値は�E�間隔が大きいほど受信遁E��が増加し！EP_{\mathrm{out}}(\tau)$が悪化するとぁE��定性皁E��傾向を反映してぁE���E�実測チE�Eタを用ぁE��評価は今後�E課題である�E�E
+\noindent 比輁E��法を示す！E
 
-比較対象として，Safe-UCB（提案，制約を守りながら探索），UCB（制約なし，報酬のみ最大化），Fixed-CCS（Phase 1写像，ルールベース，学習なし），およびOracle（理論上界，真の最適行動を常に選択）の4手法を用いる．
-\noindent シミュレーション条件を示す．
+比輁E��象として�E�Safe-UCB�E�提案，制紁E��守りながら探索�E�，UCB�E�制紁E��し，報酬のみ最大化），Fixed-CCS�E�Ehase 1写像�E�ルールベ�Eス�E�学習なし），およ�EOracle�E�理論上界�E�真の最適行動を常に選択）�E4手法を用ぁE���E�E
+\noindent シミュレーション条件を示す！E
 
-シミュレーション条件として，ステップ数$T = 1000$，乱数シード\texttt{0xD4B40201}（再現性確保），およびブートストラップ100回（段階2で増加予定）を設定する．
+シミュレーション条件として�E�スチE��プ数$T = 1000$�E�乱数シード\texttt{0xD4B40201}�E��E現性確保），およ�Eブ�EトストラチE�E100回（段隁Eで増加予定）を設定する！E
 
-\subsection{Gate B/C：環境シフト・非定常診断による安全設計}
+\subsection{Gate B/C�E�環墁E��フト・非定常診断による安�E設訁E
 \label{sec:phase2_gatebc}
-本小節では，環境シフト耐性の検証（Gate B）と非定常診断（Gate C）を通じて，Safety Filter + UCB（安全フィルタ付きUCB）の設計パラメータ（$w$, reset, $m$）を手順化する．ここでの数値は実機性能の主張ではなく，候補選定と設計判断の根拠である．なお，Gate Bは行動集合$A=\{500,1000,2000\}$，Gate Cは診断用に$A=\{100,500\}$を用いるため，条件は一致しない．
+本小節では�E�環墁E��フト耐性の検証�E�Eate B�E�と非定常診断�E�Eate C�E�を通じて�E�Safety Filter + UCB�E�安�Eフィルタ付きUCB�E��E設計パラメータ�E�Ew$, reset, $m$�E�を手頁E��する�E�ここでの数値は実機性能の主張ではなく，候補選定と設計判断の根拠である�E�なお，Gate Bは行動雁E��$A=\{500,1000,2000\}$�E�Gate Cは診断用に$A=\{100,500\}$を用ぁE��ため�E�条件は一致しなぁE��E
 
-Gate Bでは，開始時の環境ずれ（warm shift）と途中切替（mid-run shift）を最悪ケースで統合し，切替後の累積違反に上限（cap=25）を設定したうえでパレートフロントから候補を抽出した．$m$を大きくすると切替後の違反は減るが，保守化によりコストは増える．詳細は\verb|results/phase2_offline_studies_2026-01-26_v05/gateb_pareto_cap25.md|に示す．
+Gate Bでは�E�開始時の環墁E��れ！Earm shift�E�と途中刁E���E�Eid-run shift�E�を最悪ケースで統合し�E��E替後�E累積違反に上限�E�Eap=25�E�を設定したうえでパレートフロントから候補を抽出した�E�Em$を大きくすると刁E��後�E違反は減るが，保守化によりコスト�E増える．詳細は\verb|results/phase2_offline_studies_2026-01-26_v05/gateb_pareto_cap25.md|に示す！E
 
-Gate Bの候補（$w=0$, reset=1）を\tabref{tab:phase2_gateb_candidates}に示す．
+Gate Bの候補！Ew=0$, reset=1�E�を\tabref{tab:phase2_gateb_candidates}に示す！E
 
 \begin{table}[tb]
   \centering
-  \caption{Gate B候補（cap=25, worst-case統合, $w=0$, reset=1）}
+  \caption{Gate B候補！Eap=25, worst-case統吁E $w=0$, reset=1�E�}
   \label{tab:phase2_gateb_candidates}
   \begin{tabular}{ccccc}
     \toprule
-    $m$ & 平均コスト [mJ/60s] & 序盤違反 p95 (k=50) & 切替後違反平均 & 制約違反率 [-] \\
+    $m$ & 平坁E��スチE[mJ/60s] & 序盤違反 p95 (k=50) & 刁E��後違反平坁E& 制紁E��反率 [-] \\
     \midrule
     0.03 & 1487.700 & 6.00 & 7.62 & 0.03290 \\
     0.02 & 1469.804 & 6.05 & 12.70 & 0.03992 \\
@@ -102,56 +102,57 @@ Gate Bの候補（$w=0$, reset=1）を\tabref{tab:phase2_gateb_candidates}に示
   \end{tabular}
 \end{table}
 
-Gate Cでは，非定常での退化（\SI{100}{\milli\second}固定）を検出するため，スキャンデューティ比90\%$\to$70\%（行動集合$\{100,500\}$）で$m$を細かく変えて評価した．なお，本診断は退化検出を目的に$\tau=2.0$を用いる（仕様値ではない）．その結果，$m\ge 0.015$で\SI{100}{\milli\second}固定に退化し，$m=0.005/0.01$では\SI{500}{\milli\second}を維持しつつ必要時に短間隔へ退避する領域が確認された．詳細は\verb|results/phase2_gatec_sweep_m_2026-01-26_v02/sim_summary.csv|に示す．
+Gate Cでは�E�非定常での退化！ESI{100}{\milli\second}固定）を検�Eするため�E�スキャンチE��ーチE��毁E0\%$\to$70\%�E�行動雁E��$\{100,500\}$�E�で$m$を細かく変えて評価した�E�なお，本診断は退化検�Eを目皁E��$\tau=2.0$を用ぁE���E�仕様値ではなぁE��．その結果�E�Em\ge 0.015$で\SI{100}{\milli\second}固定に退化し�E�Em=0.005/0.01$では\SI{500}{\milli\second}を維持しつつ忁E��時に短間隔へ退避する領域が確認された�E�詳細は\verb|results/phase2_gatec_sweep_m_2026-01-26_v02/sim_summary.csv|に示す！E
 
-Gate B/Cの共通可行領域において最小限の保守的設定として，初期設定は$w=0$, reset=1, $m=0.01$とする．一方で，安全寄りの感度分析として$m=0.02/0.03$を併記し，環境差やモデル誤差に備える．
+Gate B/Cの共通可行領域において最小限の保守的設定として�E��E期設定�E$w=0$, reset=1, $m=0.01$とする�E�一方で�E�安�E寁E��の感度刁E��として$m=0.02/0.03$を併記し�E�環墁E��めE��チE��誤差に備える！E
 
-以下に結果を示す．
-\noindent 累積Regret（Cumulative Regret）について述べる．
+以下に結果を示す！E
+\noindent 累積Regret�E�Eumulative Regret�E�につぁE��述べる！E
 
-各手法の累積Regret（Oracleとの差分）は付録の\secref{sec:phase2_figs}に示す．Safe-UCBは，UCB（制約なし）に比べて初期の探索が抑制されるが，安全行動集合内での最適化により，最終的にはUCBと同程度まで収束する．Fixed-CCS（Phase 1写像）は学習しないため，累積Regretが蓄積し続ける．
-\noindent 制約違反率について述べる．
+吁E��法�E累積Regret�E�Eracleとの差刁E���E付録の\secref{sec:phase2_figs}に示す．Safe-UCBは�E�UCB�E�制紁E��し）に比べて初期の探索が抑制されるが�E�安�E行動雁E��冁E��の最適化により�E�最終的にはUCBと同程度まで収束する�E�Fixed-CCS�E�Ehase 1写像�E��E学習しなぁE��めE��累積Regretが蓄積し続ける！E
+\noindent 制紁E��反率につぁE��述べる！E
 
-制約違反率は制約モデルの推定値に依存するため，本文では図示を省略し，\tabref{tab:phase2_summary}の数値で示す．推移の参考図は付録の\secref{sec:phase2_figs}に示す．
-\noindent 平均エネルギーについて述べる．
+制紁E��反率は制紁E��チE��の推定値に依存するためE��本斁E��は図示を省略し，\tabref{tab:phase2_summary}の数値で示す．推移の参老E��は付録の\secref{sec:phase2_figs}に示す！E
+\noindent 平坁E��ネルギーにつぁE��述べる！E
 
-各手法の平均エネルギー（$e_{\mathrm{event}}$）の推移は付録の\secref{sec:phase2_figs}に示す．Safe-UCBとUCBは探索を経て最適行動（\SI{500}{\milli\second}）へ収束し，平均エネルギーが低下する．Fixed-CCSはCCSに基づく固定マッピングを想定した参照方策であり，本節では$x$を一定に固定しているため，固定行動として扱われ平均エネルギーが高くなる．
-\noindent 数値結果サマリについて述べる．
-\tabref{tab:phase2_summary}に，シミュレーション終了時（$T=1000$）の数値結果をまとめる．制約違反率は比率で表記する．
+吁E��法�E平坁E��ネルギー�E�Ee_{\mathrm{event}}$�E��E推移は付録の\secref{sec:phase2_figs}に示す．Safe-UCBとUCBは探索を経て最適行動�E�ESI{500}{\milli\second}�E�へ収束し，平坁E��ネルギーが低下する．Fixed-CCSはCCSに基づく固定�EチE��ングを想定した参照方策であり�E�本節では$x$を一定に固定してぁE��ため�E�固定行動として扱われ平坁E��ネルギーが高くなる！E
+\noindent 数値結果サマリにつぁE��述べる！E
+\tabref{tab:phase2_summary}に�E�シミュレーション終亁E���E�ET=1000$�E��E数値結果をまとめる�E�制紁E��反率は比率で表記する！E
 
 \begin{table}[tb]
   \centering
-  \caption{Phase 2シミュレーション結果（$T=1000$）}
+  \caption{Phase 2シミュレーション結果�E�ET=1000$�E�}
   \label{tab:phase2_summary}
   \begin{tabular}{lrrr}
     \toprule
-    手法 & 平均エネルギー [$\si{\micro\joule}$/event] & 制約違反率 [-] & 判定 \\
+    手況E& 平坁E��ネルギー [$\si{\micro\joule}$/event] & 制紁E��反率 [-] & 判宁E\\
     \midrule
-    Safe-UCB & 12641 & 0.10 & 制約内 \\
-    UCB & 12645 & 0.20 & 制約内 \\
-    Fixed-CCS & 17844 & 11.90 & 制約外 \\
-    Oracle & 12579 & 0.00 & 制約内 \\
+    Safe-UCB & 12641 & 0.10 & 制紁E�E \\
+    UCB & 12645 & 0.20 & 制紁E�E \\
+    Fixed-CCS & 17844 & 11.90 & 制紁E��E\\
+    Oracle & 12579 & 0.00 & 制紁E�E \\
     \bottomrule
   \end{tabular}
 \end{table}
-判定は$\epsilon=0.10$（10\%）との比較で行う．
+判定�E$\epsilon=0.10$�E�E0\%�E�との比輁E��行う�E�E
 
-考察を述べる．
-\noindent Safe-UCBの有効性について述べる．
+老E��を述べる！E
+\noindent Safe-UCBの有効性につぁE��述べる！E
 
-シミュレーション結果から，Safe-UCBは制約を守りながらOracleに近い報酬を達成できることが示された．これは，Phase 1のルールベース方策からの発展として，Safe Contextual Banditが有効であることを示唆する．
-\noindent Warm-startの可能性について述べる．
+シミュレーション結果から�E�Safe-UCBは制紁E��守りながらOracleに近い報酬を達成できることが示された．これ�E�E�Phase 1のルールベ�Eス方策から�E発展として�E�Safe Contextual Banditが有効であることを示唁E��る！E
+\noindent Warm-startの可能性につぁE��述べる！E
 
-Phase 1のFixed-CCS写像を初期方策として利用することで，探索初期の制約違反を抑制しつつ，より早く最適解へ収束できる可能性がある（Warm-start効果）．本シミュレーションではCold-startのみを実装したが，段階2ではWarm-start比較を追加予定である．
-\noindent 制約モデルの限界について述べる．
+Phase 1のFixed-CCS写像を�E期方策として利用することで�E�探索初期の制紁E��反を抑制しつつ�E�より早く最適解へ収束できる可能性がある！Earm-start効果）．本シミュレーションではCold-startのみを実裁E��たが�E�段隁EではWarm-start比輁E��追加予定である�E�E
+\noindent 制紁E��チE��の限界につぁE��述べる！E
 
-本シミュレーションでは，制約モデル（$P_{\mathrm{out}}(\tau)$）に推定値を使用したため，実環境での制約違反率は異なる可能性がある．特に，E2環境（高干渉）では$P_{\mathrm{out}}(\tau)$が悪化するため，実測データに基づく制約モデルの構築が今後の課題である．
-\noindent 実機実装への接続について述べる．
+本シミュレーションでは�E�制紁E��チE���E�EP_{\mathrm{out}}(\tau)$�E�に推定値を使用したため�E�実環墁E��の制紁E��反率は異なる可能性がある．特に�E�E2環墁E��高干渉）では$P_{\mathrm{out}}(\tau)$が悪化するためE��実測チE�Eタに基づく制紁E��チE��の構築が今後�E課題である�E�E
+\noindent 実機実裁E��の接続につぁE��述べる！E
 
-Phase 2の実機実装では，発見遅延（TL）のリアルタイム計測，制約違反時のフォールバック機構，オンライン学習によるモデル更新，および環境変化への適応性検証が必要となる．これらは，Phase 1で確立した計測系・ログ設計・指標定義の上に構築可能である．
+Phase 2の実機実裁E��は�E�発見遅延�E�EL�E��Eリアルタイム計測�E�制紁E��反時のフォールバック機構，オンライン学習によるモチE��更新�E�およ�E環墁E��化への適応性検証が忁E��となる．これらは�E�Phase 1で確立した計測系・ログ設計�E持E��定義の上に構築可能である�E�E
 
-最後に本節をまとめる．
-本節では，Phase 1の実測データに基づくシミュレーションにより，Safe Contextual Banditへの拡張可能性の概念実証を行った．Safe-UCBは制約を守りながら報酬改善が可能であり，Phase 1のルールベース写像からの自然な発展経路となる．制約モデルの実測値取得と実機実装は今後の課題である．
+最後に本節をまとめる�E�E
+本節では�E�Phase 1の実測チE�Eタに基づくシミュレーションにより�E�Safe Contextual Banditへの拡張可能性の概念実証を行った．Safe-UCBは制紁E��守りながら報酬改喁E��可能であり�E�Phase 1のルールベ�Eス写像からの自然な発展経路となる．制紁E��チE��の実測値取得と実機実裁E�E今後�E課題である�E�E
+
 
 
 

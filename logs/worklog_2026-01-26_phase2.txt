@@ -236,3 +236,9 @@ esults/phase2_offline_studies_2026-01-26_v05/gateb_pareto_cap25.mdÅj
   - ????/chapters/ch5_repro_appendix.tex
 - ???: ????/main.tex ?latexmk??????main.pdf??????????????
 
+2026-01-27 00:38 JST
+- ???????????: ????/archive/unused_appx_g_troubleshooting_20260127.zip?appx_g_troubleshooting.tex?
+
+
+[2026-01-27 00:45:56 +0900] Thesis: reduce parentheses in Gate B/C section
+- Updated: èCémò_ï∂/chapters/ch10_phase2_concept.tex (rewrote Gate B/C text and table caption/header to remove excess parentheses)
