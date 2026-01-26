@@ -49,7 +49,7 @@ Phase 1のΔE基準実験（2026-01-21取得のv02データ）から，各アド
 \end{table}
 \noindent 制約モデル（推定値）を示す．
 \label{sec:constraint_model_limitation}
-制約モデルのPout値は，Phase 1実験データから直接抽出できなかったため，アドバタイジング間隔と遅延の理論的関係に基づく推定値を使用した．\tabref{tab:phase2_constraint_model}に，シミュレーションで使用した制約モデルの値を示す．表中の各行はアドバタイジング間隔（ms），各列は期限超過率$P_{\mathrm{out}}(1\mathrm{s})$の推定値および標準偏差を表す．
+制約モデルのPout値は，Phase 1実験データから直接抽出できなかったため，アドバタイジング間隔と遅延の理論的関係に基づく推定値を使用した．\tabref{tab:phase2_constraint_model}に，アドバタイジング間隔ごとの期限超過率$P_{\mathrm{out}}(1\mathrm{s})$と標準偏差の推定値を示す．
 
 \begin{table}[tb]
   \centering
@@ -79,13 +79,13 @@ Phase 1のΔE基準実験（2026-01-21取得のv02データ）から，各アド
 
 Gate Bでは，開始時の環境ずれ（warm shift）と途中切替（mid-run shift）を最悪ケースで統合し，切替後の累積違反に上限（cap=25）を設定したうえでパレートフロントから候補を抽出した．$m$を大きくすると切替後の違反は減るが，保守化によりコストは増える．詳細は\verb|results/phase2_offline_studies_2026-01-26_v05/gateb_pareto_cap25.md|に示す．
 
-Gate Cでは，非定常での退化（\SI{100}{\milli\second}固定）を検出するため，scan duty 90\%$\to$70\%（行動集合$\{100,500\}$）で$m$を細かく変えて評価した．なお，本診断は退化検出を目的に$\tau=2.0$を用いる（仕様値ではない）．その結果，$m\ge 0.015$で\SI{100}{\milli\second}固定に退化し，$m=0.005/0.01$では\SI{500}{\milli\second}を維持しつつ必要時に短間隔へ退避する領域が確認された．詳細は\verb|results/phase2_gatec_sweep_m_2026-01-26_v02/sim_summary.csv|に示す．
+Gate Cでは，非定常での退化（\SI{100}{\milli\second}固定）を検出するため，スキャンデューティ比90\%$\to$70\%（行動集合$\{100,500\}$）で$m$を細かく変えて評価した．なお，本診断は退化検出を目的に$\tau=2.0$を用いる（仕様値ではない）．その結果，$m\ge 0.015$で\SI{100}{\milli\second}固定に退化し，$m=0.005/0.01$では\SI{500}{\milli\second}を維持しつつ必要時に短間隔へ退避する領域が確認された．詳細は\verb|results/phase2_gatec_sweep_m_2026-01-26_v02/sim_summary.csv|に示す．
 
 Gate B/Cの共通可行領域において最小限の保守的設定として，初期設定は$w=0$, reset=1, $m=0.01$とする．一方で，安全寄りの感度分析として$m=0.02/0.03$を併記し，環境差やモデル誤差に備える．
 
 以下に結果を示す．
 \noindent 累積Regret（Cumulative Regret）について述べる．
-各手法の累積Regret（Oracleとの差分）は付録の\secref{sec:phase2_figs}に示す．Safe-UCBは，UCB（制約なし）に比べて初期の探索が抑制されるが，安全行動集合内での最適化により，最終的にはUCBと同等の累積Regretに収束する．Fixed-CCS（Phase 1写像）は学習しないため，累積Regretが蓄積し続ける．
+各手法の累積Regret（Oracleとの差分）は付録の\secref{sec:phase2_figs}に示す．Safe-UCBは，UCB（制約なし）に比べて初期の探索が抑制されるが，安全行動集合内での最適化により，最終的にはUCBと同程度まで収束する．Fixed-CCS（Phase 1写像）は学習しないため，累積Regretが蓄積し続ける．
 \noindent 制約違反率について述べる．
 制約違反率は制約モデルの推定値に依存するため，本文では図示を省略し，\tabref{tab:phase2_summary}の数値で示す．推移の参考図は付録の\secref{sec:phase2_figs}に示す．
 \noindent 平均エネルギーについて述べる．

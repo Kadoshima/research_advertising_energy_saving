@@ -5,10 +5,10 @@
 本節では，ストレス固定実験を用いて，QoS指標（発見遅延（Time-to-first-Receive; TL）および$P_{\mathrm{out}}(\tau)$）の定義を一貫した形で確立し，実測結果を再現性を確保した形でまとめることを目的とする．特に，受信ログの時間軸と真値の開始時刻のずれがTL/Poutに与える影響を明確化し，補正手順を定式化する．
 
 次に，実験条件の概要を示す．
-ストレス固定実験では，既知のラベル系列（真値系列）をTX側で再生し，受信側（RX）がそれをどの程度の遅延で観測できるかを測定する．主な比較軸として，受信設定（scan duty 50\%/90\%），固定アドバタイジング間隔（\SI{100}{\milli\second}，\SI{500}{\milli\second}，\SI{1000}{\milli\second}，\SI{2000}{\milli\second}），ならびにストレス列（代表的な2条件；S1は遷移が少ない条件，S4は遷移が多い条件）を中心に評価する．各trialについて，TXSDログとRXログを対応付け，PDR，TL，$P_{\mathrm{out}}(\tau)$，平均電力などを出力する．
+ストレス固定実験では，既知のラベル系列（真値系列）をTX側で再生し，受信側（RX）がそれをどの程度の遅延で観測できるかを測定する．主な比較軸として，受信設定（スキャンデューティ比50\%/90\%），固定アドバタイジング間隔（\SI{100}{\milli\second}，\SI{500}{\milli\second}，\SI{1000}{\milli\second}，\SI{2000}{\milli\second}），ならびにストレス列（代表的な2条件；S1は遷移が少ない条件，S4は遷移が多い条件）を中心に評価する．各trialについて，TXSDログとRXログを対応付け，PDR，TL，$P_{\mathrm{out}}(\tau)$，平均電力などを出力する．
 
 続いて，問題点と時間同期手法（補正前/補正後）を示す．
-scan duty 90\%の補正前集計では，固定\SI{2000}{\milli\second}において$P_{\mathrm{out}}(1\,\mathrm{s})$が理論下限より小さく見える等，理論的予測と整合しない結果が得られた．原因は，RXログの時刻列（ms）と真値の時間軸が一致している前提でTL/Poutを計算していた点にある．実機では試行開始のタイミングがずれ得るため，この時間誤差を補正しない場合，TL/Poutが過小評価される．
+スキャンデューティ比90\%の補正前集計では，固定\SI{2000}{\milli\second}において$P_{\mathrm{out}}(1\,\mathrm{s})$が理論下限より小さく見える等，理論的予測と整合しない結果が得られた．原因は，RXログの時刻列（ms）と真値の時間軸が一致している前提でTL/Poutを計算していた点にある．実機では試行開始のタイミングがずれ得るため，この時間誤差を補正しない場合，TL/Poutが過小評価される．
 
 補正後の定義では，TL/Pout算出前に定数オフセットを推定し，RXログの時刻を補正する．アドバタイジング間隔$\Delta t$（ms）と受信ログから得られるseqの初回観測時刻$t_{\mathrm{first}}(\mathrm{seq})$を用いると，seqに対応する期待時刻は$\mathrm{seq}\cdot\Delta t$である．複数のseqに対する期待時刻と実測時刻の差分の中央値として
 \begin{equation}
@@ -16,20 +16,20 @@ scan duty 90\%の補正前集計では，固定\SI{2000}{\milli\second}におい
 \end{equation}
 によりオフセットを推定し，補正後の時刻を$\mathrm{ms\_aligned}=\mathrm{ms}+\mathrm{offset\_ms}$とする．TL/Poutは$\mathrm{ms\_aligned}$に基づいて算出する．この補正により，非同期な開始タイミング（開始時刻のずれ）に起因する過小評価を抑制できる．
 
-補正後の定義では，per-trialの集計に加え，集約表を再現可能に生成するパイプラインを整備した．また，scan duty 50\%/90\%の比較結果も同一の定義で出力し，受信設定の違いがPDRやTL/Poutに与える影響を整理できるようにした．
+補正後の定義では，per-trialの集計に加え，集約表を再現可能に生成するパイプラインを整備した．また，スキャンデューティ比50\%/90\%の比較結果も同一の定義で出力し，受信設定の違いがPDRやTL/Poutに与える影響を整理できるようにした．
 \noindent PDRの扱いを示す．
 PDRは受信ログの行数に基づく指標（重複含む）と，seqでユニーク化した指標（重複除外）の2種類を区別する．QoS比較では，アドバタイジングイベントの「何割を一度でも拾えたか」を表す$\mathrm{PDR}_{\mathrm{unique}}$を優先する（\secref{sec:metrics_detail}を参照）．
 \noindent 有効データ長（Effective Length）と終端処理を示す．
 真値は有限長のラベル系列であり，試行時間のクランプにより末端の遷移が試行区間外に出る場合がある．その場合，末端遷移を含めた評価は不安定になるため，真値側も同じ長さにクリップし，イベント数$N_{\mathrm{event}}$の分母を揃える．この処理は，試行間比較と再現性の観点で重要である．
 
 結果（図表）を示す．
-\noindent scan duty 90\%の指標サマリを示す．
-\figref{fig:stress_fixed_scan90_metrics}に，scan duty 90\%における主要指標の例（補正前/補正後の比較）を示す．図中の横軸はアドバタイジング間隔（ms），縦軸は各指標（$\mathrm{PDR}_{\mathrm{unique}}$，$TL_{p95}$，$P_{\mathrm{out}}(1\,\mathrm{s})$，平均電力等）を表す．色はS1/S4，線種は補正前（v4）/補正後（v5）を表し，$TL_{p95}$の縦軸は対数スケールを用いた．補正前と補正後の差分を同一図に重ねることで，時間同期補正がTL/Poutに与える影響を確認できる．
+\noindent スキャンデューティ比90\%の指標サマリを示す．
+\figref{fig:stress_fixed_scan90_metrics}に，スキャンデューティ比90\%における主要指標の例（補正前/補正後の比較）を示す．図中の横軸はアドバタイジング間隔（ms），縦軸は各指標（$\mathrm{PDR}_{\mathrm{unique}}$，$TL_{p95}$，$P_{\mathrm{out}}(1\,\mathrm{s})$，平均電力等）を表す．色はS1/S4，線種は補正前（v4）/補正後（v5）を表し，$TL_{p95}$の縦軸は対数スケールを用いた．補正前と補正後の差分を同一図に重ねることで，時間同期補正がTL/Poutに与える影響を確認できる．
 
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.95\linewidth]{figures/stress_scan90_metrics_v4_v5.png}
-  \caption{ストレス固定（scan duty 90\%）の主要指標（補正前/補正後の比較）．色はS1/S4，線種はv4/v5，$TL_{p95}$の縦軸は対数スケール．}
+  \caption{ストレス固定（スキャンデューティ比90\%）の主要指標（補正前/補正後の比較）．色はS1/S4，線種はv4/v5，$TL_{p95}$の縦軸は対数スケール．}
   \label{fig:stress_fixed_scan90_metrics}
 \end{figure}
 \noindent 実測と簡易モデルの比較を示す．
@@ -41,13 +41,13 @@ PDRは受信ログの行数に基づく指標（重複含む）と，seqでユ�
   \caption{ストレス固定における実測と簡易モデルの比較（棒：$P_{\mathrm{out}}(1\,\mathrm{s})$，折れ線：相対電力，左軸：$P_{\mathrm{out}}$，右軸：相対電力）}
   \label{fig:stress_fixed_real_vs_sim}
 \end{figure}
-\noindent scan duty 50\%と90\%の比較を示す．
-\figref{fig:stress_fixed_scan50_vs_scan90_pdr}に，scan duty 50\%と90\%の比較（$\mathrm{PDR}_{\mathrm{unique}}$，$P_{\mathrm{out}}(1\,\mathrm{s})$，$TL_{p95}$）を示す．図中の横軸はアドバタイジング間隔（ms），縦軸は各指標を表し，系列はscan duty 50\%/90\%である（凡例参照）．$TL_{p95}$の縦軸は対数スケールを用いた．スキャンデューティ比を上げることで短間隔側の受信品質が改善し，Pout/TLにも差が出ることが確認できる．
+\noindent スキャンデューティ比50\%と90\%の比較を示す．
+\figref{fig:stress_fixed_scan50_vs_scan90_pdr}に，スキャンデューティ比50\%と90\%の比較（$\mathrm{PDR}_{\mathrm{unique}}$，$P_{\mathrm{out}}(1\,\mathrm{s})$，$TL_{p95}$）を示す．図中の横軸はアドバタイジング間隔（ms），縦軸は各指標を表し，系列はスキャンデューティ比50\%/90\%である（凡例参照）．$TL_{p95}$の縦軸は対数スケールを用いた．スキャンデューティ比を上げることで短間隔側の受信品質が改善し，Pout/TLにも差が出ることが確認できる．
 
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.85\linewidth]{figures/stress_scan50_vs_scan90_metrics_v5.png}
-  \caption{ストレス固定におけるscan duty 50\%/90\%の比較（横軸：間隔，縦軸：PDR/Pout/$TL_{p95}$，系列：低duty/高duty，$TL_{p95}$は対数スケール）}
+  \caption{ストレス固定におけるスキャンデューティ比50\%/90\%の比較（横軸：間隔，縦軸：PDR/Pout/$TL_{p95}$，系列：低duty/高duty，$TL_{p95}$は対数スケール）}
   \label{fig:stress_fixed_scan50_vs_scan90_pdr}
 \end{figure}
 

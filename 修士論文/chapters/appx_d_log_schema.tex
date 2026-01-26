@@ -5,7 +5,7 @@
 本節では，本研究で扱うログ（TXSD/RX/TX）の列定義をまとめる．解析スクリプトは列追加に対して後方互換で拡張可能であるが，指標計算に必須な列は固定する．
 
 まず，TXSD（電力）ログについて述べる．
-TXSDログは，電流・電圧系列と，末尾のsummaryから構成される．生系列は後処理で再積分できるように保持し，summaryは簡易確認用として利用する．表中の各行は列名，各列は単位および意味を表す．
+TXSDログは，電流・電圧系列と，末尾のsummaryから構成される．生系列は後処理で再積分できるように保持し，summaryは簡易確認用として利用する．表では列名と単位・意味を対応付けて示す．
 
 \begin{longtable}{p{0.20\linewidth}p{0.16\linewidth}p{0.50\linewidth}}
   \caption{TXSDログ（例）の列定義（列名・単位・意味）}\label{tab:txsd_schema}\\
@@ -32,7 +32,7 @@ TXSDログは，電流・電圧系列と，末尾のsummaryから構成される
 \end{longtable}
 
 次に，RX（受信）ログについて述べる．
-RXログは，受信時刻とペイロード識別子（seq等）を保持する．PDR\_unique，TL，$P_{\mathrm{out}}(\tau)$の算出に必須である．表中の各行は列名，各列は単位および意味を表す．
+RXログは，受信時刻とペイロード識別子（seq等）を保持する．PDR\_unique，TL，$P_{\mathrm{out}}(\tau)$の算出に必須である．表では列名と単位・意味を対応付けて示す．
 
 \begin{longtable}{p{0.20\linewidth}p{0.16\linewidth}p{0.50\linewidth}}
   \caption{RXログ（例）の列定義（列名・単位・意味）}\label{tab:rx_schema}\\
@@ -52,7 +52,7 @@ RXログは，受信時刻とペイロード識別子（seq等）を保持する
 \end{longtable}
 
 続いて，TX（送信）ログについて述べる．
-TXログは，方策の状態（$U,S,\mathrm{CCS},a$等）を保持する．オフライン評価と実機評価を接続するため，方策の根拠（切替理由）を残すことが望ましい．表中の各行は列名，各列は単位および意味を表す．
+TXログは，方策の状態（$U,S,\mathrm{CCS},a$等）を保持する．オフライン評価と実機評価を接続するため，方策の根拠（切替理由）を残すことが望ましい．表では列名と単位・意味を対応付けて示す．
 
 \begin{longtable}{p{0.20\linewidth}p{0.16\linewidth}p{0.50\linewidth}}
   \caption{TXログ（例）の列定義（列名・単位・意味）}\label{tab:tx_schema}\\

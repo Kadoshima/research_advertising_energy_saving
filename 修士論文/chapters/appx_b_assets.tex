@@ -56,8 +56,8 @@ CCS-offアブレーション（D4B, scan90）では，次のディレクトリ�
   \item 出力（$\hat{\rho}_{100}$--$P_{\mathrm{out}}$俯瞰図）：\\
         \path{uccs_d4b_scan90/plots/alpha_vs_pout_overview.pdf} \\
         \path{uccs_d4b_scan90/plots/alpha_vs_pout_overview.svg}
-  \item 出力（outage事例の追跡）：\path{uccs_d4b_scan90/plots/outage_story_01/fig_outage_timeline.pdf} / \path{uccs_d4b_scan90/plots/outage_story_01/fig_outage_timeline.svg}
-  \item 出力（outage内訳CSV）：\path{uccs_d4b_scan90/plots/outage_story_01/outage_ranking.csv} / \path{uccs_d4b_scan90/plots/outage_story_01/per_transition.csv}
+  \item 出力（期限超過事例の追跡）：\path{uccs_d4b_scan90/plots/outage_story_01/fig_outage_timeline.pdf} / \path{uccs_d4b_scan90/plots/outage_story_01/fig_outage_timeline.svg}
+  \item 出力（期限超過内訳CSV）：\path{uccs_d4b_scan90/plots/outage_story_01/outage_ranking.csv} / \path{uccs_d4b_scan90/plots/outage_story_01/per_transition.csv}
   \item 出力（尾の寄与分解）：\\
         \path{uccs_d4b_scan90/plots/pout_tail_01/fig_outage_count_hist.pdf} \\
         \path{uccs_d4b_scan90/plots/pout_tail_01/fig_delta_pout_cum.pdf} \\
@@ -72,7 +72,7 @@ scan70条件でCCS-offアブレーション（D4B）の追試を行うための�
   \item TX：\path{uccs_d4b_scan70/src/tx/TX_UCCS_D4B_SCAN70/TX_UCCS_D4B_SCAN70.ino}
   \item RX：\path{uccs_d4b_scan70/src/rx/RX_UCCS_D4B_SCAN70/RX_UCCS_D4B_SCAN70.ino}
   \item TXSD：\path{uccs_d4b_scan70/src/txsd/TXSD_UCCS_D4B_SCAN70/TXSD_UCCS_D4B_SCAN70.ino}
-  \item truthヘッダ：\path{uccs_d4b_scan70/src/tx/stress_causal_s1_s4_180s.h}
+  \item 真値ヘッダ：\path{uccs_d4b_scan70/src/tx/stress_causal_s1_s4_180s.h}
 \end{itemize}
 
 \subsection{解析スクリプト（例）}
@@ -90,7 +90,7 @@ scan70条件でCCS-offアブレーション（D4B）の追試を行うための�
   \item D4B図生成：\path{uccs_d4b_scan90/analysis/plot_power_vs_pout.py}
   \item 統合図生成：\path{uccs_d4b_scan90/analysis/plot_role_separation_overview.py}
   \item $\hat{\rho}_{100}$--$P_{\mathrm{out}}$俯瞰図生成：\path{uccs_d4b_scan90/analysis/plot_alpha_vs_pout.py}
-  \item outage事例追跡（D4B run01）：\path{uccs_d4b_scan90/analysis/outage_story_trace.py}
+  \item 期限超過事例追跡（D4B run01）：\path{uccs_d4b_scan90/analysis/outage_story_trace.py}
   \item 尾の寄与分解（D4B run01）：\\
         \path{uccs_d4b_scan90/analysis/pout_tail_decomposition.py}
   \item 条件付きタイミング（D4B run01）：\path{uccs_d4b_scan90/analysis/ccs_timing_analysis_conditional.py}
