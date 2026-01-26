@@ -11,3 +11,7 @@
 2026-01-27 04:55 JST
 - build/main.aux, build/main.toc, build/main.bcf-SAVE-ERROR, build/main.bbl-SAVE-ERROR を削除してTOC破損を復旧
 - latexmk -lualatex で再ビルド（biber実行、build/main.pdf更新）
+2026-01-27 05:07 JST
+- Adjusted cover block vertical position: chubuthesis.sty vskip 2.0in -> 2.3in
+2026-01-27 05:15 JST
+- Shifted cover page content down by 6 lines (added vskip 6\baselineskip in chubuthesis.sty)
