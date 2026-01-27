@@ -20,3 +20,5 @@
 - Fix underscore handling note in appx_e_runbook.tex and unify punctuation in acknowledgements
 - Normalize P_out(1s/2s) spacing and update E/adv unit in appx_c_results.tex
 - Replace table punctuation in appx_h_ccs_params.tex and remove duplicate section refs in ch5_publicroad.tex
+[2026-01-27  (JST)] Encoding recovery: restored UTF-8 contents for chapters ch4_rain.tex, ch10_phase2_concept.tex, ch5_publicroad.tex, conclusion.tex, appx_i_pareto.tex from repomix-thesis.txt.
+[2026-01-27  (JST)] Build check: latexmk failed at ch4_rain.tex include; figures/rho100_vs_pout_overview.pdf is actually SVG (file header '<svg'). PNG exists as figures/rho100_vs_pout_overview.png.
