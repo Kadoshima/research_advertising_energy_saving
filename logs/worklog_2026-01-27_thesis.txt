@@ -15,3 +15,8 @@
 - Adjusted cover block vertical position: chubuthesis.sty vskip 2.0in -> 2.3in
 2026-01-27 05:15 JST
 - Shifted cover page content down by 6 lines (added vskip 6\baselineskip in chubuthesis.sty)
+2026-01-27 05:27 JST
+- Update bibliography heading string in main.tex
+- Fix underscore handling note in appx_e_runbook.tex and unify punctuation in acknowledgements
+- Normalize P_out(1s/2s) spacing and update E/adv unit in appx_c_results.tex
+- Replace table punctuation in appx_h_ccs_params.tex and remove duplicate section refs in ch5_publicroad.tex
