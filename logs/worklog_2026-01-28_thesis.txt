@@ -1,0 +1,22 @@
+2026-01-29 02:37 JST
+- 修士論文/chubuthesis.sty: abstractページのタイトル下の罫線間隔を縮小（vspace調整）
+
+2026-01-29 02:50 JST
+- 修士論文/chapters/*.tex: かぎ括弧（「」）を本文から削除
+- 修士論文/WRITING_RULES.md: 本文でかぎ括弧を使用しないルールを追加
+
+2026-01-29 02:53 JST
+- 修士論文/meta.tex および 修士論文/_tmp/encoding_backup_20260127/*.tex: かぎ括弧を削除（全文チェック対応）
+- rgで全文チェックし、現行本文では「」の残存なしを確認
+
+2026-01-29 03:02 JST
+- 修士論文/chapters/ch2_related_work.tex: 表キャプションを簡潔化
+- 修士論文/chapters/appx_h_ccs_params.tex: 表キャプションを簡潔化
+- 修士論文/chapters/ch3_oncampus.tex: 図キャプションを簡潔化（詳細は本文側に残置）
+
+2026-01-29 03:26 JST
+- 修士論文/chapters/*.tex: 図表キャプションの冗長説明を削減（本文への移管前提で簡潔化）
+
+2026-01-29 03:32 JST
+- 修士論文/chapters/ch8_exp_ablation_shuffle.tex: 表4.4直前の段落区切りを削除し、考察のU-shuffle表記をUシャッフルに統一
+

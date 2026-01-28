@@ -35,11 +35,11 @@ MCU上で学習・制御を実装する場合，RAMや演算資源の制約に�
 医療・見守り等の用途ではQoS違反が許容されにくく，探索過程における制約違反のリスクが課題となる．このため，本研究では，Phase 1として安全側のルールベース方策と評価指標を確立した上で，将来課題として安全制約付きContextual BanditであるSafe Contextual Banditへ発展させる方針を採る．
 
 本研究の位置づけを示す．
-\tabref{tab:related_work_positioning}に，入力・制御形式・評価軸の観点から本研究と関連アプローチを整理した結果を示す．本研究は，「不確実度を用いた動的制御」と「電力＋QoSの同時実測」を同一の評価系で統合し，将来的な安全制約付きオンライン最適化への拡張性を考慮した設計を行う点に特徴がある．
+\tabref{tab:related_work_positioning}に，入力・制御形式・評価軸の観点から本研究と関連アプローチを整理した結果を示す．本研究は，不確実度を用いた動的制御と電力＋QoSの同時実測を同一の評価系で統合し，将来的な安全制約付きオンライン最適化への拡張性を考慮した設計を行う点に特徴がある．
 
 \begin{table}[tb]
   \centering
-  \caption{関連アプローチと本研究の位置づけ：概念整理}
+  \caption{関連アプローチと本研究の位置づけ}
   \label{tab:related_work_positioning}
   \begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{0.20\linewidth}>{\raggedright\arraybackslash}p{0.20\linewidth}>{\raggedright\arraybackslash}p{0.20\linewidth}>{\raggedright\arraybackslash}X}
     \toprule

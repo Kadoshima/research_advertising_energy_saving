@@ -79,7 +79,7 @@
 
 \subsection{考察}
 
-\tabref{tab:d2_summary}および\figref{fig:d2b_power_vs_pout}より，方策の2値切替は固定\SI{100}{\milli\second}より低電力であり，固定\SI{500}{\milli\second}より低い期限超過率を示す運用点になり得る．さらに，遷移が多い側であるS4ほどshare100が増加しており，「必要時のみ\SI{100}{\milli\second}を選択し，それ以外は\SI{500}{\milli\second}を選択する」挙動が定量で確認できる．
+\tabref{tab:d2_summary}および\figref{fig:d2b_power_vs_pout}より，方策の2値切替は固定\SI{100}{\milli\second}より低電力であり，固定\SI{500}{\milli\second}より低い期限超過率を示す運用点になり得る．さらに，遷移が多い側であるS4ほどshare100が増加しており，必要時のみ\SI{100}{\milli\second}を選択し，それ以外は\SI{500}{\milli\second}を選択する挙動が定量で確認できる．
 
 また，平均電力は固定\SI{100}{\milli\second}と固定\SI{500}{\milli\second}の滞在比率であるshare100による線形混合で概ね説明できるため，方策の省電力効果はinterval滞在比率に支配されることが示唆される．これにより，スリープ実装の詳細に依存する議論から分離し，制御則の議論へ接続しやすくなる．
 

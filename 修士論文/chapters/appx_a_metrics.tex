@@ -33,7 +33,7 @@ EFFECTIVE\_LEN(評価に用いる真値系列の有効長)を整理する．
 \begin{equation}
   \mathrm{EFFECTIVE\_LEN}=\min(T_{\mathrm{trial}},T_{\mathrm{truth}})
 \end{equation}
-と定義し，真値系列を$[0,\mathrm{EFFECTIVE\_LEN}]$にクリップしてイベント数$N_{\mathrm{event}}$を数える．これにより，「末端遷移が試行区間外に出る」ことによる$N_{\mathrm{event}}$の不一致を避け，trial間比較の安定性を確保する．動的切替では試行の切り出し条件が揺らぎやすいため，EFFECTIVE\_LENを明示して分母を固定することが重要である(背景と実装上の理由は\secref{sec:stress_fixed_metrics})．
+と定義し，真値系列を$[0,\mathrm{EFFECTIVE\_LEN}]$にクリップしてイベント数$N_{\mathrm{event}}$を数える．これにより，末端遷移が試行区間外に出ることによる$N_{\mathrm{event}}$の不一致を避け，trial間比較の安定性を確保する．動的切替では試行の切り出し条件が揺らぎやすいため，EFFECTIVE\_LENを明示して分母を固定することが重要である(背景と実装上の理由は\secref{sec:stress_fixed_metrics})．
 
 最後に，\texorpdfstring{電荷と$q_{\mathrm{event}}$($\si{\micro\coulomb}/\text{event}$)}{電荷とq_event(uC/event)}を整理する．
 本研究の一次目標である$q_{\mathrm{event}}$は，セッション中の電荷消費をイベント数で正規化した指標である．電力やエネルギーは電圧に依存するため，バッテリ消費の観点では電荷で整理すると解釈が容易である．

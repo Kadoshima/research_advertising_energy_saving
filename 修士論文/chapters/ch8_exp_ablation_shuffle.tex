@@ -13,7 +13,6 @@
 \subsection{実験結果}
 
 \tabref{tab:d4_summary}に，S4における結果を示す．
-
 \begin{table}[tb]
   \centering
   \caption{時系列構造アブレーション結果}
@@ -39,6 +38,6 @@
 
 本実験の結果は，制御器の構造と閾値を固定したまま入力$U$の時系列構造を乱すと，制御が短間隔側に固定され，適応的な切替機能が喪失することを示している．
 
-効果量のブートストラップCIによると，$\Delta$powerのpolicyとU-shuffleの差は\SI{-7.58}{\milli\watt}であり，95\%CIは\SIrange{-8.39}{-6.93}{\milli\watt}である．また，$\Delta P_{\mathrm{out}}(1\mathrm{s})$は+0.0488であり，95\%CIは$[0.0244,0.0732]$である．これにより，U-shuffleが短間隔寄りに偏ることが定量で確認できる．
+効果量のブートストラップCIによると，$\Delta$powerの方策とUシャッフルの差は\SI{-7.58}{\milli\watt}であり，95\%CIは\SIrange{-8.39}{-6.93}{\milli\watt}である．また，$\Delta P_{\mathrm{out}}(1\mathrm{s})$は+0.0488であり，95\%CIは$[0.0244,0.0732]$である．これにより，Uシャッフルが短間隔寄りに偏ることが定量で確認できる．
 
 \clearpage
