@@ -9,12 +9,14 @@
   - v02 出力: `results/phase2_offline_studies_2026-01-25_v02/`
   - v03 出力: `results/phase2_offline_studies_2026-01-25_v03/`
   - v04 出力: `results/phase2_offline_studies_2026-01-26_v04/`
+  - v05 出力: `results/phase2_offline_studies_2026-01-26_v05/`
+  - Gate C sweep: `results/phase2_gatec_sweep_m_2026-01-26_v02/`
 
-本TODOは、現状の Phase 2 offline studies（v03まで）を「次フェーズへ進んでよいことの証明（gate）」へ変えるための、最短で効く順番に並べ替えた計画である。
+本TODOは、現状の Phase 2 offline studies（v05まで）を「次フェーズへ進んでよいことの証明（gate）」へ変えるための、最短で効く順番に並べ替えた計画である。
 
 ---
 
-## 0) いま何が言えるか（v02/v03の到達点）
+## 0) いま何が言えるか（v02〜v05の到達点）
 
 2026-01-25 時点で、以下は **再現可能に示せている**（出典: `results/phase2_offline_studies_2026-01-25_v02/`）。
 
@@ -29,6 +31,8 @@ v03 では gate を強くするために、以下を追加した（出典: `resu
 - `filter_ucb`（Safety Filter + UCB）を追加し、safe が複数ある環境（Gate A）と環境シフト（Gate B）を再現しやすくした。
 
 v04 では Gate B を「抑え方込み」で比較できるように、`filter_ucb_online`（オンライン更新の Safety Filter + UCB）と、序盤違反メトリクス `violations_first_after_switch_k`（k=50）を追加した（出典: `results/phase2_offline_studies_2026-01-26_v04/`）。
+
+v05 では Gate B の候補圧縮（cap付きPareto）と Gate C の m sweep を統合し、暫定 default を w=0, reset=1, m=0.01 とした（出典: `results/phase2_offline_studies_2026-01-26_v05/gateb_pareto_cap25.md`, `results/phase2_gatec_sweep_m_2026-01-26_v02/sim_summary.csv`）。
 
 ---
 
@@ -185,7 +189,7 @@ Horizon T=1000 では到達不能で、safe_set が空→フォールバック�
   - 観測:
     - m>=0.015 は 100ms 固定になり省電力観点で不利（action={100,500}のとき）
     - m=0.005/0.01 は 500ms を維持しつつ shift 後に一部 100ms へ退避（QoS寄りに倒せる領域がある）
-  - 次: Gate B 側の候補定義（cap付き）と統合し、m を 0.005-0.01 近傍で一本化できるか検討
+  - 反映: Gate B 側の候補定義（cap付き）と統合し、w=0, reset=1, m=0.01 を暫定 default とした（m=0.02/0.03 は安全寄り感度分析として保持）。
 
 ---
 

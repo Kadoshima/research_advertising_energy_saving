@@ -20,3 +20,47 @@
 2026-01-29 03:32 JST
 - 修士論文/chapters/ch8_exp_ablation_shuffle.tex: 表4.4直前の段落区切りを削除し、考察のU-shuffle表記をUシャッフルに統一
 
+2026-01-29 06:58 JST
+- 修士論文/chubuthesis.sty: ページ番号位置を奇数右・偶数左に変更／章見出しを左寄せ太字・同ページ本文に変更／数式番号を章単位に変更／参考文献見出しを『参考文献』に統一
+- 修士論文/main.tex: 目次後に図目次・表目次を追加、参考文献見出しを『参考文献』に変更
+- 修士論文/chapters/acknowledgements.tex: 見出しを『謝　辞』に変更し markboth 追加
+- 修士論文/chapters/conclusion.tex: 章タイトルを『結論』に変更
+- 修士論文/meta.tex: 表紙タイトルを2行に分割（LineOne/LineTwo）
+
+2026-01-29 07:06 JST
+- 修士論文/chubuthesis.sty: フォント指定（Times New Roman / MS PMincho / Yu Mincho / MS PGothic）を解除し、LuaLaTeX/luatexja標準フォントに準拠
+
+2026-01-29 07:12 JST
+- 修士論文/chubuthesis.sty: 表紙の年度ラベルを明朝（太字解除）に変更
+
+
+2026-01-29 07:14 JST
+- docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/TODO.md: v05/Gate C sweep 反映、関連リンク追加、Gate Cの次ステップ更新
+2026-01-29 07:28 JST
+- 修士論文/chubuthesis.sty: 章扉を明朝・中央揃え・ページ中央配置に戻し、縦中央章扉体裁を復帰
+
+
+2026-01-29 07:43 JST
+- docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/TODO_修論締め.md を新規作成（Phase1→Phase2接続と修論締めのP0-P5 TODOを整理）
+
+2026-01-29 07:56 JST
+- docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/claim.md を新規作成（Phase1→Phase2接続の最終主張、KPI定義、Gate A/B/C勝ち定義、参照パスを固定）
+
+2026-01-29 08:14 JST
+- docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/phase1_to_phase2_provenance.md を新規作成（Evidence Matrix、補助エビデンス、SHA256算出手順を整理）
+
+2026-01-29 08:16 JST
+- docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/claim.md に Gate B Pareto 表（cap=25）を追記し全体を再整形
+
+2026-01-29 08:17 JST
+- docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/現状詳細.md に 1 pull=60s の時間解釈を追記
+
+2026-01-29 08:20 JST
+- docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/README.md: 関連リンクに claim/provenance/TODO_修論締め を追加。docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/現状詳細.md: scan90制約ソースをfull-setに統一、1 pull=60sを明記。docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/claim.md: Gate C候補の整合記述を調整。
+
+2026-01-29 08:27 JST
+- docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/claim.md: split妥当性（reward/constraint）表を追加
+
+2026-01-29 08:41 JST
+- uccs_d4b_scan90/analysis/plot_role_separation_overview.py: role separation 図の横軸/縦軸を入れ替え、pout 目盛り表示を修正
+- results/final/fig/fig_role_separation_d3_d4_d4b.png: 逆軸のPNGを再生成

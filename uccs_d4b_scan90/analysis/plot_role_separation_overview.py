@@ -7,7 +7,7 @@ Single-figure overview to fix the narrative in one plot:
   - Robustness: scan70 degrades Fixed500 strongly, while Policy remains feasible
 
 Inputs are per-experiment summary_by_condition.csv files (no external deps).
-Output is dependency-free SVG.
+Output is dependency-free SVG/PNG.
 """
 
 from __future__ import annotations
@@ -51,15 +51,15 @@ def read_summary(path: Path) -> Dict[str, Dict[str, float]]:
             cond = (row.get("condition") or "").strip()
             if not cond:
                 continue
-            x = f_or_none(row.get("pout_1s_mean") or "")
-            y = f_or_none(row.get("avg_power_mW_mean") or "")
-            if x is None or y is None:
+            pout = f_or_none(row.get("pout_1s_mean") or "")
+            power = f_or_none(row.get("avg_power_mW_mean") or "")
+            if pout is None or power is None:
                 continue
             out[cond] = {
-                "x": float(x),
-                "y": float(y),
-                "xerr": float(f_or_none(row.get("pout_1s_std") or "") or 0.0),
-                "yerr": float(f_or_none(row.get("avg_power_mW_std") or "") or 0.0),
+                "pout": float(pout),
+                "power": float(power),
+                "pout_err": float(f_or_none(row.get("pout_1s_std") or "") or 0.0),
+                "power_err": float(f_or_none(row.get("avg_power_mW_std") or "") or 0.0),
             }
     return out
 
@@ -107,32 +107,32 @@ def write_svg(out_svg: Path, title: str, points: List[Point], arrows: List[Tuple
     grid = "#e5e7eb"
     bg = "#ffffff"
 
-    # Axis bounds + ticks.
+    # Axis bounds + ticks (X=avg_power, Y=P_out).
     xs = [p.x for p in points]
     ys = [p.y for p in points]
     xerrs = [p.xerr for p in points]
     yerrs = [p.yerr for p in points]
 
-    # X range stays fixed for consistent eps=0.1 placement.
-    xmin, xmax = 0.0, 0.35
-    x_ticks = [i * 0.05 for i in range(int(round(xmax / 0.05)) + 1)]
+    # X (avg_power) range is auto-scaled.
+    x_min = min(x - xe for x, xe in zip(xs, xerrs))
+    x_max = max(x + xe for x, xe in zip(xs, xerrs))
+    x_pad = max(5.0, (x_max - x_min) * 0.1)
+    xmin = math.floor((x_min - x_pad) / 5.0) * 5.0
+    xmax = math.ceil((x_max + x_pad) / 5.0) * 5.0
+    xmin = min(xmin, 185.0)
 
-    # Expand Y range to include scan70 (n=10) points.
-    y_min = min(y - ye for y, ye in zip(ys, yerrs))
-    y_max = max(y + ye for y, ye in zip(ys, yerrs))
-    y_pad = max(5.0, (y_max - y_min) * 0.1)
-    ymin = math.floor((y_min - y_pad) / 5.0) * 5.0
-    ymax = math.ceil((y_max + y_pad) / 5.0) * 5.0
-    ymin = min(ymin, 185.0)
-
-    y_span = ymax - ymin
-    if y_span <= 40:
-        y_step = 5.0
-    elif y_span <= 80:
-        y_step = 10.0
+    x_span = xmax - xmin
+    if x_span <= 40:
+        x_step = 5.0
+    elif x_span <= 80:
+        x_step = 10.0
     else:
-        y_step = 20.0
-    y_ticks = [ymin + i * y_step for i in range(int(round((ymax - ymin) / y_step)) + 1)]
+        x_step = 20.0
+    x_ticks = [xmin + i * x_step for i in range(int(round((xmax - xmin) / x_step)) + 1)]
+
+    # Y (P_out) stays fixed for consistent eps=0.1 placement.
+    ymin, ymax = 0.0, 0.35
+    y_ticks = [i * 0.05 for i in range(int(round(ymax / 0.05)) + 1)]
 
     def xpx(x: float) -> float:
         return ml + (x - xmin) * pw / (xmax - xmin) if xmax > xmin else ml + pw / 2
@@ -151,21 +151,21 @@ def write_svg(out_svg: Path, title: str, points: List[Point], arrows: List[Tuple
     for tx in x_ticks:
         px = xpx(tx)
         svg.append(f'<line x1="{px:.2f}" y1="{mt}" x2="{px:.2f}" y2="{mt+ph}" stroke="{grid}" stroke-width="1"/>')
-        svg.append(f'<text x="{px:.2f}" y="{mt+ph+26}" font-size="12" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">{_fmt_tick(float(tx), 0)}</text>')
+        svg.append(f'<text x="{px:.2f}" y="{mt+ph+26}" font-size="12" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">{_fmt_tick(float(tx), 2)}</text>')
     for ty in y_ticks:
         py = ypx(ty)
         svg.append(f'<line x1="{ml}" y1="{py:.2f}" x2="{ml+pw}" y2="{py:.2f}" stroke="{grid}" stroke-width="1"/>')
         svg.append(f'<text x="{ml-10}" y="{py+4:.2f}" font-size="12" text-anchor="end" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">{_fmt_tick(ty, 2)}</text>')
 
-    svg.append(f'<text x="{ml+pw/2:.1f}" y="{height-26}" font-size="14" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">P_out(1 s) (lower is better)</text>')
-    svg.append(f'<text x="22" y="{mt+ph/2:.1f}" font-size="14" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system" transform="rotate(-90 22 {mt+ph/2:.1f})">Average power (mW)</text>')
+    svg.append(f'<text x="{ml+pw/2:.1f}" y="{height-26}" font-size="14" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">avg_power_mW (lower=better)</text>')
+    svg.append(f'<text x="22" y="{mt+ph/2:.1f}" font-size="14" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system" transform="rotate(-90 22 {mt+ph/2:.1f})">pout_1s (lower=better)</text>')
 
     # eps=0.1 guideline (Pout constraint)
-    x_eps = 0.1
-    if x_eps >= xmin and x_eps <= xmax:
-        px = xpx(x_eps)
-        svg.append(f'<line x1="{px:.2f}" y1="{mt}" x2="{px:.2f}" y2="{mt+ph}" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6 4"/>')
-        svg.append(f'<text x="{px-6:.2f}" y="{mt+14}" font-size="12" text-anchor="end" fill="#6b7280" font-family="ui-sans-serif, system-ui, -apple-system">eps=0.1</text>')
+    y_eps = 0.1
+    if y_eps >= ymin and y_eps <= ymax:
+        py = ypx(y_eps)
+        svg.append(f'<line x1="{ml}" y1="{py:.2f}" x2="{ml+pw}" y2="{py:.2f}" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6 4"/>')
+        svg.append(f'<text x="{ml+pw-6:.2f}" y="{py-6:.2f}" font-size="12" text-anchor="end" fill="#6b7280" font-family="ui-sans-serif, system-ui, -apple-system">eps=0.1</text>')
 
     # Index points by key for arrows.
     by_key: Dict[str, Point] = {p.key: p for p in points}
@@ -245,37 +245,38 @@ def write_matplotlib(out_path: Path, title: str, points: List[Point], arrows: Li
     fig, ax = plt.subplots(figsize=(9.8, 6.4), dpi=120)
 
     # Axis bounds (match SVG layout, expanded for scan70 n=10).
-    ax.set_xlim(0.0, 0.35)
-    ax.set_xticks([i * 0.05 for i in range(8)])
+    # X=avg_power (auto), Y=P_out (fixed).
+    xs = [p.x for p in points]
+    xerrs = [p.xerr for p in points]
+    x_min = min(x - xe for x, xe in zip(xs, xerrs))
+    x_max = max(x + xe for x, xe in zip(xs, xerrs))
+    x_pad = max(5.0, (x_max - x_min) * 0.1)
+    xmin = math.floor((x_min - x_pad) / 5.0) * 5.0
+    xmax = math.ceil((x_max + x_pad) / 5.0) * 5.0
+    xmin = min(xmin, 185.0)
 
-    ys = [p.y for p in points]
-    yerrs = [p.yerr for p in points]
-    y_min = min(y - ye for y, ye in zip(ys, yerrs))
-    y_max = max(y + ye for y, ye in zip(ys, yerrs))
-    y_pad = max(5.0, (y_max - y_min) * 0.1)
-    ymin = math.floor((y_min - y_pad) / 5.0) * 5.0
-    ymax = math.ceil((y_max + y_pad) / 5.0) * 5.0
-    ymin = min(ymin, 185.0)
-
-    y_span = ymax - ymin
-    if y_span <= 40:
-        y_step = 5.0
-    elif y_span <= 80:
-        y_step = 10.0
+    x_span = xmax - xmin
+    if x_span <= 40:
+        x_step = 5.0
+    elif x_span <= 80:
+        x_step = 10.0
     else:
-        y_step = 20.0
-    ax.set_ylim(ymin, ymax)
-    ax.set_yticks([ymin + i * y_step for i in range(int(round((ymax - ymin) / y_step)) + 1)])
+        x_step = 20.0
+    ax.set_xlim(xmin, xmax)
+    ax.set_xticks([xmin + i * x_step for i in range(int(round((xmax - xmin) / x_step)) + 1)])
+
+    ax.set_ylim(0.0, 0.35)
+    ax.set_yticks([i * 0.05 for i in range(8)])
     ax.grid(True, color="#e5e7eb", linewidth=1.0)
 
-    ax.set_xlabel("P_out(1 s) (lower is better)")
-    ax.set_ylabel("Average power (mW)")
+    ax.set_xlabel("avg_power_mW (lower=better)")
+    ax.set_ylabel("pout_1s (lower=better)")
     if title:
         ax.set_title(title)
 
     # eps=0.1 guideline
-    ax.axvline(0.1, color="#9ca3af", linestyle=(0, (6, 4)), linewidth=1.8)
-    ax.text(0.098, ymax - (ymax - ymin) * 0.03, "eps=0.1", ha="right", va="top", color="#6b7280", fontsize=10)
+    ax.axhline(0.1, color="#9ca3af", linestyle=(0, (6, 4)), linewidth=1.8)
+    ax.text(xmax - (xmax - xmin) * 0.02, 0.102, "eps=0.1", ha="right", va="bottom", color="#6b7280", fontsize=10)
 
     marker_map = {
         "square": "s",
@@ -369,20 +370,20 @@ def main() -> None:
 
     pts: List[Point] = []
     # scan90 fixed points (use D4B fixed values for consistency with CCS-off run)
-    pts.append(Point("scan90_fixed100", "fixed100 (90)", d4b["S4_fixed100"]["x"], d4b["S4_fixed100"]["y"], d4b["S4_fixed100"]["xerr"], d4b["S4_fixed100"]["yerr"], "#3b82f6", "square"))
-    pts.append(Point("scan90_fixed500", "fixed500 (90)", d4b["S4_fixed500"]["x"], d4b["S4_fixed500"]["y"], d4b["S4_fixed500"]["xerr"], d4b["S4_fixed500"]["yerr"], "#3b82f6", "square"))
+    pts.append(Point("scan90_fixed100", "fixed100 (90)", d4b["S4_fixed100"]["power"], d4b["S4_fixed100"]["pout"], d4b["S4_fixed100"]["power_err"], d4b["S4_fixed100"]["pout_err"], "#3b82f6", "square"))
+    pts.append(Point("scan90_fixed500", "fixed500 (90)", d4b["S4_fixed500"]["power"], d4b["S4_fixed500"]["pout"], d4b["S4_fixed500"]["power_err"], d4b["S4_fixed500"]["pout_err"], "#3b82f6", "square"))
 
     # scan90 policy (U+CCS): use D4B policy point (same definition)
-    pts.append(Point("scan90_policy", "policy (90)", d4b["S4_policy"]["x"], d4b["S4_policy"]["y"], d4b["S4_policy"]["xerr"], d4b["S4_policy"]["yerr"], "#10b981", "circle"))
+    pts.append(Point("scan90_policy", "policy (90)", d4b["S4_policy"]["power"], d4b["S4_policy"]["pout"], d4b["S4_policy"]["power_err"], d4b["S4_policy"]["pout_err"], "#10b981", "circle"))
 
     # scan90 ablations
-    pts.append(Point("scan90_u_shuf", "U-shuf", d4["S4_ablation_u_shuf"]["x"], d4["S4_ablation_u_shuf"]["y"], d4["S4_ablation_u_shuf"]["xerr"], d4["S4_ablation_u_shuf"]["yerr"], "#f59e0b", "triangle"))
-    pts.append(Point("scan90_ccs_off", "CCS-off", d4b["S4_ablation_ccs_off"]["x"], d4b["S4_ablation_ccs_off"]["y"], d4b["S4_ablation_ccs_off"]["xerr"], d4b["S4_ablation_ccs_off"]["yerr"], "#f59e0b", "triangle"))
+    pts.append(Point("scan90_u_shuf", "U-shuf", d4["S4_ablation_u_shuf"]["power"], d4["S4_ablation_u_shuf"]["pout"], d4["S4_ablation_u_shuf"]["power_err"], d4["S4_ablation_u_shuf"]["pout_err"], "#f59e0b", "triangle"))
+    pts.append(Point("scan90_ccs_off", "CCS-off", d4b["S4_ablation_ccs_off"]["power"], d4b["S4_ablation_ccs_off"]["pout"], d4b["S4_ablation_ccs_off"]["power_err"], d4b["S4_ablation_ccs_off"]["pout_err"], "#f59e0b", "triangle"))
 
     # scan70 robustness (D3): fixed100/fixed500/policy
-    pts.append(Point("scan70_fixed100", "fixed100 (70)", d3["S4_fixed100"]["x"], d3["S4_fixed100"]["y"], d3["S4_fixed100"]["xerr"], d3["S4_fixed100"]["yerr"], "#111827", "diamond"))
-    pts.append(Point("scan70_fixed500", "fixed500 (70)", d3["S4_fixed500"]["x"], d3["S4_fixed500"]["y"], d3["S4_fixed500"]["xerr"], d3["S4_fixed500"]["yerr"], "#111827", "diamond"))
-    pts.append(Point("scan70_policy", "policy (70)", d3["S4_policy"]["x"], d3["S4_policy"]["y"], d3["S4_policy"]["xerr"], d3["S4_policy"]["yerr"], "#111827", "diamond"))
+    pts.append(Point("scan70_fixed100", "fixed100 (70)", d3["S4_fixed100"]["power"], d3["S4_fixed100"]["pout"], d3["S4_fixed100"]["power_err"], d3["S4_fixed100"]["pout_err"], "#111827", "diamond"))
+    pts.append(Point("scan70_fixed500", "fixed500 (70)", d3["S4_fixed500"]["power"], d3["S4_fixed500"]["pout"], d3["S4_fixed500"]["power_err"], d3["S4_fixed500"]["pout_err"], "#111827", "diamond"))
+    pts.append(Point("scan70_policy", "policy (70)", d3["S4_policy"]["power"], d3["S4_policy"]["pout"], d3["S4_policy"]["power_err"], d3["S4_policy"]["pout_err"], "#111827", "diamond"))
 
     arrows = [
         ("scan90_u_shuf", "scan90_policy", ""),

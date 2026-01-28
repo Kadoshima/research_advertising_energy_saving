@@ -93,6 +93,9 @@ python scripts/phase2_offline_eval/run_gatec_candidates.py --gateb-run-dir resul
 - `scripts/phase2_offline_eval/run_offline_eval.py`（単発の動作確認用）
 - `docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/現状詳細.md`（現状の実装・データ・結果の詳細）
 - `docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/TODO.md`（gate設計と優先度付きTODO）
+- `docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/claim.md`（主張固定（Claim））
+- `docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/phase1_to_phase2_provenance.md`（データ系譜（Evidence Matrix））
+- `docs/フェーズ2/phase2_bandit_offline_studies_2026-01-24/TODO_修論締め.md`（修論締めの作業パス）
 
 ## 更新履歴
 - 2026-01-24: 初版（オフライン妥当性/環境シフト/行動集合/ warm-start/ ε-τ感度の最小チェックを追加）

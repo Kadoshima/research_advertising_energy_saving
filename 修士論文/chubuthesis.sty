@@ -17,11 +17,8 @@
 \RequirePackage{fix-cm}
 
 % --- Font setup ---
-\setmainfont{Times New Roman}
-\newcommand{\thesisbodyjfont}{MS PMincho}
-\newjfontfamily{\thesisabstractjfont}{Yu Mincho}
-\setmainjfont{\thesisbodyjfont}
-\setsansjfont{MS PGothic}
+% Use LuaLaTeX/luatexja defaults to align with pLaTeX standard output.
+\newcommand{\thesisabstractjfont}{}
 % 本文の和文フォントは明朝体に統一
 \renewcommand{\kanjifamilydefault}{\mcdefault}
 \renewcommand{\kanjiseriesdefault}{\mddefault}
@@ -121,7 +118,7 @@
 \renewcommand{\contentsname}{目 次}
 \renewcommand{\listfigurename}{図 目 次}
 \renewcommand{\listtablename}{表 目 次}
-\renewcommand{\bibname}{参考文献参考URL}
+\renewcommand{\bibname}{参考文献}
 
 
 % --- ページ番号（下右に統一） ---
@@ -132,7 +129,7 @@
 
 \fancyhf{}
 
-\fancyfoot[RO,RE]{\thepage}
+\fancyfoot[RO,LE]{\thepage}
 \renewcommand{\headrulewidth}{0pt}
 
 \renewcommand{\footrulewidth}{0pt}
@@ -143,7 +140,7 @@
 
 \fancypagestyle{plain}{%
   \fancyhf{}%
-  \fancyfoot[RO,RE]{\thepage}%
+  \fancyfoot[RO,LE]{\thepage}%
   \renewcommand{\headrulewidth}{0pt}%
   \renewcommand{\footrulewidth}{0pt}%
 }
@@ -153,13 +150,13 @@
 
 \fancypagestyle{plainhead}{%
   \fancyhf{}%
-  \fancyfoot[RO,RE]{\thepage}%
+  \fancyfoot[RO,LE]{\thepage}%
   \renewcommand{\headrulewidth}{0pt}%
   \renewcommand{\footrulewidth}{0pt}%
 }
 \fancypagestyle{plainfoot}{%
   \fancyhf{}%
-  \fancyfoot[RO,RE]{\thepage}%
+  \fancyfoot[RO,LE]{\thepage}%
   \renewcommand{\headrulewidth}{0pt}%
   \renewcommand{\footrulewidth}{0pt}%
 }
@@ -167,38 +164,38 @@
 
 % --- 章見出し（中央・本文サイズ） ---
 \makeatletter
-\def\@makechapterhead#1{%
-  % 章番号は全角数字（1～20まで）
-  \def\fwchapnum{%
-    \ifcase\value{chapter}\or
-      \char"FF11\or\char"FF12\or\char"FF13\or\char"FF14\or\char"FF15\or
-      \char"FF16\or\char"FF17\or\char"FF18\or\char"FF19\or
-      \char"FF11\char"FF10\or
-      \char"FF11\char"FF11\or\char"FF11\char"FF12\or\char"FF11\char"FF13\or
-      \char"FF11\char"FF14\or\char"FF11\char"FF15\or\char"FF11\char"FF16\or
-      \char"FF11\char"FF17\or\char"FF11\char"FF18\or\char"FF11\char"FF19\or
-      \char"FF12\char"FF10%
-    \else
-      \number\value{chapter}%
-    \fi
-  }%
-  \vspace*{\fill}%
-  \begin{center}%
-    {\normalfont\thesischapterfont\mcfamily 第\fwchapnum{}章\par}%
-    \vspace{0.5\baselineskip}%
-    {\normalfont\thesischapterfont\mcfamily #1\par}%
-  \end{center}%
-  \vspace*{\fill}%
-  \clearpage
-}
-\def\@makeschapterhead#1{%
-  \vspace*{\fill}%
-  \begin{center}%
-    {\normalfont\thesischapterfont\mcfamily #1\par}%
-  \end{center}%
-  \vspace*{\fill}%
-  \clearpage
-}
+  \def\@makechapterhead#1{%
+    % 章番号は全角数字（1～20まで）
+    \def\fwchapnum{%
+      \ifcase\value{chapter}\or
+        \char"FF11\or\char"FF12\or\char"FF13\or\char"FF14\or\char"FF15\or
+        \char"FF16\or\char"FF17\or\char"FF18\or\char"FF19\or
+        \char"FF11\char"FF10\or
+        \char"FF11\char"FF11\or\char"FF11\char"FF12\or\char"FF11\char"FF13\or
+        \char"FF11\char"FF14\or\char"FF11\char"FF15\or\char"FF11\char"FF16\or
+        \char"FF11\char"FF17\or\char"FF11\char"FF18\or\char"FF11\char"FF19\or
+        \char"FF12\char"FF10%
+      \else
+        \number\value{chapter}%
+      \fi
+    }%
+    \vspace*{\fill}%
+    \begin{center}%
+      {\normalfont\thesischapterfont\mcfamily\mdseries 第\fwchapnum{}章\par}%
+      \vspace{0.5\baselineskip}%
+      {\normalfont\thesischapterfont\mcfamily\mdseries #1\par}%
+    \end{center}%
+    \vspace*{\fill}%
+    \clearpage
+  }
+  \def\@makeschapterhead#1{%
+    \vspace*{\fill}%
+    \begin{center}%
+      {\normalfont\thesischapterfont\mcfamily\mdseries #1\par}%
+    \end{center}%
+    \vspace*{\fill}%
+    \clearpage
+  }
 \makeatother
 
 % --- Section heading size (14pt) ---
@@ -253,7 +250,7 @@
 
 \RequirePackage{amsmath,amssymb}
 
-\numberwithin{equation}{section}
+\numberwithin{equation}{chapter}
 
 
 
@@ -311,7 +308,7 @@
 % --- 参考文献（biblatex） ---
 
 \RequirePackage[backend=biber,style=numeric,sorting=none,urldate=iso,seconds=true]{biblatex}
-\renewcommand{\bibname}{参考文献参考URL}
+\renewcommand{\bibname}{参考文献}
 
 
 
@@ -489,7 +486,7 @@
   \vskip -60pt
   \vskip 6\baselineskip
   \begin{center}
-    {\vspace{-5em}\thesistitleyearfont\mcfamily\bfseries \ThesisYearLabel\par}
+    {\vspace{-5em}\thesistitleyearfont\mcfamily\mdseries \ThesisYearLabel\par}
     \vskip 3em%
 
     {\setlength{\fboxsep}{18pt}\fbox{%
