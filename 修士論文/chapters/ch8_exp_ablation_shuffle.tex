@@ -1,0 +1,44 @@
+% chapters/ch8_exp_ablation_shuffle.tex --- 5.5 アブレーション検証実験：時系列構造の寄与
+\section{アブレーション検証実験：時系列構造の寄与}
+\label{sec:exp_ablation_shuffle}
+
+\subsection{実験の目的}
+
+本実験では，不確実度$U$の時系列情報が有効に機能しているかを検証するため，制御器の構造と閾値は固定したまま，不確実度系列$U$の時系列構造を乱すことで，制御がどのように変化するかを観察することを目的とする．
+
+\subsection{実験条件と方法}
+
+本実験では，制御器の構造と閾値を固定し，不確実度系列$U$の時系列構造をシャッフルする．これにより，時系列的一貫性が失われた場合の制御挙動を観察する．比較対象として，通常の不確実度系列を用いた方策と，シャッフルした系列を用いた方策の2条件を設定した．実験はscan90で実施し，ストレス列は遷移が多いS4を用いた．各条件n=3とした．
+
+\subsection{実験結果}
+
+\tabref{tab:d4_summary}に，S4における結果を示す．
+
+\begin{table}[tb]
+  \centering
+  \caption{時系列構造アブレーション結果}
+  \label{tab:d4_summary}
+  {\small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lrrrrrr}
+    \toprule
+    条件 & $P_{\mathrm{out}}(1\,\mathrm{s})$ & $TL_{\mathrm{mean}}$[s] & P[mW] & $q_{\mathrm{event}}$ & adv\_count & share100 \\
+    \midrule
+    固定\SI{100}{\milli\second} & 0.049$\pm$0.000 & 1.24$\pm$0.01 & 208.2$\pm$1.3 & 279.2$\pm$1.7 & 1796$\pm$0 & 1.000$\pm$0.000 \\
+    固定\SI{500}{\milli\second} & 0.130$\pm$0.014 & 1.59$\pm$0.06 & 187.9$\pm$0.8 & 249.5$\pm$1.0 & 359$\pm$0 & 0.000$\pm$0.000 \\
+    UとCCS & 0.098$\pm$0.024 & 1.28$\pm$0.01 & 200.5$\pm$0.8 & 268.1$\pm$1.0 & 1227$\pm$0 & 0.593$\pm$0.009 \\
+    Uシャッフル & 0.049$\pm$0.000 & 1.23$\pm$0.01 & 208.1$\pm$0.3 & 279.0$\pm$0.4 & 1715$\pm$0 & 0.943$\pm$0.000 \\
+    \bottomrule
+  \end{tabular}
+  }
+\end{table}
+
+方策のUとCCSは固定\SI{100}{\milli\second}より低電力であり，固定\SI{500}{\milli\second}より低い期限超過率を示す運用点になり得る．ただし，$U$をシャッフルするとshare100が0.593から0.943へ増加し，adv\_countも1227から1715へ増加して固定\SI{100}{\milli\second}に近い挙動へ偏る．その結果，平均電力も\SI{200.5}{\milli\watt}から\SI{208.1}{\milli\watt}へ増加し，省電力効果が失われる．
+
+\subsection{考察}
+
+本実験の結果は，制御器の構造と閾値を固定したまま入力$U$の時系列構造を乱すと，制御が短間隔側に固定され，適応的な切替機能が喪失することを示している．
+
+効果量のブートストラップCIによると，$\Delta$powerのpolicyとU-shuffleの差は\SI{-7.58}{\milli\watt}であり，95\%CIは\SIrange{-8.39}{-6.93}{\milli\watt}である．また，$\Delta P_{\mathrm{out}}(1\mathrm{s})$は+0.0488であり，95\%CIは$[0.0244,0.0732]$である．これにより，U-shuffleが短間隔寄りに偏ることが定量で確認できる．
+
+\clearpage

@@ -184,9 +184,9 @@
   }%
   \vspace*{\fill}%
   \begin{center}%
-    {\normalfont\thesischapterfont 第\fwchapnum{}章\par}%
+    {\normalfont\thesischapterfont\mcfamily 第\fwchapnum{}章\par}%
     \vspace{0.5\baselineskip}%
-    {\normalfont\thesischapterfont #1\par}%
+    {\normalfont\thesischapterfont\mcfamily #1\par}%
   \end{center}%
   \vspace*{\fill}%
   \clearpage
@@ -194,7 +194,7 @@
 \def\@makeschapterhead#1{%
   \vspace*{\fill}%
   \begin{center}%
-    {\normalfont\thesischapterfont #1\par}%
+    {\normalfont\thesischapterfont\mcfamily #1\par}%
   \end{center}%
   \vspace*{\fill}%
   \clearpage
@@ -489,28 +489,29 @@
   \vskip -60pt
   \vskip 6\baselineskip
   \begin{center}
-    {\vspace{-5em}\thesistitleyearfont \ThesisYearLabel\par}
+    {\vspace{-5em}\thesistitleyearfont\mcfamily\bfseries \ThesisYearLabel\par}
     \vskip 3em%
 
     {\setlength{\fboxsep}{18pt}\fbox{%
       \begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule-6pt\relax}\centering
-        {\thesistitlefont
-          \if\relax\detokenize{\ThesisTitleLineTwo}\relax
-            \ThesisTitleLineOne
-          \else
-            \ThesisTitleLineOne\\\ThesisTitleLineTwo
-          \fi
-          \par
-        }
+        \begingroup
+        \thesistitlefont\mcfamily
+        \if\relax\detokenize{\ThesisTitleLineTwo}\relax
+          \ThesisTitleLineOne
+        \else
+          \ThesisTitleLineOne\\\ThesisTitleLineTwo
+        \fi
+        \par
+        \endgroup
       \end{minipage}
     }}
     \vskip 2.3in%
-    {\thesistitleotherfont \University\ \GraduateSchool\par\vskip 1.0em}
-    {\thesistitleotherfont \Department\ \Course\par\vskip 1.0em}
-    {\thesistitleotherfont \AuthorFamily\ \AuthorGiven\par}
+    {\thesistitleotherfont\mcfamily \University\ \GraduateSchool\par\vskip 1.0em}
+    {\thesistitleotherfont\mcfamily \Department\ \Course\par\vskip 1.0em}
+    {\thesistitleotherfont\mcfamily \AuthorFamily\ \AuthorGiven\par}
     \vskip 2.0in%
     \begin{flushright}
-      {\thesistitleotherfont
+      {\thesistitleotherfont\mcfamily
         \lineskip 4.75em%
         \begin{tabular}[t]{c}%
           {指導教授 \hspace{0.9em}\AdvisorFamily\ \AdvisorGiven}
@@ -528,8 +529,7 @@
 \begingroup
 \thesisabstractjfont
 \thesisabstractfont
-\noindent 修士論文題目
-
+\noindent 修士論文題目\par
 \vspace{0mm}
 \noindent
 \if\relax\detokenize{\ThesisTitleAbstract}\relax
@@ -543,7 +543,7 @@
 \fi
 \par
 % Space under thesis title on abstract page.
-\vspace{0.4\baselineskip}
+\vspace{0mm}
 \noindent\rule{\linewidth}{0.4pt}\par
 
 \vspace{0mm}

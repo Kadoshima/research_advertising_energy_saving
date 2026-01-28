@@ -1,20 +1,19 @@
-﻿% chapters/ch5_experiments.tex --- Experiment chapter wrapper (Structure B)
+% chapters/ch5_experiments.tex --- 第5章 実験（構成B：実験毎に目的→方法→結果→考察）
 \chapter{実験}
 \label{ch:experiments}
 \label{ch:evaluation}
 \clearpage
 
-本章では，主要な実験と評価を実験単位で整理する．各節では目的・条件・結果・考察の順に記述し，評価の読みやすさを重視する．本研究の流れは，Phase 0--1で実機の基準データと評価指標を確立し，実測に基づくオフライン評価で候補を絞り，Phase 2の安全制約付き最適化へ接続するものである．
+本章では，提案手法の有効性を検証するための実験を報告する．各節では目的，条件と方法，結果，考察の順に記述し，読みやすさと再現性の両立を図る．
 
 \input{chapters/ch6_stress_fixed}
 \input{chapters/ch7_offline_eval}
-\input{chapters/ch4_rain}
+\input{chapters/ch8_exp_dynamic_control}
+\input{chapters/ch8_exp_scan70}
+\input{chapters/ch8_exp_ablation_shuffle}
+\input{chapters/ch8_exp_ablation_ccs}
+\input{chapters/ch8_exp_interference}
 \input{chapters/ch10_phase2_concept}
 
-% 追加結果と再現性関連の付録的資料
-\input{chapters/appx_c_results}
-\input{chapters/appx_i_pareto}
-\input{chapters/appx_j_phase2_figs}
 \input{chapters/ch5_repro_appendix}
-
 
