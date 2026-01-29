@@ -1,0 +1,13 @@
+| env_id | action_ms | epsilon | safe_tau1 | safe_tau2 |
+| --- | --- | --- | --- | --- |
+| E1_scan90_stress_v5 | 100 | 0.1 | True | True |
+| E1_scan90_stress_v5 | 500 | 0.1 | True | True |
+| E1_scan90_stress_v5 | 1000 | 0.1 | True | True |
+| E1_scan90_stress_v5 | 2000 | 0.1 | False | False |
+| E1_uccs_d4b_scan70 | 100 | 0.1 | True | True |
+| E1_uccs_d4b_scan70 | 500 | 0.1 | False | False |
+| E1_uccs_d4b_scan90 | 100 | 0.1 | True | True |
+| E1_uccs_d4b_scan90 | 500 | 0.1 | False | True |
+| E2_fixed_v01 | 500 | 0.1 | True | True |
+| E2_fixed_v01 | 1000 | 0.1 | False | True |
+| E2_fixed_v01 | 2000 | 0.1 | False | False |

@@ -1,0 +1,391 @@
+\documentclass[a4paper,12pt]{ltjsreport}
+\usepackage{chubuthesis}
+\begin{document}
+\clearpage
+\begin{table}[tb]
+  \centering
+  \caption{方策の比較表}
+  \label{tab:policy_table}
+  {\small
+  \setlength{\tabcolsep}{3pt}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{lrrrrrrrrr}
+    \toprule
+    方策 & share100 & share500 & share1000 & share2000 & PDR\_unique & $P_{\mathrm{out}}(1\,\mathrm{s})$ & $TL_{\mathrm{mean}}$[s] & E/adv[\si{\micro\joule}] & P[mW] \\
+    \midrule
+    Fixed 100 & 1.000 & 0.000 & 0.000 & 0.000 & 0.807 & 0.004 & 0.45 & 20054.1 & 198.56 \\
+    Fixed 500 & 0.000 & 1.000 & 0.000 & 0.000 & 1.000 & 0.031 & 3.40 & 100668.1 & 180.80 \\
+    Fixed 1000 & 0.000 & 0.000 & 1.000 & 0.000 & 1.000 & 0.057 & 4.48 & 200711.8 & 178.62 \\
+    Fixed 2000 & 0.000 & 0.000 & 0.000 & 1.000 & 1.000 & 0.440 & 8.88 & 399786.7 & 177.47 \\
+    U-only & 0.470 & 0.089 & 0.000 & 0.441 & 0.909 & 0.199 & 4.43 & 194784.3 & 187.67 \\
+    CCS-only & 0.281 & 0.112 & 0.000 & 0.607 & 0.946 & 0.271 & 5.90 & 259443.9 & 183.77 \\
+    U+CCS & 0.471 & 0.092 & 0.000 & 0.437 & 0.909 & 0.197 & 4.41 & 193347.6 & 187.71 \\
+    \bottomrule
+  \end{tabular}
+  }
+  }
+\end{table}
+\clearpage
+\clearpage
+\begin{longtable}{p{0.20\linewidth}p{0.16\linewidth}p{0.50\linewidth}}
+  \caption{電力計測ログの列定義}\label{tab:txsd_schema}\\
+  \toprule
+  列 & 単位 & 意味 \\
+  \midrule
+  \endfirsthead
+  \toprule
+  列 & 単位 & 意味 \\
+  \midrule
+  \endhead
+  ms & ms & 試行開始からの相対時刻 \\
+  mv & mV & 計測電圧(整数) \\
+  uA & $\mu$A & 計測電流(整数) \\
+  p\_mW & mW & 瞬時電力(派生列，後処理で再計算可能) \\
+  \midrule
+  \multicolumn{3}{l}{末尾に出力する集約値の例} \\
+  \midrule
+  ms\_total & ms & 試行時間 \\
+  adv\_count & 回 & アドバタイジングイベント数 \\
+  E\_total\_mJ & mJ & 総エネルギー \\
+  avg\_power\_mW & mW & 平均電力($E/T$) \\
+  \bottomrule
+\end{longtable}
+\clearpage
+\clearpage
+\begin{longtable}{p{0.20\linewidth}p{0.16\linewidth}p{0.50\linewidth}}
+  \caption{受信ログの列定義}\label{tab:rx_schema}\\
+  \toprule
+  列 & 単位 & 意味 \\
+  \midrule
+  \endfirsthead
+  \toprule
+  列 & 単位 & 意味 \\
+  \midrule
+  \endhead
+  t\_ms & ms & 受信時刻 \\
+  seq & --- & ペイロードに埋め込んだ識別子 \\
+  rssi & dBm & 受信RSSI \\
+  dedup\_flag & --- & 重複除外のためのフラグ \\
+  \bottomrule
+\end{longtable}
+\clearpage
+\clearpage
+\begin{longtable}{p{0.20\linewidth}p{0.16\linewidth}p{0.50\linewidth}}
+  \caption{送信ログの列定義}\label{tab:tx_schema}\\
+  \toprule
+  列 & 単位 & 意味 \\
+  \midrule
+  \endfirsthead
+  \toprule
+  列 & 単位 & 意味 \\
+  \midrule
+  \endhead
+  t\_ms & ms & 時刻 \\
+  U & --- & 不確実度 \\
+  S & --- & 安定度 \\
+  CCS & --- & 複合スコア \\
+  adv\_interval\_ms & ms & 選択したアドバタイジング間隔 \\
+  reason & --- & 切替理由 \\
+  \bottomrule
+\end{longtable}
+\clearpage
+\clearpage
+\begin{table}[tb]
+  \centering
+  \caption{実験資産一覧}
+  \label{tab:assets}
+  \begin{tabularx}{\linewidth}{p{0.28\linewidth}X}
+    \toprule
+    資産名 & 内容 \\
+    \midrule
+    CCSパラメータ感度確認 & 既存のCCS時系列に対し$\alpha=0.6$〜$0.8$，$W=3$〜$7$をスイープし，間隔分布と切替率の変化を確認する．入力は\texttt{\detokenize{data/ccs_sequences/}}，出力は\texttt{\detokenize{results/ccs_param_sensitivity_2026-01-26_v01/}}にまとめた． \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\clearpage
+\clearpage
+\begin{table}[tb]
+  \centering
+  \caption{CCS写像と安定化の主要パラメータ}
+  \label{tab:ccs_params_phase1}
+  \begin{tabular}{p{0.28\linewidth}p{0.18\linewidth}p{0.44\linewidth}}
+    \toprule
+    パラメータ & 値の例 & 説明 \\
+    \midrule
+    $\alpha$ & 0.7 & $\mathrm{CCS}=\alpha(1-U)+(1-\alpha)S$ の重み \\
+    $W$ & 5 & 安定度$S$の窓長．遷移回数の正規化に対応する \\
+    $\theta_{\mathrm{low}}$ & 0.80 & ACTIVE$\leftrightarrow$UNCERTAINの上り側閾値 \\
+    $\theta_{\mathrm{high}}$ & 0.90 & UNCERTAIN$\leftrightarrow$QUIETの上り側閾値 \\
+    $h$ & 0.05 & ヒステリシス幅．下り側は$\theta-h$とする \\
+    $t_{\min}$ & \SI{2}{\second} & 最小滞在時間．切替の振動を抑制する \\
+    行動集合 & $\{100,\allowbreak 500,\allowbreak 2000\}\,\si{\milli\second}$ & Phase 1の最小構成．拡張候補は$\{100,\allowbreak 500,\allowbreak 1000,\allowbreak 2000\}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\clearpage
+\clearpage
+\begin{table}[tb]
+  \centering
+  \caption{シミュレーション結果（$T=1000$）}
+  \begin{tabular}{lrr}
+    \toprule
+    手法 & 平均エネルギー[$\si{\micro\joule}$/event] & 制約違反率 \\
+    \midrule
+    Safe-UCB & 12639 & 0.10\% \\
+    Oracle & 12623 & 0.0\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\clearpage
+\clearpage
+\begin{table}[tb]
+  \centering
+  \caption{状態遷移表}
+  \begin{tabular}{ll}
+    \toprule
+    状態 & 遷移条件 \\
+    \midrule
+    2000 ms & $\mathrm{CCS}<\theta_{\mathrm{high}}-h$ で500 msへ \\
+    500 ms & $\mathrm{CCS}\ge\theta_{\mathrm{high}}+h$ で2000 msへ \\
+           & $\mathrm{CCS}<\theta_{\mathrm{low}}-h$ で100 msへ \\
+    100 ms & $\mathrm{CCS}\ge\theta_{\mathrm{low}}+h$ で500 msへ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\clearpage
+\clearpage
+\begin{table}[tb]
+  \centering
+  \caption{関連アプローチと本研究の位置づけ}
+  \begin{tabular}{llll}
+    \toprule
+    区分 & 主な入力 & 制御 & 評価 \\
+    \midrule
+    固定設計 & 規格・経験値 & 固定$a$ & 平均電力，PDR \\
+    ルールベース & 混雑度等 & 閾値切替 & 平均電力，遅延 \\
+    バンディット & 観測報酬 & 探索＋活用 & 報酬最大化 \\
+    本研究 & $U,S,\mathrm{CCS}$ & ルール Phase 1 & $\overline{P}$，$P_{\mathrm{out}}(\tau)$，$TL_{p95}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\clearpage
+\clearpage
+\begin{table}[tb]
+  \centering
+  \caption{評価系のノード構成}
+  \label{tab:nodes}
+  \begin{tabular}{lll}
+    \toprule
+    ノード & 役割 & 主なログ \\
+    \midrule
+    TX & BLEアドバタイジング送信・間隔制御 & ペイロード時刻/タグ，制御状態 \\
+    TXSD & 電力計測INA219 & 電圧・電流系列，集約指標 \\
+    RX & 受信ログ取得 & 受信時刻，RSSI，ペイロード \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\clearpage
+\clearpage
+\begin{table}[tb]
+  \centering
+  \caption{計測システムの主要構成}
+  \label{tab:hw}
+  \begin{tabularx}{\linewidth}{l>{\raggedright\arraybackslash}X}
+    \toprule
+    要素 & 役割 \\
+    \midrule
+    ESP32 TX & BLEアドバタイジング送信，アドバタイジング間隔制御，ペイロード生成 \\
+    ESP32 TXSD & INA219計測データの収集，SD保存，エネルギー集約 \\
+    ESP32 RX/スマートフォン & 受信ログの取得。時刻，RSSI，seqを含む \\
+    INA219 & 電流・電圧の計測。サンプリング周期は試行条件に依存する \\
+    SYNC/TICK & 試行区間の同期，アドバタイジング回数の物理カウント \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\clearpage
+\clearpage
+\begin{table}[tb]
+  \centering
+  \caption{UCCS評価の配線例}
+  \label{tab:wiring_example}
+  \begin{tabular}{lll}
+    \toprule
+    信号 & TX GPIO & 受け側 GPIO \\
+    \midrule
+    SYNC & 25 & RX:26, TXSD:26 \\
+    TICK & 27 & TXSD:33 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\clearpage
+\clearpage
+\begin{table}[tb]
+  \centering
+  \caption{構成要素一覧}
+  \label{tab:actors}
+  \begin{tabular}{p{0.28\linewidth}p{0.62\linewidth}}
+    \toprule
+    構成要素 & 役割 \\
+    \midrule
+    Edge Node / DUT & IMU等からHARを推論し，不確実度$U$・安定度$S$・CCSを生成してアドバタイジング間隔を制御する送信側 \\
+    Gateway & BLEアドバタイジングを受信する主体．スマートフォンに相当する受信側であり，スキャン挙動はOS依存で非理想とみなす \\
+    Observer & 電力TXSDと受信RXを収集し，主要評価指標を算出する計測系の観測者 \\
+    Safety Oracle & QoS制約$P_{\mathrm{out}}(\tau)\le\epsilon$を規定する判定基準 \\
+    方策決定モジュール & コンテキスト($U,S$などの入力)からアドバタイジング間隔を決定する意思決定器．Phase 1はルールベース方策，Phase 2はSafe Contextual Banditを想定する \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\clearpage
+\clearpage
+\begin{table}[tb]
+  \centering
+  \caption{評価指標の整理}
+  \label{tab:kpi}
+  \begin{tabular}{p{0.22\linewidth}p{0.68\linewidth}}
+    \toprule
+    区分 & 指標 \\
+    \midrule
+    一次 & $\si{\micro\coulomb}/\text{event}$，$P_{\mathrm{out}}(\tau)$，$TL_{p95}$ \\
+    二次 & 平均電力$\overline{P}$，PDR unique，RSSI，切替頻度switch\_rate，平均アドバタイジングレートadv\_rate \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\clearpage
+\clearpage
+\begin{table}[tb]
+  \centering
+  \caption{動的制御の実測例（mean$\pm$std, n=6）}
+  \begin{tabular}{lrrrrr}
+    \toprule
+    条件 & $P_{\mathrm{out}}(1\mathrm{s})$ & TL\_mean[s] & P[mW] & $q_{\mathrm{event}}$ & share100 \\
+    \midrule
+    S1-100ms & 0.075 & 3.76 & 204.1 & 561.1 & 1.000 \\
+    S1-500ms & 0.142 & 5.29 & 184.7 & 502.6 & 0.000 \\
+    S1-policy & 0.125 & 5.24 & 191.5 & 523.8 & 0.331 \\
+    S4-100ms & 0.053 & 1.25 & 204.4 & 274.2 & 0.998 \\
+    S4-500ms & 0.146 & 2.48 & 184.5 & 245.0 & 0.000 \\
+    S4-policy & 0.069 & 1.58 & 196.6 & 262.8 & 0.595 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\clearpage
+\clearpage
+\begin{table}[tb]
+  \centering
+  \caption{高干渉環境での結果}
+  \begin{tabular}{lrrrr}
+    \toprule
+    条件 & 平均電流[mA] & $TL_{p95}$[ms] & $P_{\mathrm{out}}(2\mathrm{s})$ \\
+    \midrule
+    100ms & 96.93 & 251.7 & 0.00\% \\
+    CCS & 90.12 & 4116.6 & 10.77\% \\
+    CCS+TailGuard & 92.01 & 944.5 & 1.28\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\clearpage
+\clearpage
+\begin{table}[tb]
+  \centering
+  \caption{scan70での結果（n=3）}
+  \begin{tabular}{lrrrr}
+    \toprule
+    条件 & $P_{\mathrm{out}}(1\mathrm{s})$ & P[mW] & $q_{\mathrm{event}}$ \\
+    \midrule
+    100ms & 0.065 & 209.9 & 281.4 \\
+    500ms & 0.285 & 189.5 & 251.6 \\
+    policy & 0.089 & 202.1 & 270.2 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\clearpage
+\clearpage
+\begin{table}[tb]
+  \centering
+  \caption{干渉環境の分類}
+  \label{tab:env_interference}
+  \begin{tabular}{llll}
+    \toprule
+    環境ID & 名称 & Wi-Fi最強AP RSSI & 想定シナリオ \\
+    \midrule
+    E1 & 低干渉環境 & $\le -40\,\si{\decibelmilliwatt}$ & 通常オフィス \\
+    E2 & 高干渉環境 & $-40 \sim -25\,\si{\decibelmilliwatt}$ & ルーター近接 \\
+    E2+ & 極強干渉環境 & $> -25\,\si{\decibelmilliwatt}$ & AP直下 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\clearpage
+\clearpage
+\begin{table}[tb]
+  \centering
+  \caption{環境条件と受信設定}
+  \label{tab:env_conditions}
+  \begin{tabularx}{\linewidth}{l>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X}
+    \toprule
+    項目 & 主結果(ESP32 RX) & 補助(Android) \\
+    \midrule
+    距離 & \SI{1}{\meter} & \SI{1}{\meter} \\
+    TxPower & \SI{0}{\decibelmilliwatt} & \SI{0}{\decibelmilliwatt} \\
+    受信端末 & ESP32-WROVER-E, NimBLE passive scan & Galaxy S9 SCV38, Android 10 One UI 2.1 \\
+    受信アプリ & RXログはSD保存 & nRF Connect for Mobile \\
+    スキャンモード & passive scan & Android LOW\_LATENCY \\
+    フィルタ & ペイロード識別子seq & デバイス名 ``TXM\_ESP32'' \\
+    スキャンデューティ比90\%設定 & interval \SI{100}{\milli\second}, window \SI{90}{\milli\second}, duty 90\% & OS制御で固定不可 \\
+    スキャンデューティ比70\%設定 & interval \SI{100}{\milli\second}, window \SI{70}{\milli\second}, duty 70\% & OS制御で固定不可 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\clearpage
+\clearpage
+\begin{table}[tb]
+  \centering
+  \caption{制御条件の例}
+  \label{tab:control_conditions}
+  \begin{tabular}{lll}
+    \toprule
+    条件ID & 条件名 & アドバタイジング間隔 \\
+    \midrule
+    C1 & 固定\SI{100}{\milli\second} & \SI{100}{\milli\second} \\
+    C2 & 固定\SI{500}{\milli\second} & \SI{500}{\milli\second} \\
+    C3 & 固定\SI{2000}{\milli\second} & \SI{2000}{\milli\second} \\
+    C4 & POLICY 2値 & \SI{100}{\milli\second}/\SI{500}{\milli\second} \\
+    C5 & POLICY 3値 & \SI{100}{\milli\second}/\SI{500}{\milli\second}/\SI{2000}{\milli\second} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\clearpage
+\clearpage
+\begin{table}[tb]
+  \centering
+  \caption{計測系の代表的な不具合要因と対策}
+  \label{tab:measurement_failures}
+  \begin{tabular}{p{0.30\linewidth}p{0.30\linewidth}p{0.30\linewidth}}
+    \toprule
+    不具合要因 & 兆候 & 代表的対策 \\
+    \midrule
+    入出力ボトルネック UART/SD & 欠損増加，レート低下，刻み歪み & パススルー化，塊書き込み，整数CSV化 \\
+    単位換算の誤り & 桁ズレ，ON/OFFの逆転 & 生ログから再積分し整合性を確認，式とラベルを固定 \\
+    条件混在 LED/SYNCの違い等 & 条件間に定常オフセット & 比較は同一コード系列に限定，条件を明文化 \\
+    時間軸不整合 RXと真値 & TL/Poutが不自然に小さい & 定数オフセットで時間同期。詳細は\secref{sec:stress_fixed_metrics} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\clearpage
+\clearpage
+\begin{table}[tb]
+  \centering
+  \caption{代表的な実装トラブルと対策}
+  \label{tab:implementation_troubles_summary}
+  \begin{tabularx}{\linewidth}{p{0.26\linewidth}X p{0.28\linewidth}}
+    \toprule
+    問題 & 対策の要点 & 再発防止の確認 \\
+    \midrule
+    UARTデータ化け & ボーレート低下，厳密パース，欠損を許さないsummary設計 & 行数・欠損率・単位整合の確認 \\
+    SYNC検出失敗 短パルス & HIGH保持やラッチで確実に検出できる信号設計へ変更 & TX/RX/TXSDの境界一致を確認 \\
+    試行境界の不一致 & SYNC\_END等で試行区間を一致させる & ms\_totalとadv\_countの整合 \\
+    SD I/O失敗 & SPIクロック調整，塊書き込み，open失敗時の即時停止 & 末尾summaryの有無を確認 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\clearpage
+\end{document}

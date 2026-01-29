@@ -73,7 +73,7 @@ def plot_results(results, output_dir: Path, epsilon: float):
     plt.figure(figsize=(10, 6))
     oracle_cum_reward = np.cumsum(results["Oracle"]["reward"])
 
-    for method in ["Safe-UCB", "UCB", "Fixed-CCS"]:
+    for method in ["Safe-UCB", "UCB", "Fixed-CCS", "Oracle"]:
         cum_reward = np.cumsum(results[method]["reward"])
         regret = oracle_cum_reward - cum_reward
         plt.plot(results[method]["t"], regret, label=method, linewidth=2)
@@ -89,7 +89,7 @@ def plot_results(results, output_dir: Path, epsilon: float):
 
     # 図2: 制約違反率推移
     plt.figure(figsize=(10, 6))
-    for method in ["Safe-UCB", "UCB", "Fixed-CCS"]:
+    for method in ["Safe-UCB", "UCB", "Fixed-CCS", "Oracle"]:
         violations = np.cumsum(results[method]["constraint_violation"])
         t_array = np.array(results[method]["t"])
         violation_rate = violations / t_array

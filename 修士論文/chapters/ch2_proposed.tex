@@ -18,6 +18,11 @@ HARモデルの出力確率から不確実度$U\in[0,1]$を算出する．$U$が
 \end{equation}
 $\alpha$は重み係数である．CCSが高いほど長いアドバタイジング間隔を選択する．
 
+CCSをコンテキストとして用いる安全制約付きの最適化問題は，次の形で表せる：
+\begin{equation}
+  \max_{a \in A}\ \mathbb{E}[r(a)\mid x] \quad \text{s.t.}\ \mathbb{E}[g(x,a)] \le \epsilon
+\end{equation}
+
 \subsection{ルールベース制御}
 
 閾値$\theta_{\mathrm{low}}$，$\theta_{\mathrm{high}}$とヒステリシス$h$を用いて，3段階の間隔に写像する：

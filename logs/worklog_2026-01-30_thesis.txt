@@ -1,0 +1,33 @@
+[2026-01-30 02:00 JST] D4B plot label cleanup
+- Updated plot script to support label-mode and reduce annotation clutter: uccs_d4b_scan90/analysis/plot_power_vs_pout.py
+- Regenerated plot (short labels): uccs_d4b_scan90/plots/d4b_01_power_vs_pout.png (+ PDF)
+[2026-01-30 02:05 JST] D4 plot label cleanup
+- Updated plot script to support label-mode and reduce annotation clutter: uccs_d4_scan90/analysis/plot_power_vs_pout.py
+- Regenerated plot (short labels): uccs_d4_scan90/plots/d4_01_power_vs_pout.png (+ PDF)
+[2026-01-30 02:18 JST] MAB repomix bundle
+- Added script to bundle MAB offline study docs/scripts/README-only results: make_repomix_mab.ps1
+- Generated bundle: mab.txt
+[2026-01-30 02:26 JST] MAB figures/tables export
+- Added script to generate paper-ready tradeoff, epsilon-tau, and gateb-pareto outputs: scripts/phase2_offline_eval/plot_mab_summary.py
+- Generated outputs under results/phase2_offline_studies_2026-01-26_v05/figs/
+  - tradeoff_cost_vs_pout.png/.pdf
+  - epsilon_tau_table_e0.10.md
+  - gateb_pareto_front.png/.pdf
+  - gateb_pareto_front_table.md
+  - README.md
+[2026-01-30 02:35 JST] GateB Pareto plot styling
+- Improved GateB Pareto figure styling/labels in scripts/phase2_offline_eval/plot_mab_summary.py
+- Regenerated results/phase2_offline_studies_2026-01-26_v05/figs/gateb_pareto_front.png/.pdf
+[2026-01-30 02:45 JST] MAB figure set update
+- Added method tradeoff plot (E2 cold) to show UCB safety break: scripts/phase2_offline_eval/plot_mab_summary.py
+- Regenerated figs: results/phase2_offline_studies_2026-01-26_v05/figs/method_tradeoff_e2_cold.png/.pdf
+[2026-01-30 02:58 JST] Tradeoff plot error bars
+- Added cost_std x-error bars to tradeoff figure in scripts/phase2_offline_eval/plot_mab_summary.py
+- Regenerated results/phase2_offline_studies_2026-01-26_v05/figs/tradeoff_cost_vs_pout.png/.pdf
+[2026-01-30 03:05 JST] Tradeoff plot Pout error bars
+- Added Pout(1s) std error bars by loading constraint model stats in scripts/phase2_offline_eval/plot_mab_summary.py
+- Regenerated results/phase2_offline_studies_2026-01-26_v05/figs/tradeoff_cost_vs_pout.png/.pdf
+[2026-01-30 03:18 JST] Phase2 curves include Oracle
+- Added Oracle series to regret/violation plots: scripts/phase2_offline_eval/run_offline_eval.py
+- Re-ran offline eval: results/phase2_offline_eval/regret_curve.png, violation_rate.png, energy_curve.png
+- Copied updated figures to thesis: èCémò_ï∂/figures/phase2_regret_curve.png, èCémò_ï∂/figures/phase2_violation_rate.png, èCémò_ï∂/figures/phase2_energy_curve.png

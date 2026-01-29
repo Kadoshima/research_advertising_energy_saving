@@ -64,3 +64,10 @@
 2026-01-29 08:41 JST
 - uccs_d4b_scan90/analysis/plot_role_separation_overview.py: role separation }‚Ì‰¡²/c²‚ğ“ü‚ê‘Ö‚¦Apout –Ú·‚è•\¦‚ğC³
 - results/final/fig/fig_role_separation_d3_d4_d4b.png: ‹t²‚ÌPNG‚ğÄ¶¬
+2026-01-29 19:19 JST
+- Cm˜_•¶/eq_list.md: ˜_•¶“à‚Ì•\¦”®ˆê——idisplay math, 19Œj‚ğì¬
+
+2026-01-29 19:22 JST
+- Cm˜_•¶/eq_list_word.md: Word“\•t‚¯—p‚É”®‚ğ1s‰»‚µ‚½ˆê——‚ğì¬
+
+[2026-01-29 22:20 JST] ch2_proposed.tex: added safe constrained optimization equation after CCS definition. Rebuilt thesis with latexmk.

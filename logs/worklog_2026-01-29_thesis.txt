@@ -1,0 +1,7 @@
+2026-01-29 19:48 JST
+- Built table export PDF: ????/build/tables_export.pdf (from ????/_tmp_tables/tables_export.tex)
+- Exported table images: ????/_tmp_tables/png/table-XX.png and ????/_tmp_tables/jpg/table-XX.jpg (XX=01..22)
+- Updated index: ????/_tmp_tables/tables_export_index.md
+2026-01-29 19:55 JST
+- Extracted figure/table list to _tmp/fig_table_list.tsv for response drafting
+[2026-01-30 08:29 JST] Gate C timeseries figure: added script scripts/phase2_offline_eval/plot_gatec_timeseries.py; generated results/phase2_gatec_sweep_m_2026-01-26_v02/figs/gatec_timeseries_scan90_to_scan70.png and .pdf (scan90->scan70 switch, tau=2.0).

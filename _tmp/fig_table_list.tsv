@@ -1,0 +1,31 @@
+001	table		方策の比較表	tab:policy_table	修士論文\chapters\appx_c_results.tex
+002	longtable		電力計測ログの列定義	tab:txsd_schema	修士論文\chapters\appx_d_log_schema.tex
+003	longtable		受信ログの列定義	tab:rx_schema	修士論文\chapters\appx_d_log_schema.tex
+004	longtable		送信ログの列定義	tab:tx_schema	修士論文\chapters\appx_d_log_schema.tex
+005	table	実験資産一覧	実験資産一覧	tab:assets	修士論文\chapters\appx_e_runbook.tex
+006	table	CCS写像およびパラメータ設定	CCS写像と安定化の主要パラメータ	tab:ccs_params_phase1	修士論文\chapters\appx_h_ccs_params.tex
+007	figure		Paretoプロット	fig:pareto_plots	修士論文\chapters\appx_i_pareto.tex
+008	figure	Phase 2シミュレーション図	累積Regretの推移	fig:phase2_regret	修士論文\chapters\appx_j_phase2_figs.tex
+009	figure	Phase 2シミュレーション図	平均エネルギーの推移	fig:phase2_energy	修士論文\chapters\appx_j_phase2_figs.tex
+010	figure	Phase 2シミュレーション図	制約違反率の推移	fig:phase2_violation	修士論文\chapters\appx_j_phase2_figs.tex
+011	table	Safe Contextual Banditへの拡張実験 / 実験結果	シミュレーション結果（$T=1000$）		修士論文\chapters\ch10_phase2_concept.tex
+012	table	提案手法：CCSに基づくアドバタイジング間隔制御 / ルールベース制御	状態遷移表		修士論文\chapters\ch2_proposed.tex
+013	table	関連研究 / 本研究の位置づけ	関連アプローチと本研究の位置づけ		修士論文\chapters\ch2_related_work.tex
+014	table	実験装置・計測方式	評価系のノード構成	tab:nodes	修士論文\chapters\ch3_oncampus.tex
+015	table	実験装置・計測方式	計測システムの主要構成	tab:hw	修士論文\chapters\ch3_oncampus.tex
+016	table	実験装置・計測方式	UCCS評価の配線例	tab:wiring_example	修士論文\chapters\ch3_oncampus.tex
+017	figure	実験装置・計測方式	三ノード計測系のシステムアーキテクチャ	fig:measurement_architecture_esp32_three_node	修士論文\chapters\ch3_oncampus.tex
+018	table	問題設定とシステム設計	構成要素一覧	tab:actors	修士論文\chapters\ch3_system_design.tex
+019	table	問題設定とシステム設計	評価指標の整理	tab:kpi	修士論文\chapters\ch3_system_design.tex
+020	figure	ストレス固定実験と指標定義の確立 / 実験結果	主要指標の補正前後比較		修士論文\chapters\ch6_stress_fixed.tex
+021	figure	オフライン評価実験 / 実験結果	制約充足領域の可視化		修士論文\chapters\ch7_offline_eval.tex
+022	table	動的制御の実機検証実験 / 実験結果	動的制御の実測例（mean$\pm$std, n=6）		修士論文\chapters\ch8_exp_dynamic_control.tex
+023	table	高干渉環境での性能評価実験 / 実験結果	高干渉環境での結果		修士論文\chapters\ch8_exp_interference.tex
+024	table	受信条件悪化時の頑健性検証実験 / 実験結果	scan70での結果（n=3）		修士論文\chapters\ch8_exp_scan70.tex
+025	table		干渉環境の分類	tab:env_interference	修士論文\chapters\ch8_experiment_design.tex
+026	table		環境条件と受信設定	tab:env_conditions	修士論文\chapters\ch8_experiment_design.tex
+027	table		制御条件の例	tab:control_conditions	修士論文\chapters\ch8_experiment_design.tex
+028	figure	計測系の健全化と再現性確保	計測系の外観	fig:measurement_setup_overview	修士論文\chapters\ch8_measurement_system.tex
+029	figure	計測系の健全化と再現性確保	計測ノードの外観	fig:measurement_nodes	修士論文\chapters\ch8_measurement_system.tex
+030	table	計測系の健全化と再現性確保	計測系の代表的な不具合要因と対策	tab:measurement_failures	修士論文\chapters\ch8_measurement_system.tex
+031	table	計測系の健全化と再現性確保	代表的な実装トラブルと対策	tab:implementation_troubles_summary	修士論文\chapters\ch8_measurement_system.tex

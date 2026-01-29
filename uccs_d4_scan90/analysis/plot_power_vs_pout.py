@@ -81,6 +81,7 @@ def main() -> None:
     ap.add_argument("--summary-csv", type=Path, required=True, help="metrics/*/summary_by_condition.csv")
     ap.add_argument("--out", type=Path, required=True, help="output png path")
     ap.add_argument("--title", type=str, default="", help="optional title")
+    ap.add_argument("--label-mode", type=str, default="short", choices=["short", "full", "none"])
     args = ap.parse_args()
 
     # Matplotlib cache/rc write avoidance.
@@ -154,26 +155,48 @@ def main() -> None:
         label="ablation (U-shuffle)",
     )
 
-    def annotate_share(x: float, y: float, adv: Optional[float], rx_share: Optional[float], color: str) -> None:
+    label_offsets = {
+        "fixed100": (6, -12),
+        "fixed500": (6, -12),
+        "policy": (-36, 6),
+        "u-shuf": (10, 6),
+        "share_policy": (8, 8),
+        "share_abl": (8, 8),
+    }
+
+    def annotate_text(x: float, y: float, text: str, key: str, color: str = "#111827") -> None:
+        if args.label_mode == "none":
+            return
+        ox, oy = label_offsets.get(key, (6, 6))
+        ax.annotate(
+            text,
+            (x, y),
+            textcoords="offset points",
+            xytext=(ox, oy),
+            ha="left",
+            fontsize=9,
+            color=color,
+        )
+
+    def annotate_share(x: float, y: float, adv: Optional[float], rx_share: Optional[float], key: str, color: str) -> None:
+        if args.label_mode != "full":
+            return
         share_tx = compute_share100_from_adv(adv, adv100, adv500)
         share = share_tx if share_tx is not None else rx_share
         if share is None:
             return
-        ax.annotate(
-            f"share100={share:.2f}",
-            (x, y),
-            textcoords="offset points",
-            xytext=(8, 8),
-            ha="left",
-            fontsize=10,
-            color=color,
-        )
+        annotate_text(x, y, f"share100={share:.2f}", key, color=color)
 
-    annotate_share(xpol, ypol, advpol, rx_share_pol, "#ff7f0e")
-    annotate_share(xabl, yabl, advabl, rx_share_abl, "#2ca02c")
-
-    ax.annotate("100", (x100, y100), textcoords="offset points", xytext=(6, -12), fontsize=9, color="#1f77b4")
-    ax.annotate("500", (x500, y500), textcoords="offset points", xytext=(6, -12), fontsize=9, color="#1f77b4")
+    if args.label_mode == "short":
+        annotate_text(x100, y100, "fixed100", "fixed100", color="#1f77b4")
+        annotate_text(x500, y500, "fixed500", "fixed500", color="#1f77b4")
+        annotate_text(xpol, ypol, "policy", "policy", color="#ff7f0e")
+        annotate_text(xabl, yabl, "u-shuf", "u-shuf", color="#2ca02c")
+    elif args.label_mode == "full":
+        annotate_text(x100, y100, "100", "fixed100", color="#1f77b4")
+        annotate_text(x500, y500, "500", "fixed500", color="#1f77b4")
+        annotate_share(xpol, ypol, advpol, rx_share_pol, "share_policy", "#ff7f0e")
+        annotate_share(xabl, yabl, advabl, rx_share_abl, "share_abl", "#2ca02c")
 
     # Fix axis bounds/ticks so plot edges align with ticks (A4-friendly).
     xs = [x100, x500, xpol, xabl]

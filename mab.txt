@@ -1,0 +1,3149 @@
+# Repository Summary for MAB Offline Studies
+# Generated: 2026-01-30 02:21:42
+# Scope: Phase2 MAB docs + scripts + result READMEs (no CSV/YAML/figures)
+# Files: 21
+
+================================================================================
+File: docs\metrics_definition.md
+================================================================================
+# Metrics Definition (ストレス固定 / CCS 評価用)
+
+本ドキュメントでは、実機ログ解析で用いる主要指標の定義を明文化する。PDR/遅延系の解釈がブレないように、分母・分子の取り方や下限値をここで固定する。
+
+## PDR
+- `adv_count`: TXSD summary (`# summary` の `adv_count`) を真値とし、RX由来で再計算しない。
+- `pdr_raw = rx_count / adv_count`  
+  - `rx_count`: RX行数（重複含む）。  
+  - `adv_count`: TXSD基準でクランプ（min(rx_count, adv_count) を使う実装）。
+- `pdr_unique = rx_unique_seq / adv_count`  
+  - `rx_unique_seq`: `seq`（MFD 先頭の数値）でユニーク化した件数。  
+  - カバレッジ指標に近い（「広告イベントの何割を一度でも拾えたか」）。  
+  - QoS比較にはこちらを使用。  
+- 注意: 重複受信が多いと `pdr_raw` は >1 になりうるので、QoS用途には `pdr_unique` を参照する。
+
+## TL / Pout
+- 真値: `truth` CSV の `idx,label`（EFFECTIVE_LEN=6352 を基準。末尾遷移が TX 再生範囲外に出ないようクリップ）。  
+- 遅延: 各遷移時刻 `t_event` から最初に正しいラベルを観測するまでの時間。  
+  - `tl_mean`, `tl_p95`: 遷移ごとの遅延の平均 / 95%点。  
+  - `Pout(τ)`: 遷移のうち、遅延 > τ の割合。  
+
+### 時間同期（重要）
+TL/Pout は **RXログの `ms` と truth の時間軸が一致している**前提で計算する必要がある。実機では開始タイミングのズレ（例: RX開始が遅れる、TXが先に進む）が入りやすく、ズレを補正しないと **TL/Pout が不自然に小さく見える**（特に長間隔側）ことがある。
+
+本リポジトリでは、固定間隔リプレイ（seqが単調増加）を前提に、次の「定数オフセット」で同期する（`scripts/analyze_stress_causal_real.py` の実装）。
+
+- 各 `seq` の最初の観測時刻を `first_ms(seq)` とする（RXログ由来）。
+- 期待される真値時刻は `seq * interval_ms` とみなす。
+- `offset_ms = median_{seq>0}( seq*interval_ms - first_ms(seq) )`
+- TL/Pout 計算では `ms_aligned = ms + offset_ms` を用いる。
+
+出力CSVでは以下で確認できる。
+- `tl_time_offset_ms`: 推定したオフセット（ms）
+- `tl_time_offset_n`: 推定に使ったseq数
+
+### 下限（参考）
+一般に、τ < interval のとき、受信100%でも遅延の量子化により `Pout(τ)` は 0 にならない（例: interval=2000ms, τ=1s なら 0.5 が目安）。
+ただし、実際の `Pout(τ)` の下限は「遷移時刻の分布」と「開始位相」に依存するため、**一律の下限値を前提にせず**、上記の時間同期を行った上で実測値で議論する。
+
+## EFFECTIVE_LEN / 末端遷移
+- TX は `EFFECTIVE_LEN=6352` ステップ（約10.6分）でクランプ。  
+- truth も同じ長さにクリップして末端遷移のズレを防ぐ。  
+- abort試行（短時間）は manifest から除外する。
+
+## ファイル
+- scan90（固定フルセット, v5）:
+  - per-trial: `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_full_scan90_v5.csv`
+  - per-trial抜粋: `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_modes_scan90_v5.csv`
+  - 集約: `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_scan90_v5.csv`
+  - 集約+派生: `results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_agg_enriched_scan90_v5.csv`
+  - インデックス: `results/stress_fixed/scan90/index.md`
+
+## 補足
+- RX FW は一部 `RX_ModeC2prime_1202` ログが混在。解析時は manifest で trialごとに明示。  
+- 2000ms は Pout/TL が大きく揺れるため、複数trialで平均・分散を見ること。  
+- エネルギー: TXSD summary の `E_per_adv_uJ`, `E_total_mJ` を使用。平均電力は `E_total_mJ / duration`.
+
+
+================================================================================
+File: scripts\phase2_offline_eval\analyze_gateb_pareto.py
+================================================================================
+"""
+Gate B Pareto analysis helper (Phase 2 offline studies).
+
+This script aggregates v04 outputs and produces:
+- A candidate table that merges:
+  - Gate B (shift at start): E2 warm shift from E1 (reset is NOT used here)
+  - Gate B (explicit mid-run shift): E1 -> E2 switch mid-run (reset may be used)
+- A Pareto front over (cost_worst_mean, violations_first_after_switch_k_worst_p95).
+
+Design note:
+- In real operation, reset_on_switch is relevant only when a shift is detected.
+  For "shift at start" (warm shift), we evaluate reset=0 and use that as the
+  start-shift part of the candidate. For the mid-run shift part, we use the
+  candidate's reset flag.
+
+Run from repo root, e.g.:
+  python scripts/phase2_offline_eval/analyze_gateb_pareto.py --run-dir results/phase2_offline_studies_2026-01-26_v04
+"""
+
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+from typing import Dict, List, Tuple
+
+import numpy as np
+import pandas as pd
+
+
+def _p95(series: pd.Series) -> float:
+    s = series.dropna().to_numpy()
+    if len(s) == 0:
+        return float("nan")
+    return float(np.quantile(s, 0.95))
+
+
+def _pareto_front(points: pd.DataFrame, x_col: str, y_col: str) -> pd.DataFrame:
+    """
+    Return a subset of non-dominated points (minimize x and y).
+    A dominates B if (x_a <= x_b and y_a <= y_b) and at least one strict.
+    """
+    xs = points[x_col].to_numpy()
+    ys = points[y_col].to_numpy()
+    keep = np.ones(len(points), dtype=bool)
+    for i, (x_i, y_i) in enumerate(zip(xs, ys)):
+        if not keep[i]:
+            continue
+        for j, (x_j, y_j) in enumerate(zip(xs, ys)):
+            if i == j:
+                continue
+            if (x_j <= x_i and y_j <= y_i) and (x_j < x_i or y_j < y_i):
+                keep[i] = False
+                break
+    return points[keep].copy()
+
+
+def _md_table(df: pd.DataFrame, cols: List[str], float_cols: Dict[str, int]) -> str:
+    lines: List[str] = []
+    header = "| " + " | ".join(cols) + " |"
+    sep = "| " + " | ".join(["---"] * len(cols)) + " |"
+    lines.extend([header, sep])
+    for _, r in df.iterrows():
+        row = []
+        for c in cols:
+            v = r.get(c, "")
+            if c in float_cols and pd.notna(v):
+                row.append(f"{float(v):.{int(float_cols[c])}f}")
+            else:
+                row.append(str(v))
+        lines.append("| " + " | ".join(row) + " |")
+    return "\n".join(lines)
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument(
+        "--run-dir",
+        type=str,
+        default="results/phase2_offline_studies_2026-01-26_v04",
+        help="Directory containing sim_summary.csv and sim_replicates.csv",
+    )
+    ap.add_argument("--epsilon", type=float, default=0.10, help="QoS constraint epsilon")
+    ap.add_argument("--top-n", type=int, default=6, help="Top N to print in markdown")
+    ap.add_argument(
+        "--max-viol-after-worst-mean",
+        type=float,
+        default=float("nan"),
+        help="Optional cap: keep only candidates with viol_after_worst_mean <= this value",
+    )
+    ap.add_argument(
+        "--max-viol-after-worst-p95",
+        type=float,
+        default=float("nan"),
+        help="Optional cap: keep only candidates with viol_after_worst_p95 <= this value",
+    )
+    ap.add_argument(
+        "--scenario-start",
+        type=str,
+        default="E2_actions_500_1000_2000_warm_shift_from_E1",
+        help="Gate B start-shift scenario_id",
+    )
+    ap.add_argument(
+        "--scenario-mid",
+        type=str,
+        default="E1_to_E2_actions_500_1000_2000_switch_mid",
+        help="Gate B mid-run switch scenario_id",
+    )
+    ap.add_argument(
+        "--out-candidates",
+        type=str,
+        default="",
+        help="Output CSV path for all candidates (default: <run-dir>/gateb_candidates.csv)",
+    )
+    ap.add_argument(
+        "--out-pareto",
+        type=str,
+        default="",
+        help="Output CSV path for pareto front (default: <run-dir>/gateb_pareto_front.csv)",
+    )
+    ap.add_argument(
+        "--out-md",
+        type=str,
+        default="",
+        help="Output markdown path (default: <run-dir>/gateb_pareto.md)",
+    )
+    args = ap.parse_args()
+
+    run_dir = Path(args.run_dir)
+    sim_summary = run_dir / "sim_summary.csv"
+    sim_reps = run_dir / "sim_replicates.csv"
+    if not sim_summary.exists():
+        raise FileNotFoundError(sim_summary)
+    if not sim_reps.exists():
+        raise FileNotFoundError(sim_reps)
+
+    df_sum = pd.read_csv(sim_summary)
+    df_rep = pd.read_csv(sim_reps)
+
+    sc_start = str(args.scenario_start)
+    sc_mid = str(args.scenario_mid)
+    eps = float(args.epsilon)
+    cap_after_mean = float(args.max_viol_after_worst_mean)
+    cap_after_p95 = float(args.max_viol_after_worst_p95)
+
+    start_df = df_sum[
+        (df_sum["scenario_id"] == sc_start)
+        & df_sum["method"].astype(str).str.startswith("filter_ucb_online")
+    ].copy()
+    mid_df = df_sum[
+        (df_sum["scenario_id"] == sc_mid)
+        & df_sum["method"].astype(str).str.startswith("filter_ucb_online")
+    ].copy()
+    if start_df.empty:
+        raise RuntimeError(f"start scenario not found: {sc_start}")
+    if mid_df.empty:
+        raise RuntimeError(f"mid scenario not found: {sc_mid}")
+
+    # Index start-shift rows by (w, m). reset is treated as "not used".
+    start_idx: Dict[Tuple[float, float], pd.Series] = {}
+    start_p95: Dict[Tuple[float, float], Dict[str, float]] = {}
+    for _, s1 in start_df.iterrows():
+        w = float(s1.get("filter_prior_weight", np.nan))
+        m = float(s1.get("filter_margin", np.nan))
+        key = (w, m)
+        start_idx[key] = s1
+        r1 = df_rep[(df_rep["scenario_id"] == sc_start) & (df_rep["method"] == s1["method"])]
+        start_p95[key] = {
+            "viol_first_p95": _p95(r1["violations_first_after_switch_k"]),
+            "viol_after_p95": _p95(r1["violations_after_switch"]),
+            "vr_p95": _p95(r1["violation_rate"]),
+        }
+
+    rows: List[Dict] = []
+    for _, s2 in mid_df.iterrows():
+        w = float(s2.get("filter_prior_weight", np.nan))
+        m = float(s2.get("filter_margin", np.nan))
+        reset = int(s2.get("filter_reset_on_switch", 0))
+        key = (w, m)
+        if key not in start_idx:
+            continue
+        s1 = start_idx[key]
+
+        r2 = df_rep[(df_rep["scenario_id"] == sc_mid) & (df_rep["method"] == s2["method"])]
+        mid_p95 = {
+            "viol_first_p95": _p95(r2["violations_first_after_switch_k"]),
+            "viol_after_p95": _p95(r2["violations_after_switch"]),
+            "vr_p95": _p95(r2["violation_rate"]),
+        }
+        s1p = start_p95[key]
+
+        rows.append(
+            {
+                "method": str(s2["method"]),
+                "w": w,
+                "m": m,
+                "reset": reset,
+                "cost_start_mean": float(s1["avg_cost_mean"]),
+                "cost_mid_mean": float(s2["avg_cost_mean"]),
+                "viol_first_start_mean": float(s1["violations_first_after_switch_k_mean"]),
+                "viol_first_mid_mean": float(s2["violations_first_after_switch_k_mean"]),
+                "viol_after_start_mean": float(s1["violations_after_switch_mean"]),
+                "viol_after_mid_mean": float(s2["violations_after_switch_mean"]),
+                "vr_start_mean": float(s1["violation_rate_mean"]),
+                "vr_mid_mean": float(s2["violation_rate_mean"]),
+                "viol_first_start_p95": float(s1p["viol_first_p95"]),
+                "viol_first_mid_p95": float(mid_p95["viol_first_p95"]),
+                "viol_after_start_p95": float(s1p["viol_after_p95"]),
+                "viol_after_mid_p95": float(mid_p95["viol_after_p95"]),
+                "vr_start_p95": float(s1p["vr_p95"]),
+                "vr_mid_p95": float(mid_p95["vr_p95"]),
+            }
+        )
+
+    df = pd.DataFrame(rows)
+    if df.empty:
+        raise RuntimeError("No candidates found (start/mid key mismatch?)")
+
+    # Worst-case across the two Gate B scenarios.
+    for base in ("cost", "viol_first", "viol_after", "vr"):
+        df[f"{base}_worst_mean"] = df[[f"{base}_start_mean", f"{base}_mid_mean"]].max(axis=1)
+    for base in ("viol_first", "viol_after", "vr"):
+        df[f"{base}_worst_p95"] = df[[f"{base}_start_p95", f"{base}_mid_p95"]].max(axis=1)
+
+    # Gate filter: keep candidates that satisfy mean constraint in both scenarios.
+    df_ok = df[df["vr_worst_mean"] <= eps].copy()
+    if np.isfinite(cap_after_mean):
+        df_ok = df_ok[df_ok["viol_after_worst_mean"] <= cap_after_mean].copy()
+    if np.isfinite(cap_after_p95):
+        df_ok = df_ok[df_ok["viol_after_worst_p95"] <= cap_after_p95].copy()
+
+    # Pareto front: (energy cost, early violations p95)
+    pareto = _pareto_front(df_ok, "cost_worst_mean", "viol_first_worst_p95")
+    pareto = pareto.sort_values(["viol_first_worst_p95", "cost_worst_mean"]).reset_index(drop=True)
+
+    out_candidates = Path(args.out_candidates) if args.out_candidates else (run_dir / "gateb_candidates.csv")
+    out_pareto = Path(args.out_pareto) if args.out_pareto else (run_dir / "gateb_pareto_front.csv")
+    out_md = Path(args.out_md) if args.out_md else (run_dir / "gateb_pareto.md")
+    df_ok.to_csv(out_candidates, index=False)
+    pareto.to_csv(out_pareto, index=False)
+
+    top_n = max(1, int(args.top_n))
+    show = pareto.head(top_n).copy()
+    show_cols = [
+        "method",
+        "w",
+        "m",
+        "reset",
+        "cost_worst_mean",
+        "viol_first_worst_p95",
+        "viol_after_worst_mean",
+        "vr_worst_mean",
+    ]
+    md = []
+    md.append("# Gate B Pareto (auto-generated)")
+    md.append("")
+    md.append(f"- run_dir: `{run_dir.as_posix()}`")
+    md.append(f"- epsilon: {eps}")
+    if np.isfinite(cap_after_mean) or np.isfinite(cap_after_p95):
+        md.append("- caps:")
+        if np.isfinite(cap_after_mean):
+            md.append(f"  - max_viol_after_worst_mean: {cap_after_mean}")
+        if np.isfinite(cap_after_p95):
+            md.append(f"  - max_viol_after_worst_p95: {cap_after_p95}")
+    md.append(f"- scenario_start: `{sc_start}` (reset=0; treated as shift-at-start)")
+    md.append(f"- scenario_mid: `{sc_mid}` (reset may be used)")
+    md.append("")
+    md.append("Pareto front definition:")
+    md.append("- x: cost_worst_mean (mJ/60s, lower is better)")
+    md.append("- y: violations_first_after_switch_k_worst_p95 (k=50, lower is better)")
+    md.append("")
+    md.append("Top candidates on Pareto front:")
+    md.append(_md_table(show[show_cols], show_cols, {"cost_worst_mean": 3, "viol_first_worst_p95": 2, "viol_after_worst_mean": 2, "vr_worst_mean": 5}))
+    md.append("")
+    md.append(f"Full tables: `{out_candidates.as_posix()}`, `{out_pareto.as_posix()}`")
+    out_md.write_text("\n".join(md) + "\n", encoding="utf-8")
+
+    print(f"[OK] wrote: {out_candidates}")
+    print(f"[OK] wrote: {out_pareto}")
+    print(f"[OK] wrote: {out_md}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+
+================================================================================
+File: scripts\phase2_offline_eval\run_gatec_candidates.py
+================================================================================
+"""
+Gate C candidate check runner.
+
+Goal:
+- Evaluate a *small* shortlist of (w, m, reset) for filter_ucb_online under a
+  non-stationary constraint switch (scan90 -> scan70).
+
+Why tau=2.0 here?
+- For tau=1.0 with the available uccs_d4b datasets (actions={100,500}), the safe
+  set tends to collapse to a single action, making "tracking" uninformative.
+- tau=2.0 creates a meaningful safe-set change:
+    scan90: {100,500} can be safe
+    scan70: 500 becomes (slightly) unsafe
+  so we can measure how quickly the policy backs off after a switch.
+
+Run from repo root, e.g.:
+  python scripts/phase2_offline_eval/run_gatec_candidates.py --out-dir results/phase2_gatec_candidates_2026-01-26_v01
+"""
+
+from __future__ import annotations
+
+import argparse
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, List, Tuple
+
+import numpy as np
+import pandas as pd
+
+
+def _ensure_dir(p: Path) -> None:
+    p.mkdir(parents=True, exist_ok=True)
+
+
+def _today_slug() -> str:
+    from datetime import datetime, timezone, timedelta
+
+    jst = timezone(timedelta(hours=9))
+    return datetime.now(jst).strftime("%Y-%m-%d")
+
+
+def _find_unique_dir(root: Path, name_substr: str) -> Path:
+    matches = [p for p in root.rglob("*") if p.is_dir() and name_substr in p.name]
+    if not matches:
+        raise FileNotFoundError(f"Could not find dir containing {name_substr!r} under {root}")
+    if len(matches) == 1:
+        return matches[0]
+    # Prefer the shortest path (usually the canonical one).
+    matches.sort(key=lambda p: len(str(p)))
+    return matches[0]
+
+
+def _build_filter_prior(actions: List[int], constraint_model) -> Tuple[Dict[int, float], Dict[int, int]]:
+    pout: Dict[int, float] = {}
+    n: Dict[int, int] = {}
+    for a in actions:
+        pout[a] = float(constraint_model.predict(a))
+        n[a] = int(constraint_model.n_samples(a))
+    return pout, n
+
+
+@dataclass(frozen=True)
+class Candidate:
+    w: float
+    m: float
+    reset: bool
+    label: str
+
+
+def _load_candidates_from_pareto(run_dir: Path, top_n: int) -> List[Candidate]:
+    pareto_path = run_dir / "gateb_pareto_front.csv"
+    if not pareto_path.exists():
+        raise FileNotFoundError(pareto_path)
+    df = pd.read_csv(pareto_path)
+    df = df.sort_values(["viol_first_worst_p95", "cost_worst_mean"]).head(max(1, int(top_n)))
+    out: List[Candidate] = []
+    for _, r in df.iterrows():
+        out.append(
+            Candidate(
+                w=float(r["w"]),
+                m=float(r["m"]),
+                reset=bool(int(r["reset"])),
+                label=str(r["method"]),
+            )
+        )
+    return out
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument(
+        "--gateb-run-dir",
+        type=str,
+        default="results/phase2_offline_studies_2026-01-26_v04",
+        help="v04 output dir (used to load gateb_pareto_front.csv for candidate list)",
+    )
+    ap.add_argument("--top-n", type=int, default=3, help="How many candidates to evaluate")
+    ap.add_argument(
+        "--m-list",
+        type=str,
+        default="",
+        help="Optional comma-separated margin list; if set, overrides candidate selection from Gate B Pareto",
+    )
+    ap.add_argument(
+        "--w",
+        type=float,
+        default=0.0,
+        help="prior_weight w for --m-list sweep (ignored when using Gate B Pareto candidates)",
+    )
+    ap.add_argument(
+        "--reset",
+        type=int,
+        default=1,
+        help="reset_on_switch (0/1) for --m-list sweep (ignored when using Gate B Pareto candidates)",
+    )
+    ap.add_argument("--out-dir", type=str, default="", help="Output directory (default: results/phase2_gatec_candidates_<date>_v01)")
+    ap.add_argument("--T", type=int, default=1000)
+    ap.add_argument("--n-reps", type=int, default=100)
+    ap.add_argument("--base-seed", type=lambda s: int(s, 0), default=int("0xD4B40201", 0))
+    ap.add_argument("--after-switch-k", type=int, default=50)
+    ap.add_argument("--tau-s", type=float, default=2.0)
+    ap.add_argument("--epsilon", type=float, default=0.10)
+    ap.add_argument("--reward-mode", type=str, default="per_60s", choices=["per_adv", "per_60s"])
+    ap.add_argument("--constraint-ci", type=str, default="wilson", choices=["t_dependent", "hoeffding", "wilson", "beta"])
+    ap.add_argument("--constraint-delta", type=float, default=0.05)
+    ap.add_argument("--init-strategy", type=str, default="safe_seed", choices=["round_robin", "safe_seed", "baseline_only"])
+    args = ap.parse_args()
+
+    gateb_run_dir = Path(args.gateb_run_dir)
+    if str(args.m_list).strip():
+        ms: List[float] = []
+        for tok in str(args.m_list).split(","):
+            tok = tok.strip()
+            if not tok:
+                continue
+            ms.append(float(tok))
+        w0 = float(args.w)
+        reset0 = bool(int(args.reset))
+        candidates = [
+            Candidate(w=w0, m=float(m), reset=reset0, label=f"filter_ucb_online_w{w0:g}_m{float(m):g}_r{int(reset0)}")
+            for m in ms
+        ]
+    else:
+        candidates = _load_candidates_from_pareto(gateb_run_dir, top_n=int(args.top_n))
+
+    out_dir = Path(args.out_dir) if args.out_dir else Path(f"results/phase2_gatec_candidates_{_today_slug()}_v01")
+    _ensure_dir(out_dir)
+
+    # Import the shared simulation runner (not a package; add path).
+    import sys
+
+    phase2_dir = Path(__file__).resolve().parent
+    sys.path.insert(0, str(phase2_dir))
+    import run_offline_studies as ros  # type: ignore
+
+    # Models
+    reward_data_dir = _find_unique_dir(Path("data"), "deltae_v3rig_sweep_2026-01-21_v02")
+    reward_model = ros.RewardModel(str(reward_data_dir), reward_mode=args.reward_mode)
+    cost_unit = getattr(reward_model, "cost_unit", "")
+
+    # Constraint models (nonstationary: scan90 -> scan70 mid-run)
+    env_scan90 = ros.ConstraintModel(["uccs_d4b_scan90/metrics/01/per_trial.csv"], tau=float(args.tau_s))
+    env_scan70 = ros.ConstraintModel(["uccs_d4b_scan70/metrics/01_fixed/per_trial.csv"], tau=float(args.tau_s))
+
+    actions = [100, 500]
+    epsilon = float(args.epsilon)
+    switch_at = int(round(int(args.T) * 0.5))
+
+    # Fixed safety mask baseline uses scan90 as filter_env (prior)
+    filter_prior_pout, filter_prior_n = _build_filter_prior(actions, env_scan90)
+
+    rep_rows: List[Dict] = []
+    union_actions = list(actions)
+    base_methods = ["filter_ucb", "ucb", "fixed_ccs", "safe_ucb"]
+
+    for rep in range(int(args.n_reps)):
+        seed = int(args.base_seed + rep)
+
+        # Baselines
+        for method in base_methods:
+            actions_used = list(actions)
+            if method == "filter_ucb":
+                allowed: List[int] = []
+                for a in actions:
+                    if env_scan90.is_safe(a, epsilon):
+                        allowed.append(int(a))
+                if not allowed:
+                    allowed = [min(actions)]
+                actions_used = sorted(set(allowed))
+
+            out = ros._run_one(
+                method=method,
+                actions=actions_used,
+                reward_model=reward_model,
+                constraint_model=env_scan90,
+                epsilon=epsilon,
+                T=int(args.T),
+                seed=seed,
+                constraint_model_2=env_scan70,
+                switch_at=switch_at,
+                constraint_ci=str(args.constraint_ci),
+                constraint_delta=float(args.constraint_delta),
+                init_strategy=str(args.init_strategy),
+                after_switch_k=int(args.after_switch_k),
+            )
+            n_pulls = out.get("n_pulls", {})
+            rep_rows.append(
+                {
+                    "scenario_id": "scan90_to_scan70_actions_100_500_tau2_switch_mid",
+                    "env_id": "E1_uccs_d4b_scan90",
+                    "switch_env_id": "E1_uccs_d4b_scan70",
+                    "switch_at": switch_at,
+                    "tau_s": float(args.tau_s),
+                    "epsilon": epsilon,
+                    "after_switch_k": int(args.after_switch_k),
+                    "rep": rep,
+                    "method": method,
+                    "reward_mode": str(args.reward_mode),
+                    "cost_unit": cost_unit,
+                    "constraint_ci": str(args.constraint_ci),
+                    "constraint_delta": float(args.constraint_delta),
+                    "init_strategy": str(args.init_strategy),
+                    "avg_cost": float(out["avg_cost"]),
+                    "violation_rate": float(out["violation_rate"]),
+                    "violations_after_switch": float(out["violations_after_switch"]),
+                    "violations_first_after_switch_k": float(out["violations_first_k_after_switch"]),
+                    "filter_margin": float("nan"),
+                    "filter_prior_weight": float("nan"),
+                    "filter_reset_on_switch": "",
+                    **{f"pull_{a}": int(n_pulls.get(a, 0)) for a in union_actions},
+                }
+            )
+
+        # Candidate methods
+        for cand in candidates:
+            out = ros._run_one(
+                method="filter_ucb_online",
+                actions=list(actions),
+                reward_model=reward_model,
+                constraint_model=env_scan90,
+                epsilon=epsilon,
+                T=int(args.T),
+                seed=seed,
+                constraint_model_2=env_scan70,
+                switch_at=switch_at,
+                constraint_ci=str(args.constraint_ci),
+                constraint_delta=float(args.constraint_delta),
+                after_switch_k=int(args.after_switch_k),
+                filter_margin=float(cand.m),
+                filter_prior_pout=filter_prior_pout,
+                filter_prior_n=filter_prior_n,
+                filter_prior_weight=float(cand.w),
+                filter_reset_on_switch=bool(cand.reset),
+            )
+            n_pulls = out.get("n_pulls", {})
+            rep_rows.append(
+                {
+                    "scenario_id": "scan90_to_scan70_actions_100_500_tau2_switch_mid",
+                    "env_id": "E1_uccs_d4b_scan90",
+                    "switch_env_id": "E1_uccs_d4b_scan70",
+                    "switch_at": switch_at,
+                    "tau_s": float(args.tau_s),
+                    "epsilon": epsilon,
+                    "after_switch_k": int(args.after_switch_k),
+                    "rep": rep,
+                    "method": cand.label,
+                    "reward_mode": str(args.reward_mode),
+                    "cost_unit": cost_unit,
+                    "constraint_ci": str(args.constraint_ci),
+                    "constraint_delta": float(args.constraint_delta),
+                    "init_strategy": str(args.init_strategy),
+                    "avg_cost": float(out["avg_cost"]),
+                    "violation_rate": float(out["violation_rate"]),
+                    "violations_after_switch": float(out["violations_after_switch"]),
+                    "violations_first_after_switch_k": float(out["violations_first_k_after_switch"]),
+                    "filter_margin": float(cand.m),
+                    "filter_prior_weight": float(cand.w),
+                    "filter_reset_on_switch": int(cand.reset),
+                    **{f"pull_{a}": int(n_pulls.get(a, 0)) for a in union_actions},
+                }
+            )
+
+    df_rep = pd.DataFrame(rep_rows)
+    df_rep.to_csv(out_dir / "sim_replicates.csv", index=False)
+
+    def mean_std(x: pd.Series) -> Tuple[float, float]:
+        return float(np.mean(x)), float(np.std(x, ddof=1)) if len(x) > 1 else 0.0
+
+    agg_rows = []
+    for method, g in df_rep.groupby("method"):
+        m = str(method)
+        row = {
+            "method": m,
+            "avg_cost_mean": mean_std(g["avg_cost"])[0],
+            "avg_cost_std": mean_std(g["avg_cost"])[1],
+            "violation_rate_mean": mean_std(g["violation_rate"])[0],
+            "violation_rate_std": mean_std(g["violation_rate"])[1],
+            "violations_after_switch_mean": mean_std(g["violations_after_switch"])[0],
+            "violations_after_switch_std": mean_std(g["violations_after_switch"])[1],
+            "violations_first_after_switch_k_mean": mean_std(g["violations_first_after_switch_k"])[0],
+            "violations_first_after_switch_k_std": mean_std(g["violations_first_after_switch_k"])[1],
+            "pull_100_mean": mean_std(g["pull_100"])[0],
+            "pull_500_mean": mean_std(g["pull_500"])[0],
+            "filter_margin": g["filter_margin"].iloc[0],
+            "filter_prior_weight": g["filter_prior_weight"].iloc[0],
+            "filter_reset_on_switch": g["filter_reset_on_switch"].iloc[0],
+        }
+        agg_rows.append(row)
+    df_sum = pd.DataFrame(agg_rows)
+    df_sum = df_sum.sort_values(["violations_after_switch_mean", "avg_cost_mean"]).reset_index(drop=True)
+    df_sum.to_csv(out_dir / "sim_summary.csv", index=False)
+
+    # README
+    md = []
+    md.append("# Gate C candidate check (auto-generated)")
+    md.append("")
+    md.append(f"- Date: {_today_slug()}")
+    md.append(f"- Script: `scripts/phase2_offline_eval/run_gatec_candidates.py`")
+    md.append(f"- gateb_run_dir: `{gateb_run_dir.as_posix()}`")
+    md.append(f"- candidates(top_n={len(candidates)}):")
+    for c in candidates:
+        md.append(f"  - {c.label} (w={c.w:g}, m={c.m:g}, reset={int(c.reset)})")
+    md.append("")
+    md.append("Scenario:")
+    md.append("- scan90 -> scan70 switch mid-run")
+    md.append(f"- actions: {actions}")
+    md.append(f"- tau_s: {float(args.tau_s)} (diagnostic for tracking)")
+    md.append(f"- epsilon: {epsilon}")
+    md.append(f"- T: {int(args.T)}, n_reps: {int(args.n_reps)}, base_seed: {int(args.base_seed)}")
+    md.append(f"- after_switch_k: {int(args.after_switch_k)}")
+    md.append("")
+    md.append("Outputs:")
+    md.append("- `sim_replicates.csv`")
+    md.append("- `sim_summary.csv`")
+    (out_dir / "README.md").write_text("\n".join(md) + "\n", encoding="utf-8")
+
+    print(f"[OK] wrote: {out_dir}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+
+================================================================================
+File: scripts\phase2_offline_eval\run_offline_eval.py
+================================================================================
+"""
+Phase 2 MVP Offline Evaluation - Main Script
+Safe-UCBオフライン評価のメインスクリプト
+
+実行方法:
+    python scripts/phase2_offline_eval/run_offline_eval.py
+
+出力:
+    - results/phase2_offline_eval/*.png (図4枚)
+    - results/phase2_offline_eval/summary.csv (数値結果)
+"""
+
+import yaml
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from pathlib import Path
+import sys
+
+# modelsディレクトリをインポートパスに追加
+sys.path.insert(0, str(Path(__file__).parent))
+
+from models.reward_model import RewardModel
+from models.constraint_model import ConstraintModel
+from models.safe_ucb import SafeUCB, UCB, FixedCCS, Oracle
+
+
+def load_config(config_path: str) -> dict:
+    """config.yamlを読み込む"""
+    with open(config_path, "r", encoding="utf-8") as f:
+        config = yaml.safe_load(f)
+    return config
+
+
+def run_simulation(algorithm, reward_model, constraint_model, T, epsilon, rng):
+    """シミュレーション実行"""
+    history = {
+        "t": [],
+        "action": [],
+        "reward": [],
+        "constraint_violation": [],
+        "cumulative_reward": 0.0,
+        "cumulative_violations": 0,
+    }
+
+    for t in range(T):
+        # 行動選択（コンテキストは簡易的に固定）
+        action = algorithm.select_action(context=0.5)
+
+        # 報酬と制約をサンプル
+        reward = reward_model.sample(action, rng)
+        constraint_violation = constraint_model.sample_violation(action, rng)
+
+        # 更新
+        algorithm.update(action, reward, constraint_violation)
+
+        # 履歴記録
+        history["t"].append(t + 1)
+        history["action"].append(action)
+        history["reward"].append(reward)
+        history["constraint_violation"].append(constraint_violation)
+        history["cumulative_reward"] += reward
+        history["cumulative_violations"] += constraint_violation
+
+    return history
+
+
+def plot_results(results, output_dir: Path, epsilon: float):
+    """結果を図示"""
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # 図1: 累積Regret推移
+    plt.figure(figsize=(10, 6))
+    oracle_cum_reward = np.cumsum(results["Oracle"]["reward"])
+
+    for method in ["Safe-UCB", "UCB", "Fixed-CCS"]:
+        cum_reward = np.cumsum(results[method]["reward"])
+        regret = oracle_cum_reward - cum_reward
+        plt.plot(results[method]["t"], regret, label=method, linewidth=2)
+
+    plt.xlabel("Time step t", fontsize=12)
+    plt.ylabel("Cumulative Regret", fontsize=12)
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(output_dir / "regret_curve.png", dpi=300)
+    plt.close()
+    print(f"Saved: {output_dir / 'regret_curve.png'}")
+
+    # 図2: 制約違反率推移
+    plt.figure(figsize=(10, 6))
+    for method in ["Safe-UCB", "UCB", "Fixed-CCS"]:
+        violations = np.cumsum(results[method]["constraint_violation"])
+        t_array = np.array(results[method]["t"])
+        violation_rate = violations / t_array
+        plt.plot(t_array, violation_rate, label=method, linewidth=2)
+
+    plt.xlabel("Time step t", fontsize=12)
+    plt.ylabel("Violation Rate", fontsize=12)
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(output_dir / "violation_rate.png", dpi=300)
+    plt.close()
+    print(f"Saved: {output_dir / 'violation_rate.png'}")
+
+    # 図3: 平均エネルギー推移（負の報酬 = エネルギー）
+    plt.figure(figsize=(10, 6))
+    for method in ["Safe-UCB", "UCB", "Fixed-CCS", "Oracle"]:
+        cum_reward = np.cumsum(results[method]["reward"])
+        t_array = np.array(results[method]["t"])
+        avg_energy = -cum_reward / t_array  # 報酬は負のエネルギー
+        plt.plot(t_array, avg_energy, label=method, linewidth=2)
+
+    plt.xlabel("Time step t", fontsize=12)
+    plt.ylabel("Average Energy [uJ/event]", fontsize=12)
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(output_dir / "energy_curve.png", dpi=300)
+    plt.close()
+    print(f"Saved: {output_dir / 'energy_curve.png'}")
+
+    # 図4: Warm-start comparison（段階2で実装予定）
+    # 現時点ではプレースホルダー
+    plt.figure(figsize=(10, 6))
+    plt.text(
+        0.5,
+        0.5,
+        "Warm-start Comparison\n(To be implemented in Stage 2)",
+        ha="center",
+        va="center",
+        fontsize=16,
+    )
+    plt.axis("off")
+    plt.tight_layout()
+    plt.savefig(output_dir / "warmstart_comparison.png", dpi=300)
+    plt.close()
+    print(f"Saved: {output_dir / 'warmstart_comparison.png'}")
+
+
+def save_summary(results, output_dir: Path, epsilon: float):
+    """数値結果をCSVで保存"""
+    summary_data = []
+
+    for method in ["Safe-UCB", "UCB", "Fixed-CCS", "Oracle"]:
+        total_reward = np.sum(results[method]["reward"])
+        total_violations = np.sum(results[method]["constraint_violation"])
+        T = len(results[method]["t"])
+        violation_rate = total_violations / T
+        avg_energy = -total_reward / T  # μJ/event
+
+        summary_data.append(
+            {
+                "method": method,
+                "total_reward": total_reward,
+                "avg_energy_uj": avg_energy,
+                "total_violations": total_violations,
+                "violation_rate": violation_rate,
+                "constraint_satisfied": "OK" if violation_rate <= epsilon else "NG",
+            }
+        )
+
+    df_summary = pd.DataFrame(summary_data)
+    output_file = output_dir / "summary.csv"
+    df_summary.to_csv(output_file, index=False)
+    print(f"\nSaved: {output_file}")
+    print("\n=== Summary ===")
+    print(df_summary.to_string(index=False))
+
+
+def main():
+    # 設定読み込み
+    config_path = "scripts/phase2_offline_eval/config.yaml"
+    config = load_config(config_path)
+
+    print("=== Phase 2 MVP Offline Evaluation ===\n")
+    print(f"Config: {config_path}")
+    print(f"Actions: {config['actions']}")
+    print(f"Constraint: Pout(tau={config['constraint']['tau']}s) <= {config['constraint']['epsilon']}")
+    print(f"Simulation steps: T={config['simulation']['T']}\n")
+
+    # モデル初期化
+    print("Loading models...")
+    reward_model = RewardModel(config["data"]["reward_data"])
+    constraint_model = ConstraintModel(
+        config["data"]["constraint_data"], tau=config["constraint"]["tau"]
+    )
+
+    actions = config["actions"]
+    epsilon = config["constraint"]["epsilon"]
+    T = config["simulation"]["T"]
+    seed = config["simulation"]["seed"]
+
+    # アルゴリズム初期化
+    print("\nInitializing algorithms...")
+    algorithms = {
+        "Safe-UCB": SafeUCB(actions, reward_model, constraint_model, epsilon, seed),
+        "UCB": UCB(actions, seed),
+        "Fixed-CCS": FixedCCS(actions, seed),
+        "Oracle": Oracle(actions, reward_model, constraint_model, epsilon, seed),
+    }
+
+    # シミュレーション実行
+    print("\nRunning simulations...")
+    results = {}
+    rng = np.random.default_rng(seed)
+
+    for method, algorithm in algorithms.items():
+        print(f"  {method}...", end="", flush=True)
+        results[method] = run_simulation(
+            algorithm, reward_model, constraint_model, T, epsilon, rng
+        )
+        print(" done")
+
+    # 結果保存
+    output_dir = Path(config["output"]["results_dir"])
+    print(f"\nSaving results to {output_dir}...")
+    plot_results(results, output_dir, epsilon)
+    save_summary(results, output_dir, epsilon)
+
+    print("\n[OK] Evaluation completed.")
+
+
+if __name__ == "__main__":
+    main()
+
+
+================================================================================
+File: scripts\phase2_offline_eval\run_offline_studies.py
+================================================================================
+#!/usr/bin/env python3
+"""
+Phase 2 offline-safe study runner.
+
+This script runs a small set of "next" offline experiments:
+1) Model validity (train/test split) for reward/constraint estimates
+2) Environment shift checks (scan90->scan70, E1->E2) via warm-start priors
+3) Action-set variants ({100,500}, {500,1000,2000}, {100,500,1000,2000})
+4) Warm-start vs cold-start comparison
+5) epsilon/tau sensitivity tables (no simulation)
+
+Outputs are written under: results/phase2_offline_studies_YYYY-MM-DD_v01/
+"""
+
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+
+import numpy as np
+import pandas as pd
+
+import sys
+
+THIS_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(THIS_DIR))
+
+from models.reward_model import RewardModel
+from models.constraint_model import ConstraintModel
+from models.safe_ucb import FixedCCS, Oracle, SafeUCB, SafetyFilterUCB, UCB
+
+
+DEFAULT_BASE_SEED = 0xD4B40201
+
+
+def _find_unique_dir(root: Path, name: str) -> Path:
+    matches = [p for p in root.rglob(name) if p.is_dir()]
+    if not matches:
+        raise FileNotFoundError(f"Could not find directory named '{name}' under {root}")
+    if len(matches) > 1:
+        # Prefer the shallowest match to avoid picking nested staging dirs.
+        matches = sorted(matches, key=lambda p: (len(p.parts), str(p)))
+    return matches[0]
+
+
+@dataclass(frozen=True)
+class EnvSpec:
+    env_id: str
+    constraint_sources: List[str]
+
+
+@dataclass(frozen=True)
+class Scenario:
+    scenario_id: str
+    env_id: str
+    actions: List[int]
+    tau_s: float
+    epsilon: float
+    prior_env_id: Optional[str] = None  # if set, enable warm-start from this env
+    filter_env_id: Optional[str] = None  # if set, use this env for action masking (safety filter)
+    switch_env_id: Optional[str] = None  # if set, switch constraint env mid-run (nonstationary check)
+    switch_at_frac: Optional[float] = None  # e.g., 0.5 for mid-run switch
+
+
+def _today_slug() -> str:
+    return dt.date.today().isoformat()
+
+
+def _ensure_dir(p: Path) -> None:
+    p.mkdir(parents=True, exist_ok=True)
+
+
+def _reward_split_validity(
+    trials_csv: Path,
+    train_frac: float,
+    rng: np.random.Generator,
+    reward_mode: str,
+) -> pd.DataFrame:
+    df = pd.read_csv(trials_csv)
+
+    # Stratified split per mode_ms to keep balance.
+    train_idx = []
+    test_idx = []
+    for mode, g in df.groupby("mode_ms"):
+        idx = g.index.to_numpy()
+        rng.shuffle(idx)
+        n_train = int(round(len(idx) * train_frac))
+        train_idx.extend(idx[:n_train])
+        test_idx.extend(idx[n_train:])
+
+    train = df.loc[train_idx].copy()
+    test = df.loc[test_idx].copy()
+
+    e_off_train = float(train[train["mode_ms"] == 0]["e_total_mj"].mean())
+    if not np.isfinite(e_off_train):
+        raise RuntimeError("reward split: failed to compute E_off mean from train split")
+
+    rows = []
+    for mode_ms in sorted(df["mode_ms"].unique()):
+        if mode_ms == 0:
+            continue
+        tr = train[train["mode_ms"] == mode_ms]
+        te = test[test["mode_ms"] == mode_ms]
+        if tr.empty or te.empty:
+            continue
+
+        if reward_mode == "per_adv":
+            # cost = (E_on - E_off)/N_adv [μJ/adv]
+            c_train = (tr["e_total_mj"] - e_off_train) / tr["adv_count"] * 1000.0
+            c_test = (te["e_total_mj"] - e_off_train) / te["adv_count"] * 1000.0
+            cost_unit = "uJ_per_adv"
+        elif reward_mode == "per_60s":
+            # cost = (E_on - E_off) [mJ/60s] (60s試行)
+            c_train = (tr["e_total_mj"] - e_off_train)
+            c_test = (te["e_total_mj"] - e_off_train)
+            cost_unit = "mJ_per_60s"
+        else:
+            raise ValueError(f"unknown reward_mode: {reward_mode!r}")
+
+        mu_train = float(c_train.mean())
+        mae_test = float(np.mean(np.abs(c_test - mu_train)))
+        rows.append(
+            {
+                "action_ms": int(mode_ms),
+                "e_off_train_mJ": e_off_train,
+                "train_cost_mean": mu_train,
+                "test_cost_mean": float(c_test.mean()),
+                "mae_test": mae_test,
+                "reward_mode": reward_mode,
+                "cost_unit": cost_unit,
+                "n_train": int(len(tr)),
+                "n_test": int(len(te)),
+            }
+        )
+
+    return pd.DataFrame(rows)
+
+
+def _constraint_split_validity_e2_fixed(
+    model: ConstraintModel,
+    epsilon: float,
+    tau_s: float,
+    train_frac: float,
+    rng: np.random.Generator,
+) -> pd.DataFrame:
+    # Uses internal per-trial Pout lists derived from RX logs.
+    # If the model was built from non-RX sources, this table may be empty.
+    trial_pout = getattr(model, "_rx_trial_pout", {})
+
+    rows = []
+    for action_ms in sorted(trial_pout.keys()):
+        vals = trial_pout[action_ms].get(tau_s, [])
+        if not vals:
+            continue
+        idx = np.arange(len(vals))
+        rng.shuffle(idx)
+        n_train = max(1, int(round(len(idx) * train_frac)))
+        tr = [vals[i] for i in idx[:n_train]]
+        te = [vals[i] for i in idx[n_train:]] or [vals[i] for i in idx[n_train - 1 : n_train]]
+
+        p_train = float(np.mean(tr))
+        p_test = float(np.mean(te))
+        rows.append(
+            {
+                "action_ms": int(action_ms),
+                "tau_s": float(tau_s),
+                "pout_train_mean": p_train,
+                "pout_test_mean": p_test,
+                "abs_error": abs(p_test - p_train),
+                "pred_safe": p_train <= epsilon,
+                "actual_safe": p_test <= epsilon,
+                "n_train_trials": int(len(tr)),
+                "n_test_trials": int(len(te)),
+            }
+        )
+
+    return pd.DataFrame(rows)
+
+
+def _build_warm_start_prior(
+    actions: List[int],
+    reward_model: RewardModel,
+    constraint_model: ConstraintModel,
+) -> Dict[int, Tuple[int, float, float]]:
+    """
+    Returns mapping: action -> (n0, reward_mean, constraint_mean).
+
+    n0 uses available sample sizes from both reward and constraint sources (conservative min).
+    """
+    prior: Dict[int, Tuple[int, float, float]] = {}
+    for a in actions:
+        n_r = int(getattr(reward_model, "n_samples", {}).get(a, 0))
+        n_c = int(constraint_model.n_samples(a))
+        n0 = min(n_r, n_c)
+        if n0 <= 0:
+            continue
+        prior[a] = (n0, float(reward_model.mean(a)), float(constraint_model.predict(a)))
+    return prior
+
+
+def _build_filter_prior(
+    actions: List[int],
+    constraint_model: ConstraintModel,
+) -> Tuple[Dict[int, float], Dict[int, int]]:
+    """Return (prior_pout_mean, prior_n_trials) per action for safety-filter initialization."""
+    pout: Dict[int, float] = {}
+    n: Dict[int, int] = {}
+    for a in actions:
+        try:
+            pout[a] = float(constraint_model.predict(a))
+            n[a] = int(constraint_model.n_samples(a))
+        except Exception:
+            continue
+    return pout, n
+
+
+def _apply_warm_start(alg: SafeUCB, prior: Dict[int, Tuple[int, float, float]]) -> None:
+    total = 0
+    for a, (n0, r_mean, c_mean) in prior.items():
+        alg.n_pulls[a] = n0
+        alg.cumulative_reward[a] = r_mean * n0
+        alg.cumulative_constraint[a] = c_mean * n0
+        total += n0
+    alg.t = total
+
+
+def _run_one(
+    method: str,
+    actions: List[int],
+    reward_model: RewardModel,
+    constraint_model: ConstraintModel,
+    epsilon: float,
+    T: int,
+    seed: int,
+    warm_start_prior: Optional[Dict[int, Tuple[int, float, float]]] = None,
+    early_k: int = 100,
+    tail_k: int = 100,
+    after_switch_k: int = 50,
+    constraint_model_2: Optional[ConstraintModel] = None,
+    switch_at: Optional[int] = None,
+    constraint_ci: str = "t_dependent",
+    constraint_delta: float = 0.05,
+    init_strategy: str = "round_robin",
+    filter_margin: float = 0.0,
+    filter_prior_pout: Optional[Dict[int, float]] = None,
+    filter_prior_n: Optional[Dict[int, int]] = None,
+    filter_prior_weight: float = 1.0,
+    filter_reset_on_switch: bool = False,
+) -> Dict:
+    rng = np.random.default_rng(seed)
+
+    if method == "safe_ucb":
+        alg = SafeUCB(
+            actions,
+            reward_model,
+            constraint_model,
+            epsilon,
+            seed=seed,
+            constraint_ci=constraint_ci,
+            constraint_delta=constraint_delta,
+            init_strategy=init_strategy,
+        )
+        if warm_start_prior:
+            _apply_warm_start(alg, warm_start_prior)
+    elif method == "filter_ucb_online":
+        alg = SafetyFilterUCB(
+            actions=actions,
+            reward_model=reward_model,
+            epsilon=epsilon,
+            margin=filter_margin,
+            seed=seed,
+            constraint_ci=constraint_ci,
+            constraint_delta=constraint_delta,
+            prior_pout=filter_prior_pout,
+            prior_n=filter_prior_n,
+            prior_weight=filter_prior_weight,
+        )
+    elif method == "ucb":
+        alg = UCB(actions, seed=seed)
+    elif method == "filter_ucb":
+        # Action-masked UCB: actions are already filtered by the caller.
+        alg = UCB(actions, seed=seed)
+    elif method == "fixed_ccs":
+        alg = FixedCCS(actions, seed=seed)
+    elif method == "oracle":
+        alg = Oracle(actions, reward_model, constraint_model, epsilon, seed=seed)
+    else:
+        raise ValueError(f"unknown method: {method}")
+
+    total_reward = 0.0
+    total_viol = 0.0
+    viol_early = 0.0
+    viol_tail = 0.0
+    viol_after_switch = 0.0
+    viol_first_after_switch_k = 0.0
+
+    for t in range(T):
+        if method == "filter_ucb_online" and switch_at is not None and t == int(switch_at):
+            # Optional safety policy for detected shifts: discount constraint history.
+            if filter_reset_on_switch:
+                alg.on_switch(discount=float(filter_prior_weight))
+
+        a = alg.select_action(context=0.5)
+        r = reward_model.sample(a, rng)
+
+        cm_t = constraint_model
+        if constraint_model_2 is not None and switch_at is not None and t >= int(switch_at):
+            cm_t = constraint_model_2
+        v = cm_t.sample_violation(a, rng)
+        alg.update(a, r, v)
+
+        total_reward += r
+        total_viol += v
+        if t < early_k:
+            viol_early += v
+        if t >= max(0, T - tail_k):
+            viol_tail += v
+        if switch_at is not None and t >= int(switch_at):
+            viol_after_switch += v
+            if t < int(switch_at) + int(after_switch_k):
+                viol_first_after_switch_k += v
+
+    diag = getattr(alg, "diagnostics", lambda: {})()  # SafeUCB only
+    return {
+        "total_reward": total_reward,
+        "avg_cost": -total_reward / T,
+        "violation_rate": total_viol / T,
+        "violations_first_k": viol_early,
+        "violations_last_k": viol_tail,
+        "violations_after_switch": viol_after_switch if switch_at is not None else float("nan"),
+        "violations_first_k_after_switch": (
+            viol_first_after_switch_k if switch_at is not None else float("nan")
+        ),
+        "safe_set_empty_rate": float(diag.get("safe_set_empty_rate", float("nan"))),
+        "safe_set_size_mean": float(diag.get("safe_set_size_mean", float("nan"))),
+        "n_pulls": dict(getattr(alg, "n_pulls", {})),
+    }
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--out-dir", default="", help="Output directory (default: results/phase2_offline_studies_YYYY-MM-DD_v01)")
+    ap.add_argument(
+        "--reward-mode",
+        default="per_adv",
+        choices=["per_adv", "per_60s"],
+        help="Reward mode: per_adv (uJ/adv) or per_60s (mJ/60s)",
+    )
+    ap.add_argument(
+        "--constraint-ci",
+        default="t_dependent",
+        choices=["t_dependent", "hoeffding", "wilson", "beta"],
+        help="Constraint upper CI: t_dependent (legacy), hoeffding (fixed-delta), wilson (score), beta (posterior quantile)",
+    )
+    ap.add_argument(
+        "--constraint-delta",
+        type=float,
+        default=0.05,
+        help="One-sided delta for constraint CI when using --constraint-ci hoeffding|beta (e.g., 0.05)",
+    )
+    ap.add_argument(
+        "--init-strategy",
+        default="round_robin",
+        choices=["round_robin", "safe_seed", "baseline_only"],
+        help="Safe-UCB cold-start strategy (safe_seed avoids seeding unsafe actions)",
+    )
+    ap.add_argument(
+        "--after-switch-k",
+        type=int,
+        default=50,
+        help="Window size K for violations_first_K_after_switch (only for switch scenarios)",
+    )
+    ap.add_argument(
+        "--gateb-prior-weights",
+        default="1.0,0.5,0.2,0.0",
+        help="Comma-separated prior weights for Gate B sweeps (e.g., 1.0,0.5,0.2,0.0)",
+    )
+    ap.add_argument(
+        "--gateb-margins",
+        default="0,0.01,0.02,0.03",
+        help="Comma-separated safety margins m for Gate B sweeps (safe if UCB <= epsilon-m)",
+    )
+    ap.add_argument(
+        "--gateb-reset-on-switch",
+        default="0,1",
+        help="Comma-separated 0/1 for whether to discount constraint history at switch time",
+    )
+    ap.add_argument("--T", type=int, default=1000)
+    ap.add_argument("--n-reps", type=int, default=100)
+    ap.add_argument("--base-seed", type=lambda s: int(s, 0), default=DEFAULT_BASE_SEED)
+    args = ap.parse_args()
+
+    def parse_float_list(s: str) -> List[float]:
+        out: List[float] = []
+        for tok in str(s).split(","):
+            tok = tok.strip()
+            if not tok:
+                continue
+            out.append(float(tok))
+        return out
+
+    def parse_bool01_list(s: str) -> List[bool]:
+        out: List[bool] = []
+        for tok in str(s).split(","):
+            tok = tok.strip()
+            if not tok:
+                continue
+            out.append(bool(int(tok)))
+        return out
+
+    gateb_prior_weights = parse_float_list(args.gateb_prior_weights)
+    gateb_margins = parse_float_list(args.gateb_margins)
+    gateb_reset_on_switch = parse_bool01_list(args.gateb_reset_on_switch)
+
+    out_dir = Path(args.out_dir) if args.out_dir else Path(f"results/phase2_offline_studies_{_today_slug()}_v01")
+    _ensure_dir(out_dir)
+
+    # ------------------------------------------------------------------
+    # Models / environments
+    # ------------------------------------------------------------------
+    reward_data_dir = _find_unique_dir(Path("data"), "deltae_v3rig_sweep_2026-01-21_v02")
+    reward_model = RewardModel(str(reward_data_dir), reward_mode=args.reward_mode)
+    cost_unit = getattr(reward_model, "cost_unit", "")
+
+    envs: Dict[str, EnvSpec] = {
+        "E1_scan90_stress_v5": EnvSpec(
+            env_id="E1_scan90_stress_v5",
+            constraint_sources=[
+                "results/stress_fixed/scan90/stress_causal_real_summary_1211_stress_full_scan90_v5.csv",
+            ],
+        ),
+        "E2_fixed_v01": EnvSpec(
+            env_id="E2_fixed_v01",
+            constraint_sources=[
+                str(_find_unique_dir(Path("data"), "phase1_e2_fixed_sweep_2026-01-21_v01")),
+            ],
+        ),
+        "E1_uccs_d4b_scan90": EnvSpec(
+            env_id="E1_uccs_d4b_scan90",
+            constraint_sources=["uccs_d4b_scan90/metrics/01/per_trial.csv"],
+        ),
+        "E1_uccs_d4b_scan70": EnvSpec(
+            env_id="E1_uccs_d4b_scan70",
+            constraint_sources=["uccs_d4b_scan70/metrics/01_fixed/per_trial.csv"],
+        ),
+    }
+
+    constraint_cache: Dict[Tuple[str, float], ConstraintModel] = {}
+
+    def get_constraint(env_id: str, tau_s: float) -> ConstraintModel:
+        key = (env_id, float(tau_s))
+        if key not in constraint_cache:
+            spec = envs[env_id]
+            constraint_cache[key] = ConstraintModel(spec.constraint_sources, tau=tau_s)
+        return constraint_cache[key]
+
+    # ------------------------------------------------------------------
+    # 1) Deterministic tables (tradeoff + epsilon/tau sensitivity)
+    # ------------------------------------------------------------------
+    trade_rows = []
+    sens_rows = []
+    for env_id in ["E1_scan90_stress_v5", "E2_fixed_v01", "E1_uccs_d4b_scan90", "E1_uccs_d4b_scan70"]:
+        cm_1 = get_constraint(env_id, 1.0)
+        cm_2 = get_constraint(env_id, 2.0)
+        actions_available = sorted({*cm_1._stats.keys(), *cm_2._stats.keys()})
+        for a in actions_available:
+            if a not in getattr(reward_model, "mu_c", {}):
+                # Reward model is not defined for non-fixed actions (e.g., policy rows); skip.
+                continue
+            trade_rows.append(
+                {
+                    "env_id": env_id,
+                    "action_ms": a,
+                    "reward_mode": args.reward_mode,
+                    "cost_mean": -reward_model.mean(a),
+                    "cost_std": reward_model.std(a),
+                    "cost_unit": cost_unit,
+                    "pout_1s": cm_1.predict(a),
+                    "pout_2s": cm_2.predict(a),
+                }
+            )
+            for eps in (0.03, 0.10):
+                sens_rows.append(
+                    {
+                        "env_id": env_id,
+                        "action_ms": a,
+                        "epsilon": eps,
+                        "safe_tau1": cm_1.predict(a) <= eps,
+                        "safe_tau2": cm_2.predict(a) <= eps,
+                    }
+                )
+
+    pd.DataFrame(trade_rows).sort_values(["env_id", "action_ms"]).to_csv(out_dir / "tradeoff_table.csv", index=False)
+    pd.DataFrame(sens_rows).sort_values(["env_id", "epsilon", "action_ms"]).to_csv(out_dir / "epsilon_tau_sensitivity.csv", index=False)
+
+    # ------------------------------------------------------------------
+    # 2) Model validity (simple splits)
+    # ------------------------------------------------------------------
+    rng_split = np.random.default_rng(args.base_seed ^ 0xA5A5A5A5)
+
+    reward_valid = _reward_split_validity(
+        trials_csv=Path("results/deltae_v3rig_sweep_2026-01-21_v02_trials.csv"),
+        train_frac=0.7,
+        rng=rng_split,
+        reward_mode=args.reward_mode,
+    )
+    reward_valid.to_csv(out_dir / "validity_reward_split.csv", index=False)
+
+    cm_e2_tau1 = get_constraint("E2_fixed_v01", 1.0)
+    validity_e2 = _constraint_split_validity_e2_fixed(
+        model=cm_e2_tau1,
+        epsilon=0.10,
+        tau_s=1.0,
+        train_frac=0.6,
+        rng=rng_split,
+    )
+    validity_e2.to_csv(out_dir / "validity_constraint_e2_split.csv", index=False)
+
+    # ------------------------------------------------------------------
+    # 3) Bandit simulations (selected scenarios)
+    # ------------------------------------------------------------------
+    scenarios: List[Scenario] = [
+        # Gate A: safe actions are multiple; the algorithm should converge to the best safe arm.
+        Scenario(
+            scenario_id="E1_actions_100_500_1000_2000_cold",
+            env_id="E1_scan90_stress_v5",
+            actions=[100, 500, 1000, 2000],
+            tau_s=1.0,
+            epsilon=0.10,
+        ),
+        # Diagnostic: in E2, tau=2s makes {500,1000} safe while 2000 is unsafe.
+        Scenario(
+            scenario_id="E2_actions_500_1000_2000_tau2_cold",
+            env_id="E2_fixed_v01",
+            actions=[500, 1000, 2000],
+            tau_s=2.0,
+            epsilon=0.10,
+        ),
+        Scenario(
+            scenario_id="E2_actions_500_1000_2000_cold",
+            env_id="E2_fixed_v01",
+            actions=[500, 1000, 2000],
+            tau_s=1.0,
+            epsilon=0.10,
+        ),
+        Scenario(
+            scenario_id="E2_actions_500_1000_2000_warm_in_domain",
+            env_id="E2_fixed_v01",
+            actions=[500, 1000, 2000],
+            tau_s=1.0,
+            epsilon=0.10,
+            prior_env_id="E2_fixed_v01",
+        ),
+        Scenario(
+            scenario_id="E2_actions_500_1000_2000_warm_shift_from_E1",
+            env_id="E2_fixed_v01",
+            actions=[500, 1000, 2000],
+            tau_s=1.0,
+            epsilon=0.10,
+            prior_env_id="E1_scan90_stress_v5",
+            filter_env_id="E1_scan90_stress_v5",
+        ),
+        # Gate B (explicit shift): start in E1, then switch to E2 mid-run.
+        Scenario(
+            scenario_id="E1_to_E2_actions_500_1000_2000_switch_mid",
+            env_id="E1_scan90_stress_v5",
+            actions=[500, 1000, 2000],
+            tau_s=1.0,
+            epsilon=0.10,
+            filter_env_id="E1_scan90_stress_v5",
+            switch_env_id="E2_fixed_v01",
+            switch_at_frac=0.5,
+        ),
+        Scenario(
+            scenario_id="scan70_actions_100_500_cold",
+            env_id="E1_uccs_d4b_scan70",
+            actions=[100, 500],
+            tau_s=1.0,
+            epsilon=0.10,
+        ),
+        Scenario(
+            scenario_id="scan70_actions_100_500_warm_from_scan90",
+            env_id="E1_uccs_d4b_scan70",
+            actions=[100, 500],
+            tau_s=1.0,
+            epsilon=0.10,
+            prior_env_id="E1_uccs_d4b_scan90",
+            filter_env_id="E1_uccs_d4b_scan90",
+        ),
+        # Gate C (minimal): nonstationary constraint switch scan90 -> scan70 (mid-run).
+        Scenario(
+            scenario_id="scan90_to_scan70_actions_100_500_switch_mid",
+            env_id="E1_uccs_d4b_scan90",
+            actions=[100, 500],
+            tau_s=1.0,
+            epsilon=0.10,
+            switch_env_id="E1_uccs_d4b_scan70",
+            switch_at_frac=0.5,
+        ),
+    ]
+
+    base_methods = ["safe_ucb", "filter_ucb", "ucb", "fixed_ccs", "oracle"]
+    rep_rows = []
+    union_actions = sorted({a for sc in scenarios for a in sc.actions})
+
+    for sc in scenarios:
+        cm = get_constraint(sc.env_id, sc.tau_s)
+        cm2 = get_constraint(sc.switch_env_id, sc.tau_s) if sc.switch_env_id else None
+        switch_at = None
+        if sc.switch_env_id and sc.switch_at_frac is not None:
+            switch_at = int(round(args.T * float(sc.switch_at_frac)))
+        # Gate B (shift at start): when prior != target, treat the entire run as
+        # "after switch" so that we can report violations_first_K_after_switch.
+        if switch_at is None and sc.prior_env_id and sc.prior_env_id != sc.env_id:
+            switch_at = 0
+
+        prior = None
+        if sc.prior_env_id:
+            prior_cm = get_constraint(sc.prior_env_id, sc.tau_s)
+            prior = _build_warm_start_prior(sc.actions, reward_model, prior_cm)
+
+        for rep in range(args.n_reps):
+            seed = int(args.base_seed + rep)
+            # Oracle first (for regret baseline). For nonstationary scenarios, keep NaN.
+            oracle_total_reward = float("nan")
+            if sc.switch_env_id is None:
+                oracle_out = _run_one(
+                    method="oracle",
+                    actions=sc.actions,
+                    reward_model=reward_model,
+                    constraint_model=cm,
+                    epsilon=sc.epsilon,
+                    T=args.T,
+                    seed=seed,
+                )
+                oracle_total_reward = float(oracle_out["total_reward"])
+
+            for m in base_methods:
+                actions_used = list(sc.actions)
+                filter_env_id = sc.filter_env_id or sc.env_id
+                if m == "filter_ucb":
+                    fm = get_constraint(filter_env_id, sc.tau_s)
+                    allowed: List[int] = []
+                    for a in sc.actions:
+                        try:
+                            if fm.is_safe(a, sc.epsilon):
+                                allowed.append(a)
+                        except Exception:
+                            continue
+                    if not allowed:
+                        allowed = [min(sc.actions)]
+                    actions_used = sorted(set(allowed))
+
+                warm = prior if (m == "safe_ucb" and prior is not None) else None
+                out = _run_one(
+                    method=m,
+                    actions=actions_used,
+                    reward_model=reward_model,
+                    constraint_model=cm,
+                    epsilon=sc.epsilon,
+                    T=args.T,
+                    seed=seed,
+                    warm_start_prior=warm,
+                    constraint_model_2=cm2,
+                    switch_at=switch_at,
+                    constraint_ci=args.constraint_ci,
+                    constraint_delta=args.constraint_delta,
+                    init_strategy=args.init_strategy,
+                    after_switch_k=args.after_switch_k,
+                )
+
+                n_pulls = out.get("n_pulls", {})
+                distinct_actions = sum(1 for a in union_actions if int(n_pulls.get(a, 0)) > 0)
+                rep_rows.append(
+                    {
+                        "scenario_id": sc.scenario_id,
+                        "env_id": sc.env_id,
+                        "prior_env_id": sc.prior_env_id or "",
+                        "filter_env_id": sc.filter_env_id or "",
+                        "switch_env_id": sc.switch_env_id or "",
+                        "switch_at": int(switch_at) if switch_at is not None else "",
+                        "actions": ",".join(str(a) for a in sc.actions),
+                        "actions_used": ",".join(str(a) for a in actions_used),
+                        "tau_s": sc.tau_s,
+                        "epsilon": sc.epsilon,
+                        "rep": rep,
+                        "method": m if warm is None else "safe_ucb_warm",
+                        "reward_mode": args.reward_mode,
+                        "cost_unit": cost_unit,
+                        "constraint_ci": args.constraint_ci,
+                        "constraint_delta": args.constraint_delta,
+                        "init_strategy": args.init_strategy,
+                        "avg_cost": out["avg_cost"],
+                        "violation_rate": out["violation_rate"],
+                        "violations_first_100": out["violations_first_k"],
+                        "violations_last_100": out["violations_last_k"],
+                        "violations_after_switch": out["violations_after_switch"],
+                        "after_switch_k": int(args.after_switch_k),
+                        "violations_first_after_switch_k": out["violations_first_k_after_switch"],
+                        "safe_set_empty_rate": out["safe_set_empty_rate"],
+                        "safe_set_size_mean": out["safe_set_size_mean"],
+                        "filter_margin": float("nan"),
+                        "filter_prior_weight": float("nan"),
+                        "filter_reset_on_switch": "",
+                        "distinct_actions_pulled": distinct_actions,
+                        "regret_vs_oracle": oracle_total_reward - out["total_reward"],
+                        **{f"pull_{a}": int(n_pulls.get(a, 0)) for a in union_actions},
+                    }
+                )
+
+            # ------------------------------------------------------------------
+            # Gate B sweeps: Safety Filter + UCB (online-updated masking)
+            # ------------------------------------------------------------------
+            filter_env_id = sc.filter_env_id or sc.env_id
+            fm = get_constraint(filter_env_id, sc.tau_s)
+            prior_pout, prior_n = _build_filter_prior(sc.actions, fm)
+
+            variants = []
+            # Default (single) variant for all scenarios.
+            variants.append((1.0, 0.0, False))
+
+            # Gate B (shift at start): sweep prior_weight and margin (E1 -> E2).
+            if sc.scenario_id.endswith("warm_shift_from_E1"):
+                for w in gateb_prior_weights:
+                    for mrg in gateb_margins:
+                        variants.append((float(w), float(mrg), False))
+
+            # Gate B (explicit mid-run switch): also sweep reset_on_switch.
+            if sc.switch_env_id is not None and sc.scenario_id.startswith("E1_to_E2_"):
+                for w in gateb_prior_weights:
+                    for mrg in gateb_margins:
+                        for reset in gateb_reset_on_switch:
+                            variants.append((float(w), float(mrg), bool(reset)))
+
+            seen_labels = set()
+            for w, mrg, reset in variants:
+                label = f"filter_ucb_online_w{w:g}_m{mrg:g}_r{int(reset)}"
+                if label in seen_labels:
+                    continue
+                seen_labels.add(label)
+
+                out = _run_one(
+                    method="filter_ucb_online",
+                    actions=list(sc.actions),
+                    reward_model=reward_model,
+                    constraint_model=cm,
+                    epsilon=sc.epsilon,
+                    T=args.T,
+                    seed=seed,
+                    constraint_model_2=cm2,
+                    switch_at=switch_at,
+                    constraint_ci=args.constraint_ci,
+                    constraint_delta=args.constraint_delta,
+                    after_switch_k=args.after_switch_k,
+                    filter_margin=mrg,
+                    filter_prior_pout=prior_pout,
+                    filter_prior_n=prior_n,
+                    filter_prior_weight=w,
+                    filter_reset_on_switch=reset,
+                )
+
+                n_pulls = out.get("n_pulls", {})
+                distinct_actions = sum(1 for a in union_actions if int(n_pulls.get(a, 0)) > 0)
+                rep_rows.append(
+                    {
+                        "scenario_id": sc.scenario_id,
+                        "env_id": sc.env_id,
+                        "prior_env_id": sc.prior_env_id or "",
+                        "filter_env_id": filter_env_id,
+                        "switch_env_id": sc.switch_env_id or "",
+                        "switch_at": int(switch_at) if switch_at is not None else "",
+                        "actions": ",".join(str(a) for a in sc.actions),
+                        "actions_used": ",".join(str(a) for a in sc.actions),
+                        "tau_s": sc.tau_s,
+                        "epsilon": sc.epsilon,
+                        "rep": rep,
+                        "method": label,
+                        "reward_mode": args.reward_mode,
+                        "cost_unit": cost_unit,
+                        "constraint_ci": args.constraint_ci,
+                        "constraint_delta": args.constraint_delta,
+                        "init_strategy": args.init_strategy,
+                        "avg_cost": out["avg_cost"],
+                        "violation_rate": out["violation_rate"],
+                        "violations_first_100": out["violations_first_k"],
+                        "violations_last_100": out["violations_last_k"],
+                        "violations_after_switch": out["violations_after_switch"],
+                        "after_switch_k": int(args.after_switch_k),
+                        "violations_first_after_switch_k": out["violations_first_k_after_switch"],
+                        "safe_set_empty_rate": out["safe_set_empty_rate"],
+                        "safe_set_size_mean": out["safe_set_size_mean"],
+                        "filter_margin": float(mrg),
+                        "filter_prior_weight": float(w),
+                        "filter_reset_on_switch": int(reset),
+                        "distinct_actions_pulled": distinct_actions,
+                        "regret_vs_oracle": oracle_total_reward - out["total_reward"],
+                        **{f"pull_{a}": int(n_pulls.get(a, 0)) for a in union_actions},
+                    }
+                )
+
+    df_rep = pd.DataFrame(rep_rows)
+    df_rep.to_csv(out_dir / "sim_replicates.csv", index=False)
+
+    agg = (
+        df_rep.groupby(["scenario_id", "method"], as_index=False)
+        .agg(
+            env_id=("env_id", "first"),
+            prior_env_id=("prior_env_id", "first"),
+            filter_env_id=("filter_env_id", "first"),
+            switch_env_id=("switch_env_id", "first"),
+            switch_at=("switch_at", "first"),
+            after_switch_k=("after_switch_k", "first"),
+            actions=("actions", "first"),
+            actions_used=("actions_used", "first"),
+            tau_s=("tau_s", "first"),
+            epsilon=("epsilon", "first"),
+            reward_mode=("reward_mode", "first"),
+            cost_unit=("cost_unit", "first"),
+            constraint_ci=("constraint_ci", "first"),
+            constraint_delta=("constraint_delta", "first"),
+            init_strategy=("init_strategy", "first"),
+            filter_margin=("filter_margin", "first"),
+            filter_prior_weight=("filter_prior_weight", "first"),
+            filter_reset_on_switch=("filter_reset_on_switch", "first"),
+            avg_cost_mean=("avg_cost", "mean"),
+            avg_cost_std=("avg_cost", "std"),
+            violation_rate_mean=("violation_rate", "mean"),
+            violation_rate_std=("violation_rate", "std"),
+            violations_first_100_mean=("violations_first_100", "mean"),
+            violations_first_100_std=("violations_first_100", "std"),
+            violations_last_100_mean=("violations_last_100", "mean"),
+            violations_last_100_std=("violations_last_100", "std"),
+            violations_after_switch_mean=("violations_after_switch", "mean"),
+            violations_after_switch_std=("violations_after_switch", "std"),
+            violations_first_after_switch_k_mean=("violations_first_after_switch_k", "mean"),
+            violations_first_after_switch_k_std=("violations_first_after_switch_k", "std"),
+            safe_set_empty_rate_mean=("safe_set_empty_rate", "mean"),
+            safe_set_empty_rate_std=("safe_set_empty_rate", "std"),
+            safe_set_size_mean_mean=("safe_set_size_mean", "mean"),
+            safe_set_size_mean_std=("safe_set_size_mean", "std"),
+            distinct_actions_pulled_mean=("distinct_actions_pulled", "mean"),
+            distinct_actions_pulled_std=("distinct_actions_pulled", "std"),
+            pull_100_mean=("pull_100", "mean"),
+            pull_1000_mean=("pull_1000", "mean"),
+            pull_2000_mean=("pull_2000", "mean"),
+            pull_500_mean=("pull_500", "mean"),
+            regret_vs_oracle_mean=("regret_vs_oracle", "mean"),
+            regret_vs_oracle_std=("regret_vs_oracle", "std"),
+            n_reps=("rep", "nunique"),
+        )
+        .sort_values(["scenario_id", "method"])
+    )
+    agg.to_csv(out_dir / "sim_summary.csv", index=False)
+
+    # Lightweight index for human reading.
+    (out_dir / "README.md").write_text(
+        "\n".join(
+            [
+                "# Phase 2 Offline Studies (auto-generated)",
+                "",
+                f"- Date: {dt.datetime.now().strftime('%Y-%m-%d')}",
+                f"- Script: `scripts/phase2_offline_eval/run_offline_studies.py`",
+                f"- reward_mode: {args.reward_mode} ({cost_unit})",
+                f"- Safe-UCB: constraint_ci={args.constraint_ci}, delta={args.constraint_delta}, init_strategy={args.init_strategy}",
+                f"- after_switch_k: {args.after_switch_k}",
+                f"- GateB sweep: prior_weights={args.gateb_prior_weights}, margins={args.gateb_margins}, reset_on_switch={args.gateb_reset_on_switch}",
+                "",
+                "## Outputs",
+                "",
+                "- `tradeoff_table.csv`: Reward/constraint table per env/action",
+                "- `epsilon_tau_sensitivity.csv`: Safe/unsafe table for (epsilon,tau)",
+                "- `validity_reward_split.csv`: Reward model split check (train/test)",
+                "- `validity_constraint_e2_split.csv`: Constraint split check (E2 fixed sweep)",
+                "- `sim_replicates.csv`: Per-replicate simulation metrics",
+                "- `sim_summary.csv`: Aggregated simulation metrics (includes diagnostics + action-pull means)",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    print(f"[OK] Wrote: {out_dir}")
+
+
+if __name__ == "__main__":
+    main()
+
+
+================================================================================
+File: scripts\phase2_offline_eval\models\constraint_model.py
+================================================================================
+"""
+Constraint model for Phase 2 offline bandit evaluation.
+
+We model the QoS constraint as:
+  g(a) = Pout(tau | a) = Pr[TL > tau]
+
+This implementation is intentionally data-driven:
+- If a source provides per-trial Pout columns (pout_1s/pout_2s/pout_3s), we
+  aggregate them per fixed advertising interval.
+- If a source is a directory with RX logs (RX/*.csv), we infer the fixed interval
+  from (seq, ms) slope and compute synthetic TL samples from periodic "events"
+  (default: every 60s), then derive Pout(tau).
+
+No placeholder constants are used.
+"""
+
+from __future__ import annotations
+
+import csv
+from dataclasses import dataclass
+from pathlib import Path
+from statistics import median
+from typing import Dict, List, Optional, Tuple
+
+import numpy as np
+import pandas as pd
+
+
+def _mean_std(values: List[float]) -> Tuple[float, float]:
+    if not values:
+        return float("nan"), float("nan")
+    mean = float(np.mean(values))
+    std = float(np.std(values, ddof=1)) if len(values) > 1 else 0.0
+    return mean, std
+
+
+def _parse_seq_from_mfd(mfd: str) -> Optional[int]:
+    # Examples: "MF000A", "000A"
+    if not isinstance(mfd, str):
+        return None
+    s = mfd.strip()
+    if s.startswith("MF"):
+        s = s[2:]
+    try:
+        return int(s, 16)
+    except Exception:
+        return None
+
+
+def _estimate_interval_ms(first_ms_by_seq: Dict[int, float]) -> Optional[float]:
+    if len(first_ms_by_seq) < 5:
+        return None
+    seq0 = min(first_ms_by_seq)
+    ms0 = first_ms_by_seq[seq0]
+    slopes: List[float] = []
+    for seq, ms in first_ms_by_seq.items():
+        if seq == seq0:
+            continue
+        dseq = seq - seq0
+        if dseq <= 0:
+            continue
+        slopes.append((ms - ms0) / dseq)
+    return median(slopes) if slopes else None
+
+
+def _map_to_nominal_interval_ms(est_interval_ms: float, candidates_ms: List[int]) -> Optional[int]:
+    if est_interval_ms is None or not candidates_ms:
+        return None
+    best = min(candidates_ms, key=lambda a: abs(est_interval_ms - a))
+    # Accept if within 20% of a known candidate; otherwise treat as non-fixed/dynamic.
+    if abs(est_interval_ms - best) / best > 0.20:
+        return None
+    return int(best)
+
+
+def _estimate_offset_ms(first_ms_by_seq: Dict[int, float], interval_ms: int) -> Optional[float]:
+    deltas = [seq * interval_ms - ms for seq, ms in first_ms_by_seq.items() if seq > 0]
+    return median(deltas) if deltas else None
+
+
+def _compute_tl_samples_ms(
+    rx_ms: List[float],
+    offset_ms: float,
+    duration_ms: float,
+    event_period_ms: int,
+) -> List[float]:
+    if not rx_ms or duration_ms <= 0:
+        return []
+
+    rx_aligned = sorted((t + offset_ms) for t in rx_ms)
+    tl_samples: List[float] = []
+    for t_event in range(event_period_ms, int(duration_ms), int(event_period_ms)):
+        tl = float("inf")
+        for t in rx_aligned:
+            if t > t_event:
+                tl = t - t_event
+                break
+        tl_samples.append(tl)
+    return tl_samples
+
+
+@dataclass(frozen=True)
+class _PoutStats:
+    mean: float
+    std: float
+    n: int  # number of per-trial samples used to estimate mean/std
+
+
+class ConstraintModel:
+    SUPPORTED_TAUS_S = (1.0, 2.0, 3.0)
+    DEFAULT_EVENT_PERIOD_MS = 60_000  # used by existing fixed-interval analyses
+    DEFAULT_INTERVAL_CANDIDATES_MS = (100, 500, 1000, 2000)
+
+    def __init__(self, data_paths: List[str], tau: float = 1.0):
+        self.data_paths = [Path(p) for p in data_paths]
+        self.tau = float(tau)
+
+        # action -> tau_s -> stats
+        self._stats: Dict[int, Dict[float, _PoutStats]] = {}
+        # action -> TL samples in ms (optional; only for sources we can derive TL from)
+        self._tl_samples_ms: Dict[int, List[float]] = {}
+        # action -> tau_s -> list of per-trial Pout values (only for RX-derived sources)
+        self._rx_trial_pout: Dict[int, Dict[float, List[float]]] = {}
+
+        self._load_from_sources()
+
+    # ---------------------------------------------------------------------
+    # Public API
+    # ---------------------------------------------------------------------
+    def predict(self, action: int) -> float:
+        """Return mean Pout(tau|action)."""
+        tau = self.tau
+        if action in self._stats and tau in self._stats[action]:
+            return self._stats[action][tau].mean
+
+        if action in self._tl_samples_ms and self._tl_samples_ms[action]:
+            tau_ms = tau * 1000.0
+            tls = self._tl_samples_ms[action]
+            return sum(1 for tl in tls if tl > tau_ms) / len(tls)
+
+        raise ValueError(f"Action {action}ms not found (tau={tau}) in constraint model")
+
+    def std(self, action: int) -> float:
+        """Return std of per-trial Pout(tau|action) when available; otherwise 0."""
+        tau = self.tau
+        if action in self._stats and tau in self._stats[action]:
+            return self._stats[action][tau].std
+        return 0.0
+
+    def n_samples(self, action: int) -> int:
+        """Return number of trials used for Pout aggregation (not TL sample count)."""
+        tau = self.tau
+        if action in self._stats and tau in self._stats[action]:
+            return self._stats[action][tau].n
+        return 0
+
+    def sample_violation(self, action: int, rng: np.random.Generator) -> float:
+        """Sample a constraint violation indicator I[TL > tau]."""
+        p = self.predict(action)
+        return float(rng.random() < p)
+
+    def confidence(self, action: int) -> float:
+        """A rough standard-error term for plotting / simple UCB-style checks."""
+        n = self.n_samples(action)
+        if n <= 0:
+            return 0.0
+        return self.std(action) / np.sqrt(n)
+
+    def is_safe(self, action: int, epsilon: float) -> bool:
+        """Return True if (mean + confidence) <= epsilon."""
+        pout_ucb = self.predict(action) + self.confidence(action)
+        return pout_ucb <= epsilon
+
+    # ---------------------------------------------------------------------
+    # Loading
+    # ---------------------------------------------------------------------
+    def _load_from_sources(self) -> None:
+        table_paths: List[Path] = []
+
+        for p in self.data_paths:
+            if not p.exists():
+                print(f"Warning: constraint source not found: {p}")
+                continue
+
+            if p.is_file() and p.suffix.lower() == ".csv":
+                table_paths.append(p)
+                continue
+
+            # uccs_* datasets: read any per_trial.csv under metrics/
+            metrics_dir = p / "metrics"
+            if metrics_dir.exists():
+                table_paths.extend(sorted(metrics_dir.glob("**/per_trial.csv")))
+
+            # RX-log based datasets: attempt to parse RX/*.csv
+            rx_dir = p / "RX"
+            if rx_dir.exists():
+                self._load_from_rx_dir(rx_dir)
+
+        # Aggregate any table sources found
+        for csv_path in table_paths:
+            self._load_from_pout_table(csv_path)
+
+        # RX-derived sources: aggregate per-trial Pout values (preferred) and fill stats.
+        for action, by_tau in self._rx_trial_pout.items():
+            self._stats.setdefault(action, {})
+            for tau, vals in by_tau.items():
+                if tau in self._stats[action]:
+                    continue
+                mean, std = _mean_std(vals)
+                self._stats[action][tau] = _PoutStats(mean=mean, std=std, n=len(vals))
+
+        # If we have TL-derived data but no stats (e.g., no per-trial Pout), create stats from TL samples.
+        for action, tls in self._tl_samples_ms.items():
+            if not tls:
+                continue
+            self._stats.setdefault(action, {})
+            for tau in self.SUPPORTED_TAUS_S:
+                if tau in self._stats[action]:
+                    continue
+                tau_ms = tau * 1000.0
+                pout = sum(1 for tl in tls if tl > tau_ms) / len(tls)
+                std = float(np.sqrt(pout * (1.0 - pout))) if len(tls) > 1 else 0.0
+                self._stats[action][tau] = _PoutStats(mean=pout, std=std, n=len(tls))
+
+        if not self._stats:
+            raise RuntimeError("ConstraintModel: no usable constraint data was loaded")
+
+    def _load_from_pout_table(self, csv_path: Path) -> None:
+        try:
+            df = pd.read_csv(csv_path)
+        except Exception as e:
+            print(f"Warning: failed to read constraint table: {csv_path} ({e})")
+            return
+
+        # Normalize: ensure interval_ms column exists for FIXED_* rows.
+        if "interval_ms" not in df.columns and "mode" in df.columns:
+            m = df["mode"].astype(str).str.extract(r"FIXED[_-](\d+)", expand=False)
+            df = df.assign(interval_ms=pd.to_numeric(m, errors="coerce"))
+
+        if "interval_ms" not in df.columns:
+            return
+
+        # Keep only fixed rows when possible.
+        if "mode" in df.columns:
+            df = df[df["mode"].astype(str).str.startswith("FIXED")]
+
+        tau_cols = {
+            1.0: "pout_1s",
+            2.0: "pout_2s",
+            3.0: "pout_3s",
+        }
+        available_tau_cols = {tau: col for tau, col in tau_cols.items() if col in df.columns}
+        if not available_tau_cols:
+            return
+
+        for action, g in df.groupby("interval_ms"):
+            if pd.isna(action):
+                continue
+            action_i = int(action)
+            self._stats.setdefault(action_i, {})
+            for tau, col in available_tau_cols.items():
+                vals = [float(v) for v in g[col].dropna().tolist()]
+                if not vals:
+                    continue
+                mean, std = _mean_std(vals)
+                self._stats[action_i][tau] = _PoutStats(mean=mean, std=std, n=len(vals))
+
+    def _load_from_rx_dir(self, rx_dir: Path) -> None:
+        rx_paths = sorted(rx_dir.glob("*.csv"))
+        if not rx_paths:
+            return
+
+        candidates = list(self.DEFAULT_INTERVAL_CANDIDATES_MS)
+
+        for rx_path in rx_paths:
+            rx_ms: List[float] = []
+            first_ms_by_seq: Dict[int, float] = {}
+
+            try:
+                with open(rx_path, "r", encoding="utf-8", errors="ignore") as f:
+                    reader = csv.DictReader(line for line in f if not line.startswith("#"))
+                    for row in reader:
+                        try:
+                            ms = float(row.get("ms", ""))
+                        except Exception:
+                            continue
+                        seq = _parse_seq_from_mfd(row.get("mfd", ""))
+                        if seq is None:
+                            continue
+                        rx_ms.append(ms)
+                        if (seq not in first_ms_by_seq) or (ms < first_ms_by_seq[seq]):
+                            first_ms_by_seq[seq] = ms
+            except Exception as e:
+                print(f"Warning: failed to parse RX log: {rx_path} ({e})")
+                continue
+
+            if not rx_ms or len(first_ms_by_seq) < 5:
+                continue
+
+            est_interval = _estimate_interval_ms(first_ms_by_seq)
+            if est_interval is None:
+                continue
+            nominal = _map_to_nominal_interval_ms(est_interval, candidates)
+            if nominal is None:
+                # Likely a dynamic-interval run; skip.
+                continue
+
+            offset_ms = _estimate_offset_ms(first_ms_by_seq, nominal) or 0.0
+            duration_ms = max(t + offset_ms for t in rx_ms)
+            tl_samples = _compute_tl_samples_ms(
+                rx_ms,
+                offset_ms=offset_ms,
+                duration_ms=duration_ms,
+                event_period_ms=self.DEFAULT_EVENT_PERIOD_MS,
+            )
+            if not tl_samples:
+                continue
+
+            self._tl_samples_ms.setdefault(nominal, []).extend(tl_samples)
+
+            # Per-trial Pout values for supported taus
+            for tau in self.SUPPORTED_TAUS_S:
+                tau_ms = tau * 1000.0
+                pout = sum(1 for tl in tl_samples if tl > tau_ms) / len(tl_samples)
+                self._rx_trial_pout.setdefault(nominal, {}).setdefault(tau, []).append(pout)
+
+
+if __name__ == "__main__":
+    # Basic smoke test on the E2 fixed-sweep dataset (if present)
+    model = ConstraintModel(
+        ["data/実験データ/研究室/phase1_e2_fixed_sweep_2026-01-21_v01/"],
+        tau=1.0,
+    )
+    for a in sorted(model._stats.keys()):
+        print(a, model.predict(a), model.std(a), model.n_samples(a))
+
+
+================================================================================
+File: scripts\phase2_offline_eval\models\reward_model.py
+================================================================================
+"""
+Reward Model for Phase 2 Safe-UCB
+報酬モデル: r(a) = -cost(a)
+
+データソース: deltae_v3rig_sweep_2026-01-21_v02
+方法: 実測データから cost(a) を計算
+  - reward_mode=per_adv: cost(a)=μC(a) [μJ/adv]
+  - reward_mode=per_60s: cost(a)=ΔE_total(a) [mJ/60s] （60s試行のOFF差分）
+"""
+
+import pandas as pd
+import numpy as np
+from pathlib import Path
+
+
+class RewardModel:
+    """報酬モデル: 広告間隔ごとのエネルギーコスト（modeに依存）"""
+
+    def __init__(self, data_path: str, reward_mode: str = "per_adv"):
+        """
+        Args:
+            data_path: deltae_v02のパス（例: data/実験データ/研究室/deltae_v3rig_sweep_2026-01-21_v02/）
+            reward_mode:
+              - "per_adv": μC(a) = (E_on - E_off)/N_adv [μJ/adv]
+              - "per_60s": ΔE_total(a) = (E_on - E_off) [mJ/60s]  (60s試行)
+        """
+        self.data_path = Path(data_path)
+        self.reward_mode = reward_mode
+        self.cost_unit = {"per_adv": "uJ_per_adv", "per_60s": "mJ_per_60s"}.get(reward_mode, "")
+        if not self.cost_unit:
+            raise ValueError(f"unknown reward_mode: {reward_mode!r}")
+
+        self.mu_c = {}  # 平均cost [unit: cost_unit]
+        self.sigma_c = {}  # 標準偏差 [unit: cost_unit]
+        self.n_samples = {}  # サンプル数
+
+        # 実データから読み込み
+        self._load_from_real_data()
+
+    def _load_from_real_data(self):
+        """実測データから cost(a) を計算"""
+        # 集計済みCSVを読み込む
+        stats_file = Path("results/deltae_v3rig_sweep_2026-01-21_v02_stats_ci.csv")
+        trials_file = Path("results/deltae_v3rig_sweep_2026-01-21_v02_trials.csv")
+
+        if not stats_file.exists():
+            raise FileNotFoundError(f"Stats file not found: {stats_file}")
+        if not trials_file.exists():
+            raise FileNotFoundError(f"Trials file not found: {trials_file}")
+
+        # statsからE_total_mJ, delta_E_mJを取得
+        df_stats = pd.read_csv(stats_file, dtype={'mode': str})  # modeを文字列として読み込む
+        df_trials = pd.read_csv(trials_file)
+
+        # OFFモードの平均エネルギー
+        e_off_row = df_stats[(df_stats['metric'] == 'e_total_mj') & (df_stats['mode'] == 'OFF')]
+        if len(e_off_row) == 0:
+            raise ValueError("OFF mode data not found in stats")
+        e_off_mean = e_off_row['mean'].values[0]
+        e_off_std = float(e_off_row['std'].values[0])
+
+        # ONモード（100, 500, 1000, 2000）ごとにμC計算
+        for mode_ms in [100, 500, 1000, 2000]:
+            # E_total(ON)の平均（modeは文字列として比較）
+            e_on_row = df_stats[(df_stats['metric'] == 'e_total_mj') & (df_stats['mode'] == str(mode_ms))]
+            if len(e_on_row) == 0:
+                print(f"Warning: {mode_ms}ms data not found, skipping")
+                continue
+
+            e_on_mean = e_on_row['mean'].values[0]
+            e_on_std = e_on_row['std'].values[0]
+            n = int(e_on_row['n'].values[0])
+
+            # ΔE = E_ON - E_OFF
+            delta_e_mj = e_on_mean - e_off_mean
+
+            if self.reward_mode == "per_adv":
+                # trialsファイルから該当モードの広告回数を取得
+                trials_mode = df_trials[df_trials['mode_ms'] == mode_ms]
+                if len(trials_mode) == 0:
+                    print(f"Warning: {mode_ms}ms trials not found, skipping")
+                    continue
+
+                # 広告回数の平均（N_adv）
+                n_adv_mean = float(trials_mode['adv_count'].mean())
+
+                # μC = ΔE / N_adv [mJ/adv] → [μJ/adv]
+                mu_cost = (delta_e_mj / n_adv_mean) * 1000.0
+
+                # 近似: E_on の分散のみを反映（v01互換のためE_offは無視）
+                sigma_cost = (e_on_std / n_adv_mean) * 1000.0
+            elif self.reward_mode == "per_60s":
+                # cost = ΔE_total (60s試行のOFFとの差分)
+                mu_cost = float(delta_e_mj)
+
+                # 近似: E_on と E_off を独立として分散を加算
+                sigma_cost = float(np.sqrt(float(e_on_std) ** 2 + float(e_off_std) ** 2))
+            else:
+                raise ValueError(f"unknown reward_mode: {self.reward_mode!r}")
+
+            self.mu_c[mode_ms] = float(mu_cost)
+            self.sigma_c[mode_ms] = float(sigma_cost)
+            self.n_samples[mode_ms] = int(n)
+
+            unit_str = "uJ/adv" if self.reward_mode == "per_adv" else "mJ/60s"
+            print(f"Action {mode_ms}ms: cost = {mu_cost:.1f} +/- {sigma_cost:.1f} {unit_str} (n={n})")
+
+    def mean(self, action: int) -> float:
+        """行動aの平均報酬（負のコスト）"""
+        if action not in self.mu_c:
+            raise ValueError(f"Action {action}ms not found in reward model")
+        return -self.mu_c[action]  # 報酬は負のコスト（最大化）
+
+    def std(self, action: int) -> float:
+        """行動aの標準偏差"""
+        if action not in self.sigma_c:
+            raise ValueError(f"Action {action}ms not found in reward model")
+        return self.sigma_c[action]
+
+    def sample(self, action: int, rng: np.random.Generator) -> float:
+        """行動aからの報酬サンプル（正規分布近似）"""
+        mu = self.mean(action)
+        sigma = self.std(action)
+        return rng.normal(mu, sigma)
+
+    def get_optimal_action(self, actions: list) -> int:
+        """最大報酬の行動（オラクル用）"""
+        # 報酬 = -μC なので、μCが最小の行動が最適
+        return min(actions, key=lambda a: self.mu_c[a])
+
+
+if __name__ == "__main__":
+    # テスト実行
+    model = RewardModel("data/実験データ/研究室/deltae_v3rig_sweep_2026-01-21_v02/", reward_mode="per_adv")
+
+    print("\n=== Reward Model Test ===")
+    for action in [500, 1000, 2000]:
+        print(f"Action {action}ms: reward = {model.mean(action):.1f} ({model.cost_unit})")
+
+    optimal = model.get_optimal_action([500, 1000, 2000])
+    print(f"\nOptimal action: {optimal}ms")
+
+
+================================================================================
+File: scripts\phase2_offline_eval\models\safe_ucb.py
+================================================================================
+"""
+Safe-UCB and Baseline Algorithms for Phase 2 Evaluation
+
+実装する手法:
+1. Safe-UCB: 制約を守りながら探索
+2. UCB: 制約なし（報酬のみ最大化）
+3. Fixed-CCS: Phase 1の閾値写像（学習なし）
+4. Oracle: 真の最適行動（上界）
+"""
+
+import numpy as np
+from statistics import NormalDist
+from typing import Dict, List, Optional, Tuple
+from .reward_model import RewardModel
+from .constraint_model import ConstraintModel
+
+
+class BanditAlgorithm:
+    """Banditアルゴリズムの基底クラス"""
+
+    def __init__(self, actions: List[int], seed: int = 42):
+        self.actions = actions
+        self.rng = np.random.default_rng(seed)
+        self.t = 0  # 現在のステップ
+        self.n_pulls = {a: 0 for a in actions}  # 各行動の引いた回数
+        self.cumulative_reward = {a: 0.0 for a in actions}
+        self.cumulative_constraint = {a: 0.0 for a in actions}
+
+    def select_action(self, context: float = None) -> int:
+        """行動選択（サブクラスで実装）"""
+        raise NotImplementedError
+
+    def update(self, action: int, reward: float, constraint: float):
+        """観測の更新"""
+        self.t += 1
+        self.n_pulls[action] += 1
+        self.cumulative_reward[action] += reward
+        self.cumulative_constraint[action] += constraint
+
+
+class SafeUCB(BanditAlgorithm):
+    """Safe-UCB: 制約を守りながら探索"""
+
+    def __init__(
+        self,
+        actions: List[int],
+        reward_model: RewardModel,
+        constraint_model: ConstraintModel,
+        epsilon: float = 0.10,
+        seed: int = 42,
+        constraint_ci: str = "t_dependent",
+        constraint_delta: float = 0.05,
+        init_strategy: str = "round_robin",
+    ):
+        super().__init__(actions, seed)
+        self.reward_model = reward_model
+        self.constraint_model = constraint_model
+        self.epsilon = epsilon  # 制約閾値
+        self.constraint_ci = str(constraint_ci)
+        self.constraint_delta = float(constraint_delta)
+        self.init_strategy = str(init_strategy)
+        self.baseline_action = min(self.actions) if self.actions else None
+
+        if self.constraint_ci not in ("t_dependent", "hoeffding", "beta", "wilson"):
+            raise ValueError(f"unknown constraint_ci: {self.constraint_ci!r}")
+        if not (0.0 < self.constraint_delta < 1.0):
+            raise ValueError("constraint_delta must be in (0,1)")
+        if self.init_strategy not in ("round_robin", "safe_seed", "baseline_only"):
+            raise ValueError(f"unknown init_strategy: {self.init_strategy!r}")
+
+        # One-sided normal quantile for Wilson upper bound.
+        self._wilson_z = float(NormalDist().inv_cdf(1.0 - self.constraint_delta))
+
+        # Offline-safe seeding set (used by init_strategy="safe_seed"). We treat the
+        # passed constraint_model as an offline estimate and only seed actions that
+        # look safe under it.
+        seed_actions: List[int] = []
+        for a in sorted(self.actions):
+            try:
+                if self.constraint_model.is_safe(a, self.epsilon):
+                    seed_actions.append(a)
+            except Exception:
+                continue
+        if self.baseline_action is not None:
+            seed_actions.append(int(self.baseline_action))
+        self._seed_actions = sorted(set(seed_actions))
+
+        # Diagnostics (for validating "Safe-UCB is learning" vs fallback behavior)
+        self._diag_steps = 0
+        self._diag_safe_set_empty = 0
+        self._diag_safe_set_size_sum = 0
+        self.last_safe_set_size = 0
+        self.last_safe_set_empty = False
+
+    def _constraint_ucb(self, action: int) -> float:
+        """Upper confidence bound for Pout(tau|action) based on online samples."""
+        n = int(self.n_pulls[action])
+        if n <= 0:
+            return float("inf")
+
+        mean = float(self.cumulative_constraint[action] / n)
+        mean = min(1.0, max(0.0, mean))
+
+        if self.constraint_ci == "t_dependent":
+            t = max(2, int(self.t))
+            bonus = float(np.sqrt(2.0 * np.log(t) / n))
+            return min(1.0, mean + bonus)
+
+        if self.constraint_ci == "hoeffding":
+            bonus = float(np.sqrt(np.log(1.0 / self.constraint_delta) / (2.0 * n)))
+            return min(1.0, mean + bonus)
+
+        if self.constraint_ci == "wilson":
+            z = self._wilson_z
+            denom = 1.0 + (z * z) / n
+            center = (mean + (z * z) / (2.0 * n)) / denom
+            half = (z * np.sqrt((mean * (1.0 - mean)) / n + (z * z) / (4.0 * n * n))) / denom
+            return min(1.0, float(center + half))
+
+        # Bernoulli posterior upper-quantile (Jeffreys-like with Beta(1,1) prior).
+        # This is often less conservative than Hoeffding for small n.
+        try:
+            from scipy.stats import beta as _beta_dist
+        except Exception as e:
+            raise RuntimeError("constraint_ci='beta' requires scipy") from e
+
+        s = float(self.cumulative_constraint[action])
+        f = float(n) - s
+        a = 1.0 + s
+        b = 1.0 + max(0.0, f)
+        q = float(_beta_dist.ppf(1.0 - self.constraint_delta, a, b))
+        return min(1.0, max(0.0, q))
+
+    def diagnostics(self) -> Dict[str, float]:
+        steps = int(self._diag_steps)
+        if steps <= 0:
+            return {}
+        return {
+            "safe_set_empty_rate": float(self._diag_safe_set_empty) / steps,
+            "safe_set_size_mean": float(self._diag_safe_set_size_sum) / steps,
+        }
+
+    def select_action(self, context: float = None) -> int:
+        """Safe-UCBによる行動選択"""
+        # Cold-start handling
+        if self.init_strategy == "round_robin":
+            # Each action is pulled once (may violate constraints).
+            for a in self.actions:
+                if self.n_pulls[a] == 0:
+                    return a
+        elif self.init_strategy == "safe_seed":
+            # Seed only actions that look safe under the (offline) constraint model.
+            for a in self._seed_actions:
+                if self.n_pulls.get(a, 0) == 0:
+                    return a
+        elif self.init_strategy == "baseline_only":
+            if self.baseline_action is not None and self.n_pulls[self.baseline_action] == 0:
+                return int(self.baseline_action)
+
+        # 1. 各行動のUCB値を計算
+        ucb_values = {}
+        pulled_actions = [a for a in self.actions if self.n_pulls[a] > 0]
+        if not pulled_actions:
+            return int(self.baseline_action)
+
+        for a in pulled_actions:
+            # 経験平均報酬
+            mean_reward = self.cumulative_reward[a] / self.n_pulls[a]
+
+            # UCB項
+            t = max(2, int(self.t))
+            ucb_term = np.sqrt(2 * np.log(t) / self.n_pulls[a])
+            ucb_values[a] = mean_reward + ucb_term
+
+        # 2. 安全行動集合を計算（制約を満たす行動）
+        safe_set = []
+        for a in pulled_actions:
+            if self._constraint_ucb(a) <= self.epsilon:
+                safe_set.append(a)
+
+        # Diagnostics (raw safe-set, before fallback)
+        self._diag_steps += 1
+        self.last_safe_set_size = int(len(safe_set))
+        self.last_safe_set_empty = bool(len(safe_set) == 0)
+        self._diag_safe_set_empty += int(self.last_safe_set_empty)
+        self._diag_safe_set_size_sum += int(self.last_safe_set_size)
+
+        # 3. 安全集合が空ならフォールバック（最も安全そうな行動）
+        if len(safe_set) == 0:
+            safe_set = [min(self.actions)]  # 最小間隔（最も応答性が高い）
+
+        # 4. 安全集合の中でUCB最大の行動を選択
+        return max(safe_set, key=lambda a: ucb_values[a])
+
+
+class UCB(BanditAlgorithm):
+    """UCB: 制約なし（報酬のみ最大化）"""
+
+    def __init__(self, actions: List[int], seed: int = 42):
+        super().__init__(actions, seed)
+
+    def select_action(self, context: float = None) -> int:
+        """UCBによる行動選択（制約なし）"""
+        # ラウンドロビン
+        for a in self.actions:
+            if self.n_pulls[a] == 0:
+                return a
+
+        # UCB値最大の行動を選択
+        ucb_values = {}
+        for a in self.actions:
+            mean_reward = self.cumulative_reward[a] / self.n_pulls[a]
+            ucb_term = np.sqrt(2 * np.log(self.t) / self.n_pulls[a])
+            ucb_values[a] = mean_reward + ucb_term
+
+        return max(self.actions, key=lambda a: ucb_values[a])
+
+
+class SafetyFilterUCB(BanditAlgorithm):
+    """
+    UCB with an online-updated safety filter (action masking).
+
+    - Inner loop: standard UCB on reward among currently "allowed" actions.
+    - Outer loop: start from a prior-based allow-list, then *remove* actions when
+      online evidence suggests they are unsafe.
+
+      This design is intentional for Gate B (env shift):
+      - A fixed allow-list (from prior env) can become wrong after shift.
+      - If we require "UCB <= epsilon" from the very beginning, the safe set tends
+        to be empty for small n, making the policy degenerate (baseline-only).
+
+    This keeps the implementation MCU-friendly (O(K) state), and makes it easy to
+    diagnose failures under environment shift by logging which actions were masked.
+    """
+
+    def __init__(
+        self,
+        actions: List[int],
+        reward_model: RewardModel,
+        epsilon: float = 0.10,
+        margin: float = 0.0,
+        seed: int = 42,
+        constraint_ci: str = "beta",
+        constraint_delta: float = 0.05,
+        prior_pout: Optional[Dict[int, float]] = None,
+        prior_n: Optional[Dict[int, int]] = None,
+        prior_weight: float = 1.0,
+    ):
+        super().__init__(actions, seed)
+        self.reward_model = reward_model
+        self.epsilon = float(epsilon)
+        self.margin = float(margin)
+        self.constraint_ci = str(constraint_ci)
+        self.constraint_delta = float(constraint_delta)
+        self.prior_weight = float(prior_weight)
+        self.baseline_action = min(self.actions) if self.actions else None
+
+        if self.constraint_ci not in ("t_dependent", "hoeffding", "beta", "wilson"):
+            raise ValueError(f"unknown constraint_ci: {self.constraint_ci!r}")
+        if not (0.0 < self.constraint_delta < 1.0):
+            raise ValueError("constraint_delta must be in (0,1)")
+        if self.margin < 0.0:
+            raise ValueError("margin must be >= 0")
+        if self.prior_weight < 0.0:
+            raise ValueError("prior_weight must be >= 0")
+
+        self._wilson_z = float(NormalDist().inv_cdf(1.0 - self.constraint_delta))
+
+        # Separate constraint stats so we can warm-start / discount without
+        # polluting reward UCB stats.
+        self._c_n: Dict[int, float] = {a: 0.0 for a in self.actions}
+        self._c_s: Dict[int, float] = {a: 0.0 for a in self.actions}  # sum of violations
+        prior_pout = prior_pout or {}
+        prior_n = prior_n or {}
+        for a in self.actions:
+            n0 = float(prior_n.get(a, 0))
+            p0 = float(prior_pout.get(a, float("nan")))
+            if n0 > 0 and np.isfinite(p0):
+                n0w = self.prior_weight * n0
+                self._c_n[a] = float(n0w)
+                self._c_s[a] = float(n0w * p0)
+
+        # Prior-based allow-list: used as the initial safety filter. We always keep
+        # the baseline action as a conservative fallback to avoid empty safe sets.
+        thr0 = max(0.0, self.epsilon - self.margin)
+        self._base_allow: Dict[int, bool] = {a: False for a in self.actions}
+        for a in self.actions:
+            p0 = float(prior_pout.get(a, float("nan")))
+            if np.isfinite(p0) and p0 <= thr0:
+                self._base_allow[a] = True
+        if self.baseline_action is not None:
+            self._base_allow[int(self.baseline_action)] = True
+
+        # Diagnostics
+        self._diag_steps = 0
+        self._diag_safe_set_empty = 0
+        self._diag_safe_set_size_sum = 0
+        self.last_safe_set_size = 0
+        self.last_safe_set_empty = False
+
+    def _constraint_ucb(self, action: int) -> float:
+        n = float(self._c_n.get(action, 0.0))
+        if n <= 0.0:
+            return float("inf")
+        s = float(self._c_s.get(action, 0.0))
+        mean = min(1.0, max(0.0, s / n))
+
+        if self.constraint_ci == "t_dependent":
+            t = max(2, int(self.t))
+            bonus = float(np.sqrt(2.0 * np.log(t) / n))
+            return min(1.0, mean + bonus)
+
+        if self.constraint_ci == "hoeffding":
+            bonus = float(np.sqrt(np.log(1.0 / self.constraint_delta) / (2.0 * n)))
+            return min(1.0, mean + bonus)
+
+        if self.constraint_ci == "wilson":
+            z = self._wilson_z
+            denom = 1.0 + (z * z) / n
+            center = (mean + (z * z) / (2.0 * n)) / denom
+            half = (z * np.sqrt((mean * (1.0 - mean)) / n + (z * z) / (4.0 * n * n))) / denom
+            return min(1.0, float(center + half))
+
+        try:
+            from scipy.stats import beta as _beta_dist
+        except Exception as e:
+            raise RuntimeError("constraint_ci='beta' requires scipy") from e
+
+        # Beta(a,b) posterior with Beta(1,1) prior (allows fractional pseudo-counts).
+        a = 1.0 + s
+        b = 1.0 + max(0.0, n - s)
+        q = float(_beta_dist.ppf(1.0 - self.constraint_delta, a, b))
+        return min(1.0, max(0.0, q))
+
+    def _constraint_lcb(self, action: int) -> float:
+        """Lower confidence bound for Pout(tau|action) based on current samples."""
+        n = float(self._c_n.get(action, 0.0))
+        if n <= 0.0:
+            return 0.0
+        s = float(self._c_s.get(action, 0.0))
+        mean = min(1.0, max(0.0, s / n))
+
+        if self.constraint_ci == "t_dependent":
+            t = max(2, int(self.t))
+            bonus = float(np.sqrt(2.0 * np.log(t) / n))
+            return max(0.0, mean - bonus)
+
+        if self.constraint_ci == "hoeffding":
+            bonus = float(np.sqrt(np.log(1.0 / self.constraint_delta) / (2.0 * n)))
+            return max(0.0, mean - bonus)
+
+        if self.constraint_ci == "wilson":
+            z = self._wilson_z
+            denom = 1.0 + (z * z) / n
+            center = (mean + (z * z) / (2.0 * n)) / denom
+            half = (z * np.sqrt((mean * (1.0 - mean)) / n + (z * z) / (4.0 * n * n))) / denom
+            return max(0.0, float(center - half))
+
+        try:
+            from scipy.stats import beta as _beta_dist
+        except Exception as e:
+            raise RuntimeError("constraint_ci='beta' requires scipy") from e
+
+        # Beta(a,b) posterior lower-quantile (Beta(1,1) prior).
+        a = 1.0 + s
+        b = 1.0 + max(0.0, n - s)
+        q = float(_beta_dist.ppf(self.constraint_delta, a, b))
+        return min(1.0, max(0.0, q))
+
+    def on_switch(self, discount: float) -> None:
+        """Discount (or reset) constraint history when an environment shift is detected."""
+        d = float(discount)
+        if d < 0.0:
+            raise ValueError("discount must be >= 0")
+        for a in self.actions:
+            self._c_n[a] *= d
+            self._c_s[a] *= d
+
+    def diagnostics(self) -> Dict[str, float]:
+        steps = int(self._diag_steps)
+        if steps <= 0:
+            return {}
+        return {
+            "safe_set_empty_rate": float(self._diag_safe_set_empty) / steps,
+            "safe_set_size_mean": float(self._diag_safe_set_size_sum) / steps,
+        }
+
+    def select_action(self, context: float = None) -> int:
+        # Safety filter (action masking)
+        # - Start from prior allow-list.
+        # - Remove actions only when we are confident they are unsafe (LCB > thr).
+        #
+        # This makes Gate B meaningful: a prior-safe action can be tried early
+        # (and possibly violate), then gets masked when enough target evidence
+        # accumulates. "margin" controls conservativeness of this masking.
+        thr = max(0.0, self.epsilon - self.margin)
+        safe_set: List[int] = []
+        for a in self.actions:
+            base_allowed = bool(self._base_allow.get(a, False))
+            if base_allowed:
+                # Confidently unsafe -> mask it.
+                if self._constraint_lcb(a) > thr:
+                    continue
+                safe_set.append(a)
+            else:
+                # Not in prior allow-list; allow only if we are already confident safe.
+                if self._constraint_ucb(a) <= thr:
+                    safe_set.append(a)
+
+        # Diagnostics (before fallback)
+        self._diag_steps += 1
+        self.last_safe_set_size = int(len(safe_set))
+        self.last_safe_set_empty = bool(len(safe_set) == 0)
+        self._diag_safe_set_empty += int(self.last_safe_set_empty)
+        self._diag_safe_set_size_sum += int(self.last_safe_set_size)
+
+        if not safe_set:
+            # Always have a conservative fallback.
+            return int(self.baseline_action)
+
+        # Reward UCB among safe actions.
+        for a in safe_set:
+            if self.n_pulls[a] == 0:
+                return a
+
+        t = max(2, int(self.t))
+        ucb_values = {}
+        for a in safe_set:
+            mean_reward = self.cumulative_reward[a] / self.n_pulls[a]
+            ucb_term = np.sqrt(2.0 * np.log(t) / self.n_pulls[a])
+            ucb_values[a] = mean_reward + ucb_term
+        return max(safe_set, key=lambda a: ucb_values[a])
+
+    def update(self, action: int, reward: float, constraint: float):
+        super().update(action, reward, constraint)
+        self._c_n[action] += 1.0
+        self._c_s[action] += float(constraint)
+
+
+class FixedCCS(BanditAlgorithm):
+    """Fixed-CCS: Phase 1の閾値写像（学習なし）"""
+
+    def __init__(
+        self,
+        actions: List[int],
+        seed: int = 42,
+        theta_low: float = 0.40,
+        theta_high: float = 0.70,
+    ):
+        super().__init__(actions, seed)
+        self.theta_low = theta_low
+        self.theta_high = theta_high
+
+    def select_action(self, context: float = None) -> int:
+        """CCS値に基づく固定マッピング"""
+        if context is None:
+            # コンテキストがない場合はデフォルト
+            context = 0.5
+
+        # Phase 1の閾値写像
+        if context >= self.theta_high:
+            return min(self.actions)  # ACTIVE（最小間隔）
+        elif context <= self.theta_low:
+            return max(self.actions)  # QUIET（最大間隔）
+        else:
+            # UNCERTAIN（中間）
+            mid_idx = len(self.actions) // 2
+            return sorted(self.actions)[mid_idx]
+
+
+class Oracle(BanditAlgorithm):
+    """Oracle: 真の最適行動（上界）"""
+
+    def __init__(
+        self,
+        actions: List[int],
+        reward_model: RewardModel,
+        constraint_model: ConstraintModel,
+        epsilon: float = 0.10,
+        seed: int = 42,
+    ):
+        super().__init__(actions, seed)
+        self.reward_model = reward_model
+        self.constraint_model = constraint_model
+        self.epsilon = epsilon
+
+        # 最適行動を事前に計算
+        self.optimal_action = self._compute_optimal()
+
+    def _compute_optimal(self) -> int:
+        """制約を満たす行動の中で報酬最大の行動"""
+        safe_actions = [
+            a for a in self.actions if self.constraint_model.predict(a) <= self.epsilon
+        ]
+
+        if len(safe_actions) == 0:
+            # 制約を満たす行動がない場合はフォールバック
+            return min(self.actions)
+
+        # 安全な行動の中で報酬最大
+        return max(safe_actions, key=lambda a: self.reward_model.mean(a))
+
+    def select_action(self, context: float = None) -> int:
+        """常に最適行動を選択"""
+        return self.optimal_action
+
+
+if __name__ == "__main__":
+    # テスト実行
+    from reward_model import RewardModel
+    from constraint_model import ConstraintModel
+
+    print("=== Bandit Algorithms Test ===\n")
+
+    # モデル読み込み
+    reward_model = RewardModel(
+        "data/実験データ/研究室/deltae_v3rig_sweep_2026-01-21_v02/"
+    )
+    constraint_model = ConstraintModel(
+        [
+            "data/実験データ/研究室/phase1_e2_ccs_2026-01-21_v01/",
+            "data/実験データ/研究室/phase1_e2_fixed_sweep_2026-01-21_v01/",
+        ],
+        tau=1.0,
+    )
+
+    actions = [500, 1000, 2000]
+    epsilon = 0.10
+
+    # 各アルゴリズムを初期化
+    safe_ucb = SafeUCB(actions, reward_model, constraint_model, epsilon, seed=42)
+    ucb = UCB(actions, seed=42)
+    fixed_ccs = FixedCCS(actions, seed=42)
+    oracle = Oracle(actions, reward_model, constraint_model, epsilon, seed=42)
+
+    print(f"Oracle optimal action: {oracle.optimal_action}ms\n")
+
+    # 数ステップ実行
+    for t in range(10):
+        # Safe-UCB
+        action = safe_ucb.select_action()
+        reward = reward_model.sample(action, safe_ucb.rng)
+        constraint_val = float(constraint_model.predict(action) > epsilon)
+        safe_ucb.update(action, reward, constraint_val)
+
+        print(f"t={t+1}: Safe-UCB選択 {action}ms, reward={reward:.1f}")
+
+    print("\nTest completed.")
+
+
+================================================================================
+File: scripts\phase2_offline_eval\models\__init__.py
+================================================================================
+# Phase 2 Offline Evaluation Models
+
+
+================================================================================
+File: results\phase2_offline_studies_2026-01-24_v01\README.md
+================================================================================
+# Phase 2 Offline Studies (auto-generated)
+
+- Date: 2026-01-24
+- Script: `scripts/phase2_offline_eval/run_offline_studies.py`
+
+## Outputs
+
+- `tradeoff_table.csv`: Reward/constraint table per env/action
+- `epsilon_tau_sensitivity.csv`: Safe/unsafe table for (epsilon,tau)
+- `validity_reward_split.csv`: Reward model split check (train/test)
+- `validity_constraint_e2_split.csv`: Constraint split check (E2 fixed sweep)
+- `sim_replicates.csv`: Per-replicate simulation metrics
+- `sim_summary.csv`: Aggregated simulation metrics
+
+
+================================================================================
+File: results\phase2_offline_studies_2026-01-25_v02\README.md
+================================================================================
+# Phase 2 Offline Studies (auto-generated)
+
+- Date: 2026-01-25
+- Script: `scripts/phase2_offline_eval/run_offline_studies.py`
+- reward_mode: per_60s (mJ_per_60s)
+
+## Outputs
+
+- `tradeoff_table.csv`: Reward/constraint table per env/action
+- `epsilon_tau_sensitivity.csv`: Safe/unsafe table for (epsilon,tau)
+- `validity_reward_split.csv`: Reward model split check (train/test)
+- `validity_constraint_e2_split.csv`: Constraint split check (E2 fixed sweep)
+- `sim_replicates.csv`: Per-replicate simulation metrics
+- `sim_summary.csv`: Aggregated simulation metrics
+
+
+================================================================================
+File: results\phase2_offline_studies_2026-01-25_v03\README.md
+================================================================================
+# Phase 2 Offline Studies (auto-generated)
+
+- Date: 2026-01-25
+- Script: `scripts/phase2_offline_eval/run_offline_studies.py`
+- reward_mode: per_60s (mJ_per_60s)
+- Safe-UCB: constraint_ci=hoeffding, delta=0.05, init_strategy=safe_seed
+
+## Outputs
+
+- `tradeoff_table.csv`: Reward/constraint table per env/action
+- `epsilon_tau_sensitivity.csv`: Safe/unsafe table for (epsilon,tau)
+- `validity_reward_split.csv`: Reward model split check (train/test)
+- `validity_constraint_e2_split.csv`: Constraint split check (E2 fixed sweep)
+- `sim_replicates.csv`: Per-replicate simulation metrics
+- `sim_summary.csv`: Aggregated simulation metrics (includes diagnostics + action-pull means)
+
+
+================================================================================
+File: results\phase2_offline_studies_2026-01-25_v04\README.md
+================================================================================
+# Phase 2 Offline Studies (auto-generated)
+
+- Date: 2026-01-26
+- Script: `scripts/phase2_offline_eval/run_offline_studies.py`
+- reward_mode: per_60s (mJ_per_60s)
+- Safe-UCB: constraint_ci=wilson, delta=0.05, init_strategy=safe_seed
+- after_switch_k: 50
+- GateB sweep: prior_weights=1.0,0.5,0.2,0.0, margins=0,0.01,0.02,0.03, reset_on_switch=0,1
+
+## Outputs
+
+- `tradeoff_table.csv`: Reward/constraint table per env/action
+- `epsilon_tau_sensitivity.csv`: Safe/unsafe table for (epsilon,tau)
+- `validity_reward_split.csv`: Reward model split check (train/test)
+- `validity_constraint_e2_split.csv`: Constraint split check (E2 fixed sweep)
+- `sim_replicates.csv`: Per-replicate simulation metrics
+- `sim_summary.csv`: Aggregated simulation metrics (includes diagnostics + action-pull means)
+
+
+================================================================================
+File: results\phase2_offline_studies_2026-01-25_v04b\README.md
+================================================================================
+# Phase 2 Offline Studies (auto-generated)
+
+- Date: 2026-01-26
+- Script: `scripts/phase2_offline_eval/run_offline_studies.py`
+- reward_mode: per_60s (mJ_per_60s)
+- Safe-UCB: constraint_ci=wilson, delta=0.05, init_strategy=safe_seed
+- after_switch_k: 50
+- GateB sweep: prior_weights=1.0,0.5,0.2,0.0, margins=0,0.01,0.02,0.03, reset_on_switch=0,1
+
+## Outputs
+
+- `tradeoff_table.csv`: Reward/constraint table per env/action
+- `epsilon_tau_sensitivity.csv`: Safe/unsafe table for (epsilon,tau)
+- `validity_reward_split.csv`: Reward model split check (train/test)
+- `validity_constraint_e2_split.csv`: Constraint split check (E2 fixed sweep)
+- `sim_replicates.csv`: Per-replicate simulation metrics
+- `sim_summary.csv`: Aggregated simulation metrics (includes diagnostics + action-pull means)
+
+
+================================================================================
+File: results\phase2_offline_studies_2026-01-26_v04\gateb_pareto.md
+================================================================================
+# Gate B Pareto (auto-generated)
+
+- run_dir: `results/phase2_offline_studies_2026-01-26_v04`
+- epsilon: 0.1
+- scenario_start: `E2_actions_500_1000_2000_warm_shift_from_E1` (reset=0; treated as shift-at-start)
+- scenario_mid: `E1_to_E2_actions_500_1000_2000_switch_mid` (reset may be used)
+
+Pareto front definition:
+- x: cost_worst_mean (mJ/60s, lower is better)
+- y: violations_first_after_switch_k_worst_p95 (k=50, lower is better)
+
+Top candidates on Pareto front:
+| method | w | m | reset | cost_worst_mean | viol_first_worst_p95 | viol_after_worst_mean | vr_worst_mean |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| filter_ucb_online_w0_m0.03_r1 | 0.0 | 0.03 | 1 | 1487.700 | 6.00 | 7.62 | 0.03290 |
+| filter_ucb_online_w0_m0.02_r1 | 0.0 | 0.02 | 1 | 1469.804 | 6.05 | 12.70 | 0.03992 |
+| filter_ucb_online_w0_m0_r1 | 0.0 | 0.0 | 1 | 1353.970 | 7.00 | 43.42 | 0.05432 |
+| filter_ucb_online_w1_m0_r0 | 1.0 | 0.0 | 0 | 1336.045 | 9.00 | 52.65 | 0.08132 |
+| filter_ucb_online_w1_m0_r1 | 1.0 | 0.0 | 1 | 1336.045 | 9.00 | 52.65 | 0.08132 |
+
+Full tables: `results/phase2_offline_studies_2026-01-26_v04/gateb_candidates.csv`, `results/phase2_offline_studies_2026-01-26_v04/gateb_pareto_front.csv`
+
+
+================================================================================
+File: results\phase2_offline_studies_2026-01-26_v04\gateb_pareto_cap25.md
+================================================================================
+# Gate B Pareto (auto-generated)
+
+- run_dir: `results/phase2_offline_studies_2026-01-26_v04`
+- epsilon: 0.1
+- caps:
+  - max_viol_after_worst_mean: 25.0
+- scenario_start: `E2_actions_500_1000_2000_warm_shift_from_E1` (reset=0; treated as shift-at-start)
+- scenario_mid: `E1_to_E2_actions_500_1000_2000_switch_mid` (reset may be used)
+
+Pareto front definition:
+- x: cost_worst_mean (mJ/60s, lower is better)
+- y: violations_first_after_switch_k_worst_p95 (k=50, lower is better)
+
+Top candidates on Pareto front:
+| method | w | m | reset | cost_worst_mean | viol_first_worst_p95 | viol_after_worst_mean | vr_worst_mean |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| filter_ucb_online_w0_m0.03_r1 | 0.0 | 0.03 | 1 | 1487.700 | 6.00 | 7.62 | 0.03290 |
+| filter_ucb_online_w0_m0.02_r1 | 0.0 | 0.02 | 1 | 1469.804 | 6.05 | 12.70 | 0.03992 |
+| filter_ucb_online_w0_m0.01_r1 | 0.0 | 0.01 | 1 | 1426.255 | 7.00 | 24.46 | 0.04661 |
+
+Full tables: `results/phase2_offline_studies_2026-01-26_v04/gateb_candidates_cap25.csv`, `results/phase2_offline_studies_2026-01-26_v04/gateb_pareto_front_cap25.csv`
+
+
+================================================================================
+File: results\phase2_offline_studies_2026-01-26_v04\README.md
+================================================================================
+# Phase 2 Offline Studies (auto-generated)
+
+- Date: 2026-01-26
+- Script: `scripts/phase2_offline_eval/run_offline_studies.py`
+- reward_mode: per_60s (mJ_per_60s)
+- Safe-UCB: constraint_ci=wilson, delta=0.05, init_strategy=safe_seed
+- after_switch_k: 50
+- GateB sweep: prior_weights=1.0,0.5,0.2,0.0, margins=0,0.01,0.02,0.03, reset_on_switch=0,1
+
+## Outputs
+
+- `tradeoff_table.csv`: Reward/constraint table per env/action
+- `epsilon_tau_sensitivity.csv`: Safe/unsafe table for (epsilon,tau)
+- `validity_reward_split.csv`: Reward model split check (train/test)
+- `validity_constraint_e2_split.csv`: Constraint split check (E2 fixed sweep)
+- `sim_replicates.csv`: Per-replicate simulation metrics
+- `sim_summary.csv`: Aggregated simulation metrics (includes diagnostics + action-pull means)
+
+
+================================================================================
+File: results\phase2_offline_studies_2026-01-26_v05\gateb_pareto_cap25.md
+================================================================================
+# Gate B Pareto (auto-generated)
+
+- run_dir: `results/phase2_offline_studies_2026-01-26_v05`
+- epsilon: 0.1
+- caps:
+  - max_viol_after_worst_mean: 25.0
+- scenario_start: `E2_actions_500_1000_2000_warm_shift_from_E1` (reset=0; treated as shift-at-start)
+- scenario_mid: `E1_to_E2_actions_500_1000_2000_switch_mid` (reset may be used)
+
+Pareto front definition:
+- x: cost_worst_mean (mJ/60s, lower is better)
+- y: violations_first_after_switch_k_worst_p95 (k=50, lower is better)
+
+Top candidates on Pareto front:
+| method | w | m | reset | cost_worst_mean | viol_first_worst_p95 | viol_after_worst_mean | vr_worst_mean |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| filter_ucb_online_w0_m0.03_r1 | 0.0 | 0.03 | 1 | 1487.700 | 6.00 | 7.62 | 0.03290 |
+| filter_ucb_online_w0_m0.02_r1 | 0.0 | 0.02 | 1 | 1469.804 | 6.05 | 12.70 | 0.03992 |
+| filter_ucb_online_w0_m0.01_r1 | 0.0 | 0.01 | 1 | 1426.255 | 7.00 | 24.46 | 0.04661 |
+
+Full tables: `results/phase2_offline_studies_2026-01-26_v05/gateb_candidates_cap25.csv`, `results/phase2_offline_studies_2026-01-26_v05/gateb_pareto_front_cap25.csv`
+
+
+================================================================================
+File: results\phase2_offline_studies_2026-01-26_v05\README.md
+================================================================================
+# Phase 2 Offline Studies (auto-generated)
+
+- Date: 2026-01-26
+- Script: `scripts/phase2_offline_eval/run_offline_studies.py`
+- reward_mode: per_60s (mJ_per_60s)
+- Safe-UCB: constraint_ci=wilson, delta=0.05, init_strategy=safe_seed
+- after_switch_k: 50
+- GateB sweep: prior_weights=0, margins=0,0.005,0.01,0.015,0.02,0.03, reset_on_switch=1
+
+## Outputs
+
+- `tradeoff_table.csv`: Reward/constraint table per env/action
+- `epsilon_tau_sensitivity.csv`: Safe/unsafe table for (epsilon,tau)
+- `validity_reward_split.csv`: Reward model split check (train/test)
+- `validity_constraint_e2_split.csv`: Constraint split check (E2 fixed sweep)
+- `sim_replicates.csv`: Per-replicate simulation metrics
+- `sim_summary.csv`: Aggregated simulation metrics (includes diagnostics + action-pull means)
+
+
+================================================================================
+File: results\phase2_gatec_candidates_2026-01-26_v01\README.md
+================================================================================
+# Gate C candidate check (auto-generated)
+
+- Date: 2026-01-26
+- Script: `scripts/phase2_offline_eval/run_gatec_candidates.py`
+- gateb_run_dir: `results/phase2_offline_studies_2026-01-26_v04`
+- candidates(top_n=3):
+  - filter_ucb_online_w0_m0.03_r1 (w=0, m=0.03, reset=1)
+  - filter_ucb_online_w0_m0.02_r1 (w=0, m=0.02, reset=1)
+  - filter_ucb_online_w0_m0_r1 (w=0, m=0, reset=1)
+
+Scenario:
+- scan90 -> scan70 switch mid-run
+- actions: [100, 500]
+- tau_s: 2.0 (diagnostic for tracking)
+- epsilon: 0.1
+- T: 1000, n_reps: 100, base_seed: 3568566785
+- after_switch_k: 50
+
+Outputs:
+- `sim_replicates.csv`
+- `sim_summary.csv`
+
+
+================================================================================
+File: results\phase2_gatec_sweep_m_2026-01-26_v02\README.md
+================================================================================
+# Gate C candidate check (auto-generated)
+
+- Date: 2026-01-26
+- Script: `scripts/phase2_offline_eval/run_gatec_candidates.py`
+- gateb_run_dir: `results/phase2_offline_studies_2026-01-26_v04`
+- candidates(top_n=5):
+  - filter_ucb_online_w0_m0_r1 (w=0, m=0, reset=1)
+  - filter_ucb_online_w0_m0.005_r1 (w=0, m=0.005, reset=1)
+  - filter_ucb_online_w0_m0.01_r1 (w=0, m=0.01, reset=1)
+  - filter_ucb_online_w0_m0.015_r1 (w=0, m=0.015, reset=1)
+  - filter_ucb_online_w0_m0.02_r1 (w=0, m=0.02, reset=1)
+
+Scenario:
+- scan90 -> scan70 switch mid-run
+- actions: [100, 500]
+- tau_s: 2.0 (diagnostic for tracking)
+- epsilon: 0.1
+- T: 1000, n_reps: 100, base_seed: 3568566785
+- after_switch_k: 50
+
+Outputs:
+- `sim_replicates.csv`
+- `sim_summary.csv`
+
+

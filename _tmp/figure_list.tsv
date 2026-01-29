@@ -1,0 +1,9 @@
+001		Paretoプロット	fig:pareto_plots	figures/offline_pareto_plots.png	修士論文\chapters\appx_i_pareto.tex
+002	Phase 2シミュレーション図	累積Regretの推移	fig:phase2_regret	figures/phase2_regret_curve	修士論文\chapters\appx_j_phase2_figs.tex
+003	Phase 2シミュレーション図	平均エネルギーの推移	fig:phase2_energy	figures/phase2_energy_curve	修士論文\chapters\appx_j_phase2_figs.tex
+004	Phase 2シミュレーション図	制約違反率の推移	fig:phase2_violation	figures/phase2_violation_rate	修士論文\chapters\appx_j_phase2_figs.tex
+005	実験装置・計測方式	三ノード計測系のシステムアーキテクチャ	fig:measurement_architecture_esp32_three_node	figures/measurement_architecture_esp32_three_node	修士論文\chapters\ch3_oncampus.tex
+006	ストレス固定実験と指標定義の確立 / 実験結果	主要指標の補正前後比較		figures/stress_scan90_metrics_v4_v5.png	修士論文\chapters\ch6_stress_fixed.tex
+007	オフライン評価実験 / 実験結果	制約充足領域の可視化		figures/offline_delta_band.png	修士論文\chapters\ch7_offline_eval.tex
+008	計測系の健全化と再現性確保	計測系の外観	fig:measurement_setup_overview	figures/measurement_setup_overview_02	修士論文\chapters\ch8_measurement_system.tex
+009	計測系の健全化と再現性確保	計測ノードの外観	fig:measurement_nodes	figures/measurement_rx_rotated.png, figures/measurement_tx_txsd_rotated	修士論文\chapters\ch8_measurement_system.tex

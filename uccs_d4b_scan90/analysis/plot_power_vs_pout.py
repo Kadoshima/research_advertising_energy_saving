@@ -87,6 +87,7 @@ def _write_svg(
     points: Dict[str, Dict[str, float]],
     x_label: str,
     y_label: str,
+    label_mode: str = "short",
 ) -> None:
     width = 900
     height = 600
@@ -155,6 +156,13 @@ def _write_svg(
     svg_lines.append(f'<text x="{margin_l+plot_w/2:.1f}" y="{height-24}" font-size="14" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">{_svg_escape(x_label)}</text>')
     svg_lines.append(f'<text x="22" y="{margin_t+plot_h/2:.1f}" font-size="14" text-anchor="middle" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system" transform="rotate(-90 22 {margin_t+plot_h/2:.1f})">{_svg_escape(y_label)}</text>')
 
+    label_offsets = {
+        "S4_fixed100": (10, 6),
+        "S4_fixed500": (10, -12),
+        "S4_policy": (-50, 6),
+        "S4_ablation_ccs_off": (12, 10),
+    }
+
     for key, v in points.items():
         x = v["x"]
         y = v["y"]
@@ -170,9 +178,22 @@ def _write_svg(
         svg_lines.append(f'<line x1="{px_l:.2f}" y1="{py:.2f}" x2="{px_r:.2f}" y2="{py:.2f}" stroke="{color}" stroke-width="2" opacity="0.9"/>')
         svg_lines.append(f'<line x1="{px:.2f}" y1="{py_u:.2f}" x2="{px:.2f}" y2="{py_d:.2f}" stroke="{color}" stroke-width="2" opacity="0.9"/>')
         svg_lines.append(f'<circle cx="{px:.2f}" cy="{py:.2f}" r="6" fill="{color}" opacity="0.95"/>')
-        label = key.replace("S4_", "")
-        note = f"{label} (adv={int(v['adv']) if v.get('adv') is not None else 'NA'}, share100_rx={_fmt(v.get('rx_share'), 3)}, share100_mix={_fmt(v.get('mix_share'), 3)})"
-        svg_lines.append(f'<text x="{px+10:.2f}" y="{py-10:.2f}" font-size="12" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">{_svg_escape(note)}</text>')
+        if label_mode != "none":
+            if label_mode == "full":
+                label = key.replace("S4_", "")
+                note = f"{label} (adv={int(v['adv']) if v.get('adv') is not None else 'NA'}, share100_rx={_fmt(v.get('rx_share'), 3)}, share100_mix={_fmt(v.get('mix_share'), 3)})"
+            else:
+                label_map = {
+                    "S4_fixed100": "fixed100",
+                    "S4_fixed500": "fixed500",
+                    "S4_policy": "policy",
+                    "S4_ablation_ccs_off": "u-only",
+                }
+                note = label_map.get(key, key.replace("S4_", ""))
+            ox, oy = label_offsets.get(key, (10, -10))
+            svg_lines.append(
+                f'<text x="{px+ox:.2f}" y="{py+oy:.2f}" font-size="12" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">{_svg_escape(note)}</text>'
+            )
 
     svg_lines.append("</svg>\n")
     out_path.write_text("\n".join(svg_lines), encoding="utf-8")
@@ -183,6 +204,7 @@ def main() -> None:
     ap.add_argument("--summary-csv", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--title", type=str, default="")
+    ap.add_argument("--label-mode", type=str, default="short", choices=["short", "full", "none"])
     args = ap.parse_args()
 
     rows = read_summary_by_condition(args.summary_csv)
@@ -225,6 +247,7 @@ def main() -> None:
             },
             x_label="pout_1s (mean+/-std)",
             y_label="avg_power_mW (mean+/-std)",
+            label_mode=args.label_mode,
         )
         return
 
@@ -234,11 +257,38 @@ def main() -> None:
     ax.errorbar([xpol], [ypol], xerr=[xpole], yerr=[ypole], fmt="o", ms=8, color="#10b981", capsize=3, linestyle="none", label="policy (U+CCS)")
     ax.errorbar([xub], [yub], xerr=[xube], yerr=[yube], fmt="^", ms=8, color="#f59e0b", capsize=3, linestyle="none", label="ablation (U-only / CCS-off)")
 
-    def annotate(x: float, y: float, name: str, adv: Optional[float], rx_share: Optional[float], mix_share: Optional[float]) -> None:
-        adv_s = f"adv={int(adv)}" if adv is not None else "adv=NA"
-        rx_s = f"share100_rx={rx_share:.2f}" if rx_share is not None else "share100_rx=NA"
-        mix_s = f"share100_mix={mix_share:.2f}" if mix_share is not None else "share100_mix=NA"
-        ax.annotate(f"{name}\n{adv_s}, {rx_s}, {mix_s}", (x, y), textcoords="offset points", xytext=(8, 8), ha="left", fontsize=8)
+    label_offsets = {
+        "fixed100": (8, 6),
+        "fixed500": (8, -12),
+        "policy": (-46, 6),
+        "ccs_off": (10, 10),
+    }
+
+    def annotate(
+        x: float,
+        y: float,
+        name: str,
+        adv: Optional[float],
+        rx_share: Optional[float],
+        mix_share: Optional[float],
+    ) -> None:
+        if args.label_mode == "none":
+            return
+        if args.label_mode == "full":
+            adv_s = f"adv={int(adv)}" if adv is not None else "adv=NA"
+            rx_s = f"share100_rx={rx_share:.2f}" if rx_share is not None else "share100_rx=NA"
+            mix_s = f"share100_mix={mix_share:.2f}" if mix_share is not None else "share100_mix=NA"
+            text = f"{name}\n{adv_s}, {rx_s}, {mix_s}"
+        else:
+            short_map = {
+                "fixed100": "fixed100",
+                "fixed500": "fixed500",
+                "policy": "policy",
+                "ccs_off": "u-only",
+            }
+            text = short_map.get(name, name)
+        ox, oy = label_offsets.get(name, (8, 8))
+        ax.annotate(text, (x, y), textcoords="offset points", xytext=(ox, oy), ha="left", fontsize=8)
 
     annotate(x100, y100, "fixed100", adv100, rx100, mix100)
     annotate(x500, y500, "fixed500", adv500, rx500, mix500)
