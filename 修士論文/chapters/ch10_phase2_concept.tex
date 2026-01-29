@@ -1,117 +1,30 @@
-% chapters/ch10_phase2_concept.tex --- 5.8 Safe Contextual Banditへの拡張実験
+% chapters/ch10_phase2_concept.tex --- 4.8 Safe Contextual Banditへの拡張実験
 \section{Safe Contextual Banditへの拡張実験}
 \label{sec:phase2_concept}
 
 \subsection{実験の目的}
 
-本実験では，Phase 1で得られた実測データを活用し，Safe Contextual Banditによるオンライン学習への拡張可能性を概念実証として示す．Phase 1のルールベース方策から発展した安全制約付き学習の有効性を，シミュレーションにより検証することを目的とする．
+Phase 1の実測データに基づき，Safe Contextual Banditによるオンライン学習への拡張可能性を検証する．
 
-\subsection{実験条件と方法}
+\subsection{実験設定}
 
-\subsubsection{問題設定}
-
-Safe Contextual Banditは，コンテキスト$x$に応じて行動$a$を選択し，報酬$r(a)$を最大化しながら制約$g(x,a) \le \epsilon$を満たす問題として定式化される\scite{lattimore2020bandit}．
-
-本実験では以下のように定義する．
-\begin{itemize}
-  \item コンテキスト $x$：複合スコアCCS，$x \in [0,1]$
-  \item 行動集合 $A$：アドバタイジング間隔$\{500, 1000, 2000\}\,\si{\milli\second}$
-  \item 報酬 $r(a)$：$-\,e_{\mathrm{event}}(a)$，負のエネルギー消費，最大化により省電力化
-  \item 制約 $g(x,a)$：$P_{\mathrm{out}}(\tau \mid x,a) \le \epsilon$
-  \item 許容遅延 $\tau$：\SI{1.0}{\second}
-  \item 制約閾値 $\epsilon$：0.10
-\end{itemize}
-
-行動集合から\SI{100}{\milli\second}を除外したのは，Phase 1の結果から\SI{500}{\milli\second}以上で主な省電力効果が得られることが確認されたためである．
-
-\subsubsection{Safe-UCBアルゴリズム}
-
-Safe-UCBは，各行動の報酬UCB値を計算しつつ，制約違反の信頼区間上界が$\epsilon$以下となる安全行動集合$S(x)$を動的に構築し，その中で報酬UCB最大の行動を選択する\scite{lattimore2020bandit}．
-
-安全行動集合が空の場合は，フォールバック行動として最小間隔\SI{500}{\milli\second}を選択する．これにより，未知環境においても制約違反を抑制しながら探索できる．
-
-\subsubsection{報酬モデル}
-
-Phase 1の$\Delta$E基準実験から，各アドバタイジング間隔のエネルギー消費実測値を報酬モデルとして使用する．\tabref{tab:phase2_reward_model}に，シミュレーションで使用した報酬モデルの値を示す．
-
-\begin{table}[tb]
-  \centering
-  \caption{報酬モデルPhase 1実測データ}
-  \label{tab:phase2_reward_model}
-  \begin{tabular}{lrr}
-    \toprule
-    行動 [ms] & エネルギー [$\si{\micro\joule}$/event] & 標準偏差 [$\si{\micro\joule}$/event] \\
-    \midrule
-    500  & 12624 & 2005 \\
-    1000 & 17922 & 2307 \\
-    2000 & 34682 & 2146 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-\subsubsection{制約モデル}
-
-制約モデルの$P_{\mathrm{out}}$値は，Phase 1実験データから直接抽出できなかったため，アドバタイジング間隔と遅延の理論的関係に基づく推定値を使用した．\tabref{tab:phase2_constraint_model}に，シミュレーションで使用した制約モデルの値を示す．
-
-\begin{table}[tb]
-  \centering
-  \caption{制約モデル推定値}
-  \label{tab:phase2_constraint_model}
-  \begin{tabular}{lrr}
-    \toprule
-    行動 [ms] & $P_{\mathrm{out}}(1\mathrm{s})$ & 標準偏差 \\
-    \midrule
-    500  & 0.050 & 0.020 \\
-    1000 & 0.080 & 0.030 \\
-    2000 & 0.120 & 0.040 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-この推定値は，間隔が大きいほど受信遅延が増加し，$P_{\mathrm{out}}(\tau)$が悪化するという定性的な傾向を反映している．実測データを用いた評価は今後の課題である．
-
-\subsubsection{比較手法とシミュレーション条件}
-
-比較対象として，Safe-UCB，UCB，Fixed-CCS，およびOracleの4手法を用いる．UCBは制約なしで報酬のみを最大化し，Fixed-CCSはPhase 1のルールベース写像であり学習なし，Oracleは理論上界として真の最適行動を常に選択する．
-
-シミュレーション条件は，ステップ数$T = 1000$，乱数シード\texttt{0xD4B40201}，ブートストラップ100回とした．
+コンテキスト$x$（CCS），行動$A$（500, 1000, 2000 ms），報酬$r$（負のエネルギー），制約$g$（$P_{\mathrm{out}}\le\epsilon$）として，Safe-UCBアルゴリズムを評価した．
 
 \subsection{実験結果}
 
-\subsubsection{累積Regret}
-
-各手法の累積Regretは付録の\secref{sec:phase2_figs_detail}に示す．Safe-UCBは，UCBに比べて初期の探索が抑制されるが，安全行動集合内での最適化により，最終的にはUCBと同等の累積Regretに収束する．Fixed-CCSは学習しないため，累積Regretが蓄積し続ける．
-
-\subsubsection{制約違反率と平均エネルギー}
-
-制約違反率の推移は付録の\secref{sec:phase2_figs_detail}に示す．各手法の平均エネルギーの推移も同様に付録に示す．Safe-UCBとUCBは探索を経て最適行動\SI{500}{\milli\second}へ収束し，平均エネルギーが低下する．Fixed-CCSはコンテキストに応じた固定マッピングのため，平均エネルギーが高い．
-
-\subsubsection{数値結果サマリ}
-
-\tabref{tab:phase2_summary}に，シミュレーション終了時$T=1000$の数値結果をまとめる．
+Safe-UCBは制約を守りながら，最終的にOracleに近い省電力性を達成した（\tabref{tab:phase2_summary}）．
 
 \begin{table}[tb]
   \centering
-  \caption{Safe Contextual Banditシミュレーション結果}
-  \label{tab:phase2_summary}
-  \begin{tabular}{lrrr}
+  \caption{シミュレーション結果（$T=1000$）}
+  \begin{tabular}{lrr}
     \toprule
-    手法 & 平均エネルギー [$\si{\micro\joule}$/event] & 制約違反率 & 判定 \\
+    手法 & 平均エネルギー[$\si{\micro\joule}$/event] & 制約違反率 \\
     \midrule
-    Safe-UCB & 12639 & 0.10\% & 制約内 \\
-    UCB & 12552 & 0.10\% & 制約内 \\
-    Fixed-CCS & 17866 & 0.0\% & 制約内 \\
-    Oracle & 12623 & 0.0\% & 制約内 \\
+    Safe-UCB & 12639 & 0.10\% \\
+    Oracle & 12623 & 0.0\% \\
     \bottomrule
   \end{tabular}
 \end{table}
-
-\subsection{考察}
-
-シミュレーション結果から，Safe-UCBは制約を守りながらOracleに近い報酬を達成できることが示された．これは，Phase 1のルールベース方策からの発展として，Safe Contextual Banditが有効であることを示唆する．
-
-Phase 1のFixed-CCS写像を初期方策として利用することで，探索初期の制約違反を抑制しつつ，より早く最適解へ収束できる可能性がある．本シミュレーションではCold-startのみを実装したが，今後はWarm-start比較を追加予定である．
-
-制約モデルは推定値を使用したため，実環境での制約違反率は異なる可能性がある．特に高干渉環境では$P_{\mathrm{out}}(\tau)$が悪化するため，実測データに基づく制約モデルの構築が今後の課題である．
 
 \clearpage

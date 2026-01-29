@@ -1,72 +1,28 @@
-% chapters/ch6_stress_fixed.tex --- 5.1 ストレス固定実験と指標定義の確立
+% chapters/ch6_stress_fixed.tex --- 4.1 ストレス固定実験と指標定義の確立
 \section{ストレス固定実験と指標定義の確立}
 \label{sec:stress_fixed_metrics}
 
 \subsection{実験の目的}
 
-本実験では，QoS指標として発見遅延TLと期限超過率$P_{\mathrm{out}}(\tau)$を採用し，その定義を統一する．特に，受信ログの時間軸と真値の開始時刻のずれがTLおよび$P_{\mathrm{out}}(\tau)$に与える影響を明確化し，補正手順を定式化することを目的とする．
+QoS指標として発見遅延TLと期限超過率$P_{\mathrm{out}}(\tau)$を定義し，受信ログと真値の時間ズレを補正する手法を確立する．
 
-\subsection{実験条件と方法}
+\subsection{時間同期手法}
 
-ストレス固定実験では，既知のラベル系列をTX側で再生し，受信側RXがそれをどの程度の遅延で観測できるかを測定する．主な比較軸として，受信設定はscan50とscan90の2条件とした．scan50はデューティ比50\%相当，scan90はデューティ比90\%相当である．固定アドバタイジング間隔は\SI{100}{\milli\second}，\SI{500}{\milli\second}，\SI{1000}{\milli\second}，\SI{2000}{\milli\second}を用いた．ストレス列は代表的な2条件とし，S1とS4を用いた．各trialについて，TXSDログとRXログを対応付け，PDR，TL，$P_{\mathrm{out}}(\tau)$，平均電力などを出力した．
+補正前の集計では，固定\SI{2000}{\milli\second}で$P_{\mathrm{out}}$が理論下限より小さくなるなど，不自然な結果が出た．原因は試行開始タイミングのずれである．
 
-\subsubsection{時間同期手法と補正}
-
-時間同期補正前の集計では，固定\SI{2000}{\milli\second}で$P_{\mathrm{out}}(1\,\mathrm{s})$が理論下限より小さく見える等，理論的予測と整合しない結果が得られた．原因は，RXログの時刻列msと真値の時間軸が一致している前提でTLおよび$P_{\mathrm{out}}(\tau)$を計算していた点にある．実機では試行開始のタイミングがずれ得るため，この時間誤差を補正しない場合，TLおよび$P_{\mathrm{out}}(\tau)$が過小評価される．
-
-補正後の手法では，TLおよび$P_{\mathrm{out}}(\tau)$算出前に定数オフセットを推定し，RXログの時刻を補正する．アドバタイジング間隔$\Delta t$はms単位とし，受信ログから得られるseqの初回観測時刻$\mathrm{first\_ms}(\mathrm{seq})$を用いると，seqに対応する期待時刻は$\mathrm{seq}\cdot\Delta t$である．複数のseqに対する期待時刻と実測時刻の差分の中央値として
+補正後の手法では，受信ログのseqと期待時刻の差分の中央値をオフセットとして推定し，時刻を補正する：
 \begin{equation}
-  \mathrm{offset\_ms} = \mathrm{median}_{\mathrm{seq}>0}\left(\mathrm{seq}\cdot\Delta t - \mathrm{first\_ms}(\mathrm{seq})\right)
+  \mathrm{offset} = \mathrm{median}(\mathrm{seq}\cdot\Delta t - \mathrm{first\_ms}(\mathrm{seq}))
 \end{equation}
-によりオフセットを推定し，補正後の時刻を$\mathrm{ms\_aligned}=\mathrm{ms}+\mathrm{offset\_ms}$とする．TLおよび$P_{\mathrm{out}}(\tau)$は$\mathrm{ms\_aligned}$に基づいて算出する．この補正により，非同期な開始タイミングに起因する過小評価を抑制できる．
-
-補正後の手法では，per-trialの集計に加え，modes/agg/enrichedの集約表を再現可能に生成するパイプラインを整備した．また，scan50とscan90の比較結果も同一の定義で出力し，受信設定の違いがPDRや$P_{\mathrm{out}}(\tau)$に与える影響を整理できるようにした．
-
-\subsubsection{PDRの扱い}
-
-PDRは受信ログの行数に基づく指標と，seqでユニーク化した指標の2種類を区別する．前者は重複を含み，後者は重複を除外する．QoS比較では，アドバタイジングイベントの何割を一度でも拾えたかを表すPDR\_uniqueを優先する．詳細は\secref{sec:metrics_detail}に示す．
-
-\subsubsection{有効データ長と終端処理}
-
-真値は有限長のラベル系列であり，試行時間のクランプにより末端の遷移が試行区間外に出る場合がある．その場合，末端遷移を含めた評価は不安定になるため，真値側も同じ長さにクリップし，イベント数$N_{\mathrm{event}}$の分母を揃える．この処理は，試行間比較と再現性の観点で重要である．
 
 \subsection{実験結果}
 
-\subsubsection{scan90における主要指標}
-
-\figref{fig:stress_fixed_scan90_metrics}に，scan90における主要指標の例を示す．補正前と補正後の比較である．図中の横軸はアドバタイジング間隔で，単位はmsである．縦軸はPDR\_unique，TL\_p95，$P_{\mathrm{out}}(1\,\mathrm{s})$，平均電力などの各指標を表す．補正前と補正後の差分を同一図に重ねることで，時間同期補正がTLおよび$P_{\mathrm{out}}(\tau)$に与える影響を確認できる．
+\figref{fig:stress_fixed_scan90_metrics}に補正前後の主要指標を示す．時間同期により，TLと$P_{\mathrm{out}}$が理論的に整合した値となった．本研究ではこの補正済み定義を採用する．
 
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.95\linewidth]{figures/stress_scan90_metrics_v4_v5.png}
-  \caption{ストレス固定scan90の主要指標}
-  \label{fig:stress_fixed_scan90_metrics}
+  \caption{主要指標の補正前後比較}
 \end{figure}
-
-\subsubsection{実測と簡易モデルの比較}
-
-\figref{fig:stress_fixed_real_vs_sim}に，ストレス固定における実測と比較用の簡易モデルの例を示す．図中の棒は$P_{\mathrm{out}}(1\,\mathrm{s})$の実測とモデルの比較を示し，折れ線は固定\SI{100}{\milli\second}で正規化した平均電力を示す．左軸は$P_{\mathrm{out}}(1\,\mathrm{s})$，右軸は相対電力に対応する．簡易モデルは，スキャンの非理想性や開始位相ずれの影響を完全には表現できないため，実測との差分が残る．ただし，固定間隔の相対関係は短間隔ほど遅延が改善しやすい等のトレンドを説明する補助として利用できる．
-
-\begin{figure}[tb]
-  \centering
-  \includegraphics[width=0.95\linewidth]{figures/stress_real_vs_sim.png}
-  \caption{ストレス固定における実測と簡易モデルの比較}
-  \label{fig:stress_fixed_real_vs_sim}
-\end{figure}
-
-\subsubsection{scan50とscan90の比較}
-
-\figref{fig:stress_fixed_scan50_vs_scan90_pdr}に，scan50とscan90の比較を示す．図中の横軸はアドバタイジング間隔で，単位はmsである．縦軸はPDR\_unique，$P_{\mathrm{out}}(1\,\mathrm{s})$，TL\_p95の各指標を表す．系列はscan50とscan90であり，scan50は低duty，scan90は高dutyである．スキャンデューティ比を上げることで短間隔側の受信品質が改善し，$P_{\mathrm{out}}(\tau)$およびTLにも差が出ることが確認できる．
-
-\begin{figure}[tb]
-  \centering
-  \includegraphics[width=0.85\linewidth]{figures/stress_scan50_vs_scan90_metrics_v5.png}
-  \caption{ストレス固定におけるscan50とscan90の比較}
-  \label{fig:stress_fixed_scan50_vs_scan90_pdr}
-\end{figure}
-
-\subsection{考察}
-
-時間同期の導入により，TLおよび$P_{\mathrm{out}}(\tau)$が大きく変化する条件が存在する．例えば，固定\SI{2000}{\milli\second}の$P_{\mathrm{out}}(1\,\mathrm{s})$や，固定\SI{100}{\milli\second}のTL平均値が大きく更新される場合がある．本研究では，この補正済みの時間同期手法を正式な定義として扱い，以降の評価および図表では一貫して採用する．
 
 \clearpage

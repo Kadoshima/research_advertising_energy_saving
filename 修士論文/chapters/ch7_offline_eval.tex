@@ -1,54 +1,26 @@
-% chapters/ch7_offline_eval.tex --- 5.2 オフライン評価実験
+% chapters/ch7_offline_eval.tex --- 4.2 オフライン評価実験
 \section{オフライン評価実験}
 \label{sec:offline_eval}
 
 \subsection{実験の目的}
 
-本実験では，実機評価の探索候補を効率的に絞り込むためにオフライン評価を行う．mHealth由来の時系列にルールベース方策を適用し，固定間隔の電力テーブルと組み合わせて，QoS制約下の省電力運用点を探索することを目的とする．評価には平均電力$\overline{P}$を用いるが，主要指標である$q_{\mathrm{event}}$の最終確認は実機実験で行う．
+実機評価の候補を絞り込むため，mHealthデータにルールベース方策を適用し，QoS制約下の省電力運用点を探索する．
 
-\subsection{実験条件と方法}
+\subsection{実験方法}
 
-\subsubsection{入力データと電力テーブル}
-
-オフライン評価では，実機上でのHAR推論を直接用いる代わりに，既存データセットであるUCI mHealth由来の時系列から不確実度$U$，安定度$S$，複合スコアCCSを合成し，方策を適用する\scite{uci_ml_repo}．これにより，実機実験における全探索のコストを回避し，閾値やヒステリシスの候補を絞り込める．
-
-\subsubsection{方策パラメータ}
-
-ルールベース方策は，閾値$\theta_{\mathrm{low}}$，$\theta_{\mathrm{high}}$，ヒステリシス幅$h=\theta_{\mathrm{high}}-\theta_{\mathrm{low}}$，最小滞在時間$t_{\min}$，および行動集合$A=\{100,500\}$または$\{100,500,1000,2000\}$のパラメータで表せる．オフライン評価では，これらの組合せをスイープし，平均電力とQoS制約の観点からパレートフロントを抽出する．
-
-固定間隔ごとの平均電力は実機計測から得られる．オフライン評価では，この電力テーブルに基づき，ある方策が各アドバタイジング間隔にどの程度滞在するかを合成して平均電力を推定する．
-
-\subsubsection{平均電力の合成}
-
-方策$\pi$が間隔$a\in A$に滞在する比率$\rho_\pi(a)$と固定間隔の平均電力$P(a)$を用いると，方策の平均電力は各間隔の滞在比率と固定電力の重み付き和として
+固定間隔の電力テーブルと，方策の各間隔への滞在比率$\rho_\pi(a)$から，平均電力を推定する：
 \begin{equation}
-  \overline{P}_\pi=\sum_{a\in A}\rho_\pi(a)\,P(a)
+  \overline{P}_\pi=\sum_{a}\rho_\pi(a)\,P(a)
 \end{equation}
-で近似できる．ここで$\rho_\pi(a)$は，mHealth時系列に方策を適用した結果の滞在時間比率として求める．
-
-\subsubsection{QoS制約と境界条件}
-
-オフライン評価では，代表的な期限$\tau$に対する$P_{\mathrm{out}}(\tau)$を制約として扱い，許容値$\epsilon$を満たす運用点を実行可能解として抽出する．本論の代表設定は$\epsilon=0.10$であるが，候補点の探索幅を確保するため，本節の図では感度評価として$\epsilon=0.13$を用いる．$\epsilon$が過度に厳しい場合，実行可能解が存在せず，緩すぎると省電力とQoSの議論が弱くなるため，境界付近の条件を評価対象として設定することが重要である．
-
-\subsubsection{QoS推定}
-
-オフライン評価でのQoS推定は，固定間隔の実測から得られる$P_{\mathrm{out}}(\tau\mid a)$等の指標を参照し，方策の滞在比率に基づき合成する．詳細は\secref{sec:metrics_detail}に示す．動的切替時の非定常性は近似に含まれないため，実機評価で差分を検証する必要がある．
 
 \subsection{実験結果}
 
-\figref{fig:letter_delta_band}に，オフライン評価の代表例として，$P_{\mathrm{out}}(1\,\mathrm{s})$と平均電力のトレードオフを示す．図中の横軸は$P_{\mathrm{out}}(1\,\mathrm{s})$，縦軸は平均電力であり，点は固定間隔および候補方策を表す．固定間隔点は安定期と遷移期のS1とS4の混合比で合成し，同一平面で可視化することで，制約$\epsilon$付近における省電力運用点の存在を示す．
+\figref{fig:letter_delta_band}に，$P_{\mathrm{out}}(1\mathrm{s})$と平均電力のトレードオフを示す．制約$\epsilon$付近で省電力運用点が存在することを確認した．
 
 \begin{figure}[tb]
   \centering
   \includegraphics[width=0.95\linewidth]{figures/offline_delta_band.png}
   \caption{制約充足領域の可視化}
-  \label{fig:letter_delta_band}
 \end{figure}
-
-スイープ結果の全体像は付録の\secref{sec:pareto_full}に示す．ここでは，制約帯付近の代表点に焦点を絞るため，\figref{fig:letter_delta_band}の可視化を主として扱う．行動空間の縮退により，実機側の実装・解析の複雑性を抑えつつ，電力低下の主効果に整合した比較が可能となる．これを踏まえ，オフライン評価の出力は単一の最良方策ではなく，制約$\epsilon$付近で成立する候補集合として整理する．代表点の一覧は\secref{sec:extra_results}に示す．
-
-\subsection{考察}
-
-本実験のオフライン評価は固定間隔テーブルと滞在比率の合成に基づく近似であり，環境シフトや切替直後の非定常性は十分に表現できない．そこで，安全設計の判断は後続のSafe Contextual Banditへの拡張実験で候補の絞り込みと初期パラメータの決定を体系的に整理する．
 
 \clearpage

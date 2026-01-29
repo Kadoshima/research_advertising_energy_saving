@@ -1,10 +1,16 @@
-% chapters/ch5_experiments.tex --- 第5章 実験（構成B：実験毎に目的→方法→結果→考察）
+% chapters/ch5_experiments.tex --- 第4章 実験
 \chapter{実験}
 \label{ch:experiments}
-\label{ch:evaluation}
 \clearpage
 
-本章では，提案手法の有効性を検証するための実験を報告する．各節では目的，条件と方法，結果，考察の順に記述し，読みやすさと再現性の両立を図る．
+本章では，提案手法の有効性を検証する．実験は2段階で行う．
+
+\textbf{Phase 1}（\secref{sec:phase1_experiments}）：同一試行で電力とQoSを評価できる計測基盤を構築し，ルールベース方策による動的制御が固定間隔の間の運用点として成立することを実機で検証する．
+
+\textbf{Phase 2}（\secref{sec:phase2_experiments}）：Phase 1の実測データに基づき，Safe Contextual Banditによるオンライン最適化への拡張可能性をシミュレーションで検証する．
+
+\section{Phase 1：実機実験}
+\label{sec:phase1_experiments}
 
 \input{chapters/ch6_stress_fixed}
 \input{chapters/ch7_offline_eval}
@@ -13,6 +19,10 @@
 \input{chapters/ch8_exp_ablation_shuffle}
 \input{chapters/ch8_exp_ablation_ccs}
 \input{chapters/ch8_exp_interference}
+
+\section{Phase 2：Safe Contextual Banditへの拡張}
+\label{sec:phase2_experiments}
+
 \input{chapters/ch10_phase2_concept}
 
 \input{chapters/ch5_repro_appendix}

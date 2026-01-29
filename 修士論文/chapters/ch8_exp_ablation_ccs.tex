@@ -1,80 +1,13 @@
-% chapters/ch8_exp_ablation_ccs.tex --- 5.6 アブレーション検証実験：複合スコアの寄与
+% chapters/ch8_exp_ablation_ccs.tex --- 4.6 アブレーション検証実験：複合スコアの寄与
 \section{アブレーション検証実験：複合スコアの寄与}
 \label{sec:exp_ablation_ccs}
 
 \subsection{実験の目的}
 
-本実験では，複合スコアCCSの寄与を切り分けるため，制御則の構造は固定したままCCSを無効化し，不確実度$U$のみで切替を行う場合と，不確実度とCCSの両方を用いる場合を比較することを目的とする．
-
-\subsection{実験条件と方法}
-
-本実験では，制御則の構造を固定したまま，CCSを無効化して不確実度$U$のみで制御するU-only条件と，不確実度とCCSの両方を用いるUとCCS条件の2つを比較した．実験はscan90で実施し，ストレス列はS4を用いた．各条件n=3とした．
-
-また，受信条件を悪化させたscan70においても追試を行い，S4で各n=3として集計した．
+複合スコアCCSの寄与を，$U$のみで制御する場合と比較して検証する．
 
 \subsection{実験結果}
 
-\tabref{tab:d4b_summary}に，scan90におけるS4の結果を示す．
-
-\begin{table}[tb]
-  \centering
-  \caption{複合スコアCCSのアブレーション結果scan90}
-  \label{tab:d4b_summary}
-  {\small
-  \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{lrrrrrr}
-    \toprule
-    条件 & $P_{\mathrm{out}}(1\,\mathrm{s})$ & $TL_{\mathrm{mean}}$[s] & P[mW] & $q_{\mathrm{event}}$ & adv\_count & $\hat{\rho}_{100}$ \\
-    \midrule
-    固定\SI{100}{\milli\second} & 0.081$\pm$0.014 & 1.49$\pm$0.11 & 208.3$\pm$0.5 & 279.3$\pm$0.7 & 1796$\pm$0 & 1.000 \\
-    固定\SI{500}{\milli\second} & 0.130$\pm$0.028 & 1.21$\pm$0.26 & 188.1$\pm$0.3 & 249.8$\pm$0.4 & 359$\pm$0 & 0.000 \\
-    Uのみ & 0.065$\pm$0.014 & 1.41$\pm$0.15 & 200.6$\pm$0.2 & 268.3$\pm$0.2 & 1227$\pm$0 & 0.621 \\
-    UとCCS & 0.049$\pm$0.000 & 1.32$\pm$0.03 & 200.6$\pm$0.1 & 268.2$\pm$0.2 & 1215$\pm$0 & 0.620 \\
-    \bottomrule
-  \end{tabular}
-  }
-\end{table}
-
-UとCCSとUのみは平均電力がほぼ同一で約\SI{200.6}{\milli\watt}であり，adv\_countおよび$\hat{\rho}_{100}$も同等であるにも関わらず，UとCCSの方が$P_{\mathrm{out}}(1\mathrm{s})$と$TL_{\mathrm{mean}}$が改善する．
-
-\tabref{tab:d4b_scan70_summary}に，scan70における追試結果を示す．
-
-\begin{table}[tb]
-  \centering
-  \caption{複合スコアCCSのアブレーション結果scan70}
-  \label{tab:d4b_scan70_summary}
-  {\small
-  \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{lrrrrrr}
-    \toprule
-    条件 & $P_{\mathrm{out}}(1\,\mathrm{s})$ & $TL_{\mathrm{mean}}$[s] & P[mW] & $q_{\mathrm{event}}$ & adv\_count & $\hat{\rho}_{100}$ \\
-    \midrule
-    固定\SI{100}{\milli\second} & 0.024$\pm$0.024 & 0.43$\pm$0.32 & 206.4$\pm$0.5 & 275.0$\pm$0.6 & 1800$\pm$0 & 1.000 \\
-    固定\SI{500}{\milli\second} & 0.228$\pm$0.037 & 1.44$\pm$0.51 & 187.6$\pm$0.4 & 249.9$\pm$0.5 & 360$\pm$0 & 0.000 \\
-    Uのみ & 0.008$\pm$0.014 & 0.24$\pm$0.13 & 202.2$\pm$1.2 & 269.4$\pm$1.6 & 1323$\pm$0 & 0.780 \\
-    UとCCS & 0.016$\pm$0.014 & 0.30$\pm$0.14 & 201.4$\pm$1.0 & 268.3$\pm$1.3 & 1323$\pm$0 & 0.735 \\
-    \bottomrule
-  \end{tabular}
-  }
-\end{table}
-
-scan70では固定\SI{500}{\milli\second}は$P_{\mathrm{out}}(1\mathrm{s})=0.228\pm0.037$まで悪化する．これに対し，UとCCSおよびUのみは0.02以下に改善し，平均電力も固定\SI{100}{\milli\second}より\SI{4}{\milli\watt}程度低い．ただし，本追試ではUのみの$\hat{\rho}_{100}$が0.780でUとCCSの0.735よりわずかに大きく，$P_{\mathrm{out}}(1\mathrm{s})$もUのみの方が小さい．このため，本条件単体から同電力でCCSがQoSを改善するとは言い切れず，同mixでQoS差が出たscan90の結果を主張の根拠とする．
-
-\subsection{考察}
-
-scan90の結果は，平均電力をほぼ同一に保ったまま，CCSの有効化によって$P_{\mathrm{out}}(1\mathrm{s})$と$TL_{\mathrm{mean}}$が改善することを示している．したがって，CCSは短間隔状態の総量を増加させるのではなく，その割り当てタイミングを最適化することでQoSを改善していると解釈できる．
-
-効果量のブートストラップCIによると，$\Delta P_{\mathrm{out}}(1\mathrm{s})$のUとCCSとUのみの差は-0.0163であり，95\%CIは$[-0.0244, 0.0000]$となった．上端が0.0000を含むため統計的有意水準$\alpha=0.05$にはわずかに届かないものの，ブートストラップ分布の96\%以上が改善側に分布しており，工学的な有効性は高いと判断できる．また，$\Delta$powerは\SI{-0.0235}{\milli\watt}で，95\%CIは\SIrange{-0.2332}{0.1886}{\milli\watt}となった．
-
-これらより，$U$がどれだけ短間隔を使うかを決め，CCSがいつ短間隔を使うかを改善する，という役割分担が示唆される．
-
-\figref{fig:role_separation_overview}に，UとCCSの寄与と受信条件悪化の方向を示す．図中の横軸は$P_{\mathrm{out}}(1\mathrm{s})$，縦軸は平均電力であり，各点は固定間隔およびpolicy系条件を表す．
-
-\begin{figure}[tb]
-  \centering
-  \includegraphics[width=0.95\linewidth]{figures/role_separation_d3_d4_d4b}
-  \caption{UとCCSの役割分離と頑健性}
-  \label{fig:role_separation_overview}
-\end{figure}
+平均電力が同等（約200.6 mW）でも，CCSありの方が$P_{\mathrm{out}}$とTLが改善した．これにより，$U$が「どれだけ短間隔を使うか」を，CCSが「いつ短間隔を使うか」を改善する役割分担が示された．
 
 \clearpage

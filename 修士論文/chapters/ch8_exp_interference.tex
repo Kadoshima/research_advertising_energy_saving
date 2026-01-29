@@ -1,52 +1,27 @@
-% chapters/ch8_exp_interference.tex --- 5.7 高干渉環境での性能評価実験
+% chapters/ch8_exp_interference.tex --- 4.7 高干渉環境での性能評価実験
 \section{高干渉環境での性能評価実験}
 \label{sec:exp_interference}
 
 \subsection{実験の目的}
 
-本実験では，AP近接などによる高干渉環境において，提案手法の性能を評価する．特に，連続受信失敗時に短間隔へフォールバックするTailGuard機構を追加することで，期限超過率と遅延分布の改善を確認することを目的とする．
-
-\subsection{実験条件と方法}
-
-本実験では，AP近接による高干渉環境で実施した．RSSIは-40から-25 dBmの範囲で，最大約-20 dBmの強信号が観測された．この条件は通常の高干渉より強い干渉環境に相当する．
-
-比較対象は以下の4条件とした．
-\begin{itemize}
-  \item 固定\SI{100}{\milli\second}：固定\SI{100}{\milli\second}のベースライン
-  \item 固定\SI{2000}{\milli\second}：固定\SI{2000}{\milli\second}のベースライン
-  \item CCS：複合スコアに基づく動的制御
-  \item CCS+TailGuard：TailGuardを追加した動的制御
-\end{itemize}
-
-高干渉下の遅延悪化を重視し，本実験では$P_{\mathrm{out}}(2\mathrm{s})$を主要KPIとして用いた．試行長は約600秒とした．
+AP近接による高干渉環境で，TailGuard（連続受信失敗時のフォールバック機構）の有効性を検証する．
 
 \subsection{実験結果}
 
-\tabref{tab:e2_ccs_tail_guard}に結果を示す．
+\tabref{tab:e2_ccs_tail_guard}に結果を示す．CCS単独では$P_{\mathrm{out}}(2\mathrm{s})=10.77\%$と悪化したが，TailGuard追加により1.28\%に改善し，QoS制約を満たした．
 
 \begin{table}[tb]
   \centering
-  \caption{高干渉環境における性能比較}
-  \label{tab:e2_ccs_tail_guard}
-  {\small
-  \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{lrrrrrr}
+  \caption{高干渉環境での結果}
+  \begin{tabular}{lrrrr}
     \toprule
-    条件 & N & 平均電流 [mA] & $TL_{p50}$ [ms] & $TL_{p95}$ [ms] & $P_{\mathrm{out}}(2\,\mathrm{s})$ & PDR \\
+    条件 & 平均電流[mA] & $TL_{p95}$[ms] & $P_{\mathrm{out}}(2\mathrm{s})$ \\
     \midrule
-    固定\SI{100}{\milli\second} & 3 & 96.93$\pm$0.72 & 55.3 & 251.7 & 0.00\% & 0.802 \\
-    CCS & 5 & 90.12$\pm$0.57 & 505.2 & 4116.6 & 10.77\% & 0.801 \\
-    CCS+TailGuard & 6 & 92.01$\pm$3.03 & 88.3 & 944.5 & 1.28\% & 0.821 \\
-    固定\SI{2000}{\milli\second} & 3 & 87.78$\pm$2.28 & 836.3 & 3689.3 & 11.11\% & 0.822 \\
+    100ms & 96.93 & 251.7 & 0.00\% \\
+    CCS & 90.12 & 4116.6 & 10.77\% \\
+    CCS+TailGuard & 92.01 & 944.5 & 1.28\% \\
     \bottomrule
   \end{tabular}
-  }
 \end{table}
-
-CCSは固定\SI{100}{\milli\second}より低電力だが，$P_{\mathrm{out}}(2\mathrm{s})$と$TL_{p95}$が大幅に悪化する．これに対し，TailGuardを追加したCCS+TailGuardは，$P_{\mathrm{out}}(2\mathrm{s})$を1.28\%，$TL_{p95}$を944.5 msまで改善し，固定\SI{100}{\milli\second}と固定\SI{2000}{\milli\second}の間の運用点を実現した．PDRは全条件で0.80から0.82の範囲であった．
-
-\subsection{考察}
-
-高干渉環境では，CCS単独では期限超過率が悪化するが，TailGuardを追加することで$P_{\mathrm{out}}(2\mathrm{s})$と$TL_{p95}$を改善し，QoS制約を満たす運用点を実現できることが示された．この結果は，連続受信失敗時のフォールバック機構が，非理想スキャン環境における頑健性を向上させることを示している．
 
 \clearpage
