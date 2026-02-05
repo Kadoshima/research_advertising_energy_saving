@@ -37,6 +37,12 @@ latexmk -lualatex main.tex
 
 ## 注意
 
-- 2ページ制約があるため，図は1枚を基本とし，数値は本文で要点を言い切る．
+- 2ページ制約があるため，図は1〜2枚を基本とし，数値は本文で要点を言い切る．
 - 本文（修士論文）の体裁ルールは `../修士論文/README.md` に集約する．
 
+## 数値出典（アブスト用）
+
+- 実機（scan90, 遷移期S4, uccs_d4b_scan90）のPout/電力/TL平均/PDR/share100およびfixed100/500比較: `results/final/tab/tab_summary_by_condition.csv`
+- 実機（scan70, 遷移期S4, uccs_d3_scan70）のPout/電力/TL平均/PDR/share100およびfixed100/500比較: `results/final/tab/tab_summary_by_condition.csv`
+- アブレーション（scan90, S4_ablation_ccs_off vs S4_policy）のPout/TL平均/share100: `results/final/tab/tab_summary_by_condition.csv`
+- シミュレーション（E2_actions_500_1000_2000_cold, tau=1.0, epsilon=0.1, methods=oracle/safe_ucb/ucb）: `results/phase2_offline_studies_2026-01-25_v04b/sim_summary.csv`

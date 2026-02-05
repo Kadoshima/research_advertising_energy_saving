@@ -1,0 +1,20 @@
+2026-02-05T20:15:34+09:00
+- 修士論文アブストの本文を再構成（あらまし削除、実機/シミュレーション比率を増加）。
+- 変更: `修士論文アブスト/main.tex`, `修士論文アブスト/main_standalone.tex`
+- 実測/シミュレーション数値の参照元を明記: `results/final/tab/tab_summary_by_condition.csv`, `results/phase2_offline_studies_2026-01-25_v04b/sim_summary.csv`, 図出典 `修士論文アブスト/figures/fig_power_pout.pdf`
+2026-02-05T20:22:22+09:00
+- アブスト本文の出典パス表記を削除し，学会2ページ報告向けの一般的な表現へ調整。
+- 変更: `修士論文アブスト/main.tex`, `修士論文アブスト/main_standalone.tex`
+2026-02-05T20:22:50+09:00
+- `修士論文アブスト/main.tex` を再ビルド（`latexmk -lualatex main.tex`）。PDF更新: `修士論文アブスト/build/main.pdf`
+2026-02-05T20:30:03+09:00
+- アブスト本文を拡充し、計測システム図を追加、実機/シミュレーションの記述量を増やした。
+- 数値出典は本文に出さずTeXコメントでパスを明記（PDFには非表示）。
+- 変更: `修士論文アブスト/main.tex`, `修士論文アブスト/main_standalone.tex`
+- 再ビルド: `修士論文アブスト/build/main.pdf`
+2026-02-05T20:32:51+09:00
+- アブスト本文内の出典パス（TeXコメント）を削除し、数値出典を `修士論文アブスト/README.md` に集約。
+- 変更: `修士論文アブスト/main.tex`, `修士論文アブスト/main_standalone.tex`, `修士論文アブスト/README.md`
+2026-02-05T20:33:26+09:00
+- アブスト本文内の inline 出典コメントを削除。数値出典は `修士論文アブスト/README.md` に集約したまま維持。
+- 変更: `修士論文アブスト/main.tex`, `修士論文アブスト/main_standalone.tex`

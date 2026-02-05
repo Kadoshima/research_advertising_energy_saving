@@ -2,14 +2,15 @@
 \documentclass[a4paper,10pt,twocolumn]{ltjsarticle}
 
 \usepackage[haranoaji]{luatexja-preset}
-\usepackage[top=20mm,bottom=20mm,left=20mm,right=20mm]{geometry}
+\usepackage[top=17mm,bottom=17mm,left=17mm,right=17mm]{geometry}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{siunitx}
 \usepackage{caption}
 \usepackage{titlesec}
+\usepackage{multicol}
+\usepackage{amsmath}
 \usepackage[hidelinks]{hyperref}
-% 2ページ制約のため，参考文献は簡潔表示（URL/DOIは省略）
 \usepackage[
   backend=biber,
   style=numeric,
@@ -26,150 +27,183 @@
 \input{meta}
 \addbibresource{references.bib}
 
-% ページ番号は出さない
 \pagestyle{empty}
-
-% 段組間の余白
-\setlength{\columnsep}{7mm}
-
-% 段落
+\setlength{\columnsep}{5mm}
 \setlength{\parindent}{1\zw}
 \setlength{\parskip}{0pt}
 
-% 見出し: "1. はじめに" 形式（太字は避け、サイズで区別）
-\titleformat{\section}[runin]{\normalfont\large}{\thesection.}{0.6em}{}
-\titlespacing*{\section}{0pt}{0.7\baselineskip}{2\zw}
-\titleformat{\subsection}{\normalfont\large}{\thesubsection}{0.6em}{}
-\titlespacing*{\subsection}{0pt}{0.4\baselineskip}{0.2\baselineskip}
+\titleformat{\section}[runin]{\normalfont\normalsize\bfseries}{\thesection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{0.5\baselineskip}{1.2\zw}
+\titleformat{\subsection}{\normalfont\small\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{0.3\baselineskip}{0.1\baselineskip}
 
-% 図表キャプション: "図 1 タイトル" / "表 1 タイトル"（コロン無し）
-\DeclareCaptionLabelFormat{nonspace}{#1#2} % 図2 / 表1（スペースなし）
+\DeclareCaptionLabelFormat{nonspace}{#1#2}
 \captionsetup{labelformat=nonspace,labelsep=space}
 \captionsetup[figure]{name=図,position=bottom}
 \captionsetup[table]{name=表,position=top}
-\captionsetup{skip=2pt}
+\captionsetup{skip=1pt}
+\captionsetup{font=small}
 
-% 参照（図/表）
 \newcommand{\figref}[1]{図~\ref{#1}}
 \newcommand{\tabref}[1]{表~\ref{#1}}
-
-% 記号（本文と衝突しない表記に統一）
 \newcommand{\Pout}{P_{\mathrm{out}}}
 \newcommand{\epsout}{\epsilon}
-\newcommand{\rhohundred}{\hat{\rho}_{100}}
-\newcommand{\photoh}{30mm}
 
-% [1][2] 形式の引用
 \DeclareCiteCommand{\scite}
   {}
   {\mkbibbrackets{\usebibmacro{citeindex}\usebibmacro{cite}}}
   {}
   {}
 
-% 浮動体の間隔を詰めて2ページに収めやすくする
-\setlength{\textfloatsep}{5pt plus 1pt minus 1pt}
-\setlength{\intextsep}{4pt plus 1pt minus 1pt}
-\setlength{\floatsep}{4pt plus 1pt minus 1pt}
-\setlength{\dbltextfloatsep}{5pt plus 1pt minus 1pt}
-\setlength{\dblfloatsep}{4pt plus 1pt minus 1pt}
+\setlength{\textfloatsep}{2pt plus 1pt minus 1pt}
+\setlength{\intextsep}{2pt plus 1pt minus 1pt}
+\setlength{\floatsep}{2pt plus 1pt minus 1pt}
+\setlength{\dbltextfloatsep}{2pt plus 1pt minus 1pt}
+\setlength{\dblfloatsep}{2pt plus 1pt minus 1pt}
 
-% 文献（本文と同じ文字サイズ・行間）
-\renewcommand*{\bibfont}{\normalfont\normalsize}
+\renewcommand*{\bibfont}{\normalfont\small}
 \setlength{\bibitemsep}{0pt}
 \setlength{\bibparsep}{0pt}
 
 \begin{document}
-% 数値出所: 修士論文/chapters/ch2_proposed.tex, 修士論文/chapters/ch3_system_design.tex, 修士論文/chapters/ch4_rain.tex, 修士論文/chapters/ch6_stress_fixed.tex, 修士論文/chapters/ch8_experiment_design.tex
 
 \twocolumn[
 \begin{center}
-  {\large \AbstTitle\par}
-  \vspace{1mm}
-  {\normalsize \AbstAuthor\quad \AbstAdvisor\par}
-  {\normalsize \AbstAffiliation\par}
-  \vspace{3mm}
+  {\normalsize \AbstTitle\par}
+  \vspace{0.5mm}
+  {\small \AbstAuthor\quad \AbstAdvisor\par}
+  {\small \AbstAffiliation\par}
+  \vspace{2mm}
 \end{center}
 ]
 
 \section{はじめに}
-ウェアラブル等のエッジ端末における行動認識（Human Activity Recognition; HAR）では，推論と通信が電力消費の大部分を占めやすい．Bluetooth Low Energy（BLE）アドバタイジング\scite{BluetoothSIGCore52}は一般的なブロードキャスト手段だが，スマートフォンのスキャン受信が理想的でないため，固定アドバタイジング間隔では遅延分布の尾部が悪化し得る\scite{Luo2021BLENeighborDiscoverySurvey}．本研究は，HARの不確実度に応じてBLEアドバタイジング間隔を適応させ，QoS制約$\Pout(\tau)\le\epsout$（$\tau=\SI{1}{\second}$，$\epsout=0.1$）の下で送信側消費を抑えることを目的とする\scite{Schrader2016BLEPower}．
+見守りシステムにおいて，ウェアラブル端末による人間活動認識（HAR）の常時通信は電力消費の主要因である\scite{Luo2021BLENeighborDiscoverySurvey}．
+スマートフォンのOS制約に起因する非理想的なスキャン動作は，通信品質（QoS）と消費電力のトレードオフを強める．
+本研究はHAR推論の信頼性を通信制御へ接続し，QoS制約下での省電力化を狙う．
+
+\section{研究課題と指標}
+固定アドバタイジング間隔には根本的な限界がある．
+短間隔はQoSを確保する一方でバッテリ消耗が大きく，長間隔は省電力だが遅延右裾が悪化する\scite{Schrader2016BLEPower}．
+本研究では期限超過率$\Pout(\tau)$を主指標とし，初回到達遅延$TL$の平均と右裾（$p95$）を補助指標として扱う．
+平均消費電力$P$とイベント電荷$q_{\mathrm{event}}$をコスト指標，短間隔滞在比率share$_{100}$を運用指標として扱う．
+
+\section{提案技術}
+HAR推論の出力確率$\hat{p}_k$から，正規化シャノンエントロピーにより不確実度$U$を定義する：$U_t=-\sum_{k=1}^{K}\hat{p}_{k,t}\log\hat{p}_{k,t}/\log K$（$U=0$で確信，$U=1$で完全不定）．
+安定度$S$は直近$W$窓のラベル遷移回数に基づき，状態滞在時間が長いほど$S\to 1$とする．
+複合スコアは$\mathrm{CCS}=\alpha(1-U)+(1-\alpha)S$として構成し，値が高いほど長間隔を選ぶ方向に働く．
 
 \par
-本稿では，意思決定型の省電力化の先行研究を参考に，アドバタイジング間隔$\SI{100}{\milli\second}$／$\SI{500}{\milli\second}$の2値切替を実装し，\SI{1}{\second}--\SI{2}{\second}の条件も含めてTX/TXSD/RX計測で電力とQoSを同時評価した．
+実機ではCCS閾値により100/500~msを切り替える提案手法（Policy）を実装し，固定100/500~msと比較する．
+提案手法は推論の不確実度が高い区間に短間隔を集中させる．
+将来的にはCCSをコンテキストとして，Safe-UCBによる安全制約付きバンディット学習で間隔をオンライン更新する．
+報酬は負のエネルギーコスト，制約は$\Pout(\tau)\le\epsout$とし，安全集合が空になる場合は最短間隔へフォールバックする．
 
-\section{提案}
-不確実度指標にはエントロピー等が用いられるが，実装上は計算量や確率推定の較正の影響が無視できない．HARモデルの出力確率から不確実度$U$を導出し，遷移の安定度$S$と組み合わせた複合スコアCCS（Composite Confidence Score）を構成する．本アブストでは，CCSに基づきアドバタイジング間隔を$\SI{100}{\milli\second}$／$\SI{500}{\milli\second}$で切り替える．CCSが低い区間では間隔を短くしてQoSを守り，それ以外は長間隔で平均消費を下げる．評価指標は，送信イベント当たり電荷$q_{\mathrm{event}}$（\si{\micro\coulomb}/event）と遅延指標TLおよび期限超過率$P_{\mathrm{out}}(\tau)$とし，平均電力は補助的に用いる．
-
-\subsection{CCSと2値切替}
-CCSはモデル出力の確信度と推定ラベルの時間的一貫性（安定度）を合成して定義する．具体例では確信度と安定度の加重和を用い，閾値とヒステリシスで状態（ACTIVE/QUIET等）を切り替える．遷移が多い区間ほど短間隔に滞在し，定常区間は長間隔に滞在する．
+\section{計測と同期}
+ESP32を用いたTX（送信），TXSD（電力記録），RX（受信）の三ノード構成で計測した．
+TXSDは電圧・電流の時系列を保存し，RXは受信時刻とRSSIを記録する．
+送信時刻と受信時刻の位相ズレを補正するため，受信パケットのシーケンス番号$seq$から送信時刻を再構成し，$\Delta\mathrm{offset}=\mathrm{median}_k(t^{rx}_k-seq_k\times I)$でオフセットを推定した．
+GPIO同期により試行開始・終了タイミングを揃え，電力ログと受信ログを同一試行として対応づけた．
 
 \par
-切替の振動を避けるため，過去の状態（ヒステリシス）と最小滞在時間を設ける．受信側QoS悪化時は短間隔へ退避するフェイルセーフで制約違反を抑える．
-
-\section{実験}
-計測はTX（BLE送信），TXSD（電力ロガ），RX（受信ロガ）の三ノード構成とし，同期信号で区間を揃える．TXSDは電流・電圧を記録し，各試行で総エネルギーと平均電力を算出する．RXは受信時刻とタグを記録し，\SI{100}{\milli\second}間隔のスロットとオフセットで時間同期し，遷移に対するTLと$\Pout(\tau)$を算出する．
+受信側のスキャン条件を変えた二環境（scan90=受信スキャン率90\%, scan70=70\%）を用意し，固定間隔とPolicyを同一パイプラインで比較した．
+結果の集計は試行単位で行い，遷移期を中心に評価する．
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=\linewidth]{figures/fig_signal_relationship}
-  \caption{計測系の信号関係}
-  \label{fig:signal_relationship}
+  \includegraphics[width=0.9\linewidth]{figures/fig_system_architecture}
+  \caption{計測システムの構成}
+  \label{fig:system}
 \end{figure}
 
 \begin{figure}[t]
   \centering
-  \begin{minipage}[t]{0.32\linewidth}
-    \vspace{0pt}
-    \centering
-    \includegraphics[height=\photoh,keepaspectratio]{figures/fig_rx}
-  \end{minipage}\hfill
-  \begin{minipage}[t]{0.32\linewidth}
-    \vspace{0pt}
-    \centering
-    \includegraphics[height=\photoh,keepaspectratio]{figures/fig_txtxsd}
-  \end{minipage}\hfill
-  \begin{minipage}[t]{0.32\linewidth}
-    \vspace{0pt}
-    \centering
-    \includegraphics[height=\photoh,keepaspectratio]{figures/fig_experiment_setup}
-  \end{minipage}
-  \caption{実験装置（左：RX，中央：TX等，右：測定環境）}
-  \label{fig:experiment_photos}
+  \includegraphics[width=0.9\linewidth]{figures/fig_power_pout}
+  \caption{電力と$\Pout(1\mathrm{s})$のトレードオフ（scan90 遷移期）}
+  \label{fig:tradeoff}
 \end{figure}
 
-\par
-受信条件scan90で，ラベル系列の異なる動作条件2条件について固定$\SI{100}{\milli\second}$，固定$\SI{500}{\milli\second}$，方策を比較した（各条件$n=6$）．さらに，受信条件悪化としてscan70を設定し，2条件のうち1条件で同様の比較を行った（各条件$n=10$）．加えて，制御入力の寄与を切り分けるため，U-shuffle（$U$の対応を時間方向にシャッフル）およびCCS-off（$U$のみ）のアブレーションをscan90の1条件で実施した（各条件$n=3$）．
+\section{実機実験}
 
-\section{結果}
-% 数値出所: 修士論文/chapters/ch4_rain.tex
-\begin{figure*}[t]
-  \centering
-  % 図そのものにタイトルが埋め込まれているため，上端をトリミングしてキャプションのみ残す
-  \includegraphics[width=0.94\textwidth,trim=0 0 0 4mm,clip]{figures/fig_role_separation_overview}
-  \caption{U/CCSの役割分離（動作条件の一例）}
-  \label{fig:role_separation}
-\end{figure*}
+\subsection{scan90環境}
+\tabref{tab:scan90}にscan90環境（遷移期S4, $n=3$）での結果を示す．
+Policyは$\Pout=0.049$，$P=200.6$~mWで，fixed500の$\Pout=0.130$を改善しつつfixed100の$P=208.3$~mWより低電力であった．
+share$_{100}$は0.620であり，短間隔を必要な区間に配分できている．
+Policyの$TL$平均は1.317~s，PDRは0.448であり，遅延と受信率のバランスが取れている．
 
-図\ref{fig:role_separation}に，固定$\SI{100}{\milli\second}$／固定$\SI{500}{\milli\second}$と方策の関係を，scan90/scan70およびアブレーションを含めて示す（横軸：平均電力，縦軸：$\Pout(\SI{1}{\second})$）．scan90条件（動作条件2条件，各条件$n=6$）では，方策は固定$\SI{100}{\milli\second}$より低電力であり，固定$\SI{500}{\milli\second}$より低い$\Pout(\SI{1}{\second})$を示す運用点になり得た．受信条件を悪化させたscan70（動作条件2条件のうち1条件，各条件$n=10$）では，固定$\SI{500}{\milli\second}$の$\Pout(\SI{1}{\second})$が0.307まで悪化する一方，方策は0.098に抑え，固定$\SI{100}{\milli\second}$より平均電力を約3.6\%低減した．参考までに，D4B条件の追試（scan70の1条件，$n=3$）ではFixed500 $\Pout(\SI{1}{\second})=0.228\pm0.037$, $P=\SI{187.6}{\milli\watt}$；Policy $0.016\pm0.014$, $P=\SI{201.4}{\milli\watt}$；U-only $0.008\pm0.014$, $P=\SI{202.2}{\milli\watt}$であった．高干渉環境（E2）ではTailGuard機構を追加し，$\Pout(\SI{2}{\second})$を1.28\%まで改善し，$TL_{p95}$を\SI{944.5}{\milli\second}まで短縮してQoS制約を満たす運用点を確認した．scan90の1条件のアブレーション（各条件$n=3$）では，U-shuffleにより短間隔に偏り，高電力化した．CCS-offでは同程度の平均電力のまま$\Pout(\SI{1}{\second})$が悪化した．
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{scan90環境（遷移期S4, $n=3$）の実測結果}
+\label{tab:scan90}
+\begin{tabular}{lccc}
+\toprule
+条件 & $\Pout(1\mathrm{s})$ & $P$[mW] \\
+\midrule
+fixed100 & 0.081 & 208.3 \\
+fixed500 & 0.130 & 188.1 \\
+Policy & 0.049 & 200.6 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\section{考察}
-U-shuffleでは短間隔の割合が増加し，平均電力が固定$\SI{100}{\milli\second}$と同程度まで戻ったことから，不確実度$U$の時間整合が短間隔の割合（電力）を規定することが示唆される．一方でCCS-offでは，平均電力がほぼ同一のまま$\Pout(\SI{1}{\second})$が悪化したことから，CCSは短間隔の割合ではなく「短間隔を使うタイミング」によりQoSを改善できると解釈できる．
-\par
-ただし受信条件が悪化すると，PolicyとU-onlyで$\rhohundred$が僅かにずれ，CCSの寄与が明確でない場合がある．本稿では「同電力でQoS改善」はscan90の同滞在比率条件（動作条件の1つ）で示し，scan70は安定性の検証として扱う．
+\subsection{scan70環境}
+scan70環境（遷移期S4, $n=3$）では，Policyは$\Pout=0.089$，$P=202.1$~mWであり，fixed500の$\Pout=0.285$に対してQoSを改善しつつfixed100の$P=209.9$~mWより低電力となった．
+share$_{100}$は0.618で，遷移期に短間隔が増える傾向を確認した．
+Policyの$TL$平均は1.400~sで，fixed500の2.928~sから大きく短縮された．
+PDRは0.343であり，低スキャン条件下でも一定の受信率を維持した．
 
-\par
-固定条件の平均電力を$P_{100},P_{500}$とすると，方策の短間隔滞在比率$\rhohundred$は平均電力$P$から
-\begin{equation}
-  \rhohundred=\frac{P-P_{500}}{P_{100}-P_{500}}
-\label{eq:rho_from_power}
-\end{equation}
-と推定できる．この式より，省電力効果の支配要因を「sleep設定」ではなく「短間隔の割合」に絞り込める．
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{scan70環境（遷移期S4, $n=3$）の実測結果}
+\label{tab:scan70}
+\begin{tabular}{lccc}
+\toprule
+条件 & $\Pout(1\mathrm{s})$ & $P$[mW] \\
+\midrule
+fixed100 & 0.065 & 209.9 \\
+fixed500 & 0.285 & 189.5 \\
+Policy & 0.089 & 202.1 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\section{まとめ}
-HAR不確実度に基づく2値アドバタイジング間隔制御が，固定間隔の中間的電力でQoS制約$\Pout(\tau)\le\epsout$を満たす運用点を実機で示した．さらに，UとCCSのアブレーションにより，Uは短間隔滞在量（電力），CCSは同電力でのQoS改善を担うことを示唆した．今後は，制約下でアドバタイジング間隔を選択するSafe Contextual Banditへ展開する．
+\subsection{アブレーション実験}
+scan90のS4でCCS-off（$U$のみ）とPolicyを比較すると，$P$は200.6~mW前後でほぼ同等だが，Policyは$\Pout=0.049$とCCS-offの0.065を下回った．
+share$_{100}$も0.621付近で同程度であり，$S$を含むCCSがQoS改善に寄与していることが示唆される．
+$TL$平均は1.317~sから1.407~sへ悪化するため，$S$の導入は遅延抑制にも有効である．
 
-\vspace{-1mm}
+\section{MABシミュレーション実験}
+実機データに基づくデータ駆動型シミュレータを構築し，報酬を消費エネルギー，制約を$\Pout(\tau)$として評価した．
+行動集合は500/1000/2000~msとし，高干渉条件（$\tau=1.0$, $\epsilon=0.1$）で比較した．
+Safe-UCBとOracleは平均コスト1515.4~mJ/60sかつ違反率0.0で一致し，UCBは平均コスト1078.8~mJ/60sまで低下する一方で違反率0.48156となった．
+これにより，制約遵守と省電力のトレードオフが明確になった．
+
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{シミュレーション結果（高干渉条件, $\tau=1.0$, $\epsilon=0.1$）}
+\label{tab:sim}
+\begin{tabular}{lcc}
+\toprule
+手法 & 違反率[\%] & 平均コスト[mJ/60s] \\
+\midrule
+Oracle & 0.00 & 1515.4 \\
+Safe-UCB & 0.00 & 1515.4 \\
+UCB & 48.16 & 1078.8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{おわりに}
+実機実験では，CCSに基づく適応制御が固定間隔の極端なトレードオフを緩和し，両環境でQoSと電力の中間運用点を示した．
+シミュレーションでは，Safe-UCBが制約内でOracleに近いコストへ到達しうる一方，無制約探索は違反率の増大を招くことが示された．
+今後はSafe Contextual Banditのオンライン化と長時間運用でのQoS右裾評価を進める．
+
+\vspace{-2mm}
 \section*{参考文献}
+\vspace{-1mm}
 \printbibliography[heading=none]
 
 \end{document}

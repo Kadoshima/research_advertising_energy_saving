@@ -1,0 +1,141 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global/global}
+    \entry{Luo2021BLENeighborDiscoverySurvey}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=b5af9a97051c013f8b7e2226c2ac3873}{%
+           family={Luo},
+           familyi={L\bibinitperiod},
+           given={B.},
+           giveni={B\bibinitperiod}}}%
+        {{hash=34c1df36e9f676fe341ec67a5a1a511c}{%
+           family={Yao},
+           familyi={Y\bibinitperiod},
+           given={Y.},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=13ccffa8fb1a9b606fa3ce4e5854867a}{%
+           family={Sun},
+           familyi={S\bibinitperiod},
+           given={Z.},
+           giveni={Z\bibinitperiod}}}%
+      }
+      \strng{namehash}{156d2b0434f41b0b31ac476fd931a658}
+      \strng{fullhash}{156d2b0434f41b0b31ac476fd931a658}
+      \strng{fullhashraw}{156d2b0434f41b0b31ac476fd931a658}
+      \strng{bibnamehash}{156d2b0434f41b0b31ac476fd931a658}
+      \strng{authorbibnamehash}{156d2b0434f41b0b31ac476fd931a658}
+      \strng{authornamehash}{156d2b0434f41b0b31ac476fd931a658}
+      \strng{authorfullhash}{156d2b0434f41b0b31ac476fd931a658}
+      \strng{authorfullhashraw}{156d2b0434f41b0b31ac476fd931a658}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Internet of Things Journal}
+      \field{number}{11}
+      \field{title}{Performance analysis models of BLE neighbor discovery: a survey}
+      \field{volume}{8}
+      \field{year}{2021}
+      \field{pages}{8734\bibrangedash 8746}
+      \range{pages}{13}
+      \verb{doi}
+      \verb 10.1109/JIOT.2020.3046263
+      \endverb
+    \endentry
+    \entry{Schrader2016BLEPower}{inproceedings}{}{}
+      \name{author}{4}{}{%
+        {{hash=c5ef2920d79ba8fa48e54be8fe43be5e}{%
+           family={Schrader},
+           familyi={S\bibinitperiod},
+           given={R.},
+           giveni={R\bibinitperiod}}}%
+        {{hash=96645b912b723b41e100621024fb352a}{%
+           family={Ax},
+           familyi={A\bibinitperiod},
+           given={T.},
+           giveni={T\bibinitperiod}}}%
+        {{hash=c59281984cf582bd947b317c908bb19a}{%
+           family={Röhrig},
+           familyi={R\bibinitperiod},
+           given={C.},
+           giveni={C\bibinitperiod}}}%
+        {{hash=889961b27aef396ca4e8cc4ed0be093e}{%
+           family={Fühner},
+           familyi={F\bibinitperiod},
+           given={C.},
+           giveni={C\bibinitperiod}}}%
+      }
+      \strng{namehash}{2a6702c1f45e4c27b12b67844b6fc8ce}
+      \strng{fullhash}{6e4c87fbb4f6e6b279584c7364c98f28}
+      \strng{fullhashraw}{6e4c87fbb4f6e6b279584c7364c98f28}
+      \strng{bibnamehash}{2a6702c1f45e4c27b12b67844b6fc8ce}
+      \strng{authorbibnamehash}{2a6702c1f45e4c27b12b67844b6fc8ce}
+      \strng{authornamehash}{2a6702c1f45e4c27b12b67844b6fc8ce}
+      \strng{authorfullhash}{6e4c87fbb4f6e6b279584c7364c98f28}
+      \strng{authorfullhashraw}{6e4c87fbb4f6e6b279584c7364c98f28}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{2016 3rd International Symposium on Wireless Systems Within the Conferences on Intelligent Data Acquisition and Advanced Computing Systems (IDAACS-SWS)}
+      \field{title}{Advertising power consumption of Bluetooth Low Energy systems}
+      \field{year}{2016}
+      \field{pages}{62\bibrangedash 68}
+      \range{pages}{7}
+      \verb{doi}
+      \verb 10.1109/IDAACS-SWS.2016.7805787
+      \endverb
+    \endentry
+    \entry{BluetoothSIGCore52}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=84539b4780dccc038d9b9cfd67f039cf}{%
+           family={{Bluetooth SIG}},
+           familyi={B\bibinitperiod}}}%
+      }
+      \strng{namehash}{84539b4780dccc038d9b9cfd67f039cf}
+      \strng{fullhash}{84539b4780dccc038d9b9cfd67f039cf}
+      \strng{fullhashraw}{84539b4780dccc038d9b9cfd67f039cf}
+      \strng{bibnamehash}{84539b4780dccc038d9b9cfd67f039cf}
+      \strng{authorbibnamehash}{84539b4780dccc038d9b9cfd67f039cf}
+      \strng{authornamehash}{84539b4780dccc038d9b9cfd67f039cf}
+      \strng{authorfullhash}{84539b4780dccc038d9b9cfd67f039cf}
+      \strng{authorfullhashraw}{84539b4780dccc038d9b9cfd67f039cf}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{Core Specification 5.2}}
+      \field{urlday}{11}
+      \field{urlmonth}{9}
+      \field{urlyear}{2023}
+      \field{year}{2019}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.bluetooth.com/specifications/specs/core-specification-5-2/
+      \endverb
+      \verb{url}
+      \verb https://www.bluetooth.com/specifications/specs/core-specification-5-2/
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

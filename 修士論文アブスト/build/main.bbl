@@ -19,37 +19,6 @@
 
 \refsection{0}
   \datalist[entry]{none/global//global/global/global}
-    \entry{BluetoothSIGCore52}{online}{}{}
-      \name{author}{1}{}{%
-        {{hash=84539b4780dccc038d9b9cfd67f039cf}{%
-           family={{Bluetooth SIG}},
-           familyi={B\bibinitperiod}}}%
-      }
-      \strng{namehash}{84539b4780dccc038d9b9cfd67f039cf}
-      \strng{fullhash}{84539b4780dccc038d9b9cfd67f039cf}
-      \strng{fullhashraw}{84539b4780dccc038d9b9cfd67f039cf}
-      \strng{bibnamehash}{84539b4780dccc038d9b9cfd67f039cf}
-      \strng{authorbibnamehash}{84539b4780dccc038d9b9cfd67f039cf}
-      \strng{authornamehash}{84539b4780dccc038d9b9cfd67f039cf}
-      \strng{authorfullhash}{84539b4780dccc038d9b9cfd67f039cf}
-      \strng{authorfullhashraw}{84539b4780dccc038d9b9cfd67f039cf}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{title}{{Core Specification 5.2}}
-      \field{urlday}{11}
-      \field{urlmonth}{9}
-      \field{urlyear}{2023}
-      \field{year}{2019}
-      \field{urldateera}{ce}
-      \verb{urlraw}
-      \verb https://www.bluetooth.com/specifications/specs/core-specification-5-2/
-      \endverb
-      \verb{url}
-      \verb https://www.bluetooth.com/specifications/specs/core-specification-5-2/
-      \endverb
-    \endentry
     \entry{Luo2021BLENeighborDiscoverySurvey}{article}{}{}
       \name{author}{3}{}{%
         {{hash=b5af9a97051c013f8b7e2226c2ac3873}{%
@@ -76,8 +45,8 @@
       \strng{authornamehash}{156d2b0434f41b0b31ac476fd931a658}
       \strng{authorfullhash}{156d2b0434f41b0b31ac476fd931a658}
       \strng{authorfullhashraw}{156d2b0434f41b0b31ac476fd931a658}
-      \field{sortinit}{2}
-      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{IEEE Internet of Things Journal}
@@ -122,8 +91,8 @@
       \strng{authornamehash}{2a6702c1f45e4c27b12b67844b6fc8ce}
       \strng{authorfullhash}{6e4c87fbb4f6e6b279584c7364c98f28}
       \strng{authorfullhashraw}{6e4c87fbb4f6e6b279584c7364c98f28}
-      \field{sortinit}{3}
-      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{booktitle}{2016 3rd International Symposium on Wireless Systems Within the Conferences on Intelligent Data Acquisition and Advanced Computing Systems (IDAACS-SWS)}
