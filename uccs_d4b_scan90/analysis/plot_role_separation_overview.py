@@ -33,6 +33,15 @@ class Point:
     shape: str  # "circle" | "square" | "triangle" | "diamond"
 
 
+@dataclass(frozen=True)
+class LabelPlacement:
+    dx: float
+    dy: float
+    anchor: str  # "start" | "end" | "middle"
+    box: Tuple[float, float, float, float]  # x0, y0, x1, y1 in px
+    leader: bool
+
+
 def f_or_none(v: str) -> Optional[float]:
     v = (v or "").strip()
     if not v:
@@ -97,6 +106,123 @@ def _draw_marker(shape: str, cx: float, cy: float, color: str) -> str:
     if shape == "diamond":
         return f'<polygon points="{cx:.2f},{cy-7:.2f} {cx-7:.2f},{cy:.2f} {cx:.2f},{cy+7:.2f} {cx+7:.2f},{cy:.2f}" fill="{color}" opacity="0.95"/>'
     return f'<circle cx="{cx:.2f}" cy="{cy:.2f}" r="6" fill="{color}" opacity="0.95"/>'
+
+
+def _estimate_text_box(text: str, font_size: float = 12.0, pad: float = 2.0) -> Tuple[float, float]:
+    # Rough width estimate for short ASCII labels.
+    width = max(1.0, 0.6 * font_size * len(text)) + pad * 2
+    height = font_size + pad * 2
+    return width, height
+
+
+def _rect_overlap(a: Tuple[float, float, float, float], b: Tuple[float, float, float, float]) -> float:
+    ax0, ay0, ax1, ay1 = a
+    bx0, by0, bx1, by1 = b
+    x0 = max(ax0, bx0)
+    y0 = max(ay0, by0)
+    x1 = min(ax1, bx1)
+    y1 = min(ay1, by1)
+    if x1 <= x0 or y1 <= y0:
+        return 0.0
+    return (x1 - x0) * (y1 - y0)
+
+
+def _closest_point_on_rect(px: float, py: float, rect: Tuple[float, float, float, float]) -> Tuple[float, float]:
+    x0, y0, x1, y1 = rect
+    cx = min(max(px, x0), x1)
+    cy = min(max(py, y0), y1)
+    return cx, cy
+
+
+def _auto_place_labels(
+    points: List[Point],
+    label_keys: List[str],
+    xpx,
+    ypx,
+    bounds: Tuple[float, float, float, float],
+    font_size: float = 12.0,
+) -> Dict[str, LabelPlacement]:
+    # Greedy collision avoidance in pixel space.
+    ml, mt, mr, mb = bounds
+    placements: Dict[str, LabelPlacement] = {}
+    obstacles: List[Tuple[float, float, float, float]] = []
+
+    # Avoid placing labels on top of point markers.
+    for p in points:
+        px, py = xpx(p.x), ypx(p.y)
+        obstacles.append((px - 8, py - 8, px + 8, py + 8))
+
+    label_points = [p for p in points if p.key in label_keys]
+    label_points.sort(key=lambda p: (ypx(p.y), xpx(p.x)))
+
+    offsets = [
+        (12, -12, "start"),
+        (12, 12, "start"),
+        (12, -28, "start"),
+        (12, 28, "start"),
+        (-12, -12, "end"),
+        (-12, 12, "end"),
+        (-12, -28, "end"),
+        (-12, 28, "end"),
+        (0, -18, "middle"),
+        (0, 22, "middle"),
+        (24, 0, "start"),
+        (-24, 0, "end"),
+        (36, -8, "start"),
+        (-36, -8, "end"),
+    ]
+
+    def make_box(px: float, py: float, dx: float, dy: float, anchor: str, text: str) -> Tuple[float, float, float, float]:
+        w, h = _estimate_text_box(text, font_size=font_size)
+        tx = px + dx
+        ty = py + dy
+        if anchor == "start":
+            x0, x1 = tx, tx + w
+        elif anchor == "end":
+            x0, x1 = tx - w, tx
+        else:
+            x0, x1 = tx - w / 2, tx + w / 2
+        y0, y1 = ty - h, ty
+        return x0, y0, x1, y1
+
+    for p in label_points:
+        px, py = xpx(p.x), ypx(p.y)
+        best = None
+        best_score = float("inf")
+        for dx, dy, anchor in offsets:
+            box = make_box(px, py, dx, dy, anchor, p.label)
+            x0, y0, x1, y1 = box
+            # Out-of-bounds area penalty
+            out_x0 = max(0.0, ml - x0)
+            out_y0 = max(0.0, mt - y0)
+            out_x1 = max(0.0, x1 - mr)
+            out_y1 = max(0.0, y1 - mb)
+            out_area = (out_x0 + out_x1) * (y1 - y0) + (out_y0 + out_y1) * (x1 - x0)
+
+            overlap = 0.0
+            for ob in obstacles:
+                overlap += _rect_overlap(box, ob)
+
+            dist = abs(dx) + abs(dy)
+            score = overlap * 10.0 + out_area * 50.0 + dist * 0.2
+            if score < best_score:
+                best_score = score
+                best = (dx, dy, anchor, box)
+            if overlap == 0.0 and out_area == 0.0:
+                best = (dx, dy, anchor, box)
+                break
+
+        if best is None:
+            continue
+        dx, dy, anchor, box = best
+        obstacles.append(box)
+        # Leader if moved far from point
+        bx0, by0, bx1, by1 = box
+        cx, cy = (bx0 + bx1) / 2, (by0 + by1) / 2
+        leader = math.hypot(cx - px, cy - py) > 18.0
+        placements[p.key] = LabelPlacement(dx=dx, dy=dy, anchor=anchor, box=box, leader=leader)
+
+    return placements
 
 
 def write_svg(out_svg: Path, title: str, points: List[Point], arrows: List[Tuple[str, str, str]]) -> None:
@@ -183,17 +309,17 @@ def write_svg(out_svg: Path, title: str, points: List[Point], arrows: List[Tuple
             mx, my = (x1 + x2) / 2, (y1 + y2) / 2
             svg.append(f'<text x="{mx+6:.2f}" y="{my-6:.2f}" font-size="12" fill="{axis}" font-family="ui-sans-serif, system-ui, -apple-system">{_svg_escape(text)}</text>')
 
-    label_cfg = {
-        # dx, dy, anchor
-        "scan70_fixed500": (10, -10, "start"),
-        "scan90_fixed500": (10, -10, "start"),
-        "scan70_policy": (12, -8, "start"),
-        "scan90_policy": (12, 22, "start"),
-        "scan90_ccs_off": (12, -8, "start"),
-        "scan90_fixed100": (-12, -10, "end"),
-        "scan70_fixed100": (-12, 18, "end"),
-        "scan90_u_shuf": (-12, 18, "end"),
-    }
+    label_keys = [
+        "scan70_fixed500",
+        "scan90_fixed500",
+        "scan70_policy",
+        "scan90_policy",
+        "scan90_ccs_off",
+        "scan90_fixed100",
+        "scan70_fixed100",
+        "scan90_u_shuf",
+    ]
+    placements = _auto_place_labels(points, label_keys, xpx, ypx, (ml, mt, ml + pw, mt + ph), font_size=12.0)
     label_style = 'style="paint-order: stroke; stroke: #ffffff; stroke-width: 4px; stroke-linejoin: round;"'
 
     # Points + error bars
@@ -202,10 +328,17 @@ def write_svg(out_svg: Path, title: str, points: List[Point], arrows: List[Tuple
         # error bars (vertical only; omit horizontal to keep the overview uncluttered)
         svg.append(f'<line x1="{px:.2f}" y1="{ypx(p.y-p.yerr):.2f}" x2="{px:.2f}" y2="{ypx(p.y+p.yerr):.2f}" stroke="{p.color}" stroke-width="2" opacity="0.9"/>')
         svg.append(_draw_marker(p.shape, px, py, p.color))
-        if p.key in label_cfg:
-            dx, dy, anchor = label_cfg[p.key]
+        placement = placements.get(p.key)
+        if placement:
+            tx = px + placement.dx
+            ty = py + placement.dy
+            if placement.leader:
+                cx, cy = _closest_point_on_rect(px, py, placement.box)
+                svg.append(
+                    f'<line x1="{px:.2f}" y1="{py:.2f}" x2="{cx:.2f}" y2="{cy:.2f}" stroke="{axis}" stroke-width="1.4" opacity="0.35"/>'
+                )
             svg.append(
-                f'<text x="{px+dx:.2f}" y="{py+dy:.2f}" font-size="12" text-anchor="{anchor}" fill="{axis}" {label_style} font-family="ui-sans-serif, system-ui, -apple-system">{_svg_escape(p.label)}</text>'
+                f'<text x="{tx:.2f}" y="{ty:.2f}" font-size="12" text-anchor="{placement.anchor}" fill="{axis}" {label_style} font-family="ui-sans-serif, system-ui, -apple-system">{_svg_escape(p.label)}</text>'
             )
 
     # Legend
@@ -317,29 +450,50 @@ def write_matplotlib(out_path: Path, title: str, points: List[Point], arrows: Li
             mx, my = (ps.x + pd.x) / 2, (ps.y + pd.y) / 2
             ax.text(mx + 0.005, my + 0.5, text, fontsize=10, color="#111827")
 
-    label_cfg = {
-        "scan70_fixed500": (10, -10, "left"),
-        "scan90_fixed500": (10, -10, "left"),
-        "scan70_policy": (12, -8, "left"),
-        "scan90_policy": (12, 22, "left"),
-        "scan90_ccs_off": (12, -8, "left"),
-        "scan90_fixed100": (-12, -10, "right"),
-        "scan70_fixed100": (-12, 18, "right"),
-        "scan90_u_shuf": (-12, 18, "right"),
-    }
+    label_keys = [
+        "scan70_fixed500",
+        "scan90_fixed500",
+        "scan70_policy",
+        "scan90_policy",
+        "scan90_ccs_off",
+        "scan90_fixed100",
+        "scan70_fixed100",
+        "scan90_u_shuf",
+    ]
+    # Reuse the SVG placement in pixel space to avoid overlaps.
+    fig_dpi = fig.get_dpi()
+
+    def xpx(x: float) -> float:
+        return ax.transData.transform((x, 0))[0]
+
+    def ypx(y: float) -> float:
+        return ax.transData.transform((0, y))[1]
+
+    placements = _auto_place_labels(points, label_keys, xpx, ypx, ax.bbox.bounds, font_size=10.0)
     for p in points:
-        if p.key not in label_cfg:
+        placement = placements.get(p.key)
+        if not placement:
             continue
-        dx, dy, align = label_cfg[p.key]
+        dx_pt = placement.dx * 72.0 / fig_dpi
+        dy_pt = placement.dy * 72.0 / fig_dpi
+        align = "center"
+        if placement.anchor == "start":
+            align = "left"
+        elif placement.anchor == "end":
+            align = "right"
+        arrowprops = None
+        if placement.leader:
+            arrowprops = dict(arrowstyle="-", color="#111827", lw=1.2, alpha=0.35)
         ax.annotate(
             p.label,
             (p.x, p.y),
             textcoords="offset points",
-            xytext=(dx, dy),
+            xytext=(dx_pt, dy_pt),
             ha=align,
             fontsize=10,
             color="#111827",
             bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none", alpha=0.9),
+            arrowprops=arrowprops,
         )
 
     legend = [
